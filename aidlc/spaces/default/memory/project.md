@@ -62,3 +62,4 @@
 
 <!-- Project-specific corrections from human feedback. -->
 <!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->
+- MasterSmithの課題認識は「動的解決の複雑さ・不具合の排除」ではなく「業務ごとにカスタマイズできない」という点だった。ideation段階で企画者の実際の動機(実運用障害の有無)を確認せずに複雑さ排除の課題を前提としないこと。 (learned 2026-09-04) <!-- cid:260904-static-config-crud:intent-capture:f59783c985e834a22d7ca50d2824de36713a97b610de84f435f5ccce10f8667f -->
