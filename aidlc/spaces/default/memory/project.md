@@ -63,3 +63,5 @@
 <!-- Project-specific corrections from human feedback. -->
 <!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->
 - MasterSmithの課題認識は「動的解決の複雑さ・不具合の排除」ではなく「業務ごとにカスタマイズできない」という点だった。ideation段階で企画者の実際の動機(実運用障害の有無)を確認せずに複雑さ排除の課題を前提としないこと。 (learned 2026-09-04) <!-- cid:260904-static-config-crud:intent-capture:f59783c985e834a22d7ca50d2824de36713a97b610de84f435f5ccce10f8667f -->
+- 「設定の保持形式」のような未決定論点は、機械的に決め打ちせずFeasibilityステージでの対話を通じてユーザーと確定させること。今回は設定DB(内部H2)+キャッシュ機構という組み合わせに落ち着いた。 (learned 2026-09-04) <!-- cid:260904-static-config-crud:feasibility:244fa83fc20b7ddd55f83ee1c1e61c0a9b38b0cab1d69d76a3d5ba0ea02d8d97 -->
+- Ideationフェーズの「実装詳細を含めない」ガードレールは、Feasibilityステージでの技術スタック選定(言語・フレームワーク・SPA/MPA等の技術的実現可能性に関わる決定)までは禁止しない。技術的実現可能性の検証はFeasibilityの本来の役割であるため、そこでの技術選定は適切と判断する。 (learned 2026-09-04) <!-- cid:260904-static-config-crud:feasibility:4ee1a0c4ce0ed9ea7b4fb7cc2da2ba0c80c3223d762bf3d6374cf395cf7966b2 -->
