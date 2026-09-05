@@ -1,9 +1,8 @@
-# Team-Level Rules
+# チームプラクティス: MasterSmith
 
-> This team's affirmed practices and corrections. Loaded after `org.md` as
-> strict-additive guidance; contradictions with broader policy are rejected.
-> Populated by the practices-discovery affirmation gate. Edit at the gate,
-> not directly.
+> **ステータス: FINAL** — 本ステージのヒアリング(人間との対話)を経て確定した。
+> `aidlc/spaces/default/memory/team.md` の5セクションへ昇格する内容を、
+> チームの言葉でまとめている。
 
 ## Way of Working
 
@@ -75,15 +74,3 @@
   今は決めず、ドメイン設計以降で扱う。
 
 > 人間ヒアリング(Q1〜Q7)を経て、この内容は Consolidated Summary Confirmation で確認済み。
-
-## Forbidden
-
-<!-- Team-specific forbidden patterns -->
-
-## Mandated
-
-<!-- Team-specific mandates -->
-
-## Corrections
-
-<!-- Self-learning loop appends here. -->

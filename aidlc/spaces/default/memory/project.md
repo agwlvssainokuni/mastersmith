@@ -52,11 +52,19 @@
 <!-- Format: NEVER [behavior] (affirmed [date]) -->
 <!-- Example: NEVER throw exceptions across service layer boundaries (affirmed 2026-05-17) -->
 
+- NEVER 内部H2の接続情報・パスワードハッシュのソルト/ペッパー、アクセストークンの署名鍵(HMAC秘密鍵、またはRSA/EC鍵ペア)をソースコード・Gitリポジトリにコミットしないこと。環境変数、または実行ユーザーのみが読めるパーミッション(600)を設定したローカル設定ファイル(`.gitignore` 登録)で保管する。 (affirmed 2026-09-05)
+
 ## Mandated
 
 <!-- Populated by practices-discovery affirmation gate. -->
 <!-- Format: ALWAYS [behavior] (affirmed [date]) -->
 <!-- Example: ALWAYS use Result<T,E> for fallible operations in service layer (affirmed 2026-05-17) -->
+
+- ALWAYS JDBCドライバ(PostgreSQL/MySQL/MariaDB用)はアプリケーションに内包する(バンドルする)こと。実行環境(自宅サーバ)側にドライバの追加インストールを前提としない。(根拠: `constraint-register.md` TC-01、`feasibility-assessment.md`「スキーマ読み込み」節) (affirmed 2026-09-05)
+- ALWAYS 内部データ(利用者アカウント・権限設定・設定全体)はMasterSmith自身の内部データストア(H2)に保持し、接続先の業務DB(PostgreSQL/MySQL/MariaDB)には一切保存しないこと。(根拠: `constraint-register.md` TC-13、`feasibility-assessment.md`「内部データストア(H2)」節 — 「業務DBに設定・アカウント情報を相乗りさせることは不適切と判断」と明記されている) (affirmed 2026-09-05)
+- ALWAYS 設定変更後の反映は、キャッシュの明示的クリア操作またはキャッシュ設定のexpireを経由すること。リクエストのたびにDBへ設定を問い合わせる実装は行わない。(根拠: `constraint-register.md` TC-14 — 「静的設定駆動」という設計思想との両立のための確定事項) (affirmed 2026-09-05)
+- ALWAYS 内部H2データストアのテーブル・カラム名には専用の接頭辞(`ms_` 等)を付け、設定値として格納される業務DB由来の識別子文字列と混同しないこと。(根拠: 開発者担当の提案をQ6で人間が採用と回答) (affirmed 2026-09-05)
+- ALWAYS 最初のBolt(Bolt 1)は、業務DBスキーマ読み込み→内部H2への設定保存→動的画面生成という一連の流れを一通り貫通させるWalking Skeletonとして実行し、ユーザーの明示的な承認を経てから残りのBoltへ進むこと。(根拠: Q2で人間が`skeleton: on`を採用と回答) (affirmed 2026-09-05)
 
 ## Corrections
 
