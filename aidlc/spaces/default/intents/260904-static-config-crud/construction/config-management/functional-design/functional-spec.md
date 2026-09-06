@@ -99,7 +99,10 @@ erDiagram
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
 **Date:** 2026-09-06T05:14:50Z
-**Iteration:** 2
+**Iteration:** 1
+**Request Challenge:** review:61608dff90564aefad931cfe0202d050
+
+> redo jump後の再認定(iteration 1)。内容は以前のiteration 2(pre-redo-jump)から変更なし。以下の2件のMinorは引き続き未解消(functional-designステージ終了ゲートへの繰延べ事項として記録)。
 
 ### Findings
 

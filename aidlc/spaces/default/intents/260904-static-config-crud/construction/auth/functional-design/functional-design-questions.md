@@ -58,4 +58,3 @@ Q1〜Q4の回答を踏まえ、auth Unitのfunctional-design成果物を以下�
 **トレーサビリティ(traceability.json)**: upstream_ids = FR5.5, FR5.6, FR6.1〜FR6.3, FR6.6, NFR7。自己サービス系ルール(BR6.1〜BR6.4)はFR6.4系(notification/account-management所有)由来だが契約#11(auth API)によりauthが実装する旨をreverseで明記。
 
 [Answer]: Looks correct
-
