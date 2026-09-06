@@ -36,10 +36,13 @@ units-generation/unit-of-work-dependency.mdに列挙された全境界(バック
 | 17 | account-management | frontend-admin | REST/HTTP+JSON | account-management |
 | 18 | audit-log | frontend-admin | REST/HTTP+JSON | audit-log |
 | 19 | auth | account-management | shared-schema (Accountテーブル) | auth |
+| 20 | permission | auth | in-process sync (Java method call) | permission |
 
 外部公開API(システム外の消費者)は存在しない(Q1)。行19は行4と同じUnitペアだが、境界の性質が異なる(行4はランタイムの呼び出し契約、行19は永続化スキーマの所有契約)ため別行として記載する。
 
-## プロセス内同期呼び出し契約(#1〜#4)
+> 追記(Construction / permission Unit Functional Designより): 契約#20を新設した。ログイン時にaccessTokenの`roles`クレーム(共通規約参照)へ埋め込む値は、対象AccountIdに直接割り当てられたロールと、所属するGroupに割り当てられたロールの両方(functional-design-questions.md Q1で確定)を含む必要があるが、この「有効なロール集合」を計算するロジックはpermission Unitが所有する(RoleAssignment・GroupMembership)。auth Unitはunit-of-work-dependency.mdの依存トポロジー上、この情報を得るためにpermission Unitへプロセス内呼び出しを行う必要があると判明したため、Contract Designでは想定されていなかった新しい依存(auth → permission)として追加する。permissionは元々依存を持たないUnit(レベル0)であり、この追加によって循環は発生しない(auth側にのみ新しい依存が増える)。unit-of-work-dependency.mdも合わせて更新する。
+
+## プロセス内同期呼び出し契約(#1〜#4、#20)
 
 Q2の回答により、同一JVM内のJavaメソッド呼び出しは意味レベルの記述に留め、具体的なメソッドシグネチャ(引数・戻り値の型)の確定はFunctional Design以降に委ねる。
 
@@ -69,6 +72,13 @@ Failure behavior: 不許可の場合は例外とし、dynamic-data-accessはこ�
 Consumer passes: Accountの作成データ(氏名・メールアドレス・初期ロール割り当て)、更新データ、または無効化対象のaccountId
 Provider returns: 永続化されたAccountの現在状態(accountId・name・email・status・isAdmin)。account-managementはAccountテーブルへ直接アクセスせず、必ずこのインタフェース経由でアクセスする(#19参照)
 Failure behavior: 存在しないaccountIdの操作は例外とし、account-managementはこれをREST境界で404として応答する
+```
+
+```contract
+# 20. auth → permission(ログイン時の有効ロール集合取得。permission Unit Functional Designで新設)
+Consumer passes: ログイン成功したaccountId
+Provider returns: そのaccountIdの有効なロールID一覧(RoleAssignmentで直接割り当てられたロール ∪ 所属するGroupに割り当てられたロール。functional-design-questions.md Q1のロジックをそのまま用いる)。authはこの一覧をアクセストークンのrolesクレームにそのまま埋め込む
+Failure behavior: 該当なし(ロールが1件も割り当てられていない場合は空配列を返す。エラー条件ではない)
 ```
 
 ## 監査ログイベント契約(#5〜#8)
@@ -251,6 +261,8 @@ components:
 
 ### permission(#13: frontend-core向け, #16: frontend-admin向け — 同一API仕様を両者が消費する)
 
+> 追記(Construction / permission Unit Functional Designより): `/api/admin/groups/{groupId}/members`を追加した。GroupMembership(どのAccountがどのGroupに所属するか)はdomain-design/components.mdでは明示されていなかったが、Groupへのロール割り当て(FR5.3)が実際に機能するために必要なエンティティとしてFunctional Designで新設した(加法的な変更、Contract Ownership Rules参照)。
+
 ```yaml
 openapi: 3.0.3
 info:
@@ -283,6 +295,10 @@ paths:
     post: { summary: "グループの作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created } } }
   /api/admin/roles/{roleId}/assignments:
     post: { summary: "ロールのユーザ/グループへの割り当て (FR5.3)", security: [{ bearerAuth: [] }], responses: { "201": { description: Created }, "404": { description: "対象ユーザ/グループ/ロールなし (RFC 7807)" } } }
+  /api/admin/groups/{groupId}/members:
+    get: { summary: "グループの所属Account一覧取得 (FR5.3)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
+    post: { summary: "グループへAccountを追加する。既に所属済みのAccountを再度追加した場合は既存の所属を維持し何もしない(冪等)", security: [{ bearerAuth: [] }], responses: { "201": { description: Created }, "404": { description: "対象Group/Accountなし (RFC 7807)" } } }
+    delete: { summary: "グループからAccountを除く", security: [{ bearerAuth: [] }], parameters: [{ name: accountId, in: query, required: true, schema: { type: string } }], responses: { "204": { description: "No Content" } } }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

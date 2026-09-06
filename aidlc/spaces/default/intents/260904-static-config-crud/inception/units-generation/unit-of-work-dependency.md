@@ -2,6 +2,8 @@
 
 Unit間の依存はdomain-design/components.mdの依存グラフを踏襲する(FR5.5/FR5.6の管理者ゲーティングはisAdminクレームのローカル判定であり、依存エッジとしては表現しない。ADR-002参照)。フロントエンドの2Unit(frontend-core/frontend-admin)からバックエンドUnitへの呼び出しは、ネットワーク越しのREST API呼び出しであり、他のバックエンドUnit間のプロセス内呼び出し(Q4)とは性質が異なる。本ドキュメントは依存の「向き」のみを表現し、実装着手順(経済的な判断)はDelivery Planning(2.9)で決定する。
 
+> 追記(Construction / permission Unit Functional Designより): `auth → permission`の依存エッジを新設した。ログイン時にアクセストークンのrolesクレームへ埋め込む「有効なロール集合」(直接割り当て+グループ経由の割り当て、functional-design-questions.md Q1)はpermission Unitが所有するデータ(RoleAssignment・GroupMembership)からしか計算できず、Contract Design時点ではこの呼び出しが想定されていなかったため、Functional Designで判明した不足として追加する。permissionは元々依存を持たないUnit(レベル0)であり、この追加はauth側にのみ新しい依存が増える一方向の変更であるため、循環は発生しない(auth自身も他Unitからの被依存はなく、この変更で新たな循環経路は生まれない)。
+
 ## 依存関係(機械可読)
 
 ```yaml
@@ -15,7 +17,7 @@ units:
   - name: config-management
     depends_on: [schema-ingestion, audit-log]
   - name: auth
-    depends_on: [audit-log]
+    depends_on: [audit-log, permission]
   - name: dynamic-data-access
     depends_on: [config-management, permission, audit-log]
   - name: account-management
@@ -40,6 +42,7 @@ graph TD
   config-management --> schema-ingestion
   config-management --> audit-log
   auth --> audit-log
+  auth --> permission
   dynamic-data-access --> config-management
   dynamic-data-access --> permission
   dynamic-data-access --> audit-log
@@ -79,6 +82,7 @@ graph TD
 | dynamic-data-access | permission | テーブル単位・カラム単位の操作権限を確認 | プロセス内呼び出し(sync) |
 | dynamic-data-access | audit-log | 業務データの作成・更新・削除を記録 | プロセス内呼び出し(async) |
 | auth | audit-log | ログイン・自己サービス操作を記録 | プロセス内呼び出し(async) |
+| auth | permission | ログイン時に、対象accountIdの有効なロールID一覧(直接割り当て+所属グループ経由の割り当て)を取得し、アクセストークンのrolesクレームへ埋め込む(contract-summary.md #20、permission Unit Functional Designで新設) | プロセス内呼び出し(sync) |
 | account-management | auth | 共有するAccountエンティティの作成・参照・更新・無効化を、authが公開するAccountリポジトリ/サービスの呼び出しを通じて行う(スキーマは共有するが、直接のテーブルアクセスはせず必ずauth経由で呼び出す) | プロセス内呼び出し(sync) |
 | account-management | audit-log | アカウント管理操作を記録 | プロセス内呼び出し(async) |
 | notification | auth | アカウント登録完了・パスワード変更・パスワード忘れ・メールアドレス変更のライフサイクルイベントを購読 | イベント(Springアプリケーション内イベント機構) |

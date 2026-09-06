@@ -13731,3 +13731,669 @@
 **Artifact Fingerprint**: sha256:6b57d51e1470065ba4ebbfdd91d423281ed89dddc6c26335134da88461d04a08
 
 ---
+
+## Artifact Created
+**Timestamp**: 2026-09-06T02:09:48Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Context**: construction > permission > functional-design > functional-design-questions.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:37:38Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-06T02:38:04Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: 質問(2問)にどう回答するか
+**Options**: Guide me,I'll edit the file,Chat
+**Unit**: permission
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-06T02:38:05Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Guide me
+**Unit**: permission
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-06T02:38:05Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q1-Q2: ロール切替範囲・テーブル権限デフォルト
+**Options**: batch
+**Unit**: permission
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:39:03Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:39:12Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Context**: construction > permission > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:39:20Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Context**: construction > permission > functional-design > functional-design-questions.md
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-06T02:39:28Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Q1=A(グループ経由のロールも切替候補に含める), Q2=A(TablePermission未設定はデフォルト拒否)
+**Unit**: permission
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:39:47Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Context**: construction > permission > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-06T02:39:54Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Unit**: permission
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:40:10Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:40:15Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Context**: construction > permission > functional-design > functional-design-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-06T02:40:22Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-design-questions.md
+**Questions SHA-256**: 3bc4d55103b763061e4c2322ef8d5f5d96b8961c46549d0f8c1de44ffdc30a82
+**Hash Scope**: confirmed-content-v1
+**Unit**: permission
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-06T02:41:08Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Context**: construction > permission > functional-design > entities.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-06T02:41:34Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Context**: construction > permission > functional-design > rules.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-06T02:41:58Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-06T02:42:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Context**: construction > permission > functional-design > traceability.json
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-06T02:42:07Z
+**Event**: SENSOR_FIRED
+**Fire id**: 713c63b5
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-06T02:42:07Z
+**Event**: SENSOR_FAILED
+**Fire id**: 713c63b5
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/traceability-713c63b5.md
+**Findings count**: 40
+
+---
+
+## Review Requested
+**Timestamp**: 2026-09-06T02:42:23Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: permission
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:44cd61e3691f23ae52b6467980c24dd7e373cad64f6490f25c9e6ffa4f3a491c
+**Review Appendix Artifact**: construction/permission/functional-design/functional-spec.md
+**Review Appendix Offset**: 5743
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:43:02Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac8ace280351e23ca
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:43:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aea506b6764ab3485
+**Message**: Reading PermissionComponent in components.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:43:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a99521f429c162da9
+**Message**: Reading contract-summary.md's JWT roles-claim design
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:44:27Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a8742f2bce54e7cff
+**Message**: Verifying FR5.1-FR5.4 text in requirements.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:45:00Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac3ed105fe85647db
+**Message**: Searching requirements.md for acceptance criteria IDs
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:45:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a09d63277ee946c5a
+**Message**: Reading permission API OpenAPI block
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:46:04Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aeec18e6bd3949d00
+**Message**: Confirming no group-membership endpoints exist
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:46:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:46:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ad49a79d86125455a
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict:** NOT-READY (1 Critical, 1 Major, 3 Minor)\n\nI appended the `## Review` section to `aidlc/spaces/default/intents/260904-static-config-crud/co
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:46:19Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Review Completed
+**Timestamp**: 2026-09-06T02:46:43Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: permission
+**Iteration**: 1
+**Verdict**: NOT-READY
+**Request Fingerprint**: sha256:44cd61e3691f23ae52b6467980c24dd7e373cad64f6490f25c9e6ffa4f3a491c
+**Artifact Fingerprint**: sha256:071fd2e63cb1cd7e89f144085bf9dd16d4f1720e034ee71982db5cdee446b14c
+**Review Appendix Artifact**: construction/permission/functional-design/functional-spec.md
+**Review Appendix Offset**: 5743
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:49:33Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aedabec34c0ef35c3
+**Message**: auth→permission依存を追加して進める
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:49:56Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:50:25Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a4e1d82e505363005
+**Message**: auth→permissionの依存を追加して進めて
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:51:21Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:51:38Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a9a10232626c7ea8c
+**Message**: auth→permissionの依存を追加して進めてください
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:53:24Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T02:53:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: adf3253bfc416954d
+**Message**: はい、進めてください
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:55:46Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T02:56:10Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:56:40Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:56:57Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:57:38Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/units-generation/unit-of-work-dependency.md
+**Context**: inception > units-generation > unit-of-work-dependency.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:57:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/units-generation/unit-of-work-dependency.md
+**Context**: inception > units-generation > unit-of-work-dependency.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:57:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/units-generation/unit-of-work-dependency.md
+**Context**: inception > units-generation > unit-of-work-dependency.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:58:04Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/units-generation/unit-of-work-dependency.md
+**Context**: inception > units-generation > unit-of-work-dependency.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:58:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:58:58Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/inception/contract-design/contract-summary.md
+**Context**: inception > contract-design > contract-summary.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:59:18Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Context**: construction > permission > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:59:27Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Context**: construction > permission > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:59:36Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Context**: construction > permission > functional-design > entities.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:59:46Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Context**: construction > permission > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T02:59:53Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Context**: construction > permission > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:00:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Context**: construction > permission > functional-design > rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:00:13Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:00:25Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:00:33Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:01:04Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Context**: construction > permission > functional-design > traceability.json
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-06T03:01:04Z
+**Event**: SENSOR_FIRED
+**Fire id**: d432822b
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-06T03:01:04Z
+**Event**: SENSOR_FAILED
+**Fire id**: d432822b
+**Sensor ID**: traceability
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/traceability-d432822b.md
+**Findings count**: 40
+
+---
+
+## Review Requested
+**Timestamp**: 2026-09-06T03:01:20Z
+**Event**: REVIEW_REQUESTED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: permission
+**Iteration**: 2
+**Artifact Fingerprint**: sha256:41ca0ba3be35b1ad6289295185296cfa8ece5fdee0ff68b32526e1540cb992c1
+**Review Appendix Artifact**: construction/permission/functional-design/functional-spec.md
+**Review Appendix Offset**: 6672
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T03:01:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a72725d55d1e60d40
+**Message**: 続きをお願いします
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T03:02:22Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a7954153e534f2e14
+**Message**: Reading contract-summary.md REST section
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T03:02:54Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a621088832198a06d
+**Message**: Verifying dependency graph acyclicity
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T03:03:26Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a707980beb27925f5
+**Message**: Checking OpenAPI members endpoint responses
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-06T03:03:29Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Context**: construction > permission > functional-design > functional-spec.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-06T03:03:40Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ad7c6cd48dc188f06
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n**Verdict: READY** (iteration 2, final allowed pass)\n\nSummary of my re-verification:\n\n- **R-01 (Critical → Resolved)**: Contract #20 (`permission → aut
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-06T03:03:42Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Review Completed
+**Timestamp**: 2026-09-06T03:11:10Z
+**Event**: REVIEW_COMPLETED
+**Stage**: functional-design
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: permission
+**Iteration**: 2
+**Verdict**: READY
+**Request Fingerprint**: sha256:41ca0ba3be35b1ad6289295185296cfa8ece5fdee0ff68b32526e1540cb992c1
+**Artifact Fingerprint**: sha256:c7de11f3ac7fc6ab8fa471e25e6eaa3c29feb1c54576f928ae2e3c9388394234
+**Review Appendix Artifact**: construction/permission/functional-design/functional-spec.md
+**Review Appendix Offset**: 6672
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-09-06T03:11:20Z
+**Event**: UNIT_COMPLETED
+**Stage**: functional-design
+**Unit**: permission
+**Run floor**: GATE_REJECTED:2026-09-06T02:04:03Z#1
+**Mode**: wave
+**Wave memory entries**: 0
+**Artifact Fingerprint**: sha256:c7de11f3ac7fc6ab8fa471e25e6eaa3c29feb1c54576f928ae2e3c9388394234
+
+---
