@@ -22,8 +22,16 @@
 
 1. 管理者が`POST /api/admin/roles/{roleId}/assignments`でロールをAccountまたはGroupへ割り当てる。
 2. assigneeTypeに応じてaccountId・groupIdのいずれか一方のみが指定されていることを検証する(BR3.1)。違反時は400エラー(RFC 7807)を返す。
+3. 指定された(roleId, accountId)または(roleId, groupId)の組が既に存在する場合、既存の割当を維持し何もしない(BR3.3、冪等)。存在しない場合は新規に作成する。
 
-### 5. 自身の切替可能ロール一覧の取得(`GET /api/me/roles`)
+### 5. 契約#21(account-management → permission)によるアカウントの初期ロール割り当て・変更
+
+1. account-managementが、アカウント新規作成時(初期ロール割り当て)またはアカウント編集時(割り当てロール変更)に、accountIdとroleId配列を渡して本Unitを呼び出す(契約#21)。
+2. 渡されたroleId配列に存在しないロールが含まれていないか検証する(BR3.2)。含まれる場合は例外を送出し、account-management側で400として応答される。
+3. 検証を通過したら、対象accountIdの直接RoleAssignment(assigneeType=user)をすべて削除し、配列の各roleIdについて新規に作成する(全置換)。グループ経由の割当(GroupMembership)には触れない。
+4. 更新後の直接RoleAssignment一覧(roleId配列)を返す。
+
+### 6. 自身の切替可能ロール一覧の取得(`GET /api/me/roles`)
 
 1. 利用者(管理者・非管理者を問わず全利用者)が自身の切替可能ロール一覧を要求する。
 2. 自身のAccountに直接割り当てられたロール(RoleAssignment、assigneeType=user)を取得する。
@@ -33,7 +41,7 @@
 
 **ログイン時のアクセストークンrolesクレームとの関係(contract-summary.md #20)**: 手順2・3と全く同じ「有効なロール集合の計算」(直接割り当て+グループ経由の割り当ての和集合)は、auth Unitのログイン処理でも必要になる。auth Unitはログイン成功時にpermission Unitをプロセス内呼び出しし、対象accountIdの有効なロールID一覧を取得してアクセストークンのrolesクレームへそのまま埋め込む(contract-summary.md #20で新設)。`GET /api/me/roles`(本ワークフロー)とこの内部呼び出しは、同じロジックを異なる2つの消費者(利用者本人のロール切替UI、auth Unitのトークン発行処理)に提供する。
 
-### 6. テーブル単位・カラム単位の権限確認(dynamic-data-access Unitからの呼び出し、contract-summary.md #3)
+### 7. テーブル単位・カラム単位の権限確認(dynamic-data-access Unitからの呼び出し、contract-summary.md #3)
 
 1. dynamic-data-access Unitが、対象テーブル・対象アクション(list/view/create/edit/delete)・判定対象ロールID(`X-Active-Role`由来)を渡してテーブル単位権限を問い合わせる。
 2. 対象ロール・テーブルのTablePermissionレコードを検索する。存在すれば該当操作のcanXxx値を返す。存在しなければすべての操作を拒否と返す(BR5.1)。
@@ -57,8 +65,8 @@ erDiagram
         string name
     }
     GroupMembership {
-        string accountId "Account(auth Unit)へのID参照のみ"
-        string groupId FK
+        string accountId PK "複合主キーの一部。Account(auth Unit)へのID参照のみ"
+        string groupId PK,FK "複合主キーの一部。(accountId, groupId)の組で一意(entities.md参照、R-03フォロー)"
     }
     RoleAssignment {
         string assignmentId PK
@@ -101,32 +109,31 @@ erDiagram
 | 1. ロール・グループの定義 | BR1.1 |
 | 2. グループメンバー構成の管理 | BR1.2 |
 | 3. テーブル単位・カラム単位権限の設定 | BR2.1, BR2.2 |
-| 4. ロールの割り当て | BR3.1 |
-| 5. 自身の切替可能ロール一覧の取得 | BR4.1 |
-| 6. テーブル単位・カラム単位の権限確認 | BR5.1, BR5.2 |
+| 4. ロールの割り当て | BR3.1, BR3.3 |
+| 5. 契約#21によるアカウントの初期ロール割り当て・変更 | BR3.2 |
+| 6. 自身の切替可能ロール一覧の取得 | BR4.1 |
+| 7. テーブル単位・カラム単位の権限確認 | BR5.1, BR5.2 |
 
 ## Review
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T03:03:03Z
+**Date:** 2026-09-06T09:32:52Z
 **Iteration:** 2
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Critical | inception/contract-design/contract-summary.md 契約#20 および inception/units-generation/unit-of-work-dependency.md の auth の depends_on とmermaid図、construction/permission/functional-design/functional-spec.md ワークフロー5 | 契約#20(permission提供、auth消費、Owner=permission)が新設され、unit-of-work-dependency.mdのYAML(auth.depends_onにpermissionを追加)・mermaid図(auth --> permissionエッジ追加)・統合ポイント表のいずれにも整合的に反映されている。permission.depends_onは引き続き空のままであり、トポロジカル順序を手計算しても循環は存在しない(schema-ingestion/permission/audit-logがレベル0、config-management/authがレベル1という並行開発レベル表とも一致)。functional-spec.mdワークフロー5にauthとの二重消費関係の説明も追加済み。 | 対応不要。 | Resolved |
-| R-02 | Major | inception/contract-design/contract-summary.md permission APIブロック(`/api/admin/groups/{groupId}/members`)および construction/permission/functional-design/functional-spec.md ワークフロー2 | GET/POST/DELETE /api/admin/groups/{groupId}/membersがcontract-summary.mdに追加され、由来を示す追記コメントも付いている。functional-spec.mdワークフロー2の各手順がこれら3エンドポイントを明示的に引用している。 | 対応不要。 | Resolved |
-| R-03 | Minor | construction/permission/functional-design/rules.md BR1.2、functional-spec.md ワークフロー2手順2、traceability.json | 重複するグループ所属追加の挙動が冪等(エラーにしない)というBR1.2として明文化され、ワークフロー・契約記述・traceability.jsonのFR5.3カバレッジ対象のいずれにも反映されている。 | 対応不要。 | Resolved |
-| R-04 | Minor | construction/permission/functional-design/entities.md TablePermission.tableId | ColumnPermission.tableIdと同一形式の根拠注記(domain-design/components.mdの属性一覧に明記がなかったが関連説明文からテーブル帰属を補完する、という説明)が追加され、左右対称になった。 | 対応不要。 | Resolved |
-| R-05 | Minor | construction/permission/functional-design/entities.md RoleAssignment.entity_constraints、rules.md BR3.1 | 読み取り時はassigneeTypeを正とし、不一致が見つかった場合はデータ不整合としてログに記録するという読み取り時優先順位が、entities.mdとrules.md BR3.1の両方に追記されている。 | 対応不要。 | Resolved |
-| R-06 | Minor | inception/contract-design/contract-summary.md permission APIブロック `/api/admin/groups/{groupId}/members` のpost定義 | BR1.2(rules.md)は重複追加時に「200番台か201番台いずれかで返す」ことを認めているが、OpenAPI契約のresponsesには201のみが定義されており200が明記されていない。実装者がどちらを選んでも契約上は矛盾しないが、契約定義とビジネスルールの記述に軽微な非対称がある。 | OpenAPI契約のresponsesに200(既存所属を維持した場合の応答)を追記するか、201のみに統一する場合はBR1.2の記述からもう一方の選択肢を削るか、どちらの状態でも201を返す設計に統一する。 | New |
+| R-01 | Minor | construction/permission/functional-design/rules.md > BR3.2、functional-spec.md > ワークフロー5 手順3 | BR3.2(契約#21の全置換ロジック)は「配列の各roleIdについて新規に作成する」と規定するのみで、渡されたroleId配列自体に重複roleIdが含まれる場合の挙動を定めていない。RoleAssignmentの`entity_constraints`(entities.md)は(roleId, accountId)の組を一意と定めており、素朴な実装(配列を単純にループしてINSERT)では2件目のINSERTで一意制約違反が発生しうる。BR1.2・BR3.3では重複割当を冪等として明示的に扱っているのに対し、BR3.2にはこの配慮が欠けている。 | BR3.2に「配列内の重複roleIdは去重(dedup)してから処理する」旨、またはaccount-management側で去重済みの配列のみを渡す契約上の前提を明記する一文を追加する。 | New |
 
 ### Validation Tool Results
 
-このステージ定義には自動検証ツールの指定がないため、cross-reference検証はエンティティ・ルール・契約・依存グラフの目視突合によって行った。
+| Tool | Result | Interpretation |
+|---|---|---|
+| aidlc-sensor-required-sections | PASS(既報告、3ファイルとも合格) | 必須セクション構成に問題なし |
+| aidlc-sensor-traceability / aidlc-sensor-upstream-coverage | 既知の制約により、stories.mdが本プロジェクト全体でSKIPされているためのFRフォールバックで、本Unit固有のFR以外の大半が`missing_from_upstream_ids`として検出される見込み | 新規欠陥として扱わない(プロジェクト全体の既知制約) |
 
 ### Summary
 
-前回指摘のCritical 1件・Major 1件・Minor 3件はいずれも genuinely 解消されており、Inception成果物への遡及的な依存エッジ追加(auth → permission)もYAML・mermaid・統合ポイント表・contract-summary.mdの双方向で矛盾なく反映され、循環依存は生じていない。新たに見つけたR-06は契約とビジネスルールの間の軽微な表現上の非対称に過ぎず、実装をブロックするものではない。これが本ステージの最終レビュー反復であり、Critical 0件・Major 0件のためREADYと判定する。
+iteration 1で指摘されたCritical 1件(契約#21のProvider側実装欠落)・Major 1件(RoleAssignment重複割当時の挙動未定義)・Minor 1件(ER図のPK/FKタグ欠落)は、それぞれBR3.2の新設、BR3.3の新設、mermaid ER図の複合主キータグ追加により解消を独立に確認した。account-management側のBR1.3(初期ロール割り当て)・BR3.1(編集時のロール変更)の呼び出しパターンともBR3.2は矛盾なく対応し、BR3.2とBR4.1(グループ経由ロールの和集合計算)の役割分担、BR3.3とBR3.1(排他検証)の共存、ワークフロー番号の繰り下げ(5〜7)もfunctional-spec.md内で一貫している。unit-of-work-dependency.mdのauth→permission・account-management→permissionエッジも循環を生んでおらず健全。新たに、契約#21で渡されるroleId配列内の重複値に対するBR3.2の挙動未定義という1件のMinor指摘のみを追加する。Critical/Major指摘は0件であり、READY水準を満たす。

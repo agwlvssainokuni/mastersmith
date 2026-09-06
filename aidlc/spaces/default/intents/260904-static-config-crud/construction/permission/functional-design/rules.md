@@ -49,6 +49,24 @@ rules:
     violation_behaviour: "割り当ては拒否される"
     source: FR5.3
 
+  - id: BR3.2
+    statement: 契約#21(account-management → permission)を受けたとき、渡されたroleId配列がすべて存在するロールであることを検証したうえで、対象accountIdの直接RoleAssignment(assigneeType=user)を渡された配列で全置換する(既存の直接割当をすべて削除してから、配列の各roleIdについて新規に作成する)。グループ経由の割当(GroupMembership)には一切触れない
+    category: business
+    applies_to: RoleAssignment
+    trigger: "契約#21の呼び出しを受けたとき(account-managementによるアカウント新規作成時の初期ロール割り当て、または編集時の割り当てロール変更)"
+    logic: "IF roleId配列に存在しないroleIdが含まれる THEN 例外を送出する(account-management側で400として応答、契約#21 Failure behavior)。ELSE 対象accountIdのassigneeType=user・RoleAssignmentを全件削除し、配列の各roleIdについて新規RoleAssignment(assigneeType=user, accountId=対象, roleId=該当)を作成する。処理成功後、更新後の直接RoleAssignment一覧(roleId配列)を返す"
+    violation_behaviour: "該当なし(例外は呼び出し元であるaccount-managementがREST境界で400として応答する)"
+    source: contract-summary.md #21(R-01フォロー、permission Unit Functional Designレビュー iteration 1より)
+
+  - id: BR3.3
+    statement: 管理画面からの個別ロール割り当て(`POST /api/admin/roles/{roleId}/assignments`)で、既に存在する(roleId, accountId)または(roleId, groupId)の組を再度割り当てようとした場合、既存の割当を維持し何もしない(冪等。BR1.2のGroupMembershipと同じ方針)
+    category: policy
+    applies_to: RoleAssignment
+    trigger: "管理者が既に割り当て済みの(roleId, accountId)または(roleId, groupId)の組を`POST /api/admin/roles/{roleId}/assignments`で再度割り当てようとしたとき"
+    logic: "IF 指定された組み合わせのRoleAssignmentが既に存在する THEN 何もせず現在の状態を200/201いずれかで返す(エラーにしない)。ELSE 新規にRoleAssignmentを作成する"
+    violation_behaviour: "該当なし(エラーとして扱わない)"
+    source: contract-summary.md #13(R-02フォロー、permission Unit Functional Designレビュー iteration 1より)
+
   - id: BR4.1
     statement: 複数ロール保有時の作業中ロール切替(`GET /api/me/roles`)の候補には、自身のAccountに直接割り当てられたロールに加え、自身が所属するGroupに割り当てられたロールも含める
     category: policy
@@ -92,6 +110,8 @@ rules:
 |---|---|---|
 | BR1.1 | validation | Role・Groupのname一意性 |
 | BR1.2 | policy | 重複するグループ所属追加は冪等(エラーにしない) |
+| BR3.2 | business | 契約#21(初期ロール割り当て・変更)の全置換ロジック |
+| BR3.3 | policy | 重複するロール割り当ては冪等(エラーにしない) |
 | BR2.1 | authorization | TablePermissionの5操作を個別設定 |
 | BR2.2 | authorization | ColumnPermissionのaccessLevel(editable/readonly/hidden) |
 | BR3.1 | validation | RoleAssignmentのaccountId/groupIdは排他 |
