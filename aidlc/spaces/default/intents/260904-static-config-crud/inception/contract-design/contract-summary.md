@@ -266,6 +266,8 @@ components:
 ### config-management(#15: frontend-admin向け)
 
 > 追記(Construction / config-management Unit Functional Designより): `/api/admin/table-configs/import-from-schema`(スキーマ取り込み結果から選択したテーブルのTableConfigを一括作成する)を追加した(functional-design-questions.md Q1)。config-managementが所有する契約であり、加法的な変更として扱う。
+>
+> 追記(Construction / frontend-admin Unit Functional Designレビュー R-04・R-05フォロー): `DELETE /api/admin/db-connections/{id}`に、参照するTableConfigが残っている場合の409レスポンスを追加した(config-management BR: 「IF TableConfig.connectionId = idのレコードが1件以上存在 THEN 409」に対応する契約上の記述漏れ)。`/api/admin/menu-items`系エンドポイントに、404(対象なし)・400(config-management BR4.1のメニュー階層循環参照エラー)のレスポンスを追加した。いずれも既存の実装済み業務ルールを契約に反映する加法的な変更である。
 
 ```yaml
 openapi: 3.0.3
@@ -278,13 +280,13 @@ paths:
     post: { summary: "DB接続先設定の作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created }, "400": { description: "バリデーションエラー (RFC 7807)" } } }
   /api/admin/db-connections/{id}:
     put: { summary: "DB接続先設定の更新", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "404": { description: "対象なし (RFC 7807)" } } }
-    delete: { summary: "DB接続先設定の削除", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" } } }
+    delete: { summary: "DB接続先設定の削除", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" }, "404": { description: "対象なし (RFC 7807)" }, "409": { description: "参照するTableConfigが残っている (RFC 7807)" } } }
   /api/admin/menu-items:
     get: { summary: "メニュー構成の一覧(階層構造, FR2.4)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
-    post: { summary: "メニュー項目の作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created } } }
+    post: { summary: "メニュー項目の作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created }, "400": { description: "循環参照になる、またはtableId指定が不正 (RFC 7807)" } } }
   /api/admin/menu-items/{id}:
-    put: { summary: "メニュー項目の更新", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
-    delete: { summary: "メニュー項目の削除", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" } } }
+    put: { summary: "メニュー項目の更新(label・parentMenuItemId・displayOrder等)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "400": { description: "循環参照になる変更 (RFC 7807)" }, "404": { description: "対象なし (RFC 7807)" } } }
+    delete: { summary: "メニュー項目の削除", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" }, "404": { description: "対象なし (RFC 7807)" } } }
   /api/admin/table-configs:
     get:
       summary: "テーブル設定の一覧 (FR2.1〜FR2.2)"

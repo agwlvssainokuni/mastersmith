@@ -1,0 +1,42 @@
+{
+  "stage": "functional-design",
+  "unit": "frontend-admin",
+  "upstream_ids": [
+    "FR1.1", "FR1.2", "FR1.3", "FR1.4", "FR1.5", "FR1.6",
+    "FR2.1", "FR2.2", "FR2.3", "FR2.3.1", "FR2.4", "FR2.5", "FR2.6",
+    "FR5.1", "FR5.2", "FR5.3", "FR5.4", "FR5.5", "FR5.6",
+    "FR6.4.1", "FR6.4.2", "FR6.4.3", "FR6.4.4",
+    "FR7.1", "FR7.2", "FR7.3", "FR7.4", "FR7.5"
+  ],
+  "coverage": [
+    { "id": "FR1.1", "status": "OK", "target": "ワークフロー8(スキーマ取り込み画面、接続テスト・スキーマ一覧取得)" },
+    { "id": "FR1.2", "status": "OK", "target": "ワークフロー8(取り込みプレビュー、複合主キー対応はschema-ingestion側の責務)" },
+    { "id": "FR1.3", "status": "OK", "target": "ワークフロー8(主キーなしテーブルの取り込み、一覧・詳細のみはfrontend-core側の画面制御)" },
+    { "id": "FR1.4", "status": "OK", "target": "ワークフロー8(ビューの取り込み、「PK: なし(view)」表示)" },
+    { "id": "FR1.5", "status": "N/A", "target": "ストアドプロシージャは取り込み対象外(schema-ingestion側の除外ロジックであり、本Unitの画面に表れる差異はない)" },
+    { "id": "FR1.6", "status": "N/A", "target": "JDBCドライバ内包はビルド配線(packaging Unit)の関心事であり、本Unitの画面には表れない" },
+    { "id": "FR2.1", "status": "OK", "target": "ワークフロー7(設定管理画面、DB接続先・検索条件・一覧表示・編集対象外・バリデーション・フォーム部品・論理表示名の各タブ)" },
+    { "id": "FR2.2", "status": "OK", "target": "ワークフロー7(設定項目の個別編集CRUD画面)" },
+    { "id": "FR2.3", "status": "OK", "target": "ワークフロー9(設定エクスポート/インポート画面)" },
+    { "id": "FR2.3.1", "status": "OK", "target": "ワークフロー9(インポート不整合時のerrors配列表示、設定全体を適用しない)" },
+    { "id": "FR2.4", "status": "OK", "target": "ワークフロー10(メニュー管理画面、階層構造の編集)" },
+    { "id": "FR2.5", "status": "N/A", "target": "内部データストア(H2)への保持方針はconfig-management側の実装詳細であり、本Unitの画面には表れない" },
+    { "id": "FR2.6", "status": "OK", "target": "ワークフロー7(設定管理画面、明示的なキャッシュクリア操作。iteration 1レビューR-03フォロー)" },
+    { "id": "FR5.1", "status": "OK", "target": "ワークフロー2(ロール編集、テーブル単位権限マトリクス)" },
+    { "id": "FR5.2", "status": "OK", "target": "ワークフロー2(ロール編集、カラム単位権限)" },
+    { "id": "FR5.3", "status": "OK", "target": "ワークフロー1(ロール一覧・作成・名称変更・削除)、ワークフロー3(ロール割り当て)、ワークフロー4(グループ管理)" },
+    { "id": "FR5.4", "status": "N/A", "target": "作業中ロールの選択・切り替えUIはfrontend-core側(Topbarユーザーメニュー)の責務。frontend-adminはロール・グループの定義側のみを扱う(iteration 1レビューR-06フォローでunit-of-work.md U10責務行の矛盾を訂正済み)" },
+    { "id": "FR5.5", "status": "OK", "target": "管理者ゲーティング(横断的関心事)" },
+    { "id": "FR5.6", "status": "OK", "target": "管理者ゲーティング(横断的関心事、isAdminクレームなし利用者へのアクセス拒否)" },
+    { "id": "FR6.4.1", "status": "OK", "target": "ワークフロー6(アカウント新規作成、13b)" },
+    { "id": "FR6.4.2", "status": "OK", "target": "ワークフロー6(アカウント一覧、13a)" },
+    { "id": "FR6.4.3", "status": "OK", "target": "ワークフロー6(アカウント編集、13b)" },
+    { "id": "FR6.4.4", "status": "OK", "target": "ワークフロー6(アカウント無効化、13b)" },
+    { "id": "FR7.1", "status": "N/A", "target": "設定変更の記録受付はaudit-log(U8)自身の責務であり、本Unitの画面には表れない(表れるのはFR7.3以降の参照・エクスポート・削除)" },
+    { "id": "FR7.2", "status": "N/A", "target": "業務データ操作の記録受付はaudit-log(U8)自身の責務であり、本Unitの画面には表れない" },
+    { "id": "FR7.3", "status": "OK", "target": "ワークフロー5(監査ログ画面、参照・絞り込み)" },
+    { "id": "FR7.4", "status": "OK", "target": "ワークフロー5(監査ログ画面、エクスポート)" },
+    { "id": "FR7.5", "status": "OK", "target": "ワークフロー5(監査ログ画面、保持期間超過分の削除)" }
+  ],
+  "reverse": []
+}
