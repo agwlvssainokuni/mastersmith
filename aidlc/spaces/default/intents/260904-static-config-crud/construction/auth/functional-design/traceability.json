@@ -1,0 +1,22 @@
+{
+  "stage": "functional-design",
+  "unit": "auth",
+  "upstream_ids": ["FR5.5", "FR5.6", "FR6.1", "FR6.2", "FR6.3", "FR6.6", "NFR7"],
+  "coverage": [
+    { "id": "FR5.5", "status": "OK", "target": "BR7.1" },
+    { "id": "FR5.6", "status": "OK", "target": "BR7.1(isAdminクレームの発行のみ。実際のアクセス制御判定は各消費Unitがローカルに行う、ADR-002)" },
+    { "id": "FR6.1", "status": "OK", "target": "BR1.1, BR4.2, BR4.3" },
+    { "id": "FR6.2", "status": "OK", "target": "BR2.1, BR2.2" },
+    { "id": "FR6.3", "status": "OK", "target": "BR2.3, BR3.1, BR3.2, BR3.3" },
+    { "id": "FR6.6", "status": "OK", "target": "BR4.1, BR4.2, BR4.3" },
+    { "id": "NFR7", "status": "OK", "target": "BR5.1" }
+  ],
+  "reverse": [
+    { "id": "BR6.1", "status": "N/A", "target": "FR6.4系(登録完了・パスワード忘れ・メールアドレス変更)のうち、notification(U7)/account-management(U6)が所有するFRの一部だが、契約#11(auth API)によりauthがAccountActionTokenの発行・検証・状態変更の実装を担当する。メール送信自体はnotificationの責務であり、authの範囲外" },
+    { "id": "BR6.2", "status": "N/A", "target": "BR6.1と同じ(契約#11由来)" },
+    { "id": "BR6.3", "status": "N/A", "target": "FR6.4(1)→(2)(アカウント登録完了)。契約#11由来" },
+    { "id": "BR6.4", "status": "N/A", "target": "FR6.4(6)(メールアドレス変更確定)。契約#11由来" },
+    { "id": "BR6.5", "status": "N/A", "target": "特定のFR/NFRに対応しない実装補完ルール(契約#11「自己サービスでの氏名・パスワード変更」由来の入力検証)" },
+    { "id": "BR8.1", "status": "N/A", "target": "unit-of-work-dependency.md(auth→audit-log依存)およびcontract-summary.md #7(auth用actionType語彙)由来。特定のFRには対応しない横断的な監査記録ルール" }
+  ]
+}

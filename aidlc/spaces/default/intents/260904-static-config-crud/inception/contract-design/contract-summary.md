@@ -70,7 +70,7 @@ Failure behavior: 不許可の場合は例外とし、dynamic-data-accessはこ�
 ```contract
 # 4. account-management → auth(共有スキーマ経由のリポジトリ/サービス呼び出し)
 Consumer passes: Accountの作成データ(氏名・メールアドレス・初期ロール割り当て)、更新データ、または無効化対象のaccountId
-Provider returns: 永続化されたAccountの現在状態(accountId・name・email・status・isAdmin)。account-managementはAccountテーブルへ直接アクセスせず、必ずこのインタフェース経由でアクセスする(#19参照)
+Provider returns: 永続化されたAccountの現在状態(accountId・name・email・status・isAdmin)。account-managementはAccountテーブルへ直接アクセスせず、必ずこのインタフェース経由でアクセスする(#19参照)。アカウント新規作成の場合、これに加えてregistrationToken(purpose=registration_completionのAccountActionTokenとしてauthが同一呼び出し内で発行する実トークン値)を返す。account-managementはこの値をそのまま自身が発行するAccountCreatedEvent(通知イベント契約#9)のpayloadへ渡す(追記: auth Unit Functional Designより。契約#9のpublisher/subscriberは変更せず、契約#4への加法的なフィールド追加として扱う)
 Failure behavior: 存在しないaccountIdの操作は例外とし、account-managementはこれをREST境界で404として応答する
 ```
 
