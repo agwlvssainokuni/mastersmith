@@ -97,6 +97,11 @@ payload:
   actorAccountId: string, nullable # システム起因の操作はnull
   actionType: string # 発行元ごとの語彙。例:
     # config-management: CONFIG_TABLE_CREATED | CONFIG_TABLE_UPDATED | CONFIG_TABLE_DELETED | CONFIG_IMPORTED
+    #   | CONFIG_CONNECTION_CREATED | CONFIG_CONNECTION_UPDATED | CONFIG_CONNECTION_DELETED
+    #   | CONFIG_MENU_CREATED | CONFIG_MENU_UPDATED | CONFIG_MENU_DELETED
+    #   (追記: Construction / config-management Unit Functional Designレビューより。DbConnection/MenuItem用の
+    #   専用actionTypeをTableConfig用と区別するため加法的に追加。所有権はConfig-managementに帰属し、
+    #   契約#7が固定するenvelope形状は変更しない)
     # dynamic-data-access: DATA_RECORD_CREATED | DATA_RECORD_UPDATED | DATA_RECORD_DELETED
     # auth: LOGIN_SUCCESS | LOGIN_FAILED | LOGIN_LOCKED | SELF_SERVICE_PROFILE_CHANGED
     # account-management: ACCOUNT_CREATED | ACCOUNT_UPDATED | ACCOUNT_DISABLED
@@ -232,6 +237,8 @@ components:
 
 ### config-management(#15: frontend-admin向け)
 
+> 追記(Construction / config-management Unit Functional Designより): `/api/admin/table-configs/import-from-schema`(スキーマ取り込み結果から選択したテーブルのTableConfigを一括作成する)を追加した(functional-design-questions.md Q1)。config-managementが所有する契約であり、加法的な変更として扱う。
+
 ```yaml
 openapi: 3.0.3
 info:
@@ -262,6 +269,22 @@ paths:
   /api/admin/table-configs/{tableId}:
     get: { summary: "テーブル設定の詳細(検索条件・一覧表示項目・編集対象外項目・バリデーション・フォーム部品・論理表示名・外部キー関係・代表表示列)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "404": { description: "対象なし (RFC 7807)" } } }
     put: { summary: "テーブル設定の更新", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "400": { description: "バリデーションエラー (RFC 7807)" } } }
+  /api/admin/table-configs/import-from-schema:
+    post:
+      summary: "スキーマ取り込み結果から選択したテーブルのTableConfigを一括作成する(FR2.1、Q1)"
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectionId: { type: string }
+                schemaTarget: { type: string }
+                physicalTableNames: { type: array, items: { type: string } }
+      responses:
+        "201": { description: "作成されたTableConfig一覧" }
+        "500": { description: "契約#1(schema-ingestion呼び出し)の失敗、業務DB接続失敗等 (RFC 7807)" }
   /api/admin/config/export:
     post: { summary: "設定全体のエクスポート (FR2.3)", security: [{ bearerAuth: [] }], responses: { "200": { description: "設定ファイル" } } }
   /api/admin/config/import:

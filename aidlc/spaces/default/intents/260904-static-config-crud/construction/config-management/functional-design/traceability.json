@@ -1,0 +1,20 @@
+{
+  "stage": "functional-design",
+  "unit": "config-management",
+  "upstream_ids": ["FR2.1", "FR2.2", "FR2.3", "FR2.3.1", "FR2.4", "FR2.5", "FR2.6", "FR3.4"],
+  "coverage": [
+    { "id": "FR2.1", "status": "OK", "target": "BR1.1(DB接続先)、BR2.1〜BR2.5・BR2.7・BR2.8(スキーマ読み込み結果を初期値とした検索条件・一覧表示項目・編集対象外項目・バリデーション・フォーム部品・論理表示名・外部キー参照の生成と遡及解決)、BR4.1〜BR4.2(メニュー構成)" },
+    { "id": "FR2.2", "status": "OK", "target": "BR2.6, BR3.1" },
+    { "id": "FR2.3", "status": "OK", "target": "BR5.1(エクスポート), BR5.2(インポート)" },
+    { "id": "FR2.3.1", "status": "OK", "target": "BR5.2, BR5.3" },
+    { "id": "FR2.4", "status": "OK", "target": "BR4.1" },
+    { "id": "FR2.5", "status": "OK", "target": "entities.md note(内部H2データストアのみに保持、業務DBには保存しない)" },
+    { "id": "FR2.6", "status": "OK", "target": "BR6.1, BR6.2" },
+    { "id": "FR3.4", "status": "OK", "target": "BR4.2(MenuItem.tableId参照検証によりメニューからのテーブル画面遷移を成立させる)" }
+  ],
+  "reverse": [
+    { "id": "BR1.2", "status": "N/A", "target": "特定のFRに対応しない実装補完ルール(契約#15由来、参照整合性の保護)" },
+    { "id": "BR7.1", "status": "N/A", "target": "FR5.5, FR5.6(管理者ロールによる横断的ゲーティング。config-management固有のFRには対応しない、ADR-002)" },
+    { "id": "BR8.1", "status": "N/A", "target": "unit-of-work-dependency.md(config-management→audit-log依存)およびcontract-summary.md #7(config-management用actionType語彙)由来。特定のFRには対応しない横断的な監査記録ルール" }
+  ]
+}
