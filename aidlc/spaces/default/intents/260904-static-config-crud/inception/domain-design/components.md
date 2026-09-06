@@ -70,6 +70,11 @@ components:
       - name: DbConnection
         identifier: connectionId
         attributes: [name, jdbcUrl, driverType, credentialRef]
+        # 追記(Construction / schema-ingestion Unit Functional Designより):
+        # credentialRefは「外部参照のキー」ではなく「暗号化された認証情報(業務DBのパスワード)の
+        # 実体を直接保持する属性」とする。暗号化・復号化に用いる鍵はapplication.yml(環境変数経由)
+        # で与え、鍵自体は内部H2データストアには保存しない(project.md Forbiddenの精神をDbConnection
+        # にも適用)。具体的な暗号アルゴリズムの選定はCode Generation以降に委ねる。
       - name: MenuItem
         identifier: menuItemId
         attributes: [label, parentMenuItemId, tableId, displayOrder]
@@ -283,7 +288,7 @@ graph TD
 
 | Entity | Owning Component | Identifier | Attributes | References |
 |---|---|---|---|---|
-| DbConnection | ConfigManagementComponent | connectionId | name, jdbcUrl, driverType, credentialRef | — |
+| DbConnection | ConfigManagementComponent | connectionId | name, jdbcUrl, driverType, credentialRef(暗号化された認証情報の実体。鍵はapplication.yml/環境変数経由、DBには保存しない。Construction/schema-ingestion Functional Designで具体化) | — |
 | MenuItem | ConfigManagementComponent | menuItemId | label, parentMenuItemId, tableId, displayOrder | — |
 | TableConfig | ConfigManagementComponent | tableId | physicalTableName, isView, primaryKeyColumns, searchConditions, listColumns, readOnlyColumns, validationRules, formWidgets, displayNames, foreignKeys, foreignKeyRepresentativeColumns | — |
 | Role | PermissionComponent | roleId | name, description | — |

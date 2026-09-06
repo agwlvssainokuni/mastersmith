@@ -1,0 +1,17 @@
+{
+  "stage": "functional-design",
+  "unit": "schema-ingestion",
+  "upstream_ids": ["FR1.1", "FR1.2", "FR1.3", "FR1.4", "FR1.5", "FR1.6"],
+  "coverage": [
+    { "id": "FR1.1", "status": "OK", "target": "BR2.1, BR3.1, BR4.1" },
+    { "id": "FR1.2", "status": "OK", "target": "BR1.1" },
+    { "id": "FR1.3", "status": "OK", "target": "BR1.2" },
+    { "id": "FR1.4", "status": "OK", "target": "BR1.3" },
+    { "id": "FR1.5", "status": "OK", "target": "BR1.4" },
+    { "id": "FR1.6", "status": "Deferred", "target": "packaging Unit(JDBCドライバのアプリ内包はビルド時の関心事であり、functional-designの対象外。unit-of-work-story-map.mdの前例を踏襲)" }
+  ],
+  "reverse": [
+    { "id": "BR5.1", "status": "N/A", "target": "FR5.5/FR5.6(横断的なisAdminゲーティング)の適用であり、schema-ingestion固有のFRには対応しない" },
+    { "id": "BR6.1", "status": "N/A", "target": "contract-summary.md #1由来の契約制約(接続失敗時の例外伝播)であり、特定のFRに対応するものではない" }
+  ]
+}

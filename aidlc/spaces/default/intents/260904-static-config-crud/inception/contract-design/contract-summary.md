@@ -48,8 +48,8 @@ Q2の回答により、同一JVM内のJavaメソッド呼び出しは意味レ�
 
 ```contract
 # 1. config-management → schema-ingestion
-Consumer passes: 業務DB接続情報(DbConnectionのconnectionId、またはアドホックな接続パラメータ)
-Provider returns: 正規化されたスキーマ情報(テーブルごとのphysicalTableName・isView・主キー有無/構成・カラム名/型・外部キー)
+Consumer passes: 業務DB接続情報(DbConnectionのconnectionId)、および取り込み対象のスキーマ/データベース名(SchemaTarget.name。事前にschema-ingestionへスキーマ/データベース一覧を問い合わせて選択したもの、functional-design-questions.md Q1)
+Provider returns: 正規化されたスキーマ情報(テーブルごとのphysicalTableName・isView・主キー有無/構成(KEY_SEQ順)・カラム名/型・外部キー。外部キーはcolumns[]/referencedColumns[]の配列形式で複合外部キーにも対応する、Q2)
 Failure behavior: 接続失敗・認証失敗は例外として呼び出し元に伝播し、config-managementはこれをREST境界で400または500として応答する
 ```
 
@@ -154,12 +154,30 @@ messages:
 
 ### schema-ingestion(#14: frontend-admin向け)
 
+> 追記(Construction / schema-ingestion Unit Functional Designより): `/api/admin/schema-ingestion/schemas`(取り込み対象スキーマ/データベース一覧取得)を追加し、`preview`のリクエストに`schemaTarget`パラメータを追加した(functional-design-questions.md Q1)。また`foreignKeys`の形状を単一カラムの組(column/referencedColumn)から複数カラムの配列(columns[]/referencedColumns[])へ変更し、複合外部キーに対応した(Q2)。いずれもschema-ingestionが所有する契約であり、加法的な変更として扱う(#18の追記と同じ位置づけ)。
+
 ```yaml
 openapi: 3.0.3
 info:
   title: schema-ingestion API
   version: "1.0"
 paths:
+  /api/admin/schema-ingestion/schemas:
+    get:
+      summary: "取り込み対象として選択可能なスキーマ/データベース一覧の取得(FR1.1、Q1)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: connectionId, in: query, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: object, properties: { name: { type: string } } }
+        "403": { description: "管理者ロールなし (RFC 7807)" }
+        "500": { description: "業務DB接続失敗等の予期しないエラー (RFC 7807)" }
   /api/admin/schema-ingestion/preview:
     post:
       summary: 業務DBスキーマの取り込みプレビュー(FR1.1〜FR1.6)
@@ -171,6 +189,7 @@ paths:
               type: object
               properties:
                 connectionId: { type: string }
+                schemaTarget: { type: string, description: "GET .../schemasで取得したSchemaTarget.name" }
       responses:
         "200":
           description: 正規化されたスキーマ情報
@@ -200,9 +219,9 @@ paths:
                           items:
                             type: object
                             properties:
-                              column: { type: string }
+                              columns: { type: array, items: { type: string } }
                               referencedTable: { type: string }
-                              referencedColumn: { type: string }
+                              referencedColumns: { type: array, items: { type: string } }
         "400": { description: "接続情報が不正 (RFC 7807)" }
         "403": { description: "管理者ロールなし (RFC 7807)" }
         "500": { description: "業務DB接続失敗等の予期しないエラー (RFC 7807)" }
