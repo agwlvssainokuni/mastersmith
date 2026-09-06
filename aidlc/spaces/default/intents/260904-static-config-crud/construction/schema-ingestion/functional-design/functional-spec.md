@@ -68,32 +68,27 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T09:23:00Z
+**Date:** 2026-09-06T13:42:41Z
 **Iteration:** 1
-**Request Challenge:** review:e3486ebb3f5a33c55661982e18f08e22
-
-本Unitは以前のレビューでREADY判定(繰延べ指摘3件を含む)を受けていたが、同一functional-designステージ内の別Unit(dynamic-data-access)の行き詰まり回復のためステージ全体がredo jumpで再起動され、ツール上のレビュー受信記録がリセットされた。本レビューはその再認定であり、ツール記録上は iteration 1 として実施する。4ファイル(entities.md、rules.md、functional-spec.md、traceability.json)の内容は変更されていないことを前提としつつ、独立して再検証した。
-
-以前のレビューで指摘され繰延べとして扱われていた3件(旧R-01: FR1.1の「制約」のうちUNIQUE/CHECK制約がモデル化されていない、旧R-02: entities.mdの`logicalType`とcontract-summary.md #14 OpenAPIの`type`フィールド名の不一致、旧R-03: DbConnectionの暗号鍵に関する「内部H2に保存しない」という文言がgitコミット禁止まで明言していない)は、いずれも本レビューで独立に現物を確認したところ現状も未解消のままである(entities.md/rules.mdにUNIQUE/CHECK関連の属性・ルールなし、contract-summary.md #14の`columns[].type`は`type`のまま、components.md DbConnectionのインラインコメントはコミット禁止を明言していない)。ディスパッチ指示に従い、これらは今回新規指摘とはせず、functional-designステージ終了ゲートで対応する既知の繰延べ事項として引き続き扱う。
+**Request Challenge:** review:fc675a7daaef118f7d78974b404b2818
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | inception/refined-mockups/mockups.md > 11.スキーマ取り込み画面(モックアップ) vs inception/contract-design/contract-summary.md > `#14 schema-ingestion API` OpenAPI vs construction/schema-ingestion/functional-design/functional-spec.md > ワークフロー1.接続テスト | mockups.mdの画面11は「接続テスト」ボタンと「スキーマ取り込み」ボタンを明確に別ボタンとして描いている(行121)。しかしcontract-summary.md #14が所有するOpenAPI定義には`GET /api/admin/schema-ingestion/schemas`と`POST /api/admin/schema-ingestion/preview`の2エンドポイントしかなく、「接続テスト」に対応する専用エンドポイントが存在しない。functional-spec.mdのワークフローは手順2・3がそれぞれ具体的なAPIパスを明記しているのに対し、手順「1. 接続テスト」だけはAPIパスへの言及が一切ない。「接続テストボタンはGET /schemasを流用する」といった等価性の記述もどこにも無いため、開発者はフロントエンドの接続テストボタンが何を呼び出すべきか(専用エンドポイントを新設するのか、`/schemas`呼び出しの副作用として代用するのか)を推測するしかない。 | functional-spec.mdのワークフロー手順1に、接続テストが具体的にどのAPI呼び出しに対応するか(例: `GET /schemas`をconnectionIdのみで呼び、戻り値を使わず成功/失敗のみを見る、等)を明記するか、専用の接続テストエンドポイントをcontract-summary.md #14に追加し、両者の対応関係を明示すること。 | New |
+| R-01 | Minor | construction/schema-ingestion/functional-design/rules.md > BR1.1〜BR3.1(制約分類) | 「制約」("constraint"種別のルール)がPK/FK(複合主キー、外部キー)のみをモデル化しており、UNIQUE制約・CHECK制約を扱う記述がない | UNIQUE/CHECK制約の取り込み・非対応方針を明示するルールを追加するか、対象外である旨を明記する | Unresolved |
+| R-02 | Minor | construction/schema-ingestion/functional-design/entities.md > IngestedColumn.logicalType | entities.mdの`logicalType`フィールド名が、contract-summary.md #14のOpenAPIレスポンススキーマにおける対応フィールド名`type`(255行目付近)と一致しない | フィールド名をどちらかに統一する(entities.md側を`type`に合わせるか、契約側の命名を変更する) | Unresolved |
+| R-03 | Minor | construction/schema-ingestion/functional-spec.md > ワークフロー1(接続テスト)、DbConnection.credentialRefの扱い | DbConnectionの暗号化キー取り扱いに関する注記(「内部H2に保存しない」)が、鍵をgitにコミットしてはならない旨を明示していない(project.md Forbiddenの鍵管理規定と整合させる余地がある) | 暗号鍵・認証情報をリポジトリにコミットしない旨を注記に明示的に追加する | Unresolved |
+| R-04 | Major | construction/schema-ingestion/functional-spec.md > ワークフロー1(接続テスト) | mockups.md 11.(スキーマ取り込み画面)の「接続テスト」ボタンに対応するエンドポイントとしてcontract-summary.md #14に`POST /api/admin/schema-ingestion/connection-test`(204/400/403/500)が新設されたが(このUnitの直近レビューで指摘・契約側では対応済み)、本Unitのfunctional-spec.mdワークフロー1はこの新設エンドポイントを明示的に引用していない(ワークフロー2・3は`GET .../schemas`、`POST .../preview`をそれぞれ明示引用しているのに対し非対称) | ワークフロー1の手順に`POST /api/admin/schema-ingestion/connection-test`を明示的に引用する記述を追加する(end-of-stageゲートでの一括反映を想定) | Unresolved |
 
 ### Validation Tool Results
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| aidlc-sensor-traceability (traceability.json) | FAIL — `missing_from_upstream_ids` lists every FR outside FR1.1–FR1.6 (FR2.x–FR7.x) | 既知のツール制約(units-generationのunit-of-work.mdのReviewセクションで既に文書化・受容済み)。`user-stories`が本スコープでSKIPされているためのFRフォールバック経路が、プロジェクト全体のFR一覧をrequirements.mdからそのまま引いてきてしまい、本Unit固有のスコープに絞り込めていない。unit-of-work-story-map.mdはschema-ingestionがFR1.1〜FR1.6のみを担当することを確認しており、traceability.json自体の`upstream_ids`配列もその6件のみを正しく列挙している。新規欠陥ではない。 |
-| 手動突合: FR1.1〜FR1.6 → rules.mdのカバレッジ | 9件のルール(BR1.1〜BR1.4、BR2.1、BR3.1、BR4.1、BR5.1、BR6.1)すべてに対応関係あり(FR1.2〜FR1.5への1:1対応、またはFR1.1のtarget内へのBR2.1/BR3.1/BR4.1の列挙、あるいはreverse配列でのBR5.1/BR6.1のN/A理由付け)。未説明の孤立ルールなし。 | traceability.jsonの内部整合性は健全(旧R-01の「制約」スコープ縮小に関する懸念を除く)。 |
-| 手動突合: SchemaTarget/複合外部キーのQ&A変更(Q1・Q2)がentities.md・rules.md BR3.1・functional-spec.mdワークフロー2/3・contract-summary.md #1本文・contract-summary.md #14 OpenAPI(`GET /schemas`、`preview`リクエストの`schemaTarget`、レスポンスの`foreignKeys[].columns[]`/`referencedColumns[]`)へ一貫して反映されているか | 一貫していた | Q1(SchemaTargetによるDbConnectionのスコープ縮小)・Q2(配列形式の複合外部キー)は、ディスパッチ指示対象のすべての成果物に正しく反映されている。domain-design/components.mdの`TableConfig.foreignKeys`属性は形状仕様を持たないため対応不要という過去の判断も妥当。 |
-| 手動突合: ビュー/主キーなしテーブル(BR1.2/BR1.3)とFR1.3/FR1.4の整合性 | 矛盾なし | BR1.3はビューに対し`getPrimaryKeys()`が何を返しても`isView=true, hasPrimaryKey=false`を強制すると明記しており、FR1.3/FR1.4の「一覧・詳細のみ対象」という扱いと矛盾しない。 |
-| 手動突合: BR1.1/BR2.1がteam.mdの前倒し特性テスト運用に対しテスト可能な粒度か | テスト可能 | 両ルールともJDBC `DatabaseMetaData`の具体的な列名(`KEY_SEQ`、`DATA_TYPE`)と避けるべき対象(RDBMS固有の`TYPE_NAME`文字列)を明記しており、3種RDBMSそれぞれについて特性テストの具体的な検証対象となる。 |
-| 手動突合: DbConnection.credentialRefの意味変更後もschema-ingestionが復号責務を持たないか | 整合 | functional-spec.mdワークフロー1は呼び出し元が復号済みの値を渡すと明記しており、schema-ingestion(DbConnection・鍵の非所有者)は復号を行わない。domain-design/components.mdの所有分担と一致。 |
-| 手動突合: FR1.6の繰延べ扱い | 正しく繰延べ(欠落ではない) | traceability.jsonはFR1.6を`Deferred`・target「packaging Unit」としており、unit-of-work-story-map.mdの記述(FR1.6にはUIのUnitが無くU11 packagingのビルド配線に関連)と一致する。 |
+| aidlc-sensor.ts fire required-sections --stage functional-design | passed | 必須セクション(ワークフロー、状態遷移、ER図、ルールサマリー)は全て存在し、内容も変更前と同一であることを確認 |
+| 手動クロスチェック: contract-summary.md #14 | `POST /api/admin/schema-ingestion/connection-test`が204/400/403/500のレスポンスとともに新設されていることを確認 | R-04の契約側対応が完了していることを裏付け、Unit側の未反映のみが残存 |
+| 手動クロスチェック: entities.md ↔ functional-spec.md ER図 ↔ rules.md | 内容一致 | 内容が変更されていないこと、および内部整合性を確認 |
 
 ### Summary
 
-Q&Aで確定した2件の横断的変更(SchemaTargetによるDbConnectionのスコープ縮小、配列形式の複合外部キー)は、entities.md・rules.md・functional-spec.md・traceability.json、および上流の改訂箇所(components.md、contract-summary.md)へ一貫して伝播しており、指定範囲内で新たな破損した相互参照は見つからなかった。今回新たに検出したMajor指摘(R-01)は、モックアップの「接続テスト」ボタンに対応するREST契約上のエンドポイントが欠落しているという、開発者実装時に推測を要する実在のギャップである。旧R-01〜R-03(制約スコープ・フィールド名不一致・鍵のコミット禁止文言)は独立検証の結果、現状も未解消のままだが、指示どおり既知の繰延べ事項として扱い、本レビューでは新規指摘としない。Major指摘1件・Critical指摘0件のため、READY判定を維持する。
+本Unitのentities.md/rules.md/functional-spec.md/traceability.jsonは前回認証時点から内容の変更がなく、内部整合性も保たれている。契約側で新設された接続テスト専用エンドポイント(R-04関連)の存在は確認できたが、本Unit側のワークフロー1記述への反映はまだ済んでおらず、既知のMajor所見として維持する。Critical所見は0件であり、R-01〜R-04はいずれもEnd-of-Stageゲートでの一括対応が予定されている既知の繰越し事項であるため、READYとする。

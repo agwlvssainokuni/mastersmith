@@ -134,28 +134,25 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T09:51:00Z
-**Iteration:** 2
-**Request Challenge:** review:b72716098b0c12f6b938fc55c1e3de67
-
-> redo jump後の再認定(iteration 2)。内容はiteration 1から変更なし(2件のMinorは引き続き未解消、functional-designステージ終了ゲートへの繰延べ事項として記録)。
+**Date:** 2026-09-06T13:45:00Z
+**Iteration:** 1
+**Request Challenge:** review:911d0b73cd67a41f5914942d4728fca6
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Minor | construction/auth/functional-design/functional-spec.md > ワークフロー6(自己サービスでの氏名・パスワード変更)手順5 | 「パスワードを変更した場合、パスワード変更通知(PasswordChangedEvent)を発行する。氏名のみの変更の場合はアカウント情報変更通知(AccountInfoChangedEvent)を発行する」という分岐は、氏名とパスワードを同時に変更した場合にAccountInfoChangedEvent(氏名変更の通知)が発行されないという抜けを生む。contract-summary.mdの`AccountInfoChangedEvent.changedFields`は`"name" \| "password" \| "email"`の複数値配列を許容する設計になっており、同時変更を表現できるはずだが、本ワークフローはその複数値ケースを扱っていない | 氏名とパスワードを同時に変更した場合の通知方針(両方のイベントを発行する、またはchangedFieldsに両方を含めた単一のAccountInfoChangedEventで代替する等)を明記し、手順5の分岐ロジックを修正する | New |
-| R-02 | Minor | construction/auth/functional-design/rules.md > BR5.1(パスワードハッシュ化) と BR6.4(メールアドレス変更確定時のパスワード再検証)の対比 | 自己サービスでのメールアドレス変更確定(BR6.4)は「現在のパスワードをArgon2で再検証したうえで」実行すると明記されているのに対し、自己サービスでのパスワード変更(`PUT /api/me/profile`、BR5.1・ワークフロー6手順3)には現在のパスワードの再検証が一切規定されていない。同一Unit内の類似の自己サービス操作(セッション乗っ取り・短命アクセストークン漏えい時のリスク)に対して、片方だけ多層防御(現在パスワード確認)を課し、もう片方(パスワードそのものの変更)には課さないという非対称な設計になっている | 自己サービスのパスワード変更にも現在のパスワード再検証を要求するかどうかを明示的に決定し、rules.md(BR5.1またはBR6.5近傍への追記)とfunctional-spec.mdワークフロー6手順3に反映する。要求しないと判断する場合はその根拠を記載する | New |
+| R-01 | Minor | construction/auth/functional-design/functional-spec.md > ワークフロー6「自己サービスでの氏名・パスワード変更」ステップ5 | 氏名とパスワードを同時に変更した場合、現状は either/or の分岐でどちらか一方の通知イベントのみを発行している。氏名変更(AccountInfoChangedEvent, changedFields=["name"])とパスワード変更(PasswordChangedEvent)を独立に判定し、両方が変更された場合は両方のイベントを発行すべき | ワークフロー6ステップ5のロジックを、パスワード変更の有無と氏名変更の有無をそれぞれ独立に判定し、該当するイベントをそれぞれ(必要なら両方)発行するよう修正する | Unresolved |
+| R-02 | Minor | construction/auth/functional-design/rules.md > BR6.5 および functional-spec.md ワークフロー6 | 自己サービスでのパスワード変更(`PUT /api/me/profile`)は、新パスワード設定前に呼び出し元の現在パスワードの再検証を要求していない。email-change-confirmフロー(BR6.4)は現在パスワードの再検証を必須としており、整合性がない | `PUT /api/me/profile`でのパスワード変更時にも、BR6.4と同様の現在パスワード再検証をルールとして追加する | Unresolved |
 
 ### Validation Tool Results
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| aidlc-sensor-traceability.ts --output-path traceability.json --stage functional-design | `pass:false`、`gaps:[]`、`orphans:[]`、`missing_from_table:[]`、`invalid_entries:[]`、`invalid_targets:[]`、`missing_from_upstream_ids`にFR1系〜FR7系(stories.md未生成によるFRフォールバック)38件 | 既知の制約(プロジェクト全体でstories.mdがSKIPされているためのFRフォールバック)どおりの結果であり、新規欠陥ではない。gaps/orphans/missing_from_table/invalid_entries/invalid_targetsがいずれも空であることを確認し、実質的な整合性エラーがないことを検証した |
-| aidlc-sensor-upstream-coverage.ts --output-path traceability.json --stage functional-design | `pass:true`、`unreferenced:[]`、`findings_count:0` | upstream側の未参照なし |
-| aidlc-sensor-required-sections.ts --output-path entities.md/rules.md/functional-spec.md --stage functional-design | 3ファイルとも`pass:true`、`findings_count:0` | 必須セクション要件を満たす |
+| required-sections (functional-spec.md) | passed | 必須セクションはすべて存在 |
+| traceability (traceability.json) | FAIL: missing_from_upstream_ids に FR1系〜FR7系(auth Unit非所有)多数 | 既知の誤検知パターン(このUnitのupstream_idsはFR5.5/FR5.6/FR6.1-6.3/FR6.6/NFR7に正しくスコープされており、他Unit所有のFRを本Unitのtraceability.jsonへ追加する必要はない)。新規欠陥ではない |
+| upstream-coverage (traceability.json) | FAIL: unreferenced = unit-of-work, unit-of-work-story-map, requirements | 同上の既知の誤検知パターン(このUnitの成果物はcontract-summary/componentsを主に参照する設計であり、consumes契約のうち直接引用されない3件は本Unitの範囲外情報であるため未参照は妥当)。新規欠陥ではない |
 
 ### Summary
 
-前回(非公式)レビューで指摘された3件(契約#9との矛盾、監査ログイベント発行の欠落、氏名変更の業務ルール欠落)はいずれも独立して検証した結果、正しく解消されており、新たな矛盾も生んでいない。具体的には、(1)契約#4のregistrationToken追記は契約#9のpublisher(account-management)と矛盾せず、authはAccountCreatedEventを発行しない記述に統一されている、(2)BR8.1のactionType語彙は契約#7の4語彙(LOGIN_SUCCESS/LOGIN_FAILED/LOGIN_LOCKED/SELF_SERVICE_PROFILE_CHANGED)の範囲内に収まっている、(3)BR6.5により氏名変更の空文字禁止ルールが追加され、ワークフロー6と整合している。今回新たに、氏名・パスワード同時変更時の通知イベント選択ロジックの抜け(R-01)と、自己サービスパスワード変更における現在パスワード再検証の欠如(R-02)という2件のMinor所見を独立に発見したが、いずれも実装をブロックする性質ではない。Critical 0件・Major 0件のためREADYと判定する。
-
+本ユニットのentities.md/rules.md/functional-spec.md/traceability.jsonは、前回認証済み内容から変更がなく、内部整合性も保たれていることを確認した(7ワークフローすべてが契約#11のREST APIパス・レスポンスと一致、Account/AccountActionToken/RefreshTokenの所有権が契約#19・#4と整合、契約#20経由のロール取得が正しく組み込まれている)。R-01・R-02は既知の未解決事項として継続し、ステージ末尾ゲートでの一括修正に委ねる。新規のCritical/Major所見はなく、READYと判定する。

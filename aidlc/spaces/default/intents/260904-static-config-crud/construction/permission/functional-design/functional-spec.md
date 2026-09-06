@@ -4,8 +4,22 @@
 
 ### 1. ロール・グループの定義
 
-1. 管理者(isAdminクレーム保持者)が`POST/PUT /api/admin/roles`または`POST/PUT /api/admin/groups`でRole・Groupを作成・変更する。
+1. 管理者(isAdminクレーム保持者)が`POST /api/admin/roles`または`POST /api/admin/groups`でRole・Groupを作成する。
 2. name一意性を検証する(BR1.1)。違反時は400エラー(RFC 7807)を返す。
+
+### 1a. ロール・グループの名称変更
+
+1. 管理者が`PUT /api/admin/roles/{roleId}`または`PUT /api/admin/groups/{groupId}`でRole・Groupの名称を変更する(BR1.3、frontend-admin Unit Functional Designレビューより新設)。
+2. 対象roleId/groupIdの存在を確認する。存在しなければ404を返す。
+3. name一意性を検証する(BR1.1)。違反時は400エラー(RFC 7807)を返す。
+4. 検証を通過したら、name属性のみを更新する。
+
+### 1b. ロール・グループの削除
+
+1. 管理者が`DELETE /api/admin/roles/{roleId}`または`DELETE /api/admin/groups/{groupId}`でRole・Groupを削除する(BR1.4・BR1.5、frontend-admin Unit Functional Designレビューより新設)。
+2. 対象roleId/groupIdの存在を確認する。存在しなければ404を返す。
+3. ロールの場合はRoleAssignment(roleId=対象)、グループの場合はRoleAssignment(assigneeType=group, groupId=対象)の存在を確認する。1件以上存在すれば409を返し削除を拒否する。
+4. 参照が存在しなければ、ロールの場合はTablePermission・ColumnPermission、グループの場合はGroupMembershipを道連れに削除したうえで、対象Role/Group自体を削除する。
 
 ### 2. グループメンバー構成の管理
 
@@ -28,8 +42,8 @@
 
 1. account-managementが、アカウント新規作成時(初期ロール割り当て)またはアカウント編集時(割り当てロール変更)に、accountIdとroleId配列を渡して本Unitを呼び出す(契約#21)。
 2. 渡されたroleId配列に存在しないロールが含まれていないか検証する(BR3.2)。含まれる場合は例外を送出し、account-management側で400として応答される。
-3. 検証を通過したら、対象accountIdの直接RoleAssignment(assigneeType=user)をすべて削除し、配列の各roleIdについて新規に作成する(全置換)。グループ経由の割当(GroupMembership)には触れない。
-4. 更新後の直接RoleAssignment一覧(roleId配列)を返す。
+3. 検証を通過したら、配列内の重複roleIdを去重(dedup)したうえで、対象accountIdの直接RoleAssignment(assigneeType=user)をすべて削除し、去重後の各roleIdについて新規に作成する(全置換。iteration 2レビューR-01フォロー)。グループ経由の割当(GroupMembership)には触れない。
+4. 更新後の直接RoleAssignment一覧(去重済みroleId配列)を返す。
 
 ### 6. 自身の切替可能ロール一覧の取得(`GET /api/me/roles`)
 
@@ -107,6 +121,8 @@ erDiagram
 | ワークフロー | 適用ルール |
 |---|---|
 | 1. ロール・グループの定義 | BR1.1 |
+| 1a. ロール・グループの名称変更 | BR1.1, BR1.3 |
+| 1b. ロール・グループの削除 | BR1.4, BR1.5 |
 | 2. グループメンバー構成の管理 | BR1.2 |
 | 3. テーブル単位・カラム単位権限の設定 | BR2.1, BR2.2 |
 | 4. ロールの割り当て | BR3.1, BR3.3 |
@@ -118,22 +134,24 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T09:32:52Z
-**Iteration:** 2
+**Date:** 2026-09-06T13:31:30Z
+**Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Minor | construction/permission/functional-design/rules.md > BR3.2、functional-spec.md > ワークフロー5 手順3 | BR3.2(契約#21の全置換ロジック)は「配列の各roleIdについて新規に作成する」と規定するのみで、渡されたroleId配列自体に重複roleIdが含まれる場合の挙動を定めていない。RoleAssignmentの`entity_constraints`(entities.md)は(roleId, accountId)の組を一意と定めており、素朴な実装(配列を単純にループしてINSERT)では2件目のINSERTで一意制約違反が発生しうる。BR1.2・BR3.3では重複割当を冪等として明示的に扱っているのに対し、BR3.2にはこの配慮が欠けている。 | BR3.2に「配列内の重複roleIdは去重(dedup)してから処理する」旨、またはaccount-management側で去重済みの配列のみを渡す契約上の前提を明記する一文を追加する。 | New |
+| R-01 | Minor | aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/upstream-coverage sensor result | `upstream-coverage` reports `unit-of-work`, `unit-of-work-story-map`, `requirements` as consumed-but-unreferenced in the scanned files (rules.md/entities.md/functional-spec.md/traceability.json never cite these three filenames by name; requirements.md coverage is carried instead via bare FR IDs such as FR5.1). This looks like the same class of sensor false-positive already accepted for `missing_from_upstream_ids`, but unlike that one it was not called out in the dispatch brief as expected, so it is recorded here for visibility rather than silently dropped. | No artifact change required if the team accepts this as sensor noise; otherwise add an explicit citation of unit-of-work.md/unit-of-work-story-map.md alongside the existing FR-ID citations. | New |
+| R-02 | Minor | aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md > BR1.4, BR1.5 | The "check RoleAssignment reference, then cascade-delete child rows, then delete the Role/Group" sequence in BR1.4/BR1.5 does not state that the check-and-delete must run as a single atomic transaction. A RoleAssignment could in principle be created between the reference check and the delete, leaving a dangling reference. This is a narrow, implementation-level concern rather than a design defect (functional design is not expected to specify transaction boundaries), so it does not block readiness. | Optionally add one sentence noting the check-then-cascade-delete sequence must execute within a single transaction, to remove any ambiguity for the implementer. | New |
 
 ### Validation Tool Results
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| aidlc-sensor-required-sections | PASS(既報告、3ファイルとも合格) | 必須セクション構成に問題なし |
-| aidlc-sensor-traceability / aidlc-sensor-upstream-coverage | 既知の制約により、stories.mdが本プロジェクト全体でSKIPされているためのFRフォールバックで、本Unit固有のFR以外の大半が`missing_from_upstream_ids`として検出される見込み | 新規欠陥として扱わない(プロジェクト全体の既知制約) |
+| required-sections | PASS | functional-spec.md carries all required sections. |
+| upstream-coverage | FAIL: `unreferenced: ["unit-of-work", "unit-of-work-story-map", "requirements"]` | See R-01. Not a defect in the reviewed business logic; recorded as advisory. |
+| traceability | FAIL: `missing_from_upstream_ids` lists ~38 FR IDs (FR1.x, FR2.x, FR3.x, FR4.x, FR5.5/5.6, FR6.x, FR7.x) | Confirmed as the known false-positive named in the dispatch brief (FRs outside this Unit's scope, from the stories.md-skip fallback). All FRs actually in scope (FR5.1–FR5.4) are covered per traceability.json's `coverage` array, cross-checked against requirements.md. No new defect. |
 
 ### Summary
 
-iteration 1で指摘されたCritical 1件(契約#21のProvider側実装欠落)・Major 1件(RoleAssignment重複割当時の挙動未定義)・Minor 1件(ER図のPK/FKタグ欠落)は、それぞれBR3.2の新設、BR3.3の新設、mermaid ER図の複合主キータグ追加により解消を独立に確認した。account-management側のBR1.3(初期ロール割り当て)・BR3.1(編集時のロール変更)の呼び出しパターンともBR3.2は矛盾なく対応し、BR3.2とBR4.1(グループ経由ロールの和集合計算)の役割分担、BR3.3とBR3.1(排他検証)の共存、ワークフロー番号の繰り下げ(5〜7)もfunctional-spec.md内で一貫している。unit-of-work-dependency.mdのauth→permission・account-management→permissionエッジも循環を生んでおらず健全。新たに、契約#21で渡されるroleId配列内の重複値に対するBR3.2の挙動未定義という1件のMinor指摘のみを追加する。Critical/Major指摘は0件であり、READY水準を満たす。
+The four changes verified cleanly against the upstream contracts and against each other: BR1.3's rename logic matches the new PUT endpoints (200/400/404) exactly; BR1.4/BR1.5's cascade-vs-block distinction is architecturally sound against entities.md's actual ownership model — TablePermission/ColumnPermission/GroupMembership are each owned_by the permission Unit itself as child data of the Role/Group being deleted (correctly cascaded), while RoleAssignment is the one entity that references the Role/Group from outside that ownership boundary (correctly treated as the blocking 409 condition) — and matches the DELETE endpoints' 204/404/409 contract exactly; the BR3.2 dedup fix is stated identically and consistently in rules.md and functional-spec.md workflow 5, and correctly closes the prior unique-constraint risk. traceability.json's FR5.3 coverage entry was updated to include BR1.3–BR1.5. Only two Minor, non-blocking observations were found (sensor noise and an implementation-level transactionality note); no Critical or Major findings.

@@ -22,6 +22,33 @@ rules:
     violation_behaviour: "該当なし(エラーとして扱わない)"
     source: functional-design-questions.md Q1のレビューで発見された未決定事項(R-03フォロー)
 
+  - id: BR1.3
+    statement: PUT /api/admin/roles/{roleId}(ロール名称変更)・PUT /api/admin/groups/{groupId}(グループ名称変更)は、対象のname属性のみを更新する。一意性検証はBR1.1に従う
+    category: business
+    applies_to: Role, Group
+    trigger: "管理者がPUT /api/admin/roles/{roleId}またはPUT /api/admin/groups/{groupId}を呼び出したとき(frontend-admin Unit Functional Designレビューより新設)"
+    logic: "IF 対象roleId/groupIdが存在しない THEN 404を返す。ELSE BR1.1の一意性検証を適用し、通過すればname属性のみを更新する(roleId/groupId自体、およびその他の属性は変更しない)"
+    violation_behaviour: "404エラー(対象なし)、または400エラー(BR1.1違反、RFC 7807)"
+    source: FR5.1, FR5.2, FR5.3(frontend-admin Unit Functional Designレビューより新設)
+
+  - id: BR1.4
+    statement: DELETE /api/admin/roles/{roleId}は、対象roleIdを参照するRoleAssignmentが1件以上存在する場合は削除を拒否する。参照が存在しない場合、対象RoleのTablePermission・ColumnPermission(そのRole自身に従属するデータ)を道連れに削除したうえでRole自体を削除する
+    category: business
+    applies_to: Role, RoleAssignment, TablePermission, ColumnPermission
+    trigger: "管理者がDELETE /api/admin/roles/{roleId}を呼び出したとき(frontend-admin Unit Functional Designレビューより新設)"
+    logic: "IF 対象roleIdが存在しない THEN 404を返す。IF RoleAssignment(roleId=対象)が1件以上存在する THEN 409を返す(config-managementのDbConnection削除と同様、参照が残っている限り削除不可とする方針)。ELSE 対象RoleのTablePermission・ColumnPermissionをすべて削除したうえでRole自体を削除する"
+    violation_behaviour: "404エラー(対象なし)、または409エラー(RFC 7807、割り当てが残っている旨を示す)"
+    source: FR5.1, FR5.2, FR5.3(frontend-admin Unit Functional Designレビューより新設)
+
+  - id: BR1.5
+    statement: DELETE /api/admin/groups/{groupId}は、対象groupIdを参照するRoleAssignment(assigneeType=group)が1件以上存在する場合は削除を拒否する。参照が存在しない場合、対象GroupのGroupMembership(そのGroup自身に従属するデータ)を道連れに削除したうえでGroup自体を削除する
+    category: business
+    applies_to: Group, RoleAssignment, GroupMembership
+    trigger: "管理者がDELETE /api/admin/groups/{groupId}を呼び出したとき(frontend-admin Unit Functional Designレビューより新設)"
+    logic: "IF 対象groupIdが存在しない THEN 404を返す。IF RoleAssignment(assigneeType=group, groupId=対象)が1件以上存在する THEN 409を返す。ELSE 対象GroupのGroupMembershipをすべて削除したうえでGroup自体を削除する"
+    violation_behaviour: "404エラー(対象なし)、または409エラー(RFC 7807、ロールが割り当てられている旨を示す)"
+    source: FR5.1, FR5.2, FR5.3(frontend-admin Unit Functional Designレビューより新設)
+
   - id: BR2.1
     statement: TablePermissionは、一覧(canList)・詳細(canView)・作成(canCreate)・編集(canEdit)・削除(canDelete)の5つの操作権限を、ロール・テーブルの組み合わせごとに個別に設定できる
     category: authorization
@@ -50,13 +77,13 @@ rules:
     source: FR5.3
 
   - id: BR3.2
-    statement: 契約#21(account-management → permission)を受けたとき、渡されたroleId配列がすべて存在するロールであることを検証したうえで、対象accountIdの直接RoleAssignment(assigneeType=user)を渡された配列で全置換する(既存の直接割当をすべて削除してから、配列の各roleIdについて新規に作成する)。グループ経由の割当(GroupMembership)には一切触れない
+    statement: 契約#21(account-management → permission)を受けたとき、渡されたroleId配列がすべて存在するロールであることを検証したうえで、対象accountIdの直接RoleAssignment(assigneeType=user)を渡された配列で全置換する(既存の直接割当をすべて削除してから、配列内の重複roleIdを去重(dedup)した上で、各roleIdについて新規に作成する)。グループ経由の割当(GroupMembership)には一切触れない
     category: business
     applies_to: RoleAssignment
     trigger: "契約#21の呼び出しを受けたとき(account-managementによるアカウント新規作成時の初期ロール割り当て、または編集時の割り当てロール変更)"
-    logic: "IF roleId配列に存在しないroleIdが含まれる THEN 例外を送出する(account-management側で400として応答、契約#21 Failure behavior)。ELSE 対象accountIdのassigneeType=user・RoleAssignmentを全件削除し、配列の各roleIdについて新規RoleAssignment(assigneeType=user, accountId=対象, roleId=該当)を作成する。処理成功後、更新後の直接RoleAssignment一覧(roleId配列)を返す"
+    logic: "IF roleId配列に存在しないroleIdが含まれる THEN 例外を送出する(account-management側で400として応答、契約#21 Failure behavior)。ELSE 配列内の重複roleIdを去重してから、対象accountIdのassigneeType=user・RoleAssignmentを全件削除し、去重後の各roleIdについて新規RoleAssignment(assigneeType=user, accountId=対象, roleId=該当)を作成する(去重により、RoleAssignmentの(roleId, accountId)一意制約違反を防ぐ。iteration 2レビューR-01フォロー)。処理成功後、更新後の直接RoleAssignment一覧(去重済みroleId配列)を返す"
     violation_behaviour: "該当なし(例外は呼び出し元であるaccount-managementがREST境界で400として応答する)"
-    source: contract-summary.md #21(R-01フォロー、permission Unit Functional Designレビュー iteration 1より)
+    source: contract-summary.md #21(R-01フォロー、permission Unit Functional Designレビュー iteration 1より。配列内重複のdedupはiteration 2レビューR-01フォロー)
 
   - id: BR3.3
     statement: 管理画面からの個別ロール割り当て(`POST /api/admin/roles/{roleId}/assignments`)で、既に存在する(roleId, accountId)または(roleId, groupId)の組を再度割り当てようとした場合、既存の割当を維持し何もしない(冪等。BR1.2のGroupMembershipと同じ方針)
@@ -110,6 +137,9 @@ rules:
 |---|---|---|
 | BR1.1 | validation | Role・Groupのname一意性 |
 | BR1.2 | policy | 重複するグループ所属追加は冪等(エラーにしない) |
+| BR1.3 | business | ロール・グループの名称変更(PUT) |
+| BR1.4 | business | ロール削除(DELETE)。割当参照が残っていれば409 |
+| BR1.5 | business | グループ削除(DELETE)。割当参照が残っていれば409 |
 | BR3.2 | business | 契約#21(初期ロール割り当て・変更)の全置換ロジック |
 | BR3.3 | policy | 重複するロール割り当ては冪等(エラーにしない) |
 | BR2.1 | authorization | TablePermissionの5操作を個別設定 |

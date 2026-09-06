@@ -95,13 +95,13 @@ rules:
     source: FR5.2, contract-summary.md #3, FR3.1, FR3.2, FR3.3(R-05フォロー、dynamic-data-access Unit Functional Designレビューより)
 
   - id: BR5.1
-    statement: FKポップアップ検索(GET /api/data/{tableId}/fk-search/{columnName})は、対象カラムが参照する先テーブルに対し、カラムごとの絞り込み条件付きで検索を行い、代表表示列と主キー(または全カラム、recordId生成に使う)を返す。参照先テーブルについてもBR1.1と同様、accessLevel=非表示のカラムは絞り込み条件として受け付けない(iteration 2レビューR-01フォロー)
+    statement: FKポップアップ検索(GET /api/data/{tableId}/fk-search/{columnName})は、対象カラムが参照する先テーブルに対し、カラムごとの絞り込み条件付きで検索を行い、代表表示列と主キー(または全カラム、recordId生成に使う)を返す。参照先テーブルについてもBR1.1と同様、accessLevel=非表示のカラムは絞り込み条件として受け付けない(iteration 2レビューR-01フォロー)。返却する代表表示列の値についても、参照先テーブルの列単位accessLevelがBR4.2で非表示と判定される場合は、そのままでは返さない(R-06フォロー、iteration 2レビューより)
     category: business
     applies_to: RecordView
     trigger: "GET /api/data/{tableId}/fk-search/{columnName} を受けたとき"
-    logic: "参照先テーブルのTableConfigに対してもBR4.1(テーブル単位権限、対象アクションはview)を適用する。参照先が未解決(config-management側でreferencedTableId=null)の場合は404を返す。参照先テーブルの列単位accessLevel(BR4.2)を絞り込み条件の受付より先に確認し、accessLevel=非表示のカラムの絞り込み条件は無視する"
+    logic: "参照先テーブルのTableConfigに対してもBR4.1(テーブル単位権限、対象アクションはview)を適用する。参照先が未解決(config-management側でreferencedTableId=null)の場合は404を返す。参照先テーブルの列単位accessLevel(BR4.2)を絞り込み条件の受付より先に確認し、accessLevel=非表示のカラムの絞り込み条件は無視する。検索結果の返却時(BR4.1のview権限確認後、応答生成前)にも同じaccessLevelを再適用する: 代表表示列(foreignKeyRepresentativeColumns)がaccessLevel=非表示と判定される場合、その値は返さず、代わりに参照先テーブルの主キー値(またはrecordId生成に使う全カラム基準集合、BR2.1と同じ可視カラムのみ)を代表表示ラベルとして代用する(主キー自体も非表示の場合は、可視な最初のカラムを代用する。全カラムが非表示の場合は代表表示ラベルなし(空文字列)で返す)。recordId生成用の主キー(または全カラム)自体も、BR2.1と同じくaccessLevel=非表示のカラムを除外した基準集合のみを返す"
     violation_behaviour: "404エラー(RFC 7807、参照先テーブルが未解決またはtableId/columnNameが不正な場合)"
-    source: FR4.2, functional-design-questions.md Q4 R-01(iteration 2レビューより)
+    source: FR4.2, functional-design-questions.md Q4 R-01(iteration 2レビューより)、R-06(iteration 2レビューより)
 
   - id: BR6.1
     statement: 業務データの作成・更新の成功を、契約#5〜#8(監査ログイベント契約)に基づきactionType=DATA_RECORD_CREATED/DATA_RECORD_UPDATEDのAuditableActionOccurredEventとして発行する。本Unitに削除操作(FR3.3は新規作成・更新のみを対象とし、契約#12にもDELETEエンドポイントは存在しない)は存在しないため、契約#7が語彙として持つDATA_RECORD_DELETEDは発行しない(R-02フォロー、dynamic-data-access Unit Functional Designレビューより)
@@ -127,5 +127,5 @@ rules:
 | BR3.4 | constraint | 外部キー制約違反の400応答 |
 | BR4.1 | authorization | テーブル単位権限確認(契約#3) |
 | BR4.2 | authorization | カラム単位権限制御(表示・入力の制御) |
-| BR5.1 | business | FKポップアップ検索 |
+| BR5.1 | business | FKポップアップ検索(検索条件・応答の両側でaccessLevelフィルタを適用) |
 | BR6.1 | business | 監査ログイベント発行(DATA_RECORD_CREATED/UPDATEDのみ、DELETEDは未使用) |

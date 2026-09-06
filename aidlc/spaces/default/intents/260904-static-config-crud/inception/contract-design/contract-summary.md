@@ -170,6 +170,8 @@ messages:
 ### schema-ingestion(#14: frontend-admin向け)
 
 > 追記(Construction / schema-ingestion Unit Functional Designより): `/api/admin/schema-ingestion/schemas`(取り込み対象スキーマ/データベース一覧取得)を追加し、`preview`のリクエストに`schemaTarget`パラメータを追加した(functional-design-questions.md Q1)。また`foreignKeys`の形状を単一カラムの組(column/referencedColumn)から複数カラムの配列(columns[]/referencedColumns[])へ変更し、複合外部キーに対応した(Q2)。いずれもschema-ingestionが所有する契約であり、加法的な変更として扱う(#18の追記と同じ位置づけ)。
+>
+> 追記(Construction / schema-ingestion Unit Functional Designレビュー R-01フォロー): `/api/admin/schema-ingestion/connection-test`(接続テスト専用エンドポイント)を追加した。mockups.md 11.(スキーマ取り込み画面)の「接続テスト」ボタンに対応するエンドポイントが従来存在せず、開発者が実装時に推測を要する状態だったため新設した(加法的な変更)。
 
 ```yaml
 openapi: 3.0.3
@@ -193,6 +195,22 @@ paths:
                 items: { type: object, properties: { name: { type: string } } }
         "403": { description: "管理者ロールなし (RFC 7807)" }
         "500": { description: "業務DB接続失敗等の予期しないエラー (RFC 7807)" }
+  /api/admin/schema-ingestion/connection-test:
+    post:
+      summary: "DB接続先設定への接続テスト(スキーマ取り込みは行わず、接続の成否のみを確認する)"
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                connectionId: { type: string }
+      responses:
+        "204": { description: "接続成功(No Content)" }
+        "400": { description: "接続情報が不正 (RFC 7807)" }
+        "403": { description: "管理者ロールなし (RFC 7807)" }
+        "500": { description: "業務DB接続失敗 (RFC 7807)" }
   /api/admin/schema-ingestion/preview:
     post:
       summary: 業務DBスキーマの取り込みプレビュー(FR1.1〜FR1.6)
@@ -314,6 +332,8 @@ components:
 ### permission(#13: frontend-core向け, #16: frontend-admin向け — 同一API仕様を両者が消費する)
 
 > 追記(Construction / permission Unit Functional Designより): `/api/admin/groups/{groupId}/members`を追加した。GroupMembership(どのAccountがどのGroupに所属するか)はdomain-design/components.mdでは明示されていなかったが、Groupへのロール割り当て(FR5.3)が実際に機能するために必要なエンティティとしてFunctional Designで新設した(加法的な変更、Contract Ownership Rules参照)。
+>
+> 追記(Construction / frontend-admin Unit Functional Designより): `/api/admin/roles/{roleId}`(PUT: 名称変更、DELETE: 削除)・`/api/admin/groups/{groupId}`(PUT: 名称変更、DELETE: 削除)を追加した。ロール・グループの名称変更・削除操作をUI(frontend-admin)から提供するために必要となったため新設した(加法的な変更、Contract Ownership Rules参照。permission Unit Functional Designのrules.md BR1.3〜BR1.5に対応する業務ルールを追加済み)。
 
 ```yaml
 openapi: 3.0.3
@@ -336,6 +356,9 @@ paths:
   /api/admin/roles:
     get: { summary: "ロール一覧 (FR5.1〜FR5.2)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
     post: { summary: "ロールの作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created } } }
+  /api/admin/roles/{roleId}:
+    put: { summary: "ロールの名称変更 (FR5.1〜FR5.3)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "400": { description: "名称重複 (RFC 7807)" }, "404": { description: "対象なし (RFC 7807)" } } }
+    delete: { summary: "ロールの削除。割り当て(RoleAssignment)が残っている場合は拒否", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" }, "404": { description: "対象なし (RFC 7807)" }, "409": { description: "割り当てが残っている (RFC 7807)" } } }
   /api/admin/roles/{roleId}/table-permissions:
     get: { summary: "テーブル単位権限の取得 (FR5.1)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
     put: { summary: "テーブル単位権限の更新(list/view/create/edit/delete)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
@@ -345,6 +368,9 @@ paths:
   /api/admin/groups:
     get: { summary: "グループ一覧", security: [{ bearerAuth: [] }], responses: { "200": { description: OK } } }
     post: { summary: "グループの作成", security: [{ bearerAuth: [] }], responses: { "201": { description: Created } } }
+  /api/admin/groups/{groupId}:
+    put: { summary: "グループの名称変更 (FR5.1〜FR5.3)", security: [{ bearerAuth: [] }], responses: { "200": { description: OK }, "400": { description: "名称重複 (RFC 7807)" }, "404": { description: "対象なし (RFC 7807)" } } }
+    delete: { summary: "グループの削除。割り当て(RoleAssignment、assigneeType=group)が残っている場合は拒否", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" }, "404": { description: "対象なし (RFC 7807)" }, "409": { description: "割り当てが残っている (RFC 7807)" } } }
   /api/admin/roles/{roleId}/assignments:
     post: { summary: "ロールのユーザ/グループへの割り当て (FR5.3)", security: [{ bearerAuth: [] }], responses: { "201": { description: Created }, "404": { description: "対象ユーザ/グループ/ロールなし (RFC 7807)" } } }
   /api/admin/groups/{groupId}/members:
@@ -481,6 +507,8 @@ components:
 ### audit-log(#18: frontend-admin向け)
 
 > 追記(Construction / audit-log Functional Designより): 保持日数の設定値管理(`/settings`)、エクスポート形式パラメータ(`format`)を追加した。いずれも加法的な変更であり、既存の操作を変更しない(Contract Ownership Rules参照)。
+>
+> 追記(Construction / audit-log Functional Designレビュー R-09フォロー): GET /api/admin/audit-logおよびGET /api/admin/audit-log/exportに、rules.md BR2.1(actionType・actorAccountId・occurredAt範囲での絞り込み)・BR2.2(targetDescriptionの自由文字列検索)に対応するクエリパラメータ(actionType、actorAccountId、occurredAtFrom、occurredAtTo、q)を追加した。加法的な変更である。
 
 ```yaml
 openapi: 3.0.3
@@ -496,6 +524,11 @@ paths:
         - { name: page, in: query, schema: { type: integer } }
         - { name: size, in: query, schema: { type: integer } }
         - { name: sort, in: query, schema: { type: string } }
+        - { name: actionType, in: query, required: false, schema: { type: string }, description: "操作種別での絞り込み(BR2.1)" }
+        - { name: actorAccountId, in: query, required: false, schema: { type: string }, description: "利用者での絞り込み(BR2.1)" }
+        - { name: occurredAtFrom, in: query, required: false, schema: { type: string, format: date-time }, description: "記録日時の範囲絞り込み(下限、BR2.1)" }
+        - { name: occurredAtTo, in: query, required: false, schema: { type: string, format: date-time }, description: "記録日時の範囲絞り込み(上限、BR2.1)" }
+        - { name: q, in: query, required: false, schema: { type: string }, description: "targetDescriptionの自由文字列検索、他の絞り込み条件とAND条件(BR2.2)" }
       responses: { "200": { description: OK } }
     delete:
       summary: "保持期間超過分の監査ログ削除 (FR7.5)。olderThanDaysはこの呼び出しで実際に使う削除基準日数。呼び出し元(frontend-admin)は/api/admin/audit-log/settingsの現在のretentionDaysをこのパラメータの初期値として画面に表示し、管理者はその場で値を上書きして一時的な基準日数で削除することもできる(Functional Design functional-design-questions.md Q1)"
@@ -506,10 +539,15 @@ paths:
         "400": { description: "olderThanDaysが1未満、または整数でない (RFC 7807)" }
   /api/admin/audit-log/export:
     get:
-      summary: "監査ログのエクスポート (FR7.4)"
+      summary: "監査ログのエクスポート (FR7.4)。現在の絞り込み条件(GET /api/admin/audit-logと同じクエリパラメータ)に一致する全件をエクスポートする"
       security: [{ bearerAuth: [] }]
       parameters:
         - { name: format, in: query, required: true, schema: { type: string, enum: [csv, json] } }
+        - { name: actionType, in: query, required: false, schema: { type: string }, description: "操作種別での絞り込み(BR2.1)" }
+        - { name: actorAccountId, in: query, required: false, schema: { type: string }, description: "利用者での絞り込み(BR2.1)" }
+        - { name: occurredAtFrom, in: query, required: false, schema: { type: string, format: date-time }, description: "記録日時の範囲絞り込み(下限、BR2.1)" }
+        - { name: occurredAtTo, in: query, required: false, schema: { type: string, format: date-time }, description: "記録日時の範囲絞り込み(上限、BR2.1)" }
+        - { name: q, in: query, required: false, schema: { type: string }, description: "targetDescriptionの自由文字列検索、他の絞り込み条件とAND条件(BR2.2)" }
       responses:
         "200": { description: "エクスポートファイル(Content-Typeはformatに応じてtext/csvまたはapplication/json)" }
         "400": { description: "formatがcsv/json以外 (RFC 7807)" }

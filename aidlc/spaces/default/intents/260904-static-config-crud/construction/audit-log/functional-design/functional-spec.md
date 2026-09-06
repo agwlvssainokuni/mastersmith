@@ -78,27 +78,26 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T09:24:02Z
-**Iteration:** 1
-**Request Challenge:** review:17304181fd41d3e861158976537271a0
-
-本レビューは、functional-designステージ全体のredo jump(review-freeze回復のため)によりレビュー受信がツール上リセットされたことに伴う再認定である。entities.md/rules.md/functional-spec.md/traceability.jsonの4ファイルは内容の変更がないことを前提として提示されたが、独立して全内容を再読し、上流成果物(requirements.md FR7.1〜FR7.5・FR5.5/FR5.6、unit-of-work.md U8、contract-summary.md #5〜#8・#18・#19、components.md AuditLogComponent、functional-design-questions.md Q1・Q2)と突き合わせて検証した。過去の`## Review`セクション(R-07/R-08を含む)は本セクションで置き換える。
+**Date:** 2026-09-06T13:40:56Z
+**Iteration:** 2
+**Request Challenge:** review:3ce03f5560a95052c64e889db2972f46
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-07 | Major | rules.md BR4.3, functional-spec.md ワークフロー4 手順3, contract-summary.md #18 DELETE /api/admin/audit-log | 再検証済み。BR4.3はolderThanDaysに1以上の整数を要求し(BR4.2と同じ下限)、違反時は400(RFC 7807)・削除未実行とする。functional-spec.mdワークフロー4は手順3(BR4.3検証)を手順4(削除基準日時の算出)より前に置いており、0以下の値が日時計算・削除実行に到達する前に拒否される。contract-summary.md #18のDELETE操作はolderThanDaysにschema.minimum: 1と400レスポンスケースを持ち、既存の204レスポンスは変更されていない。BR4.1(管理者による上書き・設定値のプリフィル)とも矛盾しない。ファイル内容は前回レビュー時から変化がないことを確認した。 | なし。 | Resolved |
-| R-08 | Minor | construction/audit-log/functional-design/traceability.json > FR7.5のcoverageエントリ | FR7.5のcoverage行は依然として`target: "BR4.1, BR4.2"`のみで、BR4.3(rules.mdのsource欄によればFR7.5の削除操作に付随する安全性ギャップとして追加されたルール)が含まれていない。再検証の結果、ファイル内容は前回指摘時から変化しておらず、未解消のまま残っている。 | traceability.jsonが次に編集される際に、FR7.5のcoverage行のtargetへBR4.3を追加する(例: "BR4.1, BR4.2, BR4.3")。 | Unresolved |
-| R-09 | Major | functional-spec.md ワークフロー2手順2・ワークフロー3手順2、contract-summary.md #18 GET /api/admin/audit-log および GET /api/admin/audit-log/export | rules.md BR2.1(actionType・actorAccountId・occurredAt範囲での絞り込み)とBR2.2(targetDescriptionの自由文字列検索)はfunctional-spec.mdのワークフロー2・3で必須の振る舞いとして記述されているが、contract-summary.md #18のGET /api/admin/audit-logのparametersにはpage/size/sortのみが定義されており、actionType・actorAccountId・期間(from/to等)・検索文字列に対応するクエリパラメータが1つも定義されていない。GET /api/admin/audit-log/exportも同様にformatパラメータしか定義されておらず、「現在の絞り込み条件に一致する全件をエクスポートする」(ワークフロー3手順2)を実現するためのフィルタ用パラメータが契約上存在しない。共通規約の「テーブルごとに設定された検索条件パラメータ」はdynamic-data-access向けの設定駆動パラメータを指すものであり、固定スキーマを持つaudit-log自身のフィルタ条件を代替しない。この状態では、開発者はBR2.1/BR2.2を実装する際にクエリパラメータ名(例: actionType, actorAccountId, from, to, q)を独自に決めるほかなく、フロントエンド(frontend-admin)側の実装と食い違うリスクがある。 | contract-summary.md #18のGET /api/admin/audit-logとGET /api/admin/audit-log/exportの両方に、BR2.1・BR2.2に対応する具体的なクエリパラメータ名・型を追加する(共有契約側の改訂が必要なため、audit-log Unit側では対応不可な場合はcontract-designへのフォローアップとして起票する)。 | New |
-| R-10 | Minor | entities.md > AuditLogEntry.actionType.allowed_values(config-management分), contract-summary.md #5〜#8 | entities.mdのactionType allowed_valuesは、config-management向けに`CONFIG_TABLE_CREATED \| CONFIG_TABLE_UPDATED \| CONFIG_TABLE_DELETED \| CONFIG_IMPORTED`のみを列挙しているが、contract-summary.md #5〜#8は「追記: Construction / config-management Unit Functional Designレビューより」として`CONFIG_CONNECTION_CREATED/UPDATED/DELETED`・`CONFIG_MENU_CREATED/UPDATED/DELETED`を加法的に追加済みである。entities.mdの列挙はcontract-summary.mdへの参照を明記しているため実害は小さいが(BR1.1により受信したactionTypeの値を問わず記録するため、この列挙自体はバリデーションに使われない)、列挙内容自体は契約より古い。 | entities.mdのconfig-management向けallowed_values列挙を、contract-summary.md #5〜#8の現行のactionType語彙(CONFIG_CONNECTION_*・CONFIG_MENU_*を含む)に合わせて更新する。 | New |
+| R-09 | Major | contract-summary.md > 監査ログAPI(#18) GET /api/admin/audit-log および /export の query parameters vs. entities.md / rules.md / traceability.json | contract-summary.md #18は`actionType`/`actorAccountId`/`occurredAtFrom`/`occurredAtTo`/`q`の各クエリパラメータをGET /api/admin/audit-logおよびGET /api/admin/audit-log/exportに宣言済み(511行目のR-09フォローアップ追記、527-530行目・546-549行目のパラメータ定義で確認)だが、本Unit自身のentities.md/rules.md/traceability.jsonはこの変更前の状態のままで、BR2.1/BR2.2の記述はクエリパラメータ名との対応を明示していない。以前の修正試行はツール都合でrevertされたことが判明済み。 | entities.mdまたはrules.mdのBR2.1/BR2.2に、契約#18で確定した5つのクエリパラメータ名(actionType/actorAccountId/occurredAtFrom/occurredAtTo/q)との対応を明記する。 | Unresolved |
+| R-10 | Minor | entities.md > AuditLogEntry.actionType の allowed_values(32行目) | config-managementのactionType許容値が`CONFIG_TABLE_CREATED\|CONFIG_TABLE_UPDATED\|CONFIG_TABLE_DELETED\|CONFIG_IMPORTED`のみ列挙されており、contract-summary.md #5〜#8に既にある`CONFIG_CONNECTION_*`/`CONFIG_MENU_*`系の値が未反映。 | entities.mdのallowed_valuesにCONFIG_CONNECTION_*/CONFIG_MENU_*を追記する。 | Unresolved |
+| R-11 | Minor | traceability.json > coverage[FR7.5].target(10行目) | FR7.5のtargetが`"BR4.1, BR4.2"`のままで、削除操作のolderThanDays検証を担うBR4.3が含まれていない。今回実行したtraceabilityセンサーも同じ欠落を`orphans: ["BR4.3"]`として検出しており、独立に裏付けられる。 | traceability.jsonのFR7.5.targetを`"BR4.1, BR4.2, BR4.3"`に更新する。 | Unresolved |
 
 ### Validation Tool Results
 
-本ステージにこのdispatch向けの検証ツール指定はなし。entities.md・rules.md・functional-spec.md・traceability.jsonを、上流のrequirements.md・unit-of-work.md・contract-summary.md・components.md・functional-design-questions.mdと突き合わせる手動クロスリファレンスで検証した。
-
-なお、team.mdに記載の既知の制約により、aidlc-sensor-traceability・aidlc-sensor-upstream-coverageは、stories.mdがプロジェクト全体でSKIPされているためのFRフォールバックにより、本Unit固有のFR(FR7.1〜FR7.5)以外の大半を`missing_from_upstream_ids`として検出する構成になっている。これは新規欠陥ではなく既知の制約として記録する。
+| Tool | Result | Interpretation |
+|---|---|---|
+| required-sections (functional-spec.md) | passed | 必須セクションの欠落なし |
+| traceability (traceability.json) | failed — `orphans: ["BR4.3"]`, `missing_from_upstream_ids`に大量のFR1〜FR6系ID | `orphans`のBR4.3欠落はR-11と同一事象で独立に裏付けられる新規の欠陥ではない。`missing_from_upstream_ids`の大量リストはaudit-log Unitのスコープ外FR(他Unit担当分)であり、既知の誤検知パターンとして扱う(新規欠陥ではない) |
+| upstream-coverage (traceability.json) | failed — `unreferenced: ["unit-of-work", "unit-of-work-story-map", "requirements"]` | この3契約はunits-generation/requirements-analysis由来の上位契約全体であり、functional-designの成果物(entities.md/rules.md/traceability.json)が個別に逐語引用する性質のものではない。既存の(前回iterationから変化のない)状態であり新規の欠陥ではない |
 
 ### Summary
 
-4ファイルの内容はredo jump前と変化がないことを確認した。R-07(olderThanDaysの下限検証)は前回どおり解消済みで再検証でも問題ない。R-08(traceability.jsonのFR7.5行がBR4.3を含んでいない)は未解消のまま残っている(Minor)。新たに、契約上のクエリパラメータ不足(R-09、Major: GET /api/admin/audit-logとexportエンドポイントにBR2.1/BR2.2のフィルタ条件に対応するパラメータが定義されていない)と、config-management向けactionType列挙の陳腐化(R-10、Minor)を検出した。Critical 0件・Major 1件(R-09。R-07はResolved)・Minor 2件であり、判定基準(Critical 0件かつMajor 2件以下)によりREADYとする。ただし、R-09はfrontend-admin実装時にクエリパラメータ名の食い違いを招きうるため、次にcontract-summary.mdが編集される機会に解消することを強く推奨する。
+同一内容の再認証。entities.md/rules.md/functional-spec.md/traceability.jsonはiteration 1で認証済みの内容から変更されておらず(functional-spec.mdの`## Review`セクションが再認証前の状態に復元されていることも確認済み)、内部的にも健全(BR一覧・FR対応・状態遷移・ER図の相互整合性を再確認)。既知のR-09(Major)・R-10/R-11(Minor)はend-of-stageゲートでの人間判断に委ねる形でUnresolvedのまま持ち越す。Critical 0件、Major 1件、Minor 2件のためREADYとする。
