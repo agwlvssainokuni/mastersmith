@@ -412,6 +412,8 @@ components:
 
 ### audit-log(#18: frontend-admin向け)
 
+> 追記(Construction / audit-log Functional Designより): 保持日数の設定値管理(`/settings`)、エクスポート形式パラメータ(`format`)を追加した。いずれも加法的な変更であり、既存の操作を変更しない(Contract Ownership Rules参照)。
+
 ```yaml
 openapi: 3.0.3
 info:
@@ -427,9 +429,37 @@ paths:
         - { name: size, in: query, schema: { type: integer } }
         - { name: sort, in: query, schema: { type: string } }
       responses: { "200": { description: OK } }
-    delete: { summary: "保持期間(n日)超過分の監査ログ削除 (FR7.5)", security: [{ bearerAuth: [] }], parameters: [{ name: olderThanDays, in: query, required: true, schema: { type: integer } }], responses: { "204": { description: "No Content" } } }
+    delete:
+      summary: "保持期間超過分の監査ログ削除 (FR7.5)。olderThanDaysはこの呼び出しで実際に使う削除基準日数。呼び出し元(frontend-admin)は/api/admin/audit-log/settingsの現在のretentionDaysをこのパラメータの初期値として画面に表示し、管理者はその場で値を上書きして一時的な基準日数で削除することもできる(Functional Design functional-design-questions.md Q1)"
+      security: [{ bearerAuth: [] }]
+      parameters: [{ name: olderThanDays, in: query, required: true, schema: { type: integer, minimum: 1 } }]
+      responses:
+        "204": { description: "No Content" }
+        "400": { description: "olderThanDaysが1未満、または整数でない (RFC 7807)" }
   /api/admin/audit-log/export:
-    get: { summary: "監査ログのエクスポート (FR7.4)", security: [{ bearerAuth: [] }], responses: { "200": { description: "エクスポートファイル" } } }
+    get:
+      summary: "監査ログのエクスポート (FR7.4)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: format, in: query, required: true, schema: { type: string, enum: [csv, json] } }
+      responses:
+        "200": { description: "エクスポートファイル(Content-Typeはformatに応じてtext/csvまたはapplication/json)" }
+        "400": { description: "formatがcsv/json以外 (RFC 7807)" }
+  /api/admin/audit-log/settings:
+    get:
+      summary: "監査ログ保持日数の設定値を取得(既定365、Functional Design functional-design-questions.md Q1)"
+      security: [{ bearerAuth: [] }]
+      responses: { "200": { description: "OK。retentionDaysを含む" } }
+    put:
+      summary: "監査ログ保持日数の設定値を更新"
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { type: object, properties: { retentionDays: { type: integer, minimum: 1 } } }
+      responses:
+        "200": { description: OK }
+        "400": { description: "retentionDaysが1未満、または整数でない (RFC 7807)" }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
