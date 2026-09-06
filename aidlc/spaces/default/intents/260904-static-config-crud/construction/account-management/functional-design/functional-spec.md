@@ -61,28 +61,30 @@ account-managementは永続エンティティを持たないため、ER図は存
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T07:52:02Z
-**Iteration:** 2
+**Date:** 2026-09-06T13:10:59Z
+**Iteration:** 1
+**Request Challenge:** review:a25ae7d5155761832e2486559db90744
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major (Iteration 1、Resolved) | contract-summary.md 契約#4 | 一覧取得(page/size/sort)の呼び出し形状が未定義だった | 契約#4のConsumer passes/Provider returnsに一覧取得のページネーション条件と配列+総件数の返却形状を追記 | Resolved |
-| R-02 | Major (Iteration 1、Resolved) | rules.md BR2.2、functional-spec.md ワークフロー3、契約#4 | 契約#17のGET /api/admin/accounts/{id}に対応するBR・ワークフローが存在しなかった | 契約#4に単一取得対象のaccountIdを追記し、BR2.2・ワークフロー3(アカウント詳細の参照)を新設 | Resolved |
-| R-03 | Major (Iteration 1、Resolved) | rules.md BR1.2、functional-spec.md ワークフロー1手順3 | アカウント作成時のemail重複検証が本Unit・契約#4いずれにも規定されていなかった | 契約#4のFailure behaviorに409応答を追記し、BR1.2・ワークフロー1手順3に反映 | Resolved |
-| R-04 | Minor (Iteration 1、Resolved) | rules.md BR1.3、functional-spec.md ワークフロー1手順4 | 初期ロール割り当て失敗時の400応答にaccountIdを含めるか未規定だった | BR1.3・ワークフロー1手順4に「400エラー応答本体に作成済みのaccountIdを含める」ことを明記 | Resolved |
-| R-05 | Major | aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/functional-spec.md > ワークフロー1(アカウントの新規作成)手順4〜6、および rules.md > BR1.4・BR1.5 | rules.md BR1.4のtriggerは「BR1.3の完了後(ロール割り当ての成否に関わらず、Account自体の作成が成功していれば発行する)」と明記し、BR1.5のtriggerも「BR1.2(Account作成)が成功したとき」とBR1.3非依存で規定している。ところがfunctional-spec.mdワークフロー1の手順4は「存在しないroleIdが含まれる場合...400を返す(**以降の手順は実行されないが**、Account自体は残る)」としており、手順5(BR1.4のAccountCreatedEvent発行)・手順6(BR1.5の監査ログ発行)が実行されないと読める。rules.mdの規定(ロール割り当て失敗時もAccountCreatedEventと監査ログは発行される)とfunctional-spec.mdの逐次手順記述(ロール割り当て失敗で以降の手順が止まる)が直接矛盾しており、この逐次手順書だけを見た開発者は通知・監査ログ発行をスキップする実装をしてしまう。 | functional-spec.mdワークフロー1の手順4の「以降の手順は実行されない」を、BR1.3(ロール割り当て)の失敗時に限った限定表現に修正する(例:「手順5終了までの間、契約#21呼び出し以降のロール割り当てに関する処理のみを中断し、AccountCreatedEvent発行(手順5)・監査ログ発行(手順6)はAccount作成(手順3)が成功していれば実行する」)。rules.md BR1.4・BR1.5の規定と矛盾しない形にワークフロー記述を訂正する。 | New |
-| R-06 | Major | aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/rules.md > BR3.1、functional-spec.md > ワークフロー4(アカウント情報の編集)手順2 | BR3.1は「name・emailの変更は契約#4のupdate呼び出しで反映し、roleIdsの変更は契約#21のupdate呼び出し(全置換)で反映する」とし、violation_behaviourで404(契約#4)・400(契約#21)を個別に規定するが、2つの契約呼び出しの**実行順序**と、一方が成功し他方が失敗した場合の**部分適用の扱い**(例: 契約#4のname/email更新が成功した後に契約#21のroleIds更新が無効なroleIdで400になった場合、name/emailの変更は既に反映済みのままクライアントには400のみが返る)が、rules.md・functional-spec.mdのいずれにも規定されていない。アカウント作成フロー(BR1.2→BR1.3)では契約呼び出しの順序とロールバック不可の扱いがBR1.3/ワークフロー手順4で明示されているのに対し、編集フロー(BR3.1)では同種の部分失敗ケースが未規定であり、開発者が実装時に順序・整合性方針を推測せざるを得ない。 | BR3.1に契約#4→契約#21(またはその逆)の呼び出し順序と、一方が成功し他方が失敗した場合にクライアントへ返すエラー本体の内容(例: どちらのフィールドが実際に反映されたか)を明記する。functional-spec.mdワークフロー4手順2にも同様に反映する。 | New |
-| R-07 | Minor | aidlc/spaces/default/intents/260904-static-config-crud/inception/contract-design/contract-summary.md > account-management(#17) `GET /api/admin/accounts` | rules.md BR2.1・functional-spec.mdワークフロー2はGET /api/admin/accountsがpage/size/sortクエリパラメータを受け付けることを前提としているが、契約#17のOpenAPIスタブはこのエンドポイントにparametersを一切宣言していない(同じ契約-summary.md内のaudit-log #18のGETエンドポイントはpage/size/sortをparametersとして明示的に宣言しており、書き方の粒度に差がある)。今回のiteration 2の修正対象(契約#4)ではなく既存の契約#17側の記述レベルの粗さであり、実装を妨げるものではないが、契約定義の一貫性という観点では望ましくない。 | 契約#17のGET /api/admin/accountsにpage/size/sortのparametersを追記し、audit-log #18と記述粒度を揃える(account-management側での修正、または次回のcontract-summary.mdメンテナンス時の対応で可)。 | New |
+| R-01 | Major | (前イテレーションで解消済み) | — | — | Resolved |
+| R-02 | Major | (前イテレーションで解消済み) | — | — | Resolved |
+| R-03 | Major | (前イテレーションで解消済み) | — | — | Resolved |
+| R-04 | Minor | (前イテレーションで解消済み) | — | — | Resolved |
+| R-05 | Major | functional-spec.md > 1. アカウントの新規作成 手順4、rules.md > BR1.4/BR1.5 | rules.md BR1.4 (trigger: 「BR1.3の完了後(ロール割り当ての成否に関わらず、Account自体の作成が成功していれば発行する)」) とBR1.5 (trigger: 「BR1.2(Account作成)が成功したとき」)は、ロール割り当て(BR1.3)の成否に関わらずAccountCreatedEventと監査ログが発行されると明記している。しかしfunctional-spec.md手順4は「存在しないroleIdが含まれる場合...(以降の手順は実行されないが、Account自体は残る)」と書かれており、手順5(AccountCreatedEvent発行)・手順6(監査ログ発行)がロール割り当て失敗時にスキップされるかのように読める。rules.mdとfunctional-spec.mdの間で挙動の記述が矛盾したままである(内容は変更されておらず、前回指摘のとおり未解消)。 | functional-spec.md手順4の「以降の手順は実行されない」という表現を、BR1.3(ロール割り当て)自体の以降の処理(400応答生成等)に限定する旨に書き換え、手順5・6(BR1.4・BR1.5)はBR1.3の成否に関わらず実行されることを明記する。 | 未解消(Unresolved) |
+| R-06 | Major | rules.md > BR3.1、functional-spec.md > 4. アカウント情報の編集 手順2 | BR3.1(アカウント編集)およびfunctional-spec.md手順2は、契約#4(name・email)と契約#21(roleIds)への振り分け更新を記述するが、両呼び出しの実行順序、および一方が成功し他方が失敗した場合(部分失敗)の挙動(ロールバックの有無、レスポンスへの反映内容)を規定していない。BR1.3のように部分失敗時の応答仕様(accountId込みの400等)が明記されていない点が、BR1.2/BR1.3の設計と非対称である。 | 契約#4→契約#21(またはその逆)の呼び出し順序を明記し、一方が失敗した場合の応答仕様(どちらの更新が反映済みかをレスポンスに含めるか等)をBR3.1に追記する。 | 未解消(Unresolved) |
+| R-07 | Minor | contract-summary.md 契約#17(GET /api/admin/accounts) | contract-summary.md(このUnitの上流契約、account-management自身の生成物ではない)の契約#17 OpenAPIスタブがpage/size/sortの`parameters`を宣言していない一方、rules.md BR2.1/functional-spec.md workflow 2はこれらのパラメータを前提としている(audit-logの契約#18は同等のパラメータを明示している)。account-management Unit自身の成果物には影響しないinception成果物側の緩さであり、このUnitの範囲外。 | contract-design成果物の是正はこのUnitのスコープ外。end-of-stageゲートで人間に申し送る。 | 未解消(Unresolved、他Unit/上流契約起因) |
 
 ### Validation Tool Results
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| aidlc-sensor-traceability / aidlc-sensor-upstream-coverage | 既知の制約により、stories.mdがプロジェクト全体でSKIPされているためのFRフォールバックで、FR1系〜FR5系・FR7系の大半が`missing_from_upstream_ids`として検出される想定 | 本Unit(account-management、FR6.4系)固有の欠陥ではない。事前に合意された既知の制約として記録し、新規欠陥として扱わない |
-| 手動クロスリファレンス検証(契約#4↔BR1.2/BR1.3/BR2.1/BR2.2/BR3.1/BR4.1、契約#21↔BR1.3/BR3.1、契約#17↔ワークフロー1〜5、unit-of-work-dependency.md循環チェック) | 契約#4の一覧取得・単一取得・email重複検証の追記はBR2.1・BR2.2・BR1.2・ワークフロー1〜3と矛盾なく対応。ワークフロー番号の繰り下げ(旧3→4、旧4→5)はfunctional-spec.md内(本文・ルールサマリー表とも)で一貫。BR1.3の400応答へのaccountId追加はワークフロー1手順4に正しく反映。account-management→permissionの依存エッジ追加後もunit-of-work-dependency.mdの依存レベル(account-managementはレベル2、permissionはレベル0)上、循環は発生しない | R-05・R-06の2件を除き、iteration 1指摘4件はすべて独立検証の上で解消を確認 |
+| required-sections | passed | functional-spec.mdの必須セクションは揃っている |
+| upstream-coverage | failed (`unreferenced: unit-of-work, unit-of-work-story-map, requirements`) | 既知の誤検知パターン(stories.md-skipフォールバックに起因、事前に周知済み)。entities.md/rules.md/functional-spec.md/traceability.jsonの内容を確認した限り、実質的な上流カバレッジの欠落ではない |
+| traceability | failed | 同上。既知の誤検知パターンと一致し、新規の不整合は確認されなかった |
 
 ### Summary
 
-Iteration 1で指摘したMajor 3件・Minor 1件はいずれも正しく修正されており、契約#4・BR2.1・BR2.2・BR1.2・ワークフロー1〜3の対応関係、ワークフロー番号の繰り下げ、BR1.3の400応答へのaccountId反映を独立検証の上で確認した。一方で、新規にMajor 2件(R-05: 作成フローでロール割り当て失敗時に通知・監査ログイベントが発行されるかどうかについてrules.mdとfunctional-spec.mdが直接矛盾、R-06: 編集フローで契約#4/#21呼び出しの順序・部分失敗時の扱いが未規定)を検出した。いずれもUnit境界を越える設計破綻ではなく、当該Unit内の仕様記述レベルの矛盾・欠落であり、Major 2件・Critical 0件のためREADY判定とするが、次のConstruction作業(code-generation)に進む前にR-05・R-06の記述訂正を推奨する。
+再確認の結果、entities.md・rules.md・functional-spec.md・traceability.jsonの内容は前回認証時(iteration 2、jump前)から変更されておらず、R-05(Account作成時のイベント発行条件に関するrules.md/functional-spec.mdの記述矛盾)・R-06(アカウント編集の契約呼び出し順序・部分失敗仕様の未規定)は依然としてMajorの未解消事項として残る。R-07は上流契約(contract-summary.md)側の緩さでありこのUnitの範囲外。Critical指摘はなく、Major指摘は2件(R-05・R-06)で、本プロジェクトの確立された運用(Critical無し・Major少数かつ現パスで修正を試みない場合はend-of-stageゲートへ申し送り)に従い、READYとして再認証する。R-05・R-06・R-07は人間ゲートでの申し送り事項として引き続きオープンのまま記録する。
