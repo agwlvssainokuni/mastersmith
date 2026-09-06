@@ -4,6 +4,8 @@ Unit間の依存はdomain-design/components.mdの依存グラフを踏襲する(
 
 > 追記(Construction / permission Unit Functional Designより): `auth → permission`の依存エッジを新設した。ログイン時にアクセストークンのrolesクレームへ埋め込む「有効なロール集合」(直接割り当て+グループ経由の割り当て、functional-design-questions.md Q1)はpermission Unitが所有するデータ(RoleAssignment・GroupMembership)からしか計算できず、Contract Design時点ではこの呼び出しが想定されていなかったため、Functional Designで判明した不足として追加する。permissionは元々依存を持たないUnit(レベル0)であり、この追加はauth側にのみ新しい依存が増える一方向の変更であるため、循環は発生しない(auth自身も他Unitからの被依存はなく、この変更で新たな循環経路は生まれない)。
 
+> 追記(Construction / account-management Unit Functional Designより): `account-management → permission`の依存エッジを新設した。FR6.4.1(アカウント作成時の初期ロール割り当て)・FR6.4.3(編集画面での割り当てロール変更)は、permission Unitが所有するRoleAssignmentエンティティへの書き込みを要するが、Contract Design時点の契約#4はこのデータをauthへ渡す前提であり、authはRoleAssignmentを扱わないため実装不能だった(contract-summary.md #21参照)。permissionは依存を持たないUnit(レベル0)であり、この追加はaccount-management側にのみ新しい依存が増える一方向の変更であるため、循環は発生しない。
+
 ## 依存関係(機械可読)
 
 ```yaml
@@ -21,7 +23,7 @@ units:
   - name: dynamic-data-access
     depends_on: [config-management, permission, audit-log]
   - name: account-management
-    depends_on: [auth, audit-log]
+    depends_on: [auth, permission, audit-log]
   - name: notification
     depends_on: [auth, account-management]
   - name: frontend-core
@@ -47,6 +49,7 @@ graph TD
   dynamic-data-access --> permission
   dynamic-data-access --> audit-log
   account-management --> auth
+  account-management --> permission
   account-management --> audit-log
   notification -.->|イベント購読| auth
   notification -.->|イベント購読| account-management
@@ -84,6 +87,7 @@ graph TD
 | auth | audit-log | ログイン・自己サービス操作を記録 | プロセス内呼び出し(async) |
 | auth | permission | ログイン時に、対象accountIdの有効なロールID一覧(直接割り当て+所属グループ経由の割り当て)を取得し、アクセストークンのrolesクレームへ埋め込む(contract-summary.md #20、permission Unit Functional Designで新設) | プロセス内呼び出し(sync) |
 | account-management | auth | 共有するAccountエンティティの作成・参照・更新・無効化を、authが公開するAccountリポジトリ/サービスの呼び出しを通じて行う(スキーマは共有するが、直接のテーブルアクセスはせず必ずauth経由で呼び出す) | プロセス内呼び出し(sync) |
+| account-management | permission | アカウント作成時の初期ロール割り当て・編集時の割り当てロール変更(contract-summary.md #21、account-management Unit Functional Designで新設) | プロセス内呼び出し(sync) |
 | account-management | audit-log | アカウント管理操作を記録 | プロセス内呼び出し(async) |
 | notification | auth | アカウント登録完了・パスワード変更・パスワード忘れ・メールアドレス変更のライフサイクルイベントを購読 | イベント(Springアプリケーション内イベント機構) |
 | notification | account-management | アカウント作成イベントを購読 | イベント(Springアプリケーション内イベント機構) |

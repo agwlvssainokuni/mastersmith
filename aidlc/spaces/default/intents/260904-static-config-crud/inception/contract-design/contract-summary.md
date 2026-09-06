@@ -37,12 +37,15 @@ units-generation/unit-of-work-dependency.mdに列挙された全境界(バック
 | 18 | audit-log | frontend-admin | REST/HTTP+JSON | audit-log |
 | 19 | auth | account-management | shared-schema (Accountテーブル) | auth |
 | 20 | permission | auth | in-process sync (Java method call) | permission |
+| 21 | permission | account-management | in-process sync (Java method call) | permission |
 
 外部公開API(システム外の消費者)は存在しない(Q1)。行19は行4と同じUnitペアだが、境界の性質が異なる(行4はランタイムの呼び出し契約、行19は永続化スキーマの所有契約)ため別行として記載する。
 
 > 追記(Construction / permission Unit Functional Designより): 契約#20を新設した。ログイン時にaccessTokenの`roles`クレーム(共通規約参照)へ埋め込む値は、対象AccountIdに直接割り当てられたロールと、所属するGroupに割り当てられたロールの両方(functional-design-questions.md Q1で確定)を含む必要があるが、この「有効なロール集合」を計算するロジックはpermission Unitが所有する(RoleAssignment・GroupMembership)。auth Unitはunit-of-work-dependency.mdの依存トポロジー上、この情報を得るためにpermission Unitへプロセス内呼び出しを行う必要があると判明したため、Contract Designでは想定されていなかった新しい依存(auth → permission)として追加する。permissionは元々依存を持たないUnit(レベル0)であり、この追加によって循環は発生しない(auth側にのみ新しい依存が増える)。unit-of-work-dependency.mdも合わせて更新する。
 
-## プロセス内同期呼び出し契約(#1〜#4、#20)
+> 追記(Construction / account-management Unit Functional Designより): 契約#21を新設した。FR6.4.1(アカウント作成時の初期ロール割り当て)・FR6.4.3(編集画面での割り当てロール変更)は、permission Unitが所有するRoleAssignmentエンティティへの書き込みを要する。契約#4(account-management→auth)は当初「初期ロール割り当て」をauthへ渡す前提だったが、authはRoleAssignmentを一切扱わないため、契約#4からは同項目を削除し、account-managementがpermissionへ直接プロセス内呼び出しを行う契約(#21)を新設した。account-managementはunit-of-work-dependency.mdの依存トポロジー上、新しい依存(account-management → permission)を持つ。permissionは依存を持たないUnit(レベル0)であり、この追加によって循環は発生しない。unit-of-work-dependency.mdも合わせて更新する。
+
+## プロセス内同期呼び出し契約(#1〜#4、#20〜#21)
 
 Q2の回答により、同一JVM内のJavaメソッド呼び出しは意味レベルの記述に留め、具体的なメソッドシグネチャ(引数・戻り値の型)の確定はFunctional Design以降に委ねる。
 
@@ -69,9 +72,16 @@ Failure behavior: 不許可の場合は例外とし、dynamic-data-accessはこ�
 
 ```contract
 # 4. account-management → auth(共有スキーマ経由のリポジトリ/サービス呼び出し)
-Consumer passes: Accountの作成データ(氏名・メールアドレス・初期ロール割り当て)、更新データ、または無効化対象のaccountId
-Provider returns: 永続化されたAccountの現在状態(accountId・name・email・status・isAdmin)。account-managementはAccountテーブルへ直接アクセスせず、必ずこのインタフェース経由でアクセスする(#19参照)。アカウント新規作成の場合、これに加えてregistrationToken(purpose=registration_completionのAccountActionTokenとしてauthが同一呼び出し内で発行する実トークン値)を返す。account-managementはこの値をそのまま自身が発行するAccountCreatedEvent(通知イベント契約#9)のpayloadへ渡す(追記: auth Unit Functional Designより。契約#9のpublisher/subscriberは変更せず、契約#4への加法的なフィールド追加として扱う)
-Failure behavior: 存在しないaccountIdの操作は例外とし、account-managementはこれをREST境界で404として応答する
+Consumer passes: Accountの作成データ(氏名・メールアドレス)、更新データ、無効化対象のaccountId、単一取得対象のaccountId、または一覧取得のページネーション条件(page・size・sort)(初期ロール割り当て・割り当てロールの変更は契約#21を参照。auth自身はロール情報を一切扱わない、追記: account-management Unit Functional Designより)。無効化(disable)の場合、authは該当accountIdの有効な(revoked=falseかつ未期限切れの)RefreshTokenをすべて失効させる(即時のセッション無効化。functional-design-questions.md Q1、account-management Unit Functional Designより。auth側のrules.md/functional-spec.mdへの反映はauth Unit側のstage完了ゲートで対応する)
+Provider returns: 永続化されたAccountの現在状態(accountId・name・email・status・isAdmin)。単一取得・一覧取得も同一の形状(一覧取得の場合は配列+総件数)で返す。account-managementはAccountテーブルへ直接アクセスせず、必ずこのインタフェース経由でアクセスする(#19参照)。アカウント新規作成の場合、これに加えてregistrationToken(purpose=registration_completionのAccountActionTokenとしてauthが同一呼び出し内で発行する実トークン値)を返す。account-managementはこの値をそのまま自身が発行するAccountCreatedEvent(通知イベント契約#9)のpayloadへ渡す(追記: auth Unit Functional Designより。契約#9のpublisher/subscriberは変更せず、契約#4への加法的なフィールド追加として扱う)。更新呼び出し(name/emailの変更)によって実際にname/emailが変化した場合、authは呼び出し元(自己サービスの`/api/me/profile`かaccount-managementの契約#4か)に関わらず、自身がAccountInfoChangedEvent(通知イベント契約#10)を発行する(Account書き込みの唯一の所有者であるauthに通知トリガーを一元化し、account-management側での重複発行を避ける。追記: account-management Unit Functional Designより。auth側のrules.md/functional-spec.mdへの反映はauth Unit側のstage完了ゲートで対応する)
+Failure behavior: 存在しないaccountIdの操作(更新・無効化・単一取得)は例外とし、account-managementはこれをREST境界で404として応答する。作成時、指定されたemailが既存の(status問わず)Accountと重複する場合、authは例外を送出し、account-managementはこれをREST境界で409として応答する(R-03フォロー、account-management Unit Functional Designレビューより。emailの一意性はAccountの唯一の所有者であるauthが検証する)
+```
+
+```contract
+# 21. account-management → permission(アカウントの初期ロール割り当て・割り当てロールの変更。account-management Unit Functional Designで新設)
+Consumer passes: アカウント新規作成時はaccountIdと初期ロールID配列。編集時はaccountIdと更新後のロールID配列(直接割当を全置換。グループ経由の割当には触れない)
+Provider returns: 更新後の当該accountIdに対する直接RoleAssignment一覧(roleId配列)
+Failure behavior: 存在しないroleIdを含む場合は例外とし、account-managementはこれをREST境界で400として応答する
 ```
 
 ```contract

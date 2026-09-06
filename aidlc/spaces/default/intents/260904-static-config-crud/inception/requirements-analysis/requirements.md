@@ -81,6 +81,7 @@ MasterSmithは、対象業務DB(PostgreSQL/MySQL/MariaDB)のテーブル群に�
 - **NFR6**: テスト戦略は、基本を実装後にテストを書く(test-after)順序としつつ、スキーマ読み込み層(3種のRDBMS対応部分)に限り、実装前にRDBMSごとの期待挙動を特性テストとして洗い出す前倒し運用とする [team-practices.md#Testing Posture]。
 - **NFR7**: パスワードは不可逆ハッシュ(例: bcrypt、Argon2等。具体的なアルゴリズムは後続段階で確定)で保存すること。平文・可逆暗号化での保存は行わないこと [R-01フォロー(requirements-analysis review)]。
 - **NFR8**: HTTPS化はアプリケーション本体(実行可能WAR)の要件とはしない。実行環境にデプロイする際は、前段のリバースプロキシでHTTPS終端を行う運用を前提とすること [R-01フォロー(requirements-analysis review)]。
+- **NFR9**: システムは、初回起動時に管理者ロール(isAdmin)を持つ初期アカウントが1件も存在しない場合、application.yml(環境変数経由)で指定されたメールアドレス・パスワードを用いて初期管理者アカウントを自動作成すること。作成は初回のみとし、以後の起動でapplication.ymlの値が変更されても既存アカウントのパスワードは同期(上書き)しないこと(通常のアカウントとして自己サービスでの管理に委ねる)[追記: Construction / account-management Unit Functional Designより。FR6.4.1(管理者による新規アカウント作成)は管理者権限を前提とするため、システム稼働開始時点の最初の管理者アカウントをどう用意するかが未規定だったブートストラップ問題を解消する]。
 
 ## Constraints
 

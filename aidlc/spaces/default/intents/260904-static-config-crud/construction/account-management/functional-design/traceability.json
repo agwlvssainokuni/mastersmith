@@ -1,0 +1,14 @@
+{
+  "stage": "functional-design",
+  "unit": "account-management",
+  "upstream_ids": ["FR6.4.1", "FR6.4.2", "FR6.4.3", "FR6.4.4"],
+  "coverage": [
+    { "id": "FR6.4.1", "status": "OK", "target": "BR1.1, BR1.2, BR1.3, BR1.4, BR1.5" },
+    { "id": "FR6.4.2", "status": "OK", "target": "BR2.1(一覧参照), BR2.2(詳細参照。契約#17のGET /api/admin/accounts/{id}に対応)" },
+    { "id": "FR6.4.3", "status": "OK", "target": "BR3.1, BR3.2" },
+    { "id": "FR6.4.4", "status": "OK", "target": "BR4.1, BR4.2" }
+  ],
+  "reverse": [
+    { "id": "BR5.1", "status": "N/A", "target": "FR5.5, FR5.6(管理者ロールによる横断的ゲーティング。account-management固有のFRには対応しない、ADR-002)" }
+  ]
+}

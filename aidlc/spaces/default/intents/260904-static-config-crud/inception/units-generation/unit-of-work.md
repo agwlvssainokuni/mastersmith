@@ -51,7 +51,7 @@ domain-design/components.mdの7コンポーネントを基に、units-generation
 ### U5. auth
 
 - **境界**: domain-design AccountComponentの一部(ログイン・トークン・ロック・セルフサービス系フロー)。account-management(U6)とAccountエンティティの永続化スキーマを共有する。
-- **責務**: ID/パスワードによるログイン、ステートレスなアクセストークン(isAdminクレームを含む)・リフレッシュトークンの発行、ログイン試行回数制限(連続n回失敗でm秒ロック)、パスワード忘れ対応・アカウント登録完了・自己サービスでの氏名/パスワード/メールアドレス変更 [FR5.5、FR5.6、FR6.1〜FR6.3、FR6.6、NFR7]。
+- **責務**: ID/パスワードによるログイン、ステートレスなアクセストークン(isAdminクレームを含む)・リフレッシュトークンの発行、ログイン試行回数制限(連続n回失敗でm秒ロック)、パスワード忘れ対応・アカウント登録完了・自己サービスでの氏名/パスワード/メールアドレス変更、初回起動時の初期管理者アカウント自動作成 [FR5.5、FR5.6、FR6.1〜FR6.3、FR6.6、NFR7、NFR9(追記: Construction / account-management Unit Functional Designより)]。
 - **デプロイ形態**: embedded。
 - **実装メモ**: U8(ログイン操作を記録)を呼び出す。U7(notification)はU5が発行するイベントを購読する(style: event)。
 
