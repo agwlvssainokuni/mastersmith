@@ -1,0 +1,12 @@
+{
+  "stage": "functional-design",
+  "unit": "notification",
+  "upstream_ids": ["FR6.4", "FR6.5"],
+  "coverage": [
+    { "id": "FR6.4", "status": "OK", "target": "BR1.1, BR1.2, BR1.3, BR1.4, BR1.5, BR1.6(ワークフロー1〜6、6種のメールフロー)" },
+    { "id": "FR6.5", "status": "OK", "target": "BR2.1(Mustacheテンプレート描画、<title>要素をSubjectに採用)" }
+  ],
+  "reverse": [
+    { "id": "BR3.1", "status": "N/A", "target": "SMTP送信失敗時の技術的なポリシー(contract-summary.md「通知イベント契約」失敗時挙動節が根拠であり、FRとして個別に切り出されたAcceptance Criterionは存在しない)" }
+  ]
+}

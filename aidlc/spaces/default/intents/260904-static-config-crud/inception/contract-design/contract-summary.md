@@ -38,6 +38,8 @@ units-generation/unit-of-work-dependency.mdに列挙された全境界(バック
 | 19 | auth | account-management | shared-schema (Accountテーブル) | auth |
 | 20 | permission | auth | in-process sync (Java method call) | permission |
 | 21 | permission | account-management | in-process sync (Java method call) | permission |
+| 22 | permission | config-management | in-process sync (Java method call) | permission |
+| 23 | config-management | frontend-core | REST/HTTP+JSON | config-management |
 
 外部公開API(システム外の消費者)は存在しない(Q1)。行19は行4と同じUnitペアだが、境界の性質が異なる(行4はランタイムの呼び出し契約、行19は永続化スキーマの所有契約)ため別行として記載する。
 
@@ -45,7 +47,9 @@ units-generation/unit-of-work-dependency.mdに列挙された全境界(バック
 
 > 追記(Construction / account-management Unit Functional Designより): 契約#21を新設した。FR6.4.1(アカウント作成時の初期ロール割り当て)・FR6.4.3(編集画面での割り当てロール変更)は、permission Unitが所有するRoleAssignmentエンティティへの書き込みを要する。契約#4(account-management→auth)は当初「初期ロール割り当て」をauthへ渡す前提だったが、authはRoleAssignmentを一切扱わないため、契約#4からは同項目を削除し、account-managementがpermissionへ直接プロセス内呼び出しを行う契約(#21)を新設した。account-managementはunit-of-work-dependency.mdの依存トポロジー上、新しい依存(account-management → permission)を持つ。permissionは依存を持たないUnit(レベル0)であり、この追加によって循環は発生しない。unit-of-work-dependency.mdも合わせて更新する。
 
-## プロセス内同期呼び出し契約(#1〜#4、#20〜#21)
+> 追記(Construction / frontend-core Unit Functional Designより): 契約#22・#23を新設した。frontend-coreのトップ画面(FR3.4、メニューからの画面遷移)は、非管理者利用者を含む全利用者が使う画面であるにもかかわらず、config-managementの既存エンドポイント(#15、`GET /api/admin/menu-items`等)はいずれもisAdminクレーム必須(config-management BR7.1)であり、非管理者利用者が自身のトップ画面のメニュー/テーブル一覧を取得する手段が存在しなかった。この手段を提供するため、config-management(#15とは別contract、isAdminを要求しない)が`GET /api/menu`(契約#23)を新設し、呼び出しロールのテーブル単位canList権限(dynamic-data-access契約#3と同じ権限モデル)でメニュー階層をフィルタする。この判定のため、config-managementはpermission Unitへ新規のプロセス内呼び出し契約(#22、対象ロールがcanList権限を持つテーブルのtableId集合を取得する)を持つ。config-managementはunit-of-work-dependency.mdの依存トポロジー上、新しい依存(config-management → permission)を持つ。permissionは依存を持たないUnit(レベル0)であり、この追加によって循環は発生しない。unit-of-work-dependency.mdも合わせて更新する。
+
+## プロセス内同期呼び出し契約(#1〜#4、#20〜#22)
 
 Q2の回答により、同一JVM内のJavaメソッド呼び出しは意味レベルの記述に留め、具体的なメソッドシグネチャ(引数・戻り値の型)の確定はFunctional Design以降に委ねる。
 
@@ -89,6 +93,13 @@ Failure behavior: 存在しないroleIdを含む場合は例外とし、account-
 Consumer passes: ログイン成功したaccountId
 Provider returns: そのaccountIdの有効なロールID一覧(RoleAssignmentで直接割り当てられたロール ∪ 所属するGroupに割り当てられたロール。functional-design-questions.md Q1のロジックをそのまま用いる)。authはこの一覧をアクセストークンのrolesクレームにそのまま埋め込む
 Failure behavior: 該当なし(ロールが1件も割り当てられていない場合は空配列を返す。エラー条件ではない)
+```
+
+```contract
+# 22. config-management → permission(トップ画面メニュー取得のためのテーブル単位canList権限取得。frontend-core Unit Functional Designで新設)
+Consumer passes: 判定対象のroleId(GET /api/menuのX-Active-Roleヘッダー由来)
+Provider returns: 当該roleIdがcanList=trueを持つtableIdの集合(TablePermission未設定のテーブルはBR5.1のデフォルト拒否によりこの集合に含まれない)
+Failure behavior: 該当なし(該当tableIdが0件の場合は空集合を返す。エラー条件ではない)
 ```
 
 ## 監査ログイベント契約(#5〜#8)
@@ -165,7 +176,7 @@ messages:
       changeToken: string # メール本文の変更確定URLに埋め込む
 ```
 
-## REST API契約(#11〜#18)
+## REST API契約(#11〜#18、#23)
 
 ### schema-ingestion(#14: frontend-admin向け)
 
@@ -326,6 +337,31 @@ paths:
         "409": { description: "不正形式・スキーマ不一致・必須項目欠落による不整合。設定全体を適用せずerrors配列で内容を返す (RFC 7807)" }
   /api/admin/config/cache/clear:
     post: { summary: "設定キャッシュの明示的クリア (FR2.6)", security: [{ bearerAuth: [] }], responses: { "204": { description: "No Content" } } }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+```
+
+### config-management(#23: frontend-core向け。frontend-admin向けの#15とは別contract。frontend-core Unit Functional Designで新設)
+
+> #15の各エンドポイントと異なり、本エンドポイントはisAdminクレームを要求しない(全利用者が使うトップ画面向け)。代わりに`X-Active-Role`ヘッダー(共通規約)を必須とし、契約#22(config-management → permission)で取得した当該ロールのcanList権限でメニュー階層をフィルタする。
+
+```yaml
+openapi: 3.0.3
+info:
+  title: config-management API (frontend-core向け)
+  version: "1.0"
+paths:
+  /api/menu:
+    get:
+      summary: "呼び出しロールがcanList権限を持つテーブルのみを含む、メニュー階層の取得(FR2.4、FR3.4)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: X-Active-Role, in: header, required: true, schema: { type: string }, description: "作業中ロールID(共通規約)。アクセストークンのrolesクレームに含まれない場合は403" }
+      responses:
+        "200":
+          description: "フォルダ/グループノードは常に含む(配下に1件も可視なテーブルノードがない場合は除外)。テーブルノードは呼び出しロールがcanList権限を持つもののみ含む"
+        "403": { description: "X-Active-Roleがrolesクレームに含まれない (RFC 7807)" }
 components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

@@ -1,0 +1,25 @@
+{
+  "stage": "functional-design",
+  "unit": "frontend-core",
+  "upstream_ids": [
+    "FR3.1", "FR3.2", "FR3.3", "FR3.4", "FR3.5", "FR3.6",
+    "FR4.1", "FR4.2", "FR5.4",
+    "FR6.1", "FR6.2", "FR6.3", "FR6.6"
+  ],
+  "coverage": [
+    { "id": "FR3.1", "status": "OK", "target": "ワークフロー3(一覧画面、検索・絞り込み・ページング・ソート)" },
+    { "id": "FR3.2", "status": "OK", "target": "ワークフロー4(詳細画面、全カラム表示)" },
+    { "id": "FR3.3", "status": "OK", "target": "ワークフロー5(編集画面、新規/更新)" },
+    { "id": "FR3.4", "status": "OK", "target": "ワークフロー2(トップ画面、メニューからの画面遷移)" },
+    { "id": "FR3.5", "status": "OK", "target": "ワークフロー5(編集画面、後勝ち上書きの表示挙動。iteration 1レビューR-01フォロー)" },
+    { "id": "FR3.6", "status": "OK", "target": "ワークフロー5(バリデーション表示・アクセシビリティはmake-you-chic-uiに委ねる)" },
+    { "id": "FR4.1", "status": "OK", "target": "ワークフロー3・4(FK値の表示名解決)" },
+    { "id": "FR4.2", "status": "OK", "target": "ワークフロー5・6(FK参照ポップアップ検索)" },
+    { "id": "FR5.4", "status": "OK", "target": "ワークフロー8(複数ロール保有時のロール切替)" },
+    { "id": "FR6.1", "status": "OK", "target": "ワークフロー1(ログイン画面)" },
+    { "id": "FR6.2", "status": "OK", "target": "ワークフロー1手順6(リフレッシュはaccessToken期限切れ時にクライアントが自動的に行う。iteration 1レビューR-02フォロー)" },
+    { "id": "FR6.3", "status": "OK", "target": "ワークフロー1手順6(リフレッシュトークンによる自動延長、401検知・自動refresh・再試行・失敗時のログイン画面強制遷移。iteration 1レビューR-02フォロー)" },
+    { "id": "FR6.6", "status": "OK", "target": "ワークフロー1(ログイン試行回数制限、LoginLockoutNotice)" }
+  ],
+  "reverse": []
+}
