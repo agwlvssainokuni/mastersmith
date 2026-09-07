@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "audit-log",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2" },
+    { "id": "NFR4", "status": "N/A", "target": "パッケージング方針はpackaging Unitの責務であり、本Unitの画面・APIには表れない" },
+    { "id": "NFR5", "status": "OK", "target": "tech-stack-decisions.md(AuditLogEntry/AuditLogSettingsテーブルへの`ms_`接頭辞適用)" },
+    { "id": "NFR6", "status": "N/A", "target": "テスト方法論(test-after)はプロジェクト横断のプロセス方針であり、本Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR7", "status": "N/A", "target": "パスワードハッシュ化はauth Unitの責務であり、本Unitは扱わない" },
+    { "id": "NFR8", "status": "N/A", "target": "HTTPS終端はインフラ横断の方針であり、本Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR9", "status": "N/A", "target": "初期管理者アカウント自動作成はauth Unitの責務であり、本Unitは扱わない" }
+  ]
+}
