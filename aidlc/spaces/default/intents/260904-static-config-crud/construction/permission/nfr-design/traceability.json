@@ -1,0 +1,25 @@
+{
+  "stage": "nfr-design",
+  "unit": "permission",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR-AUTHZ.1", "NFR-AUTHZ.2", "NFR-AUTHZ.3", "NFR-FAILSAFE.1(security-requirements.md)",
+    "NFR2.1", "NFR2.2",
+    "NFR-FAILSAFE.1(reliability-requirements.md)",
+    "NFR3.1",
+    "NFR5"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針、方針のみで具体的パターンなし)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(TablePermission/ColumnPermission/RoleAssignment/GroupMembershipへの複合インデックス)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(テーブル単位権限のホワイトリスト方式実装、セキュアバイデフォルト)" },
+    { "id": "NFR-AUTHZ.2", "status": "OK", "target": "security-design.md(カラム単位権限のデフォルトeditable)" },
+    { "id": "NFR-AUTHZ.3", "status": "OK", "target": "security-design.md・logical-components.md(内部呼び出しAPIコンポーネントはisAdmin検証対象外)" },
+    { "id": "NFR-FAILSAFE.1(security-requirements.md)", "status": "OK", "target": "reliability-design.md(契約#3・#22の内部呼び出し失敗時のfail-closed設計。nfr-requirements時点の既知の繰延べ事項R-01〈引用根拠の精度〉を踏まえ、5xx応答の帰属先を契約summary共通規約〈Q8〉に正しく再帰属させた)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md(想定レコード数規模)" },
+    { "id": "NFR-FAILSAFE.1(reliability-requirements.md)", "status": "OK", "target": "reliability-design.md(security-requirements.md側と同一の設計、上記と同じ設計解を共有)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(Actuator/Micrometer標準メトリクス、OpenTelemetry自動計装、監査ログ対象範囲の明確化)" },
+    { "id": "NFR5", "status": "OK", "target": "logical-components.md(6エンティティは本Unit専有テーブル、`ms_`接頭辞はコード生成段階で適用)" }
+  ]
+}

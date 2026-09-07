@@ -1,0 +1,26 @@
+{
+  "stage": "nfr-design",
+  "unit": "audit-log",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR2.1", "NFR2.2",
+    "NFR3.1", "NFR3.2",
+    "NFR-RESILIENCE.1",
+    "NFR-AUTHZ.1", "NFR-INTEGRITY.1", "NFR-DATA.1", "NFR-SEC.1",
+    "NFR5"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(著しい遅延の兆候があれば別途検証、方針のみで具体的パターンなし)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(occurredAt/actorAccountId/actionTypeへのインデックス、ページネーション)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md(保持期間超過分の一括削除による増加抑制)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(Actuator/Micrometer標準メトリクス、OpenTelemetry自動計装)" },
+    { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(記録失敗時のJSON構造化ERRORログ)" },
+    { "id": "NFR-RESILIENCE.1", "status": "OK", "target": "reliability-design.md(イベントリスナーのtry-catchによる自己完結捕捉、非伝播)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(コントローラ層でのisAdmin検証)" },
+    { "id": "NFR-INTEGRITY.1", "status": "OK", "target": "security-design.md(リポジトリが更新操作を公開しない設計、olderThanDaysの入力検証)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(記録失敗ログへの機微情報非出力)" },
+    { "id": "NFR-SEC.1", "status": "N/A", "target": "本Unit自身は秘密情報を扱わないため、設計レベルの具体化対象がない(nfr-requirements時点の判定を踏襲)" },
+    { "id": "NFR5", "status": "OK", "target": "logical-components.md(AuditLogEntry/AuditLogSettingsテーブルは本Unit専有、`ms_`接頭辞はコード生成段階で適用)" }
+  ]
+}

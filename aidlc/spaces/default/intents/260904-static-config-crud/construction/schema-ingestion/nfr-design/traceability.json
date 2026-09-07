@@ -1,0 +1,24 @@
+{
+  "stage": "nfr-design",
+  "unit": "schema-ingestion",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR-DATA.1", "NFR-DATA.2", "NFR-AUTHZ.1",
+    "NFR2.1", "NFR2.2",
+    "NFR-RESILIENCE.1",
+    "NFR3.1",
+    "NFR4"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(逐次処理・並列化なし、テーブル選択による後段負荷抑制)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(復号ロジック・暗号鍵を持たない、認証情報のメモリ非保持)" },
+    { "id": "NFR-DATA.2", "status": "OK", "target": "security-design.md(エラーメッセージのマスク処理)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(RESTコントローラでのisAdmin検証)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md(想定業務規模)" },
+    { "id": "NFR-RESILIENCE.1", "status": "OK", "target": "reliability-design.md(ステートレス設計、再起動のみでの復旧)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(構造化ログ、Actuator/Micrometer/OpenTelemetry)" },
+    { "id": "NFR4", "status": "OK", "target": "logical-components.md(JDBCドライバのアプリケーション内包、tech-stack-decisions.md継続)" }
+  ]
+}
