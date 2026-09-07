@@ -1,0 +1,29 @@
+{
+  "stage": "nfr-design",
+  "unit": "auth",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR7.1", "NFR-AUTHN.1", "NFR-AUTHN.2", "NFR-AUTHN.3", "NFR-AUTHN.4", "NFR-AUTHZ.1",
+    "NFR2.1", "NFR2.2",
+    "NFR-FAILSAFE.1", "NFR-FAILSAFE.2",
+    "NFR3.1", "NFR3.2",
+    "NFR9"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(Argon2デフォルトパラメータ、キャッシュ層なし)" },
+    { "id": "NFR7.1", "status": "OK", "target": "security-design.md(Argon2PasswordEncoder)" },
+    { "id": "NFR-AUTHN.1", "status": "OK", "target": "security-design.md(JWT HS256、署名鍵の環境変数外部化)" },
+    { "id": "NFR-AUTHN.2", "status": "OK", "target": "security-design.md(リフレッシュトークンハッシュ永続化・ローテーション)" },
+    { "id": "NFR-AUTHN.3", "status": "OK", "target": "security-design.md(ログイン試行制限、application.yml設定可能)" },
+    { "id": "NFR-AUTHN.4", "status": "OK", "target": "security-design.md(AccountActionToken単回使用・24時間)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(isAdminクレームは発行のみ、判定は消費Unit側)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md(リフレッシュトークン増加傾向、将来の定期削除は本ステージのスコープ外)" },
+    { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(ログインロックと可用性トレードオフ)" },
+    { "id": "NFR-FAILSAFE.2", "status": "OK", "target": "reliability-design.md(permission呼び出し失敗時の5xx伝播)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント4種)" },
+    { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(機微情報のログ非出力)" },
+    { "id": "NFR9", "status": "Deferred", "target": "初期管理者アカウントの自動作成(application.ymlからの初回起動時ブートストラップ)は、functional-designステージ終了ゲートで既に確認済みの繰延べ事項であり、nfr-requirements・nfr-designいずれの段階でも設計対象に含めない。実装はcode-generation段階以降で対応する" }
+  ]
+}

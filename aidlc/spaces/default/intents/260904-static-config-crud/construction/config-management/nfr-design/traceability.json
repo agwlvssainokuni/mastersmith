@@ -1,0 +1,27 @@
+{
+  "stage": "nfr-design",
+  "unit": "config-management",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR-AUTHZ.1", "NFR-AUTHZ.2", "NFR-DATA.1", "NFR-DATA.2", "NFR-DATA.3",
+    "NFR2.1", "NFR2.2",
+    "NFR-CONSISTENCY.1", "NFR-CONSISTENCY.2", "NFR-FAILSAFE.1",
+    "NFR3.1", "NFR3.2"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(Caffeineキャッシュアーキテクチャ、TTL/明示的クリア)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(管理者限定アクセス)" },
+    { "id": "NFR-AUTHZ.2", "status": "OK", "target": "security-design.md(GET /api/menuのX-Active-Role検証+canList権限フィルタ)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(credentialRefの暗号化保持、鍵の環境変数外部化)" },
+    { "id": "NFR-DATA.2", "status": "OK", "target": "security-design.md(エクスポート時の非復号)" },
+    { "id": "NFR-DATA.3", "status": "OK", "target": "security-design.md・observability-design.md(ログへの機微情報非出力)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR2.2", "status": "OK", "target": "scalability-design.md(キャッシュサイズの想定規模)" },
+    { "id": "NFR-CONSISTENCY.1", "status": "OK", "target": "reliability-design.md(設定インポート時の全体拒否)" },
+    { "id": "NFR-CONSISTENCY.2", "status": "OK", "target": "reliability-design.md(DB書き込み→キャッシュ無効化の順序)" },
+    { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(schema-ingestion呼び出し失敗時の5xx伝播)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント語彙)" },
+    { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(機微情報のログ非出力)" }
+  ]
+}
