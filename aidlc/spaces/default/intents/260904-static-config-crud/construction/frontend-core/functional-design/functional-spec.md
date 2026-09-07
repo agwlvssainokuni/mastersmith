@@ -97,3 +97,20 @@ frontend-core自身の画面は管理者ロールの有無を問わず全利用�
 
 1. Topbarのユーザーメニューから「ログアウト」を選択すると、`POST /api/auth/logout`(契約#11)を呼び出す。
 2. クライアント側で保持しているaccessToken・refreshTokenを破棄し、ログイン画面(1)へ遷移する。
+
+## Review
+
+**Verdict:** READY
+**Reviewer:** aidlc-architecture-reviewer-agent
+**Date:** 2026-09-07T04:04:21Z
+**Iteration:** 1
+
+### Findings
+
+| ID | Severity | Location | Finding | Required action | Status |
+|---|---|---|---|---|---|
+| R-07 | Major | functional-spec.md > ワークフロー1手順6(トークンのリフレッシュ) | 手順6は`POST /api/auth/refresh`成功時に「新しいaccessTokenで元のリクエストを1回だけ再試行する」とのみ記述し、クライアント側で保持しているrefreshTokenの更新に触れていない。しかしauth Unit rules.md BR3.2・BR3.3(リフレッシュトークンローテーション)は、リフレッシュ成功のたびに新しいrefreshTokenを発行し、検証に使った古いRefreshTokenを`revoked=true`にすると規定している。frontend-coreの記述どおり(新accessTokenのみ差し替え、旧refreshTokenを保持し続ける)に実装すると、次回のアクセストークン期限切れ時に古い(既にrevoked済みの)refreshTokenで`POST /api/auth/refresh`を呼ぶことになり、BR3.1により401が返る。その結果、手順6自身が定義する「リフレッシュ失敗時はログイン画面へ強制遷移」が働き、本来は7日間(リフレッシュトークンの有効期間)有効なはずのセッションが、2回目のアクセストークン更新(通常運用では30分程度)で強制ログアウトになる。FR6.3が要求する「リフレッシュトークンによる自動延長」という設計意図と矛盾する挙動になる。 | ワークフロー1手順6に、`POST /api/auth/refresh`のレスポンスに含まれる新しいrefreshTokenで、クライアント側の保持値を必ず置き換える(ローテーション追従)旨を明記する。あわせて、contract-summary.md #11の`/api/auth/refresh` 200レスポンスの記述(「新しいaccessTokenを返す」のみ)がBR3.2の実際の発行内容(新accessToken+新refreshToken)と食い違っている点は、auth Unit側で契約記述の更新を検討する必要がある。 | New |
+
+### Summary
+
+iteration 1で指摘されたMajor 3件・Minor 3件はいずれも実際に修正が反映されており、修正内容と上流要件・契約(FR3.1〜FR3.6、FR4.1〜FR4.2、FR5.4、FR6.1〜FR6.3、FR6.6、契約#11・#12・#13・#20・#22・#23)・dynamic-data-access/auth/permissionの各rules.mdとの間に矛盾は見つからなかった。traceability.jsonのcoverageも要件文言と整合しており、frontend-components.mdの内容もinteraction-spec.md・design-system-mapping.mdの記述と一致している。dynamic-data-access側のBR1.2(sort識別子検証)追加についても、frontend-core側は「sortは常に受け入れられる」という誤った前提を持ち込んでいない。今回新たに、トークンリフレッシュ時のリフレッシュトークンローテーション追従漏れ(R-07、Major)を検出したが、Major 1件のみであり致命的な設計破綻ではないため、READYと判定する。次のiterationでR-07を反映することが望ましい。

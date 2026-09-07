@@ -47,3 +47,14 @@ Q1〜Q3の回答を踏まえ、config-management Unitのfunctional-design成果�
 **トレーサビリティ(traceability.json)**: upstream_ids = FR2.1〜FR2.6, FR2.3.1, FR3.4。isAdminゲーティング(BR7.1)と監査ログ発行(BR8.1)はreverseで横断的関心事として説明。
 
 [Answer]: Looks correct
+
+## Q4. GET /api/menu(契約#23)の実装(frontend-core Unit Functional Designより)
+
+frontend-core Unitのfunctional-designで、非管理者利用者を含む全利用者がトップ画面のメニュー/テーブル一覧を取得するための新規エンドポイント(契約#23、`GET /api/menu`)がcontract-summary.mdに追加された。当時はconfig-management Unit自身が完了済みだったため、実際のrules.md/functional-spec.md/traceability.jsonへの反映は繰延べとしていたが、今回redo-jumpでfunctional-designステージ全体のレビューiterationがリセットされた機会に、この実装をあわせて行う。
+
+- rules.mdにBR4.3(GET /api/menuは、契約#22で取得したcanList権限を持つtableIdのみを含むメニュー階層を返す。フォルダ/グループノードは可視な子が1件もなければ除外)を追加した。
+- rules.mdのBR7.1(isAdminゲーティング)を、GET /api/menu(BR4.3が別途認可判定を行う)を対象外とするよう修正した。
+- functional-spec.mdにワークフロー4a(非管理者向けメニュー取得)を追加した。
+- traceability.jsonのFR3.4のcoverage targetにBR4.3を追加した。
+
+[Answer]: Looks correct

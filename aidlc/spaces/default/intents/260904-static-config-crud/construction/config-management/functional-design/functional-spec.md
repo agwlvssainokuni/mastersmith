@@ -31,6 +31,14 @@
 2. 循環参照検証(BR4.1)、tableId存在検証(BR4.2)を適用する。
 3. 操作成功時、該当キャッシュエントリを無効化し(BR6.2)、監査ログイベント(actionType=CONFIG_MENU_CREATED/UPDATED/DELETED、BR8.1)を発行する。
 
+### 4a. 非管理者向けメニュー取得(`GET /api/menu`、契約#23、frontend-core Unit Functional Designより新設)
+
+1. 非管理者を含む全利用者が、`X-Active-Role`ヘッダー(作業中ロールID)を付けて`GET /api/menu`を呼び出す。
+2. `X-Active-Role`がアクセストークンのrolesクレームに含まれるか検証する。含まれなければ403を返す(BR4.3)。
+3. 契約#22(config-management → permission)で、対象roleIdがcanList=trueを持つtableIdの集合を取得する。
+4. メニュー階層のうち、テーブルノード(tableId IS NOT NULL)は手順3の集合に含まれるもののみ残す。フォルダ/グループノード(tableId IS NULL)は、配下を再帰的にたどって1件でも可視なテーブルノードが残る場合のみ結果に含める(BR4.3)。
+5. フィルタ済みのメニュー階層を返す。設定管理画面(10.、frontend-adminのメニュー管理画面14)がisAdminによる全件アクセスであるのとは対照的に、本ワークフローはロールのcanList権限でフィルタ済みの結果のみを返す。
+
 ### 5. 設定のエクスポート
 
 1. 管理者が `POST /api/admin/config/export` を呼び出す。
@@ -90,6 +98,7 @@ erDiagram
 | 2. スキーマ取り込みからのテーブル設定作成 | BR2.1, BR2.2, BR2.3, BR2.4, BR2.5, BR2.7, BR2.8, BR7.1, BR8.1 |
 | 3. テーブル設定の個別編集 | BR2.6, BR3.1, BR6.2, BR7.1, BR8.1 |
 | 4. メニュー構成のCRUD | BR4.1, BR4.2, BR6.2, BR7.1, BR8.1 |
+| 4a. 非管理者向けメニュー取得(契約#23) | BR4.3 |
 | 5. 設定のエクスポート | BR5.1, BR7.1 |
 | 6. 設定のインポート | BR5.2, BR5.3, BR7.1, BR8.1 |
 | 7. 有効な設定の参照(契約#2) | BR6.1 |
@@ -98,25 +107,13 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T13:47:11Z
+**Date:** 2026-09-07T02:25:35Z
 **Iteration:** 1
-**Request Challenge:** review:8ae54b054aa36072ed1815d44aad8e09
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-03 | Minor | entities.md > エンティティサマリー表 DbConnection行 | credentialRefの暗号化鍵の出典として「契約#19注記」を挙げているが、契約#19(auth→account-management、shared-schema、Accountテーブル)はDbConnection/credentialRefと無関係であり、この引用は誤り。実際の出典はschema-ingestion/functional-design-questions.md Q4およびdomain-design/components.mdのDbConnection行である(エンティティ一覧のyaml内では正しい出典が併記済み) | エンティティサマリー表の「契約#19注記」という記述を、schema-ingestion/functional-design-questions.md Q4およびdomain-design/components.mdへの参照に修正する | Unresolved |
-| R-04 | Minor | entities.md > TableConfig.foreignKeysのインライン型記法 | `referencedTableId: identifier, nullable, referencedTablePhysicalName: string` という記法では、`nullable`がreferencedTableIdに掛かるのかreferencedTablePhysicalNameに掛かるのか曖昧 | `referencedTableId: identifier|null, referencedTablePhysicalName: string` のように、nullable対象を明示する記法に修正する | Unresolved |
-
-### Validation Tool Results
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| aidlc-sensor.ts fire required-sections (functional-spec.md) | passed | 必須セクション構成に欠落なし |
-| requirements.md FR2.1〜FR2.6・FR2.3.1・FR3.4 spot-check | 一致 | rules.md/entities.md/functional-spec.mdの記述内容(BR1.1〜BR8.1、7ワークフロー)がすべて対応するFRの文言と整合。traceability.jsonのcoverageもFR2.1〜FR3.4を漏れなくOKでカバーし、reverse側のBR1.2/BR7.1/BR8.1はN/A(実装補完・横断ルール)として妥当に説明されている |
-| contract-summary.md #1/#2/#15/#19 spot-check | 一致(#19は無関係、R-03の裏付け) | 契約#1(config-management→schema-ingestion)の引数・戻り値・失敗時挙動はrules.md BR2.1・functional-spec.mdワークフロー2と完全一致。契約#2(dynamic-data-access→config-management)のキャッシュ経由参照・404失敗挙動はfunctional-spec.mdワークフロー7・BR6.1と完全一致。契約#15の`/api/admin/db-connections`等のエンドポイント群はfunctional-spec.mdの各ワークフローのAPIパスと一致。契約#19はAccountテーブルの共有スキーマ契約でありDbConnection/credentialRefとは無関係 — R-03がこの誤引用を正しく特定している |
+指摘なし(既知の繰延べ事項R-03・R-04を除く)
 
 ### Summary
 
-同一内容の再認定であることを確認した。entities.md/rules.md/functional-spec.md/traceability.jsonの内容は前回認証時のまま変化がなく、7ワークフロー・全ルール(BR1.1〜BR8.1)・全エンティティが要件(FR2.1〜FR2.6、FR2.3.1、FR3.4)および契約(#1・#2・#15)と整合している。Critical/Majorな新規欠陥は見つからず、R-03・R-04は既知の軽微な指摘としてUnresolvedのまま繰り越す。READYとする。
+新設されたBR4.3は契約#22(config-management → permission、roleIdからcanList=trueのtableId集合を取得)・契約#23(GET /api/menu、OpenAPI定義)双方と、フォルダ/グループノードの除外条件(配下に可視なテーブルノードが1件もない場合のみ除外)・テーブルノードのフィルタ条件(canList権限集合に含まれるもののみ)を含めて正確に一致している。BR7.1の修正はGET /api/menuのみを対象外とし、他の全操作(DB接続先設定・テーブル設定・メニュー構成・エクスポート/インポート・キャッシュクリア)にはisAdmin必須を引き続き課しており、ワークフロー4aの適用ルール一覧(BR4.3のみ、BR7.1を含まない)とも整合する。functional-spec.mdのワークフロー4aはBR4.3の判定ロジック(403判定→契約#22呼び出し→テーブルノードのフィルタ→フォルダ/グループノードの再帰的可視性判定)を過不足なくトレースしている。permission側のBR5.3(roleId受け取り→TablePermission.canList=trueのtableId集合を返す、該当なしなら空集合)は契約#22のConsumer passes/Provider returns/Failure behaviorと完全に一致し、config-management側のBR4.3の呼び出し前提と矛盾しない。traceability.jsonはFR3.4のcoverage targetにBR4.3を加法的に追記しており、upstream_idsの変更(新規追加不要)も適切。既存のBR1.1〜BR8.1・ワークフロー1〜7・entities.mdのMenuItemモデル(tableId nullableによるフォルダ/グループノード表現)との矛盾も見当たらない。

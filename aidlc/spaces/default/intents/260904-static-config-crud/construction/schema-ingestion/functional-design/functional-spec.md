@@ -68,27 +68,13 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T13:42:41Z
+**Date:** 2026-09-07T02:24:05Z
 **Iteration:** 1
-**Request Challenge:** review:fc675a7daaef118f7d78974b404b2818
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-01 | Minor | construction/schema-ingestion/functional-design/rules.md > BR1.1〜BR3.1(制約分類) | 「制約」("constraint"種別のルール)がPK/FK(複合主キー、外部キー)のみをモデル化しており、UNIQUE制約・CHECK制約を扱う記述がない | UNIQUE/CHECK制約の取り込み・非対応方針を明示するルールを追加するか、対象外である旨を明記する | Unresolved |
-| R-02 | Minor | construction/schema-ingestion/functional-design/entities.md > IngestedColumn.logicalType | entities.mdの`logicalType`フィールド名が、contract-summary.md #14のOpenAPIレスポンススキーマにおける対応フィールド名`type`(255行目付近)と一致しない | フィールド名をどちらかに統一する(entities.md側を`type`に合わせるか、契約側の命名を変更する) | Unresolved |
-| R-03 | Minor | construction/schema-ingestion/functional-spec.md > ワークフロー1(接続テスト)、DbConnection.credentialRefの扱い | DbConnectionの暗号化キー取り扱いに関する注記(「内部H2に保存しない」)が、鍵をgitにコミットしてはならない旨を明示していない(project.md Forbiddenの鍵管理規定と整合させる余地がある) | 暗号鍵・認証情報をリポジトリにコミットしない旨を注記に明示的に追加する | Unresolved |
-| R-04 | Major | construction/schema-ingestion/functional-spec.md > ワークフロー1(接続テスト) | mockups.md 11.(スキーマ取り込み画面)の「接続テスト」ボタンに対応するエンドポイントとしてcontract-summary.md #14に`POST /api/admin/schema-ingestion/connection-test`(204/400/403/500)が新設されたが(このUnitの直近レビューで指摘・契約側では対応済み)、本Unitのfunctional-spec.mdワークフロー1はこの新設エンドポイントを明示的に引用していない(ワークフロー2・3は`GET .../schemas`、`POST .../preview`をそれぞれ明示引用しているのに対し非対称) | ワークフロー1の手順に`POST /api/admin/schema-ingestion/connection-test`を明示的に引用する記述を追加する(end-of-stageゲートでの一括反映を想定) | Unresolved |
-
-### Validation Tool Results
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| aidlc-sensor.ts fire required-sections --stage functional-design | passed | 必須セクション(ワークフロー、状態遷移、ER図、ルールサマリー)は全て存在し、内容も変更前と同一であることを確認 |
-| 手動クロスチェック: contract-summary.md #14 | `POST /api/admin/schema-ingestion/connection-test`が204/400/403/500のレスポンスとともに新設されていることを確認 | R-04の契約側対応が完了していることを裏付け、Unit側の未反映のみが残存 |
-| 手動クロスチェック: entities.md ↔ functional-spec.md ER図 ↔ rules.md | 内容一致 | 内容が変更されていないこと、および内部整合性を確認 |
+指摘なし(既知の繰延べ事項R-01〜R-04を除く)
 
 ### Summary
 
-本Unitのentities.md/rules.md/functional-spec.md/traceability.jsonは前回認証時点から内容の変更がなく、内部整合性も保たれている。契約側で新設された接続テスト専用エンドポイント(R-04関連)の存在は確認できたが、本Unit側のワークフロー1記述への反映はまだ済んでおらず、既知のMajor所見として維持する。Critical所見は0件であり、R-01〜R-04はいずれもEnd-of-Stageゲートでの一括対応が予定されている既知の繰越し事項であるため、READYとする。
+entities.md・rules.md・functional-spec.md・traceability.jsonの4ファイルは内容変更なしで、相互の整合性・requirements.md FR1.1〜FR1.6とのトレーサビリティ・team.md Testing Postureが求める特性テスト対象(複合主キーのKEY_SEQ順序、主キーなしテーブルの扱い、ビューの参照専用扱い、RDBMS間の型差異)のカバレッジのいずれにも新規の欠陥は見つからなかった。前回検出済みのR-01〜R-04(いずれもMinor 3件・Major 1件)は既知の繰延べ事項としてend-of-stageゲートに申し送り済みであり、本再認証レビューでの新規指摘はない。

@@ -36,7 +36,7 @@ Q1(自己訂正込み)・Q2の回答、および機能設計中に発見したre
 
 **トレーサビリティ(traceability.json)**: upstream_ids = FR3.1〜FR3.3, FR3.5, FR4.1〜FR4.2(unit-of-work-story-map.mdの正式な割当と一致。unit-of-work.mdの範囲表記「FR3.1〜FR3.6」はFR3.4・FR3.6を誤って含む大まかな記法であり、story-mapの個別割当表が正)。
 
-**レビュー結果**: iteration 1(redo jump前)でCritical 1件(recordId経由の非表示カラム値漏えい)・Major 1件(未使用のDATA_RECORD_DELETED)・Minor 3件を検出、いずれも修正済み。iteration 2(redo jump前)でCritical 1件(一覧画面・FKポップアップ検索の検索条件経由の同種のサイドチャネル漏えい、R-01)・Minor 3件(R-02〜R-04)を新規検出した。同一stageのredo jump(dynamic-data-accessの当時のiteration上限到達を受けたエスカレーション)によりレビュー履歴がリセットされ、redo jump後のiteration 1でR-01〜R-04をすべて実際に修正したことを確認したうえで、独立レビューにより詳細画面のrecordIdデコード経路に同種のサイドチャネル(R-05、Critical)を新規発見した。R-05もentities.md/rules.md/functional-spec.mdへ実際に修正を反映済みである(Q4参照)。redo jump後のiteration 2レビューではさらに新規のCritical(R-06、FKポップアップ検索の応答(代表表示列・recordId生成用主キー)にaccessLevelフィルタがかかっていない同種のサイドチャネル)を発見したが、当時はiteration上限のため未修正のまま確定した。今回、stage-level Request Changesによりレビュー履歴が再度リセットされたことを受け、R-06もentities.md/rules.mdへ実際に修正を反映した(Q5参照)。
+**レビュー結果**: iteration 1(redo jump前)でCritical 1件(recordId経由の非表示カラム値漏えい)・Major 1件(未使用のDATA_RECORD_DELETED)・Minor 3件を検出、いずれも修正済み。iteration 2(redo jump前)でCritical 1件(一覧画面・FKポップアップ検索の検索条件経由の同種のサイドチャネル漏えい、R-01)・Minor 3件(R-02〜R-04)を新規検出した。同一stageのredo jump(dynamic-data-accessの当時のiteration上限到達を受けたエスカレーション)によりレビュー履歴がリセットされ、redo jump後のiteration 1でR-01〜R-04をすべて実際に修正したことを確認したうえで、独立レビューにより詳細画面のrecordIdデコード経路に同種のサイドチャネル(R-05、Critical)を新規発見した。R-05もentities.md/rules.md/functional-spec.mdへ実際に修正を反映済みである(Q4参照)。redo jump後のiteration 2レビューではさらに新規のCritical(R-06、FKポップアップ検索の応答(代表表示列・recordId生成用主キー)にaccessLevelフィルタがかかっていない同種のサイドチャネル)を発見したが、当時はiteration上限のため未修正のまま確定した。今回、stage-level Request Changesによりレビュー履歴が再度リセットされたことを受け、R-06もentities.md/rules.mdへ実際に修正を反映した(Q5参照)。さらに今回(2度目のredo jump後)のiteration 1レビューで、一覧画面の`sort`パラメータにBR1.1・BR5.1と同水準の識別子検証・非表示カラム除外が課されていない新規のCritical(R-10)を検出し、rules.md/functional-spec.mdへ実際に修正を反映した(Q6参照)。
 
 [Answer]: Looks correct
 
@@ -59,5 +59,13 @@ redo jump後のiteration 2レビューで新規検出されたR-06(Critical)は�
 - **R-06(Critical)**: FKポップアップ検索(BR5.1・ワークフロー5)は、検索条件(入力側)についてはR-01でaccessLevelフィルタを適用済みだったが、検索結果の応答(出力側、代表表示列・recordId生成用の主キー値)にはaccessLevelフィルタが一切かかっておらず、view権限さえあれば非表示カラムの値をそのまま取得できてしまうサイドチャネルがあった。修正: BR5.1に、応答生成前に再度BR4.2のaccessLevelを適用する規定を追加した。代表表示列が非表示の場合はその値を返さず、可視な主キー値(または可視カラム基準集合)を代表表示ラベルとして代用する(主キーも非表示なら可視な最初のカラムを代用、全カラム非表示なら空文字列)。recordId生成用の主キー(または全カラム)自体も可視カラムのみに絞る。functional-spec.mdワークフロー5に手順6(応答前のaccessLevel再適用)を追加した。
 
 [Answer]: 上記を反映済み。Looks correct
+
+## Q6. レビュー結果への対応記録(R-10、redo jump後のiteration 1レビューで新規検出)
+
+redo jump後のiteration 1レビューで新規検出されたR-10(Critical)は、今回rules.md/functional-spec.mdへ実際に修正を反映済みである:
+
+- **R-10(Critical)**: 一覧画面の`sort`パラメータ(契約#12)が、対象カラム名をTableConfig由来の既知の識別子集合に限定する検証を持たず、かつaccessLevel=非表示のカラムをソート対象から除外する規定も持っていなかった。BR1.1(検索条件)・BR5.1(FKポップアップ検索)が同種の検証を既に備えているのと非対称であり、動的SQL識別子インジェクション、および非表示カラムでソートした際の行順序を介した値推測(サイドチャネル)の両方のリスクがあった。修正: BR1.2に、sort対象カラム名がTableConfig.columns[]に実在する既知の識別子であること、かつaccessLevel=非表示でないことの両方を検証し、いずれかに違反する場合はそのsort指定を無視してlistOrder順にフォールバックする規定を追加した(BR1.1と同様、明示的なエラーとはしない)。functional-spec.mdワークフロー1手順6にも同様の検証順序を反映した。
+
+[Answer]: Looks correct
 
 

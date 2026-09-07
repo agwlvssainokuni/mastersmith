@@ -134,25 +134,20 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T13:45:00Z
+**Date:** 2026-09-07T02:26:01Z
 **Iteration:** 1
-**Request Challenge:** review:911d0b73cd67a41f5914942d4728fca6
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Minor | construction/auth/functional-design/functional-spec.md > ワークフロー6「自己サービスでの氏名・パスワード変更」ステップ5 | 氏名とパスワードを同時に変更した場合、現状は either/or の分岐でどちらか一方の通知イベントのみを発行している。氏名変更(AccountInfoChangedEvent, changedFields=["name"])とパスワード変更(PasswordChangedEvent)を独立に判定し、両方が変更された場合は両方のイベントを発行すべき | ワークフロー6ステップ5のロジックを、パスワード変更の有無と氏名変更の有無をそれぞれ独立に判定し、該当するイベントをそれぞれ(必要なら両方)発行するよう修正する | Unresolved |
-| R-02 | Minor | construction/auth/functional-design/rules.md > BR6.5 および functional-spec.md ワークフロー6 | 自己サービスでのパスワード変更(`PUT /api/me/profile`)は、新パスワード設定前に呼び出し元の現在パスワードの再検証を要求していない。email-change-confirmフロー(BR6.4)は現在パスワードの再検証を必須としており、整合性がない | `PUT /api/me/profile`でのパスワード変更時にも、BR6.4と同様の現在パスワード再検証をルールとして追加する | Unresolved |
+| R-03 | Major | construction/auth/functional-design/rules.md > BR8.1・エンティティAccount全体、functional-spec.mdの全ワークフロー | contract-summary.md 契約#4(account-management → auth)は「無効化(disable)の場合、authは該当accountIdの有効な(revoked=falseかつ未期限切れの)RefreshTokenをすべて失効させる(即時のセッション無効化)」と明記し、「auth側のrules.md/functional-spec.mdへの反映はauth Unit側のstage完了ゲートで対応する」と本Unitでの反映を名指しで求めている。しかし現在のrules.md・functional-spec.mdには、account-managementからの契約#4無効化呼び出しを契機としたRefreshToken失効に関するルール・ワークフローが一件も存在しない(BR1.1・BR3.3はいずれもログイン試行時・ログアウト時の挙動であり、無効化時の即時失効は扱っていない)。このままでは無効化された利用者が既存のRefreshTokenで最大7日間セッションを継続できてしまう。 | 契約#4の無効化呼び出しを受けたときの処理をrules.mdに新規BRとして追加し(対象accountIdの有効なRefreshTokenを一括revoked=trueにする)、functional-spec.mdのワークフローにも追記する。entities.mdのAccountエンティティownership記述にも、この呼び出し経路を明記する。 | New |
+| R-04 | Major | construction/auth/functional-design/rules.md > BR8.1、functional-spec.mdワークフロー6・7 | contract-summary.md 契約#4は「更新呼び出し(name/emailの変更)によって実際にname/emailが変化した場合、authは呼び出し元(自己サービスの`/api/me/profile`かaccount-managementの契約#4か)に関わらず、自身がAccountInfoChangedEvent(通知イベント契約#10)を発行する」と規定し、ここでも「auth側のrules.md/functional-spec.mdへの反映はauth Unit側のstage完了ゲートで対応する」と本Unitでの反映を名指しで求めている。しかし現在のfunctional-spec.mdはワークフロー6(自己サービス氏名・パスワード変更)・7(自己サービスメールアドレス変更)のみを記述しており、account-managementが契約#4経由でAccount.name/emailを更新した場合にauthがAccountInfoChangedEventを発行するワークフロー・ルールが一件も存在しない。このままでは管理者による氏名・メールアドレス編集(FR6.4.3)時に通知メール(FR6.4(3))が送信されない。 | 契約#4のname/email更新呼び出しを受けたときの処理をrules.mdに新規BRとして追加し(実際に値が変化した場合にAccountInfoChangedEventを発行、changedFieldsを設定)、functional-spec.mdのワークフローにも追記する。 | New |
 
 ### Validation Tool Results
 
-| Tool | Result | Interpretation |
-|---|---|---|
-| required-sections (functional-spec.md) | passed | 必須セクションはすべて存在 |
-| traceability (traceability.json) | FAIL: missing_from_upstream_ids に FR1系〜FR7系(auth Unit非所有)多数 | 既知の誤検知パターン(このUnitのupstream_idsはFR5.5/FR5.6/FR6.1-6.3/FR6.6/NFR7に正しくスコープされており、他Unit所有のFRを本Unitのtraceability.jsonへ追加する必要はない)。新規欠陥ではない |
-| upstream-coverage (traceability.json) | FAIL: unreferenced = unit-of-work, unit-of-work-story-map, requirements | 同上の既知の誤検知パターン(このUnitの成果物はcontract-summary/componentsを主に参照する設計であり、consumes契約のうち直接引用されない3件は本Unitの範囲外情報であるため未参照は妥当)。新規欠陥ではない |
+本stage定義にはvalidation toolの指定がないため実行していない。traceabilityセンサーは本Unit担当外のFRを大量に誤検知する既知のパターンであるため、依頼のとおり無視した。
 
 ### Summary
 
-本ユニットのentities.md/rules.md/functional-spec.md/traceability.jsonは、前回認証済み内容から変更がなく、内部整合性も保たれていることを確認した(7ワークフローすべてが契約#11のREST APIパス・レスポンスと一致、Account/AccountActionToken/RefreshTokenの所有権が契約#19・#4と整合、契約#20経由のロール取得が正しく組み込まれている)。R-01・R-02は既知の未解決事項として継続し、ステージ末尾ゲートでの一括修正に委ねる。新規のCritical/Major所見はなく、READYと判定する。
+entities.md・rules.md・functional-spec.md・traceability.jsonの4ファイルは相互に整合しており、requirements.md FR5.5・FR5.6・FR6.1〜FR6.3・FR6.6・NFR7、および契約#11・#19・#20との矛盾も見つからなかった(既知のR-01・R-02は繰延べ事項として今回は再指摘していない)。一方で、契約#4(account-management → auth)がauth Unit側での反映を名指しで求めている2件の未実装事項(無効化時のRefreshToken即時失効、管理者による氏名/メールアドレス編集時のAccountInfoChangedEvent発行)を新たに検出した(R-03・R-04、いずれもMajor)。件数は2件でREADY判定のしきい値(Major 2件以下)の範囲内であり、既存の設計自体に矛盾はないため、この2件の反映を条件に READY とする。

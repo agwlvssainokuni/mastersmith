@@ -9,6 +9,7 @@
     { "id": "FR5.4", "status": "OK", "target": "BR4.1" }
   ],
   "reverse": [
-    { "id": "BR6.1", "status": "N/A", "target": "domain-design/components.md PermissionComponent.behaviourに由来する横断的な設計方針であり、特定のFRに対応するものではない" }
+    { "id": "BR6.1", "status": "N/A", "target": "domain-design/components.md PermissionComponent.behaviourに由来する横断的な設計方針であり、特定のFRに対応するものではない" },
+    { "id": "BR5.3", "status": "N/A", "target": "契約#22(config-management → permission)由来。frontend-coreのメニュー取得(FR3.4)を支えるprocess-in-call契約であり、permission自身のFRには対応しない(frontend-core Unit Functional Designより新設)" }
   ]
 }

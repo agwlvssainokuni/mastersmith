@@ -31,3 +31,13 @@ FR5.1は「テーブル単位の権限(一覧/検索、詳細、作成、編集�
 - Request changes
 
 [Answer]: Looks correct
+
+## Q3. 契約#22(config-management → permission)のpermission側への反映(frontend-core Unit Functional Designより)
+
+frontend-core Unitのfunctional-designで、トップ画面のメニュー取得のためconfig-management→permissionの新規プロセス内呼び出し契約#22(指定roleIdがcanList=trueを持つtableId集合を返す)がcontract-summary.mdに新設された。当時はpermission Unit自身のfunctional-design成果物(rules.md/functional-spec.md/traceability.json)への反映は繰延べとしていたが、今回redo-jumpでfunctional-designステージ全体のレビューiterationがリセットされた機会に、この反映をあわせて行う。
+
+- rules.mdにBR5.3(契約#22を受けたとき、指定roleIdがcanList=trueを持つtableId集合を返す。BR5.1のデフォルト拒否により未設定テーブルは含まれない)を追加した。
+- functional-spec.mdにワークフロー8(契約#22によるcanList権限tableId集合の取得)を追加した。
+- traceability.jsonのreverseにBR5.3(契約#22由来、permission自身のFRには対応しない)を追加した。
+
+[Answer]: Looks correct

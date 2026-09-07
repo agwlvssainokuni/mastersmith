@@ -121,6 +121,15 @@ rules:
     violation_behaviour: "該当なし"
     source: FR5.2(「更新可(デフォルト)」という要件文言そのものが既定値を明示している。TablePermissionのBR5.1とは異なりQ2の確認を要さない)
 
+  - id: BR5.3
+    statement: 契約#22(config-management → permission)を受けたとき、指定されたroleIdについて、TablePermission.canList=trueを持つtableIdの集合を返す。BR5.1のデフォルト拒否により、TablePermission未設定のテーブルはこの集合に含まれない
+    category: business
+    applies_to: TablePermission
+    trigger: "config-managementが契約#22を呼び出したとき(GET /api/menuの処理中、frontend-core Unit Functional Designより新設)"
+    logic: "対象tableId集合 = {t | TablePermission(roleId=対象roleId, tableId=t, canList=true)が存在する}"
+    violation_behaviour: "該当なし(該当tableIdが0件の場合は空集合を返す。エラー条件ではない)"
+    source: contract-summary.md #22(frontend-core Unit Functional Designより新設)
+
   - id: BR6.1
     statement: permission Unitが管理する業務データ権限モデル(Role/Group/RoleAssignment/TablePermission/ColumnPermission)は、管理者専用機能へのアクセス制御(isAdminクレーム、FR5.5/FR5.6)とは別のモデルであり、本Unitはこのアクセストークンのクレームに基づくアクセス制御には関与しない
     category: policy
@@ -148,4 +157,5 @@ rules:
 | BR4.1 | policy | ロール切替候補にグループ経由のロールを含める |
 | BR5.1 | authorization | TablePermission未設定はデフォルト拒否 |
 | BR5.2 | authorization | ColumnPermission未設定はデフォルトeditable |
+| BR5.3 | business | 契約#22: 指定ロールがcanList権限を持つtableId集合を返す |
 | BR6.1 | policy | 業務データ権限モデルはisAdminとは別モデル |

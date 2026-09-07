@@ -78,26 +78,13 @@ erDiagram
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T13:40:56Z
-**Iteration:** 2
-**Request Challenge:** review:3ce03f5560a95052c64e889db2972f46
+**Date:** 2026-09-07T02:24:24Z
+**Iteration:** 1
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-09 | Major | contract-summary.md > 監査ログAPI(#18) GET /api/admin/audit-log および /export の query parameters vs. entities.md / rules.md / traceability.json | contract-summary.md #18は`actionType`/`actorAccountId`/`occurredAtFrom`/`occurredAtTo`/`q`の各クエリパラメータをGET /api/admin/audit-logおよびGET /api/admin/audit-log/exportに宣言済み(511行目のR-09フォローアップ追記、527-530行目・546-549行目のパラメータ定義で確認)だが、本Unit自身のentities.md/rules.md/traceability.jsonはこの変更前の状態のままで、BR2.1/BR2.2の記述はクエリパラメータ名との対応を明示していない。以前の修正試行はツール都合でrevertされたことが判明済み。 | entities.mdまたはrules.mdのBR2.1/BR2.2に、契約#18で確定した5つのクエリパラメータ名(actionType/actorAccountId/occurredAtFrom/occurredAtTo/q)との対応を明記する。 | Unresolved |
-| R-10 | Minor | entities.md > AuditLogEntry.actionType の allowed_values(32行目) | config-managementのactionType許容値が`CONFIG_TABLE_CREATED\|CONFIG_TABLE_UPDATED\|CONFIG_TABLE_DELETED\|CONFIG_IMPORTED`のみ列挙されており、contract-summary.md #5〜#8に既にある`CONFIG_CONNECTION_*`/`CONFIG_MENU_*`系の値が未反映。 | entities.mdのallowed_valuesにCONFIG_CONNECTION_*/CONFIG_MENU_*を追記する。 | Unresolved |
-| R-11 | Minor | traceability.json > coverage[FR7.5].target(10行目) | FR7.5のtargetが`"BR4.1, BR4.2"`のままで、削除操作のolderThanDays検証を担うBR4.3が含まれていない。今回実行したtraceabilityセンサーも同じ欠落を`orphans: ["BR4.3"]`として検出しており、独立に裏付けられる。 | traceability.jsonのFR7.5.targetを`"BR4.1, BR4.2, BR4.3"`に更新する。 | Unresolved |
-
-### Validation Tool Results
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| required-sections (functional-spec.md) | passed | 必須セクションの欠落なし |
-| traceability (traceability.json) | failed — `orphans: ["BR4.3"]`, `missing_from_upstream_ids`に大量のFR1〜FR6系ID | `orphans`のBR4.3欠落はR-11と同一事象で独立に裏付けられる新規の欠陥ではない。`missing_from_upstream_ids`の大量リストはaudit-log Unitのスコープ外FR(他Unit担当分)であり、既知の誤検知パターンとして扱う(新規欠陥ではない) |
-| upstream-coverage (traceability.json) | failed — `unreferenced: ["unit-of-work", "unit-of-work-story-map", "requirements"]` | この3契約はunits-generation/requirements-analysis由来の上位契約全体であり、functional-designの成果物(entities.md/rules.md/traceability.json)が個別に逐語引用する性質のものではない。既存の(前回iterationから変化のない)状態であり新規の欠陥ではない |
+指摘なし(既知の繰延べ事項R-09〜R-11を除く)
 
 ### Summary
 
-同一内容の再認証。entities.md/rules.md/functional-spec.md/traceability.jsonはiteration 1で認証済みの内容から変更されておらず(functional-spec.mdの`## Review`セクションが再認証前の状態に復元されていることも確認済み)、内部的にも健全(BR一覧・FR対応・状態遷移・ER図の相互整合性を再確認)。既知のR-09(Major)・R-10/R-11(Minor)はend-of-stageゲートでの人間判断に委ねる形でUnresolvedのまま持ち越す。Critical 0件、Major 1件、Minor 2件のためREADYとする。
+entities.md・rules.md・functional-spec.md・traceability.jsonの4ファイルは相互に整合しており(BR定義↔ワークフロー↔FR7.1〜FR7.5の対応関係を含む)、requirements.md FR7.1〜FR7.5および契約summary(#5〜#8監査ログイベント契約、#18 REST API契約)とも矛盾は見当たらない。BR5.1のisAdmin権限根拠(FR5.5/FR5.6)、BR4.1/BR4.3のolderThanDaysとAuditLogSettings.retentionDaysの下限整合、エクスポート形式(BR3.1)の契約対応もすべて検証済み。新規のCritical/Major欠陥はなく、既知の繰延べ事項R-09(クエリパラメータの明記不足)・R-10(actionType allowed_valuesの未反映)・R-11(traceabilityのBR4.3 orphan)はいずれも変更なしで継続する非ブロッキング事項として申し送り済み。

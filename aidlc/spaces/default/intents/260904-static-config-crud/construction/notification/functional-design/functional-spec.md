@@ -30,29 +30,13 @@ notificationは、domain-design/components.mdの定義どおり、auth・account
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T22:40:53Z
+**Date:** 2026-09-07T02:25:04Z
 **Iteration:** 1
-
-### 検証結果
-
-1. **契約#9〜#10の6イベントカバレッジ**: rules.md BR1.1〜BR1.6は、AccountCreatedEvent・AccountRegistrationCompletedEvent・AccountInfoChangedEvent・PasswordChangedEvent・PasswordResetRequestedEvent・EmailChangeRequestedEventの6件を過不足なくカバーしている。EmailChangeRequestedEventの宛先がpayload.newEmail(他5件のrecipientEmailとは異なる)である点は、BR1.6・functional-spec.mdのワークフロー対応表(#6行)の両方で明示的に反映されている。問題なし。
-
-2. **payload解釈の整合性**: account-management側のBR1.4(`construction/account-management/functional-design/rules.md`)は、AccountCreatedEventのpayloadを`accountId・recipientEmail・registrationToken`と定義しており、これはcontract-summary.md「通知イベント契約(#9〜#10)」のAccountCreatedEventスキーマ、およびnotification側BR1.1の解釈(宛先=recipientEmail、本文にregistrationTokenを埋め込んだURL)と完全に一致する。矛盾なし。
-
-3. **functional-spec.mdの対応表とrules.mdの一致**: ワークフロー対応表の6行(templateId・宛先・埋め込みURLの有無)は、BR1.1〜BR1.6の各`logic`フィールドと一致している。問題なし。
-
-4. **entities.mdの「永続エンティティなし」との整合性**: EmailDispatch・SubscribedEventはいずれも「永続化されず処理内でのみ存在する一時的な値」と明記されており、domain-design/components.mdの「所有データ: なし」という設計方針と矛盾しない。問題なし。
-
-5. **BR3.1と契約#9〜#10の失敗時挙動の整合性**: BR3.1(SMTP送信失敗時はログ記録のみ・リトライなし)は、contract-summary.md「通知イベント契約(#9〜#10)」の「失敗時の挙動」節と文言レベルで整合している。AccountCreatedEventの再送手段をFunctional Design以降で確定する旨が契約側にあるが、これはfunctional-design-questions.md Q1で人間が明示的にMVPスコープ外と承認済みであり、指摘不要という指示に従う。
-
-6. **traceability.jsonのcoverage/reverse**: FR6.4→BR1.1〜1.6、FR6.5→BR2.1のcoverageは要件文言(6種のメールフロー、Mustacheテンプレート+`<title>`→Subject)と一致している。reverseのBR3.1(N/A、契約起源でFR個別化されていない)も妥当な扱い。
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-01 | Minor | entities.md「取り扱うデータ形状」EmailDispatch.templateVariables と functional-spec.mdワークフロー手順3 | entities.mdはtemplateVariablesを「URLに埋め込むトークン等」(トークン素の値)と記述する一方、functional-spec.mdは手順3で「埋め込みURLの場合はトークンを含む完全なURL」をテンプレート変数として用いると記述しており、URL構築(ベースURL+トークン)がどちらの層の責務か、ベースURLの出所(application.yml等)がどちらの文書からも読み取れない。実装者がURL組み立てロジックの置き場所を推測する必要がある。 | entities.mdまたはfunctional-spec.mdのいずれかに統一し、テンプレート変数として渡すのが生トークンか完成済みURLかを明記する。完成済みURLとする場合、ベースURLの設定源(application.yml等)を一言追記する。 | New |
+指摘なし(既知の繰延べ事項R-01を除く)
 
 ### Summary
 
-契約#9〜#10の6イベントすべてがrules.md・functional-spec.mdで過不足なく一貫してカバーされており、account-management側BR1.4とのpayload解釈にも矛盾はない。永続エンティティなしの設計方針、BR3.1の失敗時挙動、traceabilityの整合性もいずれも問題なし。Minor指摘1件(テンプレート変数がトークンか完成URLかの記述不一致)のみで、実装を妨げるものではないためREADYとする。
+entities.md・rules.md・functional-spec.md・traceability.jsonの4ファイルは相互に整合している。BR1.1〜BR1.6が定義する6種のイベント(AccountCreatedEvent、AccountRegistrationCompletedEvent、AccountInfoChangedEvent、PasswordChangedEvent、PasswordResetRequestedEvent、EmailChangeRequestedEvent)の名称・payload・publisher・宛先(recipientEmail/newEmail)は、contract-summary.md「通知イベント契約(#9〜#10)」の記載と完全に一致し、BR2.1(Mustacheテンプレート・`<title>`→Subject)はFR6.5と、BR1.1〜BR1.6の6フローはFR6.4(1)〜(6)とそれぞれ一致する。SMTP送信失敗時の挙動(BR3.1)もcontract-summary.mdの「失敗時の挙動」節と一致し、AccountCreatedEventの管理者向け再送手段を今回のMVPスコープに含めない判断はfunctional-design-questions.md Q1で人間の承認を得て確定済みであり、矛盾はない。traceability.jsonのupstream_ids(FR6.4, FR6.5)およびcoverageの対応も正確。新規のCritical/Major欠陥は見つからなかった。

@@ -14,13 +14,13 @@ rules:
     source: FR3.1, functional-design-questions.md Q2, functional-design-questions.md Q4 R-01(iteration 2レビューより)
 
   - id: BR1.2
-    statement: 一覧画面は、TableConfig.columns[].listOrder(nullでないもの)に基づき表示列を決定し、ページネーション(page・size)とソート(sort)を受け付ける
+    statement: 一覧画面は、TableConfig.columns[].listOrder(nullでないもの)に基づき表示列を決定し、ページネーション(page・size)とソート(sort)を受け付ける。sortパラメータの対象カラムは、BR1.1の検索条件と同様にTableConfig由来の既知の識別子集合に限定し、かつ呼び出しロールについてBR4.2でaccessLevel=非表示と判定されたカラムをソート対象として受け付けない(iteration 1レビューR-10フォロー: 識別子検証・非表示カラム除外のいずれもBR1.1にのみ課され、sortには課されていなかったため、動的SQL識別子インジェクションおよび行順序を介した非表示値の推測が可能になっていた)
     category: business
     applies_to: RecordView
     trigger: "GET /api/data/{tableId} を受けたとき"
-    logic: "listOrderが設定されたカラムのみ、その順序で一覧に表示する"
-    violation_behaviour: "該当なし"
-    source: FR3.1
+    logic: "listOrderが設定されたカラムのみ、その順序で一覧に表示する。sortパラメータで指定されたカラム名がTableConfig.columns[]に実在する既知の識別子でない場合、または呼び出しロールについてaccessLevel=非表示と判定される場合は、そのsort指定を無視し既定のソート順(listOrder順)にフォールバックする(BR1.1の検索条件と同様、明示的なエラーとはしない。動的SQL識別子として使用するのは検証を通過したカラム名のみとする)"
+    violation_behaviour: "該当なし(不正・非表示のsort指定は静かに無視してフォールバックする。BR1.1と同様の扱い)"
+    source: FR3.1, functional-design-questions.md Q4 R-10(iteration 1レビューより。redo jump後の新規発見)
 
   - id: BR1.3
     statement: 一覧・詳細画面で返す各行のFK列について、TableConfig.foreignKeyRepresentativeColumnsで解決済みの代表表示列の値を実行時に問い合わせ、resolvedForeignKeyLabelsとして付加する。参照先が未解決(referencedTableId=null、config-management BR2.5参照)のFK列は名称解決の対象外とし、生の値のみを返す
@@ -118,7 +118,7 @@ rules:
 | ID | カテゴリ | 概要 |
 |---|---|---|
 | BR1.1 | business | 一覧画面の動的検索条件組み立て |
-| BR1.2 | business | 一覧画面の表示列・ページネーション・ソート |
+| BR1.2 | business | 一覧画面の表示列・ページネーション・ソート(sort対象カラムも識別子検証・非表示除外の対象。R-10フォロー) |
 | BR1.3 | business | FK値の表示名解決(未解決FKは対象外) |
 | BR2.1 | business | recordIdの生成(非表示カラム除外)・デコード後の識別子/accessLevel検証・WHERE句組み立て |
 | BR3.1 | constraint | 主キーなしテーブル・ビューの編集不可 |

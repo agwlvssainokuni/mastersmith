@@ -61,6 +61,11 @@
 2. 対象ロール・テーブルのTablePermissionレコードを検索する。存在すれば該当操作のcanXxx値を返す。存在しなければすべての操作を拒否と返す(BR5.1)。
 3. カラム単位の権限が必要な場合、対象ロール・テーブル・カラムのColumnPermissionレコードを検索する。存在すればそのaccessLevelを返す。存在しなければeditableを返す(BR5.2)。
 
+### 8. 契約#22(config-management → permission)によるcanList権限tableId集合の取得(frontend-core Unit Functional Designより新設)
+
+1. config-managementが、`GET /api/menu`(契約#23)の処理中に、判定対象のroleId(`X-Active-Role`ヘッダー由来)を渡してcanList権限を持つtableId集合を問い合わせる。
+2. 対象roleIdについて、TablePermission.canList=trueのレコードを検索し、該当するtableIdの集合を返す(BR5.3)。TablePermissionが1件も存在しないテーブルはBR5.1のデフォルト拒否により集合に含まれない。該当tableIdが0件の場合は空集合を返す(エラー条件ではない)。
+
 ## 状態遷移
 
 本Unitの各エンティティ(Role・Group・GroupMembership・RoleAssignment・TablePermission・ColumnPermission)はいずれも意味のある状態遷移(ライフサイクル)を持たない。作成・更新・削除の単純なCRUD対象である。
@@ -129,29 +134,19 @@ erDiagram
 | 5. 契約#21によるアカウントの初期ロール割り当て・変更 | BR3.2 |
 | 6. 自身の切替可能ロール一覧の取得 | BR4.1 |
 | 7. テーブル単位・カラム単位の権限確認 | BR5.1, BR5.2 |
+| 8. 契約#22によるcanList権限tableId集合の取得 | BR5.3 |
 
 ## Review
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T13:31:30Z
+**Date:** 2026-09-07T01:39:38Z
 **Iteration:** 1
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-01 | Minor | aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/upstream-coverage sensor result | `upstream-coverage` reports `unit-of-work`, `unit-of-work-story-map`, `requirements` as consumed-but-unreferenced in the scanned files (rules.md/entities.md/functional-spec.md/traceability.json never cite these three filenames by name; requirements.md coverage is carried instead via bare FR IDs such as FR5.1). This looks like the same class of sensor false-positive already accepted for `missing_from_upstream_ids`, but unlike that one it was not called out in the dispatch brief as expected, so it is recorded here for visibility rather than silently dropped. | No artifact change required if the team accepts this as sensor noise; otherwise add an explicit citation of unit-of-work.md/unit-of-work-story-map.md alongside the existing FR-ID citations. | New |
-| R-02 | Minor | aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md > BR1.4, BR1.5 | The "check RoleAssignment reference, then cascade-delete child rows, then delete the Role/Group" sequence in BR1.4/BR1.5 does not state that the check-and-delete must run as a single atomic transaction. A RoleAssignment could in principle be created between the reference check and the delete, leaving a dangling reference. This is a narrow, implementation-level concern rather than a design defect (functional design is not expected to specify transaction boundaries), so it does not block readiness. | Optionally add one sentence noting the check-then-cascade-delete sequence must execute within a single transaction, to remove any ambiguity for the implementer. | New |
-
-### Validation Tool Results
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| required-sections | PASS | functional-spec.md carries all required sections. |
-| upstream-coverage | FAIL: `unreferenced: ["unit-of-work", "unit-of-work-story-map", "requirements"]` | See R-01. Not a defect in the reviewed business logic; recorded as advisory. |
-| traceability | FAIL: `missing_from_upstream_ids` lists ~38 FR IDs (FR1.x, FR2.x, FR3.x, FR4.x, FR5.5/5.6, FR6.x, FR7.x) | Confirmed as the known false-positive named in the dispatch brief (FRs outside this Unit's scope, from the stories.md-skip fallback). All FRs actually in scope (FR5.1–FR5.4) are covered per traceability.json's `coverage` array, cross-checked against requirements.md. No new defect. |
+指摘なし
 
 ### Summary
 
-The four changes verified cleanly against the upstream contracts and against each other: BR1.3's rename logic matches the new PUT endpoints (200/400/404) exactly; BR1.4/BR1.5's cascade-vs-block distinction is architecturally sound against entities.md's actual ownership model — TablePermission/ColumnPermission/GroupMembership are each owned_by the permission Unit itself as child data of the Role/Group being deleted (correctly cascaded), while RoleAssignment is the one entity that references the Role/Group from outside that ownership boundary (correctly treated as the blocking 409 condition) — and matches the DELETE endpoints' 204/404/409 contract exactly; the BR3.2 dedup fix is stated identically and consistently in rules.md and functional-spec.md workflow 5, and correctly closes the prior unique-constraint risk. traceability.json's FR5.3 coverage entry was updated to include BR1.3–BR1.5. Only two Minor, non-blocking observations were found (sensor noise and an implementation-level transactionality note); no Critical or Major findings.
+今回の唯一の変更点であるBR5.3(契約#22対応)を精査した。rules.md BR5.3のConsumer passes/Provider returns/Failure behaviorは、contract-summary.mdの契約#22定義(「判定対象のroleId」「当該roleIdがcanList=trueを持つtableIdの集合」「該当なしエラー条件ではない」)と文言レベルで一致している。BR5.3はBR5.1(TablePermission未設定はデフォルト拒否)を明示的に参照し、「未設定のテーブルは集合に含まれない」という記述も矛盾なく整合している。functional-spec.mdワークフロー8はBR5.3のロジック(対象tableId集合の内包表記、空集合はエラーでない旨)をそのまま反映しており齟齬はない。traceability.jsonのreverseエントリ(BR5.3)は、config-management側のFR3.4(requirements.mdに実在確認済み)を支える契約起源のルールであり、permission自身のFRには対応しないという説明で、Mandatedルール(cross-unit境界の扱い)にも整合する。既存のBR1.1〜BR6.1・ワークフロー1〜7・エンティティモデル(TablePermission.canListを含む)には、今回の追加によって生じた矛盾や重複定義は見当たらない。よってREADYと判定する。

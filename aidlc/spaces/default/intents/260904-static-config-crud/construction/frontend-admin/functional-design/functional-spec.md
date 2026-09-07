@@ -93,30 +93,13 @@ frontend-adminは、domain-design/components.mdの定義どおり、管理者ロ
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-06T14:32:07Z
-**Iteration:** 2
+**Date:** 2026-09-07T02:25:33Z
+**Iteration:** 1
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| R-01 | Critical | functional-spec.md > ワークフロー6, ステップ3〜4 / mockups.md > 13b | account-management契約(#17)のPUT/DELETE意味論が逆に記述されていた(PUTがステータス変更を兼ね、DELETEの意味が曖昧) | 再検証: functional-spec.mdワークフロー6ステップ3は氏名・メールアドレス・ロールのみをPUTで保存し、ステップ4は確認ダイアログ経由のDELETE(204、論理無効化)を独立した「無効化」ボタンから呼ぶ形に修正されている。契約(#17: put→200のみ、delete→204「論理削除のみ」)と整合する。mockups.md 13bもStatusを読み取り専用表示+独立した「無効化する」ボタンに変更されており、テキストフォールバックの記述(「無効化は…Saveとは別の独立した操作」)も一貫している。新規作成モードでStatus非表示・常に有効作成という記述も維持されている。矛盾なし。 | Resolved |
-| R-02 | Major | functional-spec.md > ワークフロー7 | 設定管理画面がテーブル一覧取得(`GET /api/admin/table-configs`)を呼ばず、テーブルセレクタが構成できなかった | 再検証: ステップ1として`GET /api/admin/table-configs`(契約#15、page/size/sort対応)の呼び出しが追加され、選択肢構成の根拠が明記されている。契約側にもpage/size/sortパラメータが定義済みで整合する。 | Resolved |
-| R-03 | Major | functional-spec.md > ワークフロー7 / traceability.json > FR2.6 | `POST /api/admin/config/cache/clear`(契約#15、FR2.6)がどの画面からも呼ばれていなかった | 再検証: ワークフロー7ステップ6に「キャッシュをクリア」操作が追加され、契約上「frontend-admin向け」と明記された経緯も注記されている。traceability.jsonのFR2.6は"OK"に更新され、対応するワークフロー7を指している。整合。 | Resolved |
-| R-04 | Major | functional-spec.md > ワークフロー10 / contract-summary.md > config-management(menu-items) | 循環参照エラー(400)が契約に定義されていなかった | 再検証: contract-summary.md 284-289行目で`POST/PUT/DELETE /api/admin/menu-items`系に400(循環参照・tableId不正)・404(対象なし)が追加されている。YAML構文は他エンドポイントと同じflowスタイルで妥当。functional-spec.mdワークフロー10ステップ4・5の記述(削除時の子ノード移動確認、並べ替え時の循環参照400表示)と整合する。 | Resolved |
-| R-05 | Major | functional-spec.md > ワークフロー7 / contract-summary.md > config-management(db-connections) | DB接続先削除時の409(参照するTableConfigが存在)が契約に定義されていなかった | 再検証: contract-summary.md 283行目で`DELETE /api/admin/db-connections/{id}`に404・409が追加されている(YAML構文妥当)。functional-spec.mdワークフロー7ステップ3の記述と整合する。 | Resolved |
-| R-06 | Major | unit-of-work.md > U10責務行 / unit-of-work-story-map.md FR5.4 | U10(frontend-admin)の責務記述に「切り替え」(ロール切替UI)が含まれ、ストーリーマップのFR5.4行(frontend-core=U9に割り当て)と矛盾していた | 再検証: unit-of-work.md U10行から「切り替え」が除かれ、「複数ロール保有時の作業中ロール『切り替え』自体のUIはU9(frontend-core)の責務」と明記された。U9側の責務記述(「複数ロール保有時のロール切替(Topbarのユーザーメニュー)」[FR5.4])とも整合し、新たな矛盾は生じていない。traceability.jsonのFR5.4行(N/A、訂正済みの注記あり)とも一致する。「メニュー管理画面」がU10責務行に追加されている点も、functional-spec.mdワークフロー10・frontend-components.md MenuTreeの記述と整合する。 | Resolved |
-| R-07 | Minor | permission契約(#13/#16) | ロール割り当て(RoleAssignment)を取り消すための専用DELETE/un-assignエンドポイントが契約に存在しない | permissionは完了済みUnitであり、Minor 1件のために再オープンする判断はしない。functional-design段階終了時のゲートで最終判断すること。 | Unresolved(deferred) |
-| R-08 | Major | functional-spec.md > ワークフロー6, ステップ3 / contract-summary.md > account-management(#17) | `PUT /api/admin/accounts/{id}`はメールアドレスの編集を含む(FR6.4.3)にもかかわらず、契約は200のみを定義しており、他アカウントとのメール重複時の409(作成時のBR1.2相当)や400(バリデーションエラー)が定義されていない。functional-spec.mdワークフロー6ステップ3・5も、この操作固有のエラーコードに触れず「保存失敗はフォーム上部にエラーメッセージ」という汎用記述に留めている。作成時(ステップ2)はBR1.2の409が明記されているのに対し、編集時だけ同種のチェックが契約・仕様のどちらにも現れておらず、実装時に矛盾したメール重複ポリシー(作成時は拒否、編集時は無制限)を生むおそれがある | account-management契約(#17)の`PUT /api/admin/accounts/{id}`に、メール重複時の409(またはバリデーションエラー時の400)を追加するか、編集時はメール重複チェックを行わない設計だと明示的に記載する(account-managementのBR側の意図を確認のうえ、R-04/R-05と同様の加法的な契約追記として扱う)。functional-spec.mdワークフロー6ステップ3にも対応するエラー表示の記述を追加する。 | New |
-
-### Validation Tool Results
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| required-sections (functional-spec.md) | passed | 必須セクション構造は満たされている |
-| traceability (traceability.json) | FAIL: missing_from_upstream_ids に FR1/FR2/FR3系等の他Unit所管FR、invalid_targets に全"OK"エントリ("target must name at least one BRx.y ID") | 既知の想定内の疑陽性。frontend-adminはUI Unitでrules.md(BR定義)を持たないため、target欄にBR IDを含められない構造的な制約であり、本レビューの新規指摘ではない |
-| upstream-coverage (traceability.json) | FAIL: unreferenced に他Unit所管の項目 | 同上、既知の想定内の疑陽性 |
+指摘なし(既知の繰延べ事項R-07・R-08を除く)
 
 ### Summary
 
-R-01〜R-06はいずれも正しく修正されている。特にR-01(アカウント無効化のPUT/DELETE逆転)はfunctional-spec.md・mockups.md 13bの両方で一貫して修正されており、新たな矛盾は生じていない。R-04・R-05のYAML追記も構文・様式ともに妥当。最終ハントで、アカウント編集(PUT)のメール重複時エラーが契約・仕様のどちらにも定義されていない新規のMajor(R-08)を検出したが、Major 1件・Minor(R-07、既知の繰越)1件のみでCriticalは0件のため、READY判定の閾値(Critical 0件・Major 2件以下)を満たす。R-08は次のゲートまたはaccount-management側との調整で解消することを推奨する。
+frontend-adminのfunctional-spec.md記載の10ワークフロー(ロール一覧・編集・割り当て、グループ管理、監査ログ、アカウント管理、設定管理、スキーマ取り込み、エクスポート/インポート、メニュー管理)を、shared契約(inception/contract-design/contract-summary.md)の permission(#16)・audit-log(#18)・account-management(#17)・config-management(#15)・schema-ingestion(#14)・auth(#19共有スキーマ)の各契約と突き合わせて確認した。エンドポイント・クエリパラメータ・ステータスコード(400/404/409)・冪等性の記述はいずれも対応する契約と整合しており、新規のCritical/Major欠陥は検出しなかった。traceability.jsonのFR IDもrequirements-analysis/requirements.mdに遡及可能であることを確認した。既知の非ブロッキング事項(R-07: permission契約にロール割り当て取り消し専用エンドポイントなし、R-08: account-management契約#17のPUTがメール重複時の409を定義していない)は前回レビューでUnresolvedのまま申し送り済みであり、本イテレーションでは再指摘しない。内容は前回READY判定時から変更されていない。

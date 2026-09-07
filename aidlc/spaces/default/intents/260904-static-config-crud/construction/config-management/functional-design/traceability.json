@@ -10,7 +10,7 @@
     { "id": "FR2.4", "status": "OK", "target": "BR4.1" },
     { "id": "FR2.5", "status": "OK", "target": "entities.md note(内部H2データストアのみに保持、業務DBには保存しない)" },
     { "id": "FR2.6", "status": "OK", "target": "BR6.1, BR6.2" },
-    { "id": "FR3.4", "status": "OK", "target": "BR4.2(MenuItem.tableId参照検証によりメニューからのテーブル画面遷移を成立させる)" }
+    { "id": "FR3.4", "status": "OK", "target": "BR4.2(MenuItem.tableId参照検証によりメニューからのテーブル画面遷移を成立させる)、BR4.3(GET /api/menu、非管理者向けcanList権限フィルタ済みメニュー取得。契約#22・#23、frontend-core Unit Functional Designより新設)" }
   ],
   "reverse": [
     { "id": "BR1.2", "status": "N/A", "target": "特定のFRに対応しない実装補完ルール(契約#15由来、参照整合性の保護)" },

@@ -121,6 +121,15 @@ rules:
     violation_behaviour: "400エラー(RFC 7807)"
     source: FR3.4
 
+  - id: BR4.3
+    statement: GET /api/menu(契約#23、非管理者向け、BR7.1のisAdmin必須の対象外)は、呼び出しロール(X-Active-Roleヘッダー由来)がcanList権限を持つtableIdを持つMenuItem(テーブルノード)のみを含むメニュー階層を返す。フォルダ/グループノード(tableId=null)は、配下に1件も可視なテーブルノードがない場合は結果から除外する
+    category: business
+    applies_to: MenuItem
+    trigger: "非管理者を含む全利用者がGET /api/menuを呼び出したとき(frontend-core Unit Functional Designより新設)"
+    logic: "IF X-Active-Roleがアクセストークンのrolesクレームに含まれない THEN 403を返す。ELSE 契約#22(config-management → permission)でX-Active-Roleに対応するroleIdが持つcanList=trueのtableId集合を取得し、テーブルノード(tableId IS NOT NULL)はその集合に含まれるもののみ残す。フォルダ/グループノード(tableId IS NULL)は、再帰的に配下をたどって1件でも可視なテーブルノードが残る場合のみ結果に含める"
+    violation_behaviour: "403エラー(RFC 7807、X-Active-Roleがrolesクレームに含まれない場合)"
+    source: contract-summary.md #22・#23(frontend-core Unit Functional Designより新設)
+
   - id: BR5.1
     statement: 設定エクスポート(POST /api/admin/config/export)は、DbConnection・TableConfig・MenuItemの全件を単一の設定ファイル(JSON)として出力する。DbConnection.credentialRefは暗号化された値のまま出力し、復号は行わない
     category: business
@@ -167,10 +176,10 @@ rules:
     source: FR2.6
 
   - id: BR7.1
-    statement: config-managementの全操作(DB接続先設定・テーブル設定・メニュー構成・エクスポート/インポート・キャッシュクリア)は、アクセストークンのisAdminクレームを持つ利用者のみが実行できる
+    statement: config-managementの全操作(DB接続先設定・テーブル設定・メニュー構成・エクスポート/インポート・キャッシュクリア)は、アクセストークンのisAdminクレームを持つ利用者のみが実行できる。ただしGET /api/menu(契約#23、非管理者向け)を除く。同エンドポイントの認可判定はBR4.3(X-Active-Roleがrolesクレームに含まれるか)に従う(frontend-core Unit Functional Designより除外を追記)
     category: authorization
     applies_to: DbConnection, TableConfig, MenuItem
-    trigger: "config-managementへのいずれかの操作要求を受けたとき"
+    trigger: "GET /api/menu(BR4.3)を除く、config-managementへのいずれかの操作要求を受けたとき"
     logic: "IF アクセストークンのisAdminクレームがtrue THEN 操作を許可する。ELSE 403エラー(RFC 7807)を返す"
     violation_behaviour: "操作は拒否され、403エラーが返される"
     source: FR5.5, FR5.6
@@ -209,10 +218,11 @@ rules:
 | BR3.1 | constraint | formWidget/searchOperatorの列挙値検証 |
 | BR4.1 | constraint | メニュー階層の循環参照禁止 |
 | BR4.2 | constraint | メニューのtableId存在検証 |
+| BR4.3 | business | GET /api/menu: canList権限フィルタ済みメニュー階層(契約#22・#23) |
 | BR5.1 | business | 設定エクスポート(暗号化のまま出力) |
 | BR5.2 | business | 設定インポート時の3種不整合判定・全体拒否 |
 | BR5.3 | business | インポート成功時のキャッシュ全体クリア |
 | BR6.1 | constraint | Caffeineキャッシュ、TTL/明示的クリア |
 | BR6.2 | business | 個別変更時のキャッシュエントリ無効化 |
-| BR7.1 | authorization | isAdminクレーム必須 |
+| BR7.1 | authorization | isAdminクレーム必須(GET /api/menuを除く。BR4.3参照) |
 | BR8.1 | business | 監査ログイベント発行(CONFIG_TABLE_*/CONFIG_CONNECTION_*/CONFIG_MENU_*/CONFIG_IMPORTED) |
