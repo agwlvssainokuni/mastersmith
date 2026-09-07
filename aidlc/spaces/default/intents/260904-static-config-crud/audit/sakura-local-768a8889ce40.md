@@ -29675,3 +29675,1709 @@
 **Session**: 3ab25365-579e-42e6-9783-311546d5de31
 
 ---
+
+## Error Logged
+**Timestamp**: 2026-09-07T05:17:01Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state unit complete --stage functional-design --unit packaging --wave
+**Error**: Refusing wave completion for unit "packaging" of "functional-design": the engine does not currently expose that entry as build-complete, review-settled, and awaiting its completion receipt.
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: b6df2442
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: b6df2442
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/functional-spec.md
+**Duration ms**: 51
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: fb16833f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: fb16833f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/traceability.json
+**Duration ms**: 26
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: cce28fee
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/frontend-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: cce28fee
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/frontend-components.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: ea20218e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: ea20218e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/entities.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_FIRED
+**Fire id**: 577c5b0d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:13Z
+**Event**: SENSOR_PASSED
+**Fire id**: 577c5b0d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/rules.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 018ffb25
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 018ffb25
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/functional-spec.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: f00a3c1d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: f00a3c1d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: a3535385
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: a3535385
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/entities.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: d7ad79f8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: d7ad79f8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/rules.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: 81cb1794
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_PASSED
+**Fire id**: 81cb1794
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:14Z
+**Event**: SENSOR_FIRED
+**Fire id**: e77ec295
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: e77ec295
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/traceability.json
+**Duration ms**: 22
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: e874705c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: e874705c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/entities.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 17de1f8d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 17de1f8d
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/rules.md
+**Duration ms**: 25
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 94111ed7
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 94111ed7
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/functional-spec.md
+**Duration ms**: 29
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9ddf0fc3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9ddf0fc3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/traceability.json
+**Duration ms**: 25
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1713d9e3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:15Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1713d9e3
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/entities.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2bbb94d7
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2bbb94d7
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/rules.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8a910aa5
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8a910aa5
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/functional-spec.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 29b0bb08
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 29b0bb08
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: f8deda9e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: f8deda9e
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/entities.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 93821ea8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_PASSED
+**Fire id**: 93821ea8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/rules.md
+**Duration ms**: 25
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:16Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0c550f1c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0c550f1c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/functional-spec.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 724a2434
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 724a2434
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: a46c952c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: a46c952c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/entities.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 283dd635
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 283dd635
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/rules.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 35b7613c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: 35b7613c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/functional-spec.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: e807219f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_PASSED
+**Fire id**: e807219f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:17Z
+**Event**: SENSOR_FIRED
+**Fire id**: 213081a6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 213081a6
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/entities.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 00c9fa9b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 00c9fa9b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/rules.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 73b6571b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 73b6571b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/functional-spec.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 016e992c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 016e992c
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4451bb10
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 4451bb10
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Duration ms**: 22
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9a5e91a8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:18Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9a5e91a8
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: cc1aa75b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: cc1aa75b
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Duration ms**: 22
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 82380e8f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 82380e8f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Duration ms**: 22
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 93ebb36a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/functional-spec.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 93ebb36a
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/functional-spec.md
+**Duration ms**: 26
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1af39ebd
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1af39ebd
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: 991c195f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/frontend-components.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_PASSED
+**Fire id**: 991c195f
+**Sensor ID**: required-sections
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/frontend-components.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:19Z
+**Event**: SENSOR_FIRED
+**Fire id**: e053e117
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: e053e117
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-e053e117.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 27c30cc6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: 27c30cc6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-27c30cc6.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 381305fd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/frontend-components.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: 381305fd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/functional-design/frontend-components.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-381305fd.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5a00500e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5a00500e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-5a00500e.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FIRED
+**Fire id**: c6a594a3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:20Z
+**Event**: SENSOR_FAILED
+**Fire id**: c6a594a3
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-c6a594a3.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 409351f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: 409351f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-409351f1.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6ecb193f
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6ecb193f
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-6ecb193f.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: c829f64d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: c829f64d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-c829f64d.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4f2eaab6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4f2eaab6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-4f2eaab6.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:21Z
+**Event**: SENSOR_FIRED
+**Fire id**: af8f1edd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: af8f1edd
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-af8f1edd.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6509ca08
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6509ca08
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-6509ca08.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 76ce8815
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: 76ce8815
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-76ce8815.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0cd8e674
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0cd8e674
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-0cd8e674.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FIRED
+**Fire id**: ee5ec0e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:22Z
+**Event**: SENSOR_FAILED
+**Fire id**: ee5ec0e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-ee5ec0e6.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9aeffe9d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FAILED
+**Fire id**: 9aeffe9d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-9aeffe9d.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: a5be0b13
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FAILED
+**Fire id**: a5be0b13
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-a5be0b13.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: e98ba682
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FAILED
+**Fire id**: e98ba682
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-e98ba682.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 985dd119
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FAILED
+**Fire id**: 985dd119
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-985dd119.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:23Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1d567765
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FAILED
+**Fire id**: 1d567765
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-1d567765.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 677f0131
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FAILED
+**Fire id**: 677f0131
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-677f0131.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1a36e35d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FAILED
+**Fire id**: 1a36e35d
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-1a36e35d.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5e6c1091
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5e6c1091
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-5e6c1091.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FIRED
+**Fire id**: 64541831
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:24Z
+**Event**: SENSOR_FAILED
+**Fire id**: 64541831
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-64541831.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 81e9ecad
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 81e9ecad
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-81e9ecad.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 281e6980
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 281e6980
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-281e6980.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3286978b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 3286978b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-3286978b.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: 667a345b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: 667a345b
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-667a345b.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FIRED
+**Fire id**: ec8e8547
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:25Z
+**Event**: SENSOR_FAILED
+**Fire id**: ec8e8547
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-ec8e8547.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8e4d2d3c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8e4d2d3c
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-8e4d2d3c.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 573c6d61
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FAILED
+**Fire id**: 573c6d61
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-573c6d61.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 505ebbf1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FAILED
+**Fire id**: 505ebbf1
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-505ebbf1.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FIRED
+**Fire id**: 921dc7c2
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:26Z
+**Event**: SENSOR_FAILED
+**Fire id**: 921dc7c2
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/entities.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-921dc7c2.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 742ddb80
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: 742ddb80
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/rules.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-742ddb80.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8b9eb8b6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8b9eb8b6
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-8b9eb8b6.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 744dd15e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: 744dd15e
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-744dd15e.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4e4cf656
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/functional-spec.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4e4cf656
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/functional-spec.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-4e4cf656.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FIRED
+**Fire id**: b53ef919
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:27Z
+**Event**: SENSOR_FAILED
+**Fire id**: b53ef919
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-b53ef919.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T05:17:28Z
+**Event**: SENSOR_FIRED
+**Fire id**: 06610e02
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/frontend-components.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T05:17:28Z
+**Event**: SENSOR_FAILED
+**Fire id**: 06610e02
+**Sensor ID**: upstream-coverage
+**Stage slug**: functional-design
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/frontend-components.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/functional-design/upstream-coverage-06610e02.md
+**Findings count**: 2
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-07T05:17:29Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: functional-design
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T10:09:45Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-09-07T10:10:07Z
+**Event**: GATE_APPROVED
+**Stage**: functional-design
+**User Input**: Approve
+**Review Finding Dispositions**: {"version":1,"dispositions":[{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md","id":"R-03","fingerprint":"sha256:0f1c247a17492a5cf09df2435d20d5c72cc7c4c6e422b58d12fc615970cb0541","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/functional-design/functional-spec.md","id":"R-04","fingerprint":"sha256:0486b72f363012d0b28cb2670066e431a973fbe97917c9e0056c89ca92deafef","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/functional-design/functional-spec.md","id":"R-11","fingerprint":"sha256:6d77f79f170dbd9f75cc3d9c3be917ec1f964c31368a0e50a49a54f52de12390","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/functional-design/functional-spec.md","id":"R-07","fingerprint":"sha256:45b4b082c10d1684525218ed3a14249286cddb5b90e2e3b1e1fb57fbea19f56c","status":"Accepted risk"}]}
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-09-07T10:10:07Z
+**Event**: STAGE_COMPLETED
+**Stage**: functional-design
+**Validation Basis**: {"graphContract":"sha256:c0dd0abcf729725dd1610dbd62efc46a49c3d6e3d7efed0cf53a65f7d271fd9e","inputs":[{"artifact":"components","contentHash":"sha256:aa34440b45acdba1d20f0ed819b387365ed077d4c2294df64ca17ec8919d039a","instanceCount":1,"presentCount":1,"producer":"domain-design","required":true,"structureHash":"sha256:da181e73315c64b5266b0fde81129cc58c3882d8edd8732165eb4875453b3164"},{"artifact":"contract-summary","contentHash":"sha256:2e3acee5c9d976506bdebac975cae8cb359fb89967138d56dceb68a79cc29cad","instanceCount":1,"presentCount":1,"producer":"contract-design","required":false,"structureHash":"sha256:b6006b6defc9c68b7e75a89dff794a09ef03526a71c2e9d290d6ec6cfdd30cc6"},{"artifact":"requirements","contentHash":"sha256:8e106bdd5cee9dcc5bd0f4912893f46c3737c767974f7830c9b897c98c868fdc","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:d695b7c23323c08932744e49a085c3773b3f9d2848645e28d6674b44d50908c9"},{"artifact":"unit-of-work-story-map","contentHash":"sha256:f3bc05352a74a217e0813bf269afbfb4504a35473e73d1a8de69802eb1bf7d64","instanceCount":1,"presentCount":1,"producer":"units-generation","required":false,"structureHash":"sha256:c2b554409784d455a1219c156444a0bceae88f8b6a5a10d0f0babc808cd1d1d0"},{"artifact":"unit-of-work","contentHash":"sha256:7e5eecab2caf17f292fc6c81bb832346d13f8d6396a2e91d98d9d63312f2a2c2","instanceCount":1,"presentCount":1,"producer":"units-generation","required":true,"structureHash":"sha256:403d46fe0d9725786bdf3d81c728c8b35a57f55cb5c8235f59432ec8a3c419f0"}],"outputs":[{"artifact":"entities","contentHash":"sha256:8dcbf561825b107104e3c5cfa5b96644ee1f09a9383e7e56b5715715d0ff278d","instanceCount":8,"presentCount":8,"producer":"functional-design","required":true,"structureHash":"sha256:b39e79723b349c74199cca0be717849ccdee9c8e2044ddfa368b064cbdfaa9de"},{"artifact":"frontend-components","contentHash":"sha256:06d41ba617299038675fe734ab1ea6d08cb9d67bbc793378a33ca873ae878443","instanceCount":2,"presentCount":2,"producer":"functional-design","required":false,"structureHash":"sha256:b15192758c52ea106fdba3205e36e5ad3919b3475622182f0dc57dd974603729"},{"artifact":"functional-spec","contentHash":"sha256:fbd96a53e7be40c5bd08b29b3b15f35000f1fbca6b7e434903febaef3e758dd9","instanceCount":10,"presentCount":10,"producer":"functional-design","required":true,"structureHash":"sha256:0d1a48020d675ebad3afc0eccb27293f8fde0e2da5c32e56695039c361e1fa1f"},{"artifact":"rules","contentHash":"sha256:623995dd1524a5fedea47a539866b2fef354d6077582081d3fbf596826ddf156","instanceCount":8,"presentCount":8,"producer":"functional-design","required":true,"structureHash":"sha256:9784e8a8b7e8a67d4819873a25b46aa64a5b486b36f6a71cd7e83af11b89fca1"},{"artifact":"traceability","contentHash":"sha256:2c863502f40f005fb82f2d955427911f04dc6d389279915854d48b3f91d9943a","instanceCount":10,"presentCount":10,"producer":"functional-design","required":true,"structureHash":"sha256:a6db16122bc114c48c51524cf29391c1f4bc2b27a8bac990471cb166023ba7cb"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Functional Design approved by gate
+**Tokens In**: 5028
+**Tokens Out**: 1793298
+**Cache Read**: 1115132460
+**Cache Write**: 13535159
+**Cost USD**: 423.99
+**By Model**: sonnet-5=423.99
+**By Agent**: main=358.40; aidlc-architecture-reviewer-agent=41.78; fork=23.81
+**Tokens By Model**: sonnet-5=5k/1.8M/1115.1M/13.5M
+**Tokens By Agent**: main=3.6k/1.5M/988.7M/7.3M; aidlc-architecture-reviewer-agent=1.3k/248.1k/52.8M/5.9M; fork=190/40.9k/73.7M/285.5k
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-07T10:10:08Z
+**Event**: STAGE_STARTED
+**Stage**: nfr-requirements
+**Agent**: aidlc-architect-agent
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-09-07T10:10:08Z
+**Event**: MEMORY_EMPTY
+**Stage**: functional-design
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T10:37:34Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
