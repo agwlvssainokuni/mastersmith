@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "frontend-admin",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "N/A", "target": "マルチテナンシー非対応の方針はバックエンド側の関心事であり、UI Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR3", "status": "OK", "target": "NFR-AUTHZ.2(APIエラー応答に基づくエラー表示への切り替え)がUI側の可観測性の主要な具体化であり、構造化ログ・OpenTelemetry自体はバックエンド側の関心事" },
+    { "id": "NFR4", "status": "OK", "target": "tech-stack-decisions.md(React/TSXフレームワーク選定)" },
+    { "id": "NFR5", "status": "N/A", "target": "内部H2の`ms_`接頭辞命名規約はバックエンドのスキーマ設計事項であり、本Unitには適用対象がない" },
+    { "id": "NFR6", "status": "N/A", "target": "前倒し特性テスト運用の対象はschema-ingestion Unit固有であり、本Unitには適用されない" },
+    { "id": "NFR7", "status": "N/A", "target": "パスワードハッシュ化はauth Unitの責務であり、本Unitは扱わない" },
+    { "id": "NFR8", "status": "N/A", "target": "HTTPS終端(リバースプロキシ)はインフラ横断の方針であり、本Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR9", "status": "N/A", "target": "初期管理者アカウント自動作成はauth Unitの責務であり、本Unitは扱わない" }
+  ]
+}

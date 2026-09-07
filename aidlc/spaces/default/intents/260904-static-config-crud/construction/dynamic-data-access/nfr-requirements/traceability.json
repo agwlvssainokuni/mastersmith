@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "dynamic-data-access",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2" },
+    { "id": "NFR4", "status": "N/A", "target": "単一WARパッケージングはpackaging Unitの責務であり、本Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR5", "status": "N/A", "target": "本Unitは業務DB(接続先RDBMS)のデータを動的に扱うのみで、内部H2の`ms_`接頭辞命名規約の対象となる独自エンティティを持たない" },
+    { "id": "NFR6", "status": "N/A", "target": "前倒し特性テスト運用の対象はschema-ingestion Unit固有であり、本Unitには適用されない" },
+    { "id": "NFR7", "status": "N/A", "target": "パスワードハッシュ化はauth Unitの責務であり、本Unitは扱わない" },
+    { "id": "NFR8", "status": "N/A", "target": "HTTPS終端(リバースプロキシ)はインフラ横断の方針であり、本Unit固有のNFR成果物には具体化しない" },
+    { "id": "NFR9", "status": "N/A", "target": "初期管理者アカウント自動作成はauth Unitの責務であり、本Unitは扱わない" }
+  ]
+}
