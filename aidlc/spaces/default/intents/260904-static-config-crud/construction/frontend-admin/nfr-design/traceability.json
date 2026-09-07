@@ -1,0 +1,12 @@
+{
+  "stage": "nfr-design",
+  "unit": "frontend-admin",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR-AUTHZ.1", "NFR-AUTHZ.2", "NFR-INJECTION.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(バックエンドページネーションの利用)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(AppShellルートガード)" },
+    { "id": "NFR-AUTHZ.2", "status": "OK", "target": "security-design.md(APIクライアントの403エラー表示切替)" },
+    { "id": "NFR-INJECTION.1", "status": "OK", "target": "security-design.md(React標準エスケープ)" }
+  ]
+}

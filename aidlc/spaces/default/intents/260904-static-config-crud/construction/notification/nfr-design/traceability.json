@@ -1,0 +1,14 @@
+{
+  "stage": "nfr-design",
+  "unit": "notification",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR-DATA.1", "NFR-INJECTION.1", "NFR2.1", "NFR-FAILSAFE.1", "NFR3.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(非同期イベントリスナー)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(トークンのログ非出力)" },
+    { "id": "NFR-INJECTION.1", "status": "OK", "target": "security-design.md(MustacheテンプレートのHTMLエスケープ)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(SMTP送信失敗時のリトライなし)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(送信失敗ログ)" }
+  ]
+}

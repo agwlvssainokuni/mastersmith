@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-design",
+  "unit": "frontend-core",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR-DATA.1", "NFR-DATA.2", "NFR-AUTHZ.1", "NFR-INJECTION.1", "NFR-AUTHN.1", "NFR3"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(バックエンドページネーションの利用)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(recordIdの不透明な取り扱い)" },
+    { "id": "NFR-DATA.2", "status": "OK", "target": "security-design.md(アカウント存在有無の非開示)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(X-Active-Roleによるロール切替の境界)" },
+    { "id": "NFR-INJECTION.1", "status": "OK", "target": "security-design.md(React標準エスケープ)" },
+    { "id": "NFR-AUTHN.1", "status": "Deferred", "target": "security-design.md(既知のMajor繰延べ事項として明示的に記録。トークン管理の責務をAPIクライアントコンポーネントに帰属させた。修正はcode-generation段階以降)" },
+    { "id": "NFR3", "status": "N/A", "target": "UI側では構造化ログ・OpenTelemetry計装を扱わないためN/A(姉妹Unit frontend-adminのnfr-requirements段階レビューで、認可エラー時の画面表示切替を可観測性の根拠にする判定は論理的誤りと指摘された点を踏まえた見直し)。nfr-requirements/traceability.jsonのNFR3判定は本Unit自身が既にnfr-requirements段階でN/Aへ修正済みであり、本stageもこれを継続する" }
+  ]
+}
