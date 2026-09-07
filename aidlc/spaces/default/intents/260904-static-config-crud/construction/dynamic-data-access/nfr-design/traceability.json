@@ -1,0 +1,26 @@
+{
+  "stage": "nfr-design",
+  "unit": "dynamic-data-access",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR-AUTHZ.1", "NFR-AUTHZ.2", "NFR-INJECTION.1", "NFR-SIDECHANNEL.1", "NFR-SIDECHANNEL.2",
+    "NFR2.1",
+    "NFR-CONSISTENCY.1", "NFR-CONSISTENCY.2", "NFR-FAILSAFE.1",
+    "NFR3.1", "NFR3.2"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(ページネーション)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(テーブル単位権限確認)" },
+    { "id": "NFR-AUTHZ.2", "status": "OK", "target": "security-design.md(カラム単位権限確認)" },
+    { "id": "NFR-INJECTION.1", "status": "OK", "target": "security-design.md・logical-components.md(動的クエリ実行コンポーネントが識別子検証・プレースホルダバインドを実装)" },
+    { "id": "NFR-SIDECHANNEL.1", "status": "OK", "target": "security-design.md(recordId検証失敗の404統一)" },
+    { "id": "NFR-SIDECHANNEL.2", "status": "Deferred", "target": "security-design.md(既知のCritical繰延べ事項として明示的に記録。BR5.1の識別子検証はfunctional-designで未反映のまま。修正はcode-generation段階以降)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR-CONSISTENCY.1", "status": "OK", "target": "reliability-design.md(後勝ち更新)" },
+    { "id": "NFR-CONSISTENCY.2", "status": "OK", "target": "reliability-design.md(外部キー制約違反のDB委譲)" },
+    { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(明示的拒否403と呼び出し失敗500の書き分け、fail-closed設計。nfr-requirements時点のR-01〈見出しと本文の不一致〉を踏まえ設計レベルで補完)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント2種)" },
+    { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(サイドチャネル防止とサーバ側ログの両立)" }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "stage": "nfr-design",
+  "unit": "account-management",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR-AUTHZ.1", "NFR-DATA.1", "NFR-DATA.2",
+    "NFR2.1",
+    "NFR-CONSISTENCY.1", "NFR-FAILSAFE.1", "NFR-FAILSAFE.2",
+    "NFR3.1", "NFR3.2"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md(応答速度の一般方針)" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md(page=0/size=20ページネーション)" },
+    { "id": "NFR-AUTHZ.1", "status": "OK", "target": "security-design.md(isAdmin検証)" },
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(認証情報のauthへの委譲)" },
+    { "id": "NFR-DATA.2", "status": "OK", "target": "security-design.md(アカウント無効化のauthへの委譲)" },
+    { "id": "NFR2.1", "status": "OK", "target": "scalability-design.md(単一インスタンス構成)" },
+    { "id": "NFR-CONSISTENCY.1", "status": "OK", "target": "reliability-design.md(初期ロール割当失敗時の部分失敗許容)" },
+    { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(auth側の既知ギャップへの依存を明記)" },
+    { "id": "NFR-FAILSAFE.2", "status": "OK", "target": "reliability-design.md(通知送信失敗時のリトライなし)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント3種)" },
+    { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(機微情報のログ非出力)" }
+  ]
+}
