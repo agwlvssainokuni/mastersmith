@@ -33683,3 +33683,3142 @@
 **Session**: 3ab25365-579e-42e6-9783-311546d5de31
 
 ---
+
+## Artifact Created
+**Timestamp**: 2026-09-07T14:26:12Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > packaging > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-07T14:26:17Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: packaging Unitのnfr-requirements成果物(NFR1〜NFR9を踏襲した軽量版、packaging Unitのため3文書のみ)を確定してよいか
+**Options**: Looks correct,Needs changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/nfr-requirements-questions.md
+**Unit**: packaging
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T14:27:01Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-07T14:27:05Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > packaging > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-07T14:27:09Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-requirements
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/nfr-requirements-questions.md
+**Questions SHA-256**: 25d315607224f8a610880c3d978e315a443500bd812671228c54dc93e7ffac21
+**Hash Scope**: confirmed-content-v1
+**Unit**: packaging
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-07T14:27:17Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+**Context**: construction > packaging > nfr-requirements > security-requirements.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-07T14:27:24Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/tech-stack-decisions.md
+**Context**: construction > packaging > nfr-requirements > tech-stack-decisions.md
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-07T14:27:33Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+**Context**: construction > packaging > nfr-requirements > traceability.json
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:27:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: adcc9e87
+**Sensor ID**: traceability
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:27:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: adcc9e87
+**Sensor ID**: traceability
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+**Duration ms**: 102
+
+---
+
+## Review Requested
+**Timestamp**: 2026-09-07T14:27:38Z
+**Event**: REVIEW_REQUESTED
+**Stage**: nfr-requirements
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: packaging
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:d9176fa0409d918e8547523882cf576ecad015940d171d079b79075f2b00eb91
+**Review Appendix Artifact**: construction/packaging/nfr-requirements/security-requirements.md
+**Review Appendix Offset**: 1096
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-07T14:28:02Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ae282293db4008a76
+**Message**: レビュー結果を待つ
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-07T14:28:29Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ac412e1fe2cb027a8
+**Message**: Grepping requirements.md for credentialRef
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-07T14:28:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+**Context**: construction > packaging > nfr-requirements > security-requirements.md
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-07T14:28:58Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-architecture-reviewer-agent
+**Agent ID**: ac44ef3a09035c5cd
+**Message**: **Reviewer:** aidlc-architecture-reviewer-agent\n\n`security-requirements.md`への`## Review`セクション追記が完了しました。\n\n- 対象ファイル: `aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-re
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T14:28:59Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Review Completed
+**Timestamp**: 2026-09-07T14:29:14Z
+**Event**: REVIEW_COMPLETED
+**Stage**: nfr-requirements
+**Reviewer**: aidlc-architecture-reviewer-agent
+**Unit**: packaging
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:d9176fa0409d918e8547523882cf576ecad015940d171d079b79075f2b00eb91
+**Artifact Fingerprint**: sha256:5b566c5573a3e70d98740c480a987a86a5f08a186728bb4e1cb2561ac1816d15
+**Review Appendix Artifact**: construction/packaging/nfr-requirements/security-requirements.md
+**Review Appendix Offset**: 1096
+**Review Appendix Prior Digest**: none
+**Review Appendix Prior Length**: 0
+
+---
+
+## Unit Completed
+**Timestamp**: 2026-09-07T14:29:27Z
+**Event**: UNIT_COMPLETED
+**Stage**: nfr-requirements
+**Unit**: packaging
+**Run floor**: STAGE_STARTED:2026-09-07T10:10:08Z#1
+**Mode**: wave
+**Wave memory entries**: 0
+**Artifact Fingerprint**: sha256:5b566c5573a3e70d98740c480a987a86a5f08a186728bb4e1cb2561ac1816d15
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:32Z
+**Event**: SENSOR_FIRED
+**Fire id**: 42412dab
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:32Z
+**Event**: SENSOR_PASSED
+**Fire id**: 42412dab
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/performance-requirements.md
+**Duration ms**: 46
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: 681cedd4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: 681cedd4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: 29456ae0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FAILED
+**Fire id**: 29456ae0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-29456ae0.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: df55e9c0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: df55e9c0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/traceability.json
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: ce7347a9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: ce7347a9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: da2b36f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FAILED
+**Fire id**: da2b36f7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-da2b36f7.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_FIRED
+**Fire id**: cd674802
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:33Z
+**Event**: SENSOR_PASSED
+**Fire id**: cd674802
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: ca43cc75
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: ca43cc75
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/performance-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9a3515a7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9a3515a7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/security-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: d054b1d9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FAILED
+**Fire id**: d054b1d9
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-d054b1d9.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9c109d26
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: 9c109d26
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/reliability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: fd180c68
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_PASSED
+**Fire id**: fd180c68
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/observability-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8e8a06c7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:34Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8e8a06c7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-8e8a06c7.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: b3253404
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: b3253404
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: 519ad411
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: 519ad411
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/performance-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: b22c3c23
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: b22c3c23
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: b5076230
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_PASSED
+**Fire id**: b5076230
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/scalability-requirements.md
+**Duration ms**: 35
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:35Z
+**Event**: SENSOR_FIRED
+**Fire id**: 97bb5252
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: 97bb5252
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/reliability-requirements.md
+**Duration ms**: 40
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: 00c120a8
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: 00c120a8
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/observability-requirements.md
+**Duration ms**: 26
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: 50a3ce45
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FAILED
+**Fire id**: 50a3ce45
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-50a3ce45.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: f1b1934b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: f1b1934b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/traceability.json
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: 45e650fb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: 45e650fb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/performance-requirements.md
+**Duration ms**: 28
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0a0cdce0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:36Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0a0cdce0
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md
+**Duration ms**: 28
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: d9f26ea3
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FAILED
+**Fire id**: d9f26ea3
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-d9f26ea3.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: d005dac4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FAILED
+**Fire id**: d005dac4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-d005dac4.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: e7819f0f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FAILED
+**Fire id**: e7819f0f
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-e7819f0f.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5e871281
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5e871281
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-5e871281.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_FIRED
+**Fire id**: c4c9d2e5
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:37Z
+**Event**: SENSOR_PASSED
+**Fire id**: c4c9d2e5
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/traceability.json
+**Duration ms**: 31
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6895c0cf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6895c0cf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/performance-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 90aa16b1
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: 90aa16b1
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/security-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 96ae89b6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: 96ae89b6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/scalability-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3799e101
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FAILED
+**Fire id**: 3799e101
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-3799e101.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2fdf3c7d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2fdf3c7d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/observability-requirements.md
+**Duration ms**: 37
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:38Z
+**Event**: SENSOR_FIRED
+**Fire id**: d39da78c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FAILED
+**Fire id**: d39da78c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-d39da78c.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: b08d9755
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: b08d9755
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: d0b364da
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: d0b364da
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/performance-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1347908e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1347908e
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/security-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8b251902
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8b251902
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/scalability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2e3f487a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2e3f487a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/reliability-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:39Z
+**Event**: SENSOR_FIRED
+**Fire id**: 36907968
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 36907968
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/observability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3487efbf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FAILED
+**Fire id**: 3487efbf
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-3487efbf.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1c0ae76d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1c0ae76d
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 56ec3ec7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 56ec3ec7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/performance-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: daec7215
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: daec7215
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/security-requirements.md
+**Duration ms**: 26
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_FIRED
+**Fire id**: 2e02564a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:40Z
+**Event**: SENSOR_PASSED
+**Fire id**: 2e02564a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/scalability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: a799474b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: a799474b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/reliability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6410d0fb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 6410d0fb
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/observability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: ed7df1f2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FAILED
+**Fire id**: ed7df1f2
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-ed7df1f2.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: d19f51fd
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: d19f51fd
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 792743e6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 792743e6
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/performance-requirements.md
+**Duration ms**: 25
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8bc7c47c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:41Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8bc7c47c
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/security-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5d4fc58b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5d4fc58b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-5d4fc58b.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 034ae23a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: 034ae23a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/reliability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: c6368bef
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: c6368bef
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/observability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8207d006
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8207d006
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-8207d006.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: b101ec21
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: b101ec21
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/traceability.json
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_FIRED
+**Fire id**: 750fdba7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:42Z
+**Event**: SENSOR_PASSED
+**Fire id**: 750fdba7
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/performance-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: 81e55705
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: 81e55705
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: fc41c528
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: fc41c528
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/scalability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: f1153aae
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: f1153aae
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/reliability-requirements.md
+**Duration ms**: 27
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: f4bf31b4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_PASSED
+**Fire id**: f4bf31b4
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/observability-requirements.md
+**Duration ms**: 32
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: 41926a09
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FAILED
+**Fire id**: 41926a09
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-41926a09.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:43Z
+**Event**: SENSOR_FIRED
+**Fire id**: 27ddf3ed
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: 27ddf3ed
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/traceability.json
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: ba27b44b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: ba27b44b
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/performance-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: cc5cc731
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: cc5cc731
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/security-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: c25969cc
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FAILED
+**Fire id**: c25969cc
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/required-sections-c25969cc.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8094b92a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_PASSED
+**Fire id**: 8094b92a
+**Sensor ID**: required-sections
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/traceability.json
+**Duration ms**: 29
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FIRED
+**Fire id**: 104da6c8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:44Z
+**Event**: SENSOR_FAILED
+**Fire id**: 104da6c8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-104da6c8.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: e9ac93ea
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FAILED
+**Fire id**: e9ac93ea
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-e9ac93ea.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: 70deb3a3
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FAILED
+**Fire id**: 70deb3a3
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-70deb3a3.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: 9a9f4665
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FAILED
+**Fire id**: 9a9f4665
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-9a9f4665.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FIRED
+**Fire id**: 653238b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:45Z
+**Event**: SENSOR_FAILED
+**Fire id**: 653238b5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-653238b5.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: c973b216
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FAILED
+**Fire id**: c973b216
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-c973b216.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: 58f39c8a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FAILED
+**Fire id**: 58f39c8a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-58f39c8a.md
+**Findings count**: 3
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: d438fe70
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FAILED
+**Fire id**: d438fe70
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-d438fe70.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FIRED
+**Fire id**: d432c9e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:46Z
+**Event**: SENSOR_FAILED
+**Fire id**: d432c9e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-d432c9e9.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 56e1de78
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FAILED
+**Fire id**: 56e1de78
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-56e1de78.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 84d3ad24
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FAILED
+**Fire id**: 84d3ad24
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-84d3ad24.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0fab7595
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0fab7595
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-0fab7595.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FIRED
+**Fire id**: 39128205
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:47Z
+**Event**: SENSOR_FAILED
+**Fire id**: 39128205
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-39128205.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: d16fd338
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FAILED
+**Fire id**: d16fd338
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-d16fd338.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: 474f3ba2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 474f3ba2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/performance-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: 1b67f2db
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 1b67f2db
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0ce0bcae
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_PASSED
+**Fire id**: 0ce0bcae
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/scalability-requirements.md
+**Duration ms**: 24
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:48Z
+**Event**: SENSOR_FIRED
+**Fire id**: 3da4b897
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: 3da4b897
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/reliability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: a76fe3e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: a76fe3e9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/observability-requirements.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5569d9c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: 5569d9c4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/tech-stack-decisions.md
+**Duration ms**: 23
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: 22295317
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/traceability.json
+
+---
+
+## Sensor Passed
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_PASSED
+**Fire id**: 22295317
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/traceability.json
+**Duration ms**: 26
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:49Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8e2cca43
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8e2cca43
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-8e2cca43.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: 900ed39c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FAILED
+**Fire id**: 900ed39c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-900ed39c.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: f7e0fdfd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FAILED
+**Fire id**: f7e0fdfd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-f7e0fdfd.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FIRED
+**Fire id**: f3f8d8c8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:50Z
+**Event**: SENSOR_FAILED
+**Fire id**: f3f8d8c8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-f3f8d8c8.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 8251d021
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FAILED
+**Fire id**: 8251d021
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-8251d021.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 67fe0f5a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FAILED
+**Fire id**: 67fe0f5a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-67fe0f5a.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4939cb5e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:51Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4939cb5e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-4939cb5e.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FIRED
+**Fire id**: 749745f5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FAILED
+**Fire id**: 749745f5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-749745f5.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FIRED
+**Fire id**: 224e5425
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FAILED
+**Fire id**: 224e5425
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-224e5425.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FIRED
+**Fire id**: 554e9d96
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:52Z
+**Event**: SENSOR_FAILED
+**Fire id**: 554e9d96
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-554e9d96.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: dc904e15
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FAILED
+**Fire id**: dc904e15
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-dc904e15.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5f22673b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5f22673b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-5f22673b.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: aa65537f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FAILED
+**Fire id**: aa65537f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-aa65537f.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FIRED
+**Fire id**: 211a0991
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:53Z
+**Event**: SENSOR_FAILED
+**Fire id**: 211a0991
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-211a0991.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6e5cd5fe
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6e5cd5fe
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-6e5cd5fe.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: adfb08ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FAILED
+**Fire id**: adfb08ba
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-adfb08ba.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: 6c704f8f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FAILED
+**Fire id**: 6c704f8f
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-6c704f8f.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FIRED
+**Fire id**: a0baf3e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:54Z
+**Event**: SENSOR_FAILED
+**Fire id**: a0baf3e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-a0baf3e6.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 4b8061a4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FAILED
+**Fire id**: 4b8061a4
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-4b8061a4.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: a4d4666a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FAILED
+**Fire id**: a4d4666a
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-a4d4666a.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 749fe740
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FAILED
+**Fire id**: 749fe740
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-749fe740.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: 91de72fd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FAILED
+**Fire id**: 91de72fd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-91de72fd.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:55Z
+**Event**: SENSOR_FIRED
+**Fire id**: ad45de81
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FAILED
+**Fire id**: ad45de81
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-ad45de81.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7b7e1bd5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FAILED
+**Fire id**: 7b7e1bd5
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-7b7e1bd5.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: 630c31f9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FAILED
+**Fire id**: 630c31f9
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-630c31f9.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: fca25344
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FAILED
+**Fire id**: fca25344
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-fca25344.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FIRED
+**Fire id**: 7912c1e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:56Z
+**Event**: SENSOR_FAILED
+**Fire id**: 7912c1e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-7912c1e6.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: 45dd61dd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FAILED
+**Fire id**: 45dd61dd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-45dd61dd.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: b650cff1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FAILED
+**Fire id**: b650cff1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-b650cff1.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: 5292177e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FAILED
+**Fire id**: 5292177e
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-5292177e.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0d0afed2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:57Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0d0afed2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-0d0afed2.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: ff683bda
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FAILED
+**Fire id**: ff683bda
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-ff683bda.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: db47c7bd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FAILED
+**Fire id**: db47c7bd
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-db47c7bd.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: 454e7fdc
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FAILED
+**Fire id**: 454e7fdc
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-454e7fdc.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FIRED
+**Fire id**: ee92783c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:58Z
+**Event**: SENSOR_FAILED
+**Fire id**: ee92783c
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-ee92783c.md
+**Findings count**: 1
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: dae374d2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FAILED
+**Fire id**: dae374d2
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-dae374d2.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: e2fb601d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FAILED
+**Fire id**: e2fb601d
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-e2fb601d.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: b1303829
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/scalability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FAILED
+**Fire id**: b1303829
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/scalability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-b1303829.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FIRED
+**Fire id**: 28e480e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/reliability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:30:59Z
+**Event**: SENSOR_FAILED
+**Fire id**: 28e480e6
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/reliability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-28e480e6.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 41b3e0f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/observability-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FAILED
+**Fire id**: 41b3e0f1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/observability-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-41b3e0f1.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 70d42da1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FAILED
+**Fire id**: 70d42da1
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-70d42da1.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: f4df3ca0
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FAILED
+**Fire id**: f4df3ca0
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-f4df3ca0.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FIRED
+**Fire id**: 0937daab
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/performance-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:00Z
+**Event**: SENSOR_FAILED
+**Fire id**: 0937daab
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/performance-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-0937daab.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: d6b0ce88
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/security-requirements.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FAILED
+**Fire id**: d6b0ce88
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/security-requirements.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-d6b0ce88.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: f219c35b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/tech-stack-decisions.md
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FAILED
+**Fire id**: f219c35b
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/tech-stack-decisions.md
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-f219c35b.md
+**Findings count**: 2
+
+---
+
+## Sensor Fired
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FIRED
+**Fire id**: a7deaee8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/traceability.json
+
+---
+
+## Sensor Failed
+**Timestamp**: 2026-09-07T14:31:01Z
+**Event**: SENSOR_FAILED
+**Fire id**: a7deaee8
+**Sensor ID**: upstream-coverage
+**Stage slug**: nfr-requirements
+**Output path**: aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-core/nfr-requirements/traceability.json
+**Detail path**: aidlc/spaces/default/intents/260904-static-config-crud/.aidlc-sensors/nfr-requirements/upstream-coverage-a7deaee8.md
+**Findings count**: 2
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-07T14:31:02Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: nfr-requirements
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T14:31:31Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-09-07T14:31:39Z
+**Event**: GATE_APPROVED
+**Stage**: nfr-requirements
+**User Input**: Approve
+**Review Finding Dispositions**: {"version":1,"dispositions":[{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/account-management/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:1ff369bc2cdc6b94a636f832eca8b742102f63fa0c246d30d87a4c5a7a2cce2f","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/audit-log/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:cf9d17bdff3d30e905c925fcc69dc0d7f79320fbd3bab5988e7579331d92462f","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:01bb0021e4147486c29a4051e3a4de772627933210afc59b214b6a5ae754cbfe","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/auth/nfr-requirements/security-requirements.md","id":"R-02","fingerprint":"sha256:25c880edff59f1df16d2ba482404dde58a20c30a0e457a6f34fe1e1c9540ac32","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/config-management/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:083c7a6c2be31db0df61cb347b8b0e8969a0c4f2d6b93af59c155cf7c9899bf7","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/dynamic-data-access/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:12838fed4432b6c465fbb2662e360521c9030b1ed44f465644483d89e00ad3aa","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:8b666fc5d75f820ae7bd7e2f0ffb53825281d0b6e5286b5231955e5a9972e56c","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/frontend-admin/nfr-requirements/security-requirements.md","id":"R-02","fingerprint":"sha256:6417f79bb967ec44a804dec8d0022ae4ddbb16a84656bb5767bf976876c6a74b","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:9a696bf5d032bd9dcfaaa6164dc1f29758c7b783b0758c21718ea73ad707f9fe","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/notification/nfr-requirements/security-requirements.md","id":"R-02","fingerprint":"sha256:11536c954a5528c2559c53dd1d80227d97df27a1bfe147faace0c40d1f2bde34","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/packaging/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:bb1288032d195e4f9cedaeaf5d0261e10a38c0e4cd19485224009381b5f13533","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:ace7f08a0c1e35178312c724e4574b2d787ed988471f9eb57f6fdddf56c5fc52","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/permission/nfr-requirements/security-requirements.md","id":"R-02","fingerprint":"sha256:54dbe0c0dc1ec3e3638d27bdabc2b623018e6a9e554d1fcf07c687e6948fb5fa","status":"Accepted risk"},{"artifact":"aidlc/spaces/default/intents/260904-static-config-crud/construction/schema-ingestion/nfr-requirements/security-requirements.md","id":"R-01","fingerprint":"sha256:eb06ee76d0219ba0d375227d4dc6b880d8c59da1e064bf76bc566e9b8efc7dfd","status":"Accepted risk"}]}
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-09-07T14:31:39Z
+**Event**: STAGE_COMPLETED
+**Stage**: nfr-requirements
+**Validation Basis**: {"graphContract":"sha256:42740ba129331fd7be59c025acef08cda33aa1e1b365637b9662dd2b529d969c","inputs":[{"artifact":"contract-summary","contentHash":"sha256:2e3acee5c9d976506bdebac975cae8cb359fb89967138d56dceb68a79cc29cad","instanceCount":1,"presentCount":1,"producer":"contract-design","required":false,"structureHash":"sha256:b6006b6defc9c68b7e75a89dff794a09ef03526a71c2e9d290d6ec6cfdd30cc6"},{"artifact":"functional-spec","contentHash":"sha256:fbd96a53e7be40c5bd08b29b3b15f35000f1fbca6b7e434903febaef3e758dd9","instanceCount":10,"presentCount":10,"producer":"functional-design","required":true,"structureHash":"sha256:0d1a48020d675ebad3afc0eccb27293f8fde0e2da5c32e56695039c361e1fa1f"},{"artifact":"requirements","contentHash":"sha256:8e106bdd5cee9dcc5bd0f4912893f46c3737c767974f7830c9b897c98c868fdc","instanceCount":1,"presentCount":1,"producer":"requirements-analysis","required":true,"structureHash":"sha256:d695b7c23323c08932744e49a085c3773b3f9d2848645e28d6674b44d50908c9"},{"artifact":"rules","contentHash":"sha256:623995dd1524a5fedea47a539866b2fef354d6077582081d3fbf596826ddf156","instanceCount":8,"presentCount":8,"producer":"functional-design","required":true,"structureHash":"sha256:9784e8a8b7e8a67d4819873a25b46aa64a5b486b36f6a71cd7e83af11b89fca1"}],"outputs":[{"artifact":"observability-requirements","contentHash":"sha256:6991ddb62361705a6973756a7252c82c71d9f276f7cc032b888200140517ba2d","instanceCount":8,"presentCount":8,"producer":"nfr-requirements","required":true,"structureHash":"sha256:3fd89508e57e08cdbb1f3022f3dc569e04597998019948cbc2e9c6ae9ed64e1c"},{"artifact":"performance-requirements","contentHash":"sha256:647490a89cc5df9ceed81a09be1ecbc5a204e25286dc089f25e5387a06455ffd","instanceCount":10,"presentCount":10,"producer":"nfr-requirements","required":true,"structureHash":"sha256:c05ed2d097bd9ed5b44ff3c1d6d6633bf90773414d3e642efef92a2a833d1d69"},{"artifact":"reliability-requirements","contentHash":"sha256:ff1e131910976da538c42482e89dba5f16d344ece8aef63b71242eed6ef08fcd","instanceCount":8,"presentCount":8,"producer":"nfr-requirements","required":true,"structureHash":"sha256:f5fc1489231df1467fd0edace1ebb8e39a402de7dc5373b97e0db159b848604a"},{"artifact":"scalability-requirements","contentHash":"sha256:6c4dfbba1318695e7fd1ee1c784282d0e516f7f1999e1006e6cbd43b1253ef7b","instanceCount":8,"presentCount":8,"producer":"nfr-requirements","required":true,"structureHash":"sha256:548812c26814ff794b7e5789b8c252f0f8580a4a60f295f4647bfe314d9a07bc"},{"artifact":"security-requirements","contentHash":"sha256:fe3050a20ea678d169004b60bf9c2dda6d5e8bcd31b2755440b60429aac91925","instanceCount":11,"presentCount":11,"producer":"nfr-requirements","required":true,"structureHash":"sha256:62dc1e07b1ea52d6d7383264e16585ac9c1280e1c7466cfaf56b7b7dfcff6427"},{"artifact":"tech-stack-decisions","contentHash":"sha256:66a0cfbc3f26d1698a500322f2ce9813711b14739f1fdc8bdd78fbbff233e166","instanceCount":11,"presentCount":11,"producer":"nfr-requirements","required":true,"structureHash":"sha256:0c70077b43dda8a6c241267d8e2a1f9811bc154dda4ad36323c5dbd61250ae92"},{"artifact":"traceability","contentHash":"sha256:305ba58cd4744ed84c3dbafa4317c7e896066cb4c1ff25dbcc7b0ed96b48cffc","instanceCount":11,"presentCount":11,"producer":"nfr-requirements","required":true,"structureHash":"sha256:d715f584b40f6e499c1a71966fc9d1a810d7474dc3a9f467c0cf2dea68a5a976"}],"projectType":"greenfield","schema":3}
+**Details**: Stage NFR Requirements approved by gate
+**Tokens In**: 696
+**Tokens Out**: 181232
+**Cache Read**: 107551884
+**Cache Write**: 2315266
+**Cost USD**: 46.51
+**By Model**: sonnet-5=46.51
+**By Agent**: main=39.31; aidlc-architecture-reviewer-agent=7.20
+**Tokens By Model**: sonnet-5=696/181.2k/107.6M/2.3M
+**Tokens By Agent**: main=450/142.5k/98.6M/1.3M; aidlc-architecture-reviewer-agent=246/38.7k/8.9M/1.1M
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-07T14:31:39Z
+**Event**: STAGE_STARTED
+**Stage**: nfr-design
+**Agent**: aidlc-architect-agent
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-09-07T14:31:40Z
+**Event**: MEMORY_EMPTY
+**Stage**: nfr-requirements
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-07T14:32:10Z
+**Event**: HUMAN_TURN
+**Session**: 3ab25365-579e-42e6-9783-311546d5de31
+
+---

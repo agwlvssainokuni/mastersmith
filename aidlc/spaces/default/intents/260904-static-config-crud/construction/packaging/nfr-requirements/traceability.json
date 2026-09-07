@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "packaging",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8", "NFR9"],
+  "coverage": [
+    { "id": "NFR1", "status": "N/A", "target": "性能要件は各機能Unitの関心事であり、パッケージング自体には数値目標を持たない" },
+    { "id": "NFR2", "status": "N/A", "target": "マルチテナンシー非対応の方針はバックエンドの実行時挙動の関心事であり、パッケージング自体には適用対象がない" },
+    { "id": "NFR3", "status": "N/A", "target": "構造化ログ・OpenTelemetry計装は各機能Unitの実行時関心事であり、パッケージング自体には具体化しない" },
+    { "id": "NFR4", "status": "OK", "target": "tech-stack-decisions.md(単一実行可能WARへのパッケージング)" },
+    { "id": "NFR5", "status": "N/A", "target": "内部H2の`ms_`接頭辞命名規約はスキーマ・DDL設計の関心事であり、パッケージング自体には適用対象がない" },
+    { "id": "NFR6", "status": "N/A", "target": "前倒し特性テスト運用の対象はschema-ingestion Unit固有であり、本Unitには適用されない" },
+    { "id": "NFR7", "status": "N/A", "target": "パスワードハッシュ化はauth Unitの責務であり、本Unitは扱わない" },
+    { "id": "NFR8", "status": "OK", "target": "tech-stack-decisions.md(TLS終端はリバースプロキシに委ね、アプリケーション内では扱わない)" },
+    { "id": "NFR9", "status": "N/A", "target": "初期管理者アカウント自動作成はauth Unitの責務であり、本Unitは扱わない" }
+  ]
+}
