@@ -21,7 +21,7 @@
     { "id": "NFR-CONSISTENCY.1", "status": "OK", "target": "reliability-design.md(設定インポート時の全体拒否)" },
     { "id": "NFR-CONSISTENCY.2", "status": "OK", "target": "reliability-design.md(DB書き込み→キャッシュ無効化の順序)" },
     { "id": "NFR-FAILSAFE.1", "status": "OK", "target": "reliability-design.md(schema-ingestion呼び出し失敗時の5xx伝播)" },
-    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント語彙)" },
+    { "id": "NFR3.1", "status": "OK", "target": "observability-design.md(監査ログイベント語彙、発行失敗時の非ブロッキング特性を明記)" },
     { "id": "NFR3.2", "status": "OK", "target": "observability-design.md(機微情報のログ非出力)" }
   ]
 }

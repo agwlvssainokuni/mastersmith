@@ -28,20 +28,28 @@ isAdminクレームはアクセストークン発行時の判定材料として�
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T14:59:23Z
+**Date:** 2026-09-08T13:30:42Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | construction/auth/nfr-design/security-design.md > リフレッシュトークン | 本節は「検証成功のたびに新しいリフレッシュトークンを発行し、古いトークンをrevoked=trueにする(ローテーション、BR3.2)」というリフレッシュトークン失効条件のみを記述している。しかしcontract-summary.md 契約#4(account-management → auth)は「無効化(disable)の場合、authは該当accountIdの有効な(revoked=falseかつ未期限切れの)RefreshTokenをすべて失効させる(即時のセッション無効化)」と明記し、「auth側のrules.md/functional-spec.mdへの反映はauth Unit側のstage完了ゲートで対応する」と本Unitでの反映を名指しで求めている。この事項は既にconstruction/auth/functional-design/functional-spec.mdの`## Review`(R-03、Major、Status: New)およびconstruction/auth/nfr-requirements/security-requirements.mdの`## Review`(R-01、Major、Status: New)で指摘済みだが、rules.mdへの反映は依然未完了であり(rules.md BR3.1〜BR3.3を確認したが無効化契機の一括失効BRは存在しない)、本security-design.mdもこの既知の未解消ギャップに一切触れていない。このままではアカウント無効化後も既存RefreshTokenで最大7日間セッションが継続できてしまうという確認済みのセキュリティギャップが、NFR設計成果物からも見えなくなっている。 | rules.mdにR-03の反映(無効化時のRefreshToken一括失効BR)が完了次第、本節に「アカウント無効化(契約#4)時は対象accountIdの有効なRefreshTokenをすべてrevoked=trueにする」という失効条件を追記する。反映が完了するまでは、本節に既知の未解消事項として明記する。 | New |
-| R-02 | Major | construction/auth/nfr-design/traceability.json > NFR-AUTHN.2のcoverageエントリ | traceability.jsonはNFR-AUTHN.2を`"status": "OK"`、target「security-design.md(リフレッシュトークンハッシュ永続化・ローテーション)」とだけ記載しており、R-01で指摘した契約#4由来の既知の未解消ギャップ(無効化時の即時失効未反映)に一切触れていない。上流のnfr-requirements/security-requirements.mdは同じギャップを自身の`## Review`セクションで明示的に記録していたが、本ステージのtraceability.json・security-design.mdのいずれにもその既知ギャップへの言及がなく、上流で行われていた可視化が本ステージで失われている。 | traceability.jsonのNFR-AUTHN.2エントリのtargetに、契約#4の無効化時RefreshToken失効が未反映である旨を注記するか、statusを"OK"から"Partial"等に変更し、rules.md反映後にOKへ更新する運用とする。 | New |
+| R-01 | Major | security-design.md 全体 | 契約#4(account-management→auth)経由でAccountがstatus=disabledに変更された際、既発行のリフレッシュトークンが即座には失効しない既知のギャップが、本ドキュメントに明記されていない。functional-spec.mdのBR1.1・BR1.2(ログイン時のstatus=disabled判定)は新規ログインをブロックするのみで、既存のリフレッシュトークンのローテーション処理(BR3.2)にstatus再判定のロジックがなく、無効化後もアクセストークンの再発行が継続し得る。この既知ギャップはauth Unit自身のfunctional-design・nfr-requirements両段階で既にMajorとして記録済みであり、繰延べ事項として扱う。 | security-design.mdの「リフレッシュトークン」節に、この既知の未対応ギャップと、対応方針(将来のリフレッシュ時status再検証の追加、またはアカウント無効化時の一括revoke処理の追加)をリスクとして明記する。実装判断はcode-generation段階以降で確定してよいが、設計文書に不可視のまま残さない。 | Unresolved (Accepted as deferred / non-blocking) |
+| R-02 | Major | traceability.json > NFR-AUTHN.2行 | traceability.jsonのNFR-AUTHN.2カバレッジ記述(リフレッシュトークンハッシュ永続化・ローテーション)が、R-01と同じ既知ギャップ(アカウント無効化時の即時失効未反映)への言及を欠いており、トレーサビリティ上もこのリスクが不可視になっている。 | traceability.jsonのNFR-AUTHN.2エントリのtargetに、当該ギャップが繰延べ事項として認識済みである旨の注記を追加する。 | Unresolved (Accepted as deferred / non-blocking) |
 
 ### Validation Tool Results
 
-本ステージ定義にvalidation toolの指定はなく、実行していない。
+本レビューサイクルでは、他Unit(dynamic-data-access)のnfr-designステージ内1ファイルの表記フォーマット不具合(Findingsテーブル記法崩れ)を修正するためのstage-level Request Changesにより、auth Unitを含む全11Unitのper-unit reviewステータスがエンジンの状態管理上リセットされたことに伴う再検証である。auth Unit自身の7成果物ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)はいずれも前回iteration 1のREADY判定時点から内容変更なし(git履歴上も単一コミットのみで、以降の変更なし)であることを確認した。
+
+| Tool | Result | Interpretation |
+|---|---|---|
+| 上流整合性確認(手動) | PASS | nfr-requirements配下の全NFR(NFR1.1〜NFR3.2、NFR-AUTHN.1〜4、NFR-AUTHZ.1、NFR-FAILSAFE.1〜2、NFR9)がtraceability.jsonでOK/Deferredのいずれかにマッピングされ、functional-design/rules.md(BR1.1〜BR8.1)・functional-spec.mdとの整合が取れている |
+| logical-components.md参照整合性(手動) | PASS | performance/security/scalability/reliability/observability-design.mdのいずれも、logical-components.mdで定義されたRESTコントローラ・サービス・リポジトリ以外のコンポーネントへの参照はない |
+| traceability.json網羅性(手動) | PASS | upstream_idsとcoverage配列の項目数・ID一致を確認、抜け漏れなし |
+| NFR9 Deferred判定(手動) | PASS | 初期管理者アカウント自動作成の繰延べは、functional-designステージ終了ゲートで既に確認済みとtraceability.jsonに明記されており、本ステージでの再設計対象外という判定は妥当 |
+| 契約#4整合性(手動、R-01根拠) | 既知ギャップ確認 | account-management→auth契約#4(contract-summary.md L48-52)にはアカウント無効化時のリフレッシュトークン即時失効に関する取り決めがなく、rules.md BR1.1/BR1.2・BR3.2にも該当ロジックがないことを確認。前回iteration 1の指摘内容と一致し、新規指摘ではなく既知の繰延べ事項として扱う |
 
 ### Summary
 
-logical-components.mdが定義する3コンポーネント(RESTコントローラ・サービス・リポジトリ)以外への参照は7ファイルのいずれにも存在せず、コンポーネント境界は健全である。Argon2・JWT(HS256、15分)・リフレッシュトークン(7日、ローテーション)・ログイン試行制限(n=5/m=300秒、ロック判定をArgon2照合より先に実施というBR4.2の記述)・AccountActionToken(単回使用、24時間)・isAdminクレーム発行のみという設計は、いずれもnfr-requirements/rules.mdの対応するBR・NFR記述と正確に一致し、7ファイル間の矛盾も見つからなかった。契約#5〜#8の監査ログイベントエンベロープ・所有権例外の記述もcontract-summary.mdと整合している。traceability.jsonのNFR9 Deferred判定も上流のnfr-requirements/traceability.jsonと整合しており、隠蔽ではなく正確な記録である。一方で、contract-summary.md 契約#4が明示的にauth Unit側での反映を求めているリフレッシュトークン即時失効(アカウント無効化時)について、functional-design・nfr-requirementsの両stageで既にMajor指摘(R-03、R-01)として記録されていたにもかかわらず、本nfr-designステージのsecurity-design.md・traceability.jsonのいずれもこの既知ギャップへの言及を欠いており、上流で行われていた可視化がここで失われている(R-01、R-02)。件数はMajor 2件でREADY判定のしきい値(Major 2件以下)の範囲内であり、既存の数値・挙動記述自体に事実誤認や新規の契約違反はないため READY とするが、上流で指摘済みの契約#4未反映事項がここでも可視化されないまま次工程(infrastructure-design等)へ進むと、このセキュリティギャップの追跡が一層困難になる点は速やかに解消すべきである。
+auth Unitのnfr-design成果物7ファイルは前回iteration 1のREADY判定時点から内容の変更がなく、上流のnfr-requirements・functional-design(rules.md/functional-spec.md)・契約サマリとの整合、logical-components.mdへの参照の妥当性、traceability.jsonの網羅性、NFR9のDeferred判定のいずれも再検証の結果問題は見つからなかった。既知のMajor指摘2件(契約#4由来のアカウント無効化時リフレッシュトークン即時失効ギャップの不可視化)は前回から継続する繰延べ事項であり、新規指摘として重複計上していない。今回のレビューはdynamic-data-access Unitの表記不具合修正に伴うstage-levelリセットに起因する再確認であり、auth Unit自身の設計変更は一切ない。よってREADY(Major 2件、非ブロッキング)を維持する。

@@ -22,24 +22,24 @@ BR1.1・BR1.2は動的SQLに使用する識別子(検索対象カラム名・sor
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T15:15:24Z
+**Date:** 2026-09-08T13:41:33Z
 **Iteration:** 1
 
 ### Findings
 
-| ID | Severity | Location | Finding | Required action | Status |
-|---|---|---|---|---|---|
-| (指摘なし) | - | - | - | - | - |
+(指摘なし)
 
 ### Validation Tool Results
 
-このstageに定義済みの自動検証ツールは実行対象として指定されていない。以下は目視によるクロスチェックの結果である。
+このステージに定義済みの自動検証ツールは実行対象として指定されていない。以下の目視クロスチェックを実施した。
 
-- **security-design.md「既知の繰延べ事項(Critical、NFR-SIDECHANNEL.2)」節**: rules.md BR5.1のstatement/logic欄を確認したところ、「accessLevel=非表示のカラムは絞り込み条件として受け付けない」旨は明記されているが、絞り込み条件のカラム名自体がTableConfig由来の既知の識別子集合に含まれることの検証は依然として明記されていない。functional-spec.mdの`## Review`(iteration 2、Verdict: NOT-READY)にはR-11がSeverity: Critical、Status: Newとして同一内容(識別子検証欠如、R-10と同種の脆弱性クラス)で記録されている。security-design.mdの記述は、このギャップの重大度・未解消状態・内容を過不足なく正確に反映しており、誇張・過小評価は見られない。
-- **reliability-design.md「permission呼び出し失敗時の扱い」節**: nfr-requirementsステージのレビュー指摘R-01(Major、見出し「permission呼び出し失敗時の扱い」と本文〈BR4.1の正常系403の再掲のみ〉の不一致、呼び出し自体の失敗時のfail-open/fail-closed方針が未規定)を踏まえ、本節は「明示的な拒否判定(403、契約#3のFailure behaviorが規定する範囲)」と「呼び出し自体の失敗(500、契約#3のFailure behaviorが規定する範囲外)」を明確に書き分けている。契約summary.md契約#3のFailure behaviorは「不許可の場合は例外とし…403として応答する」とのみ規定しており、呼び出し自体が失敗するケース(タイムアウト・接続不可等)には言及していないため、「契約#3の範囲外」という記述は根拠のある正確な記述である。500への割り当ても契約summary.mdの共通規約(Q8、500=予期しないエラー)と整合しており、fail-closedである旨の記述にも矛盾はない。これによりR-01の指摘は本ステージの成果物上で解消されている。
-- **logical-components.mdとの整合**: logical-components.mdが定義する3コンポーネント(RESTコントローラ・サービス・動的クエリ実行)以外への依存・参照は、performance-design.md・scalability-design.md・reliability-design.md・observability-design.md・security-design.mdのいずれにも見当たらない。逆に、各設計ファイルが言及するコンポーネント責務(識別子検証・プレースホルダバインド・accessLevel確認・監査イベント発行等)は、いずれもlogical-components.mdの「責務」列に対応する記載がある。
-- **traceability.jsonの網羅性**: upstream_idsは、nfr-requirements/traceability.jsonで確定した13件のNFR項目(NFR1.1・NFR1.2、NFR-AUTHZ.1・NFR-AUTHZ.2・NFR-INJECTION.1・NFR-SIDECHANNEL.1・NFR-SIDECHANNEL.2、NFR2.1、NFR-CONSISTENCY.1・NFR-CONSISTENCY.2・NFR-FAILSAFE.1、NFR3.1・NFR3.2)と過不足なく一致している。coverageの各targetも実際の各設計ファイルの該当節と一致しており、架空の参照は見当たらない。NFR-SIDECHANNEL.2のstatusは"Deferred"として正直に記録されており、他のOK項目に紛れて隠蔽されていない。
+- security-design.mdの内容(テーブル単位・カラム単位権限確認、動的SQL識別子の安全性、recordId検証失敗の応答統一、NFR-SIDECHANNEL.2の既知繰延べ事項)を、nfr-requirements/security-requirements.md(NFR-AUTHZ.1・NFR-AUTHZ.2・NFR-INJECTION.1・NFR-SIDECHANNEL.1・NFR-SIDECHANNEL.2)と突き合わせたところ、内容・粒度ともに整合しており齟齬はない。
+- NFR-SIDECHANNEL.2節が参照するBR5.1(rules.md)の現行記述を確認した。参照先テーブルのaccessLevel=非表示カラムの絞り込み条件・応答からの除外は明記されているが、絞り込み条件のカラム名自体がTableConfig由来の既知識別子集合に含まれることを検証する規定は依然として存在しない。これはfunctional-spec.mdの`## Review`(iteration 2)でR-11としてSeverity: Critical、Status: Newのまま記録されている内容と一致しており、security-design.mdの記述はこの既知ギャップを過不足なく正確に反映している(誇張・過小評価・隠蔽のいずれもなし)。このギャップ自体は本ステージのスコープ外(code-generation段階以降で対応)として明示されており、新たな指摘としては計上しない。
+- logical-components.mdが定義する3コンポーネント(RESTコントローラ・サービス・動的クエリ実行)以外への参照はsecurity-design.md本文になく、参照先はすべてlogical-components.mdで定義済みのコンポーネントに解決する。
+- traceability.jsonのcoverageはNFR-AUTHZ.1・NFR-AUTHZ.2・NFR-INJECTION.1・NFR-SIDECHANNEL.1がsecurity-design.mdの該当節を正しく指しており、NFR-SIDECHANNEL.2もstatus:Deferredとして同様に正確に指している。
+- performance-design.md・reliability-design.md・scalability-design.md・observability-design.mdの内容も併せて確認したが、rules.md(BR1.1〜BR6.1)・contract-summary.md(契約#2・#3)との矛盾や、logical-components.md未定義のコンポーネントへの参照は見当たらない。reliability-design.mdの「permission呼び出し失敗時の扱い」節は、nfr-requirements時点でR-01として指摘されていたfail-closed/fail-open未規定のギャップを設計レベルで解消済みである。
+- 今回の変更はsecurity-design.mdのFindingsテーブル記法崩れ(テーブル行内の「(指摘なし)」)を、テーブルを使わない単独行の「(指摘なし)」に修正したもののみであり、本文(NFR-SIDECHANNEL.2の記録内容を含む)に変更はない。差分は記法修正に限定されていることを確認した。
 
 ### Summary
 
-本Unitのnfr-design成果物は、NFR-SIDECHANNEL.2の既知のCritical繰延べ事項(BR5.1の識別子検証欠如)を誇張・過小評価なく正確に記録しており、かつnfr-requirementsステージのR-01(permission呼び出し失敗時のfail-open/fail-closed未規定)を明示的な拒否〈403〉と呼び出し失敗〈500〉の書き分けにより根拠を持って解消している。logical-components.mdに定義されないコンポーネントへの参照や、traceability.jsonの過不足も見当たらない。Critical・Major指摘なしのためREADYとする。
+security-design.mdは前回READY判定時点から本文の内容に変更がなく、今回の修正はFindingsテーブルの記法崩れの是正のみである。nfr-requirements・rules.md・functional-spec.md・contract-summary.mdとの整合性、logical-components.mdへのコンポーネント参照の妥当性、traceability.jsonの網羅性のいずれにも問題はなく、既知のCritical繰延べ事項(NFR-SIDECHANNEL.2/BR5.1の識別子検証欠如)もfunctional-spec.mdのR-11(Critical、Status: New)と正確に整合したまま記録されている。指摘事項はなく、READYとする。

@@ -16,24 +16,24 @@
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T14:51:40Z
+**Date:** 2026-09-07T20:49:59Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | nfr-design/traceability.json > NFR4のcoverageエントリ | `{ "id": "NFR4", "status": "OK", "target": "logical-components.md(JDBCドライバのアプリケーション内包、tech-stack-decisions.md継続)" }` とあるが、logical-components.mdの本文には「JDBCドライバ」「内包」「バンドル」等の語が一切登場せず、JDBCドライバのアプリケーション内包に関する記述が実際には存在しない(nfr-requirements/tech-stack-decisions.mdにのみ記載がある)。traceability.jsonが指し示す参照先ファイルにその内容がなく、開発者がNFR4の設計根拠を探す際に誤誘導される。 | logical-components.mdにJDBCドライバをアプリケーションに内包する旨を一文追記するか、traceability.jsonのtargetを実際に内容が存在するtech-stack-decisions.mdのみに修正する。 | New |
-| R-02 | Minor | nfr-design/security-design.md > 認証情報の取り扱い、nfr-requirements/security-requirements.md > NFR-DATA.2 | 上流のnfr-requirements/security-requirements.mdは同stageの前回レビュー(R-01, Minor)で「NFR-DATA.2がBR6.1を『400または500』と過大に引用している」と既に指摘済みだが未修正のまま残っている。本stageのsecurity-design.mdはBR6.1(500のみ)と整合する記述をしており矛盾はないが、上流の未解消の食い違いは本Unitのnfr-requirements側で解消されるべき事項として申し送る。 | nfr-requirements/security-requirements.mdのNFR-DATA.2記述を「500として応答する」に修正する(schema-ingestion nfr-requirementsステージの改訂対象)。 | New |
+| R-01 | Major | nfr-design/traceability.json > NFR4のcoverageエントリ | NFR4のtargetが「logical-components.md(JDBCドライバのアプリケーション内包、tech-stack-decisions.md継続)」となっているが、logical-components.mdの本文にはJDBCドライバのアプリケーション内包(バンドル)に関する記述が実際には存在しない(同ファイルが扱うのはJDBC DatabaseMetaDataによるRDBMS方言差異の吸収ロジックのみ)。JDBCドライバ内包の記述は上流のnfr-requirements/tech-stack-decisions.mdにのみ存在する。前回レビュー(iteration 1、READY・Major 1件/Minor 1件)で指摘済みの繰延べ事項であり、その後dynamic-data-access Unitの表記フォーマット不具合を理由とするnfr-designステージ全体へのRequest Changesでper-unit reviewステータスがリセットされたことに伴う再確認だが、schema-ingestion Unit自身の成果物ファイルの内容(本Major指摘の対象箇所を含む)は前回レビュー時点から変更されておらず、指摘は未解消のまま残っている。 | traceability.jsonのNFR4エントリのtargetを「tech-stack-decisions.md(JDBCドライバのアプリケーション内包)」を主参照とする記述に修正するか、logical-components.mdの「コンポーネント構成」節にJDBCドライバをアプリケーションに内包する旨(project.md Mandated根拠)を明記したうえでtargetの記述と実体を一致させる。 | Unresolved |
+| R-02 | Minor | nfr-design/scalability-design.md > スケーリングアーキテクチャ | 「単一インスタンス構成(NFR2)」と、上流IDの粒度(NFR2.1/NFR2.2)ではなく上位の「NFR2」を直接引用している。同ファイル内の次節は「NFR2.2」と粒度を揃えて引用しており、また本ファイル自身のtraceability.jsonはこの記述をNFR2.1のcoverage対象としているため、本文中の参照ID表記がNFR2.1ではなくNFR2になっている点で軽微な不整合がある。 | 「単一インスタンス構成(NFR2)」を「単一インスタンス構成(NFR2.1)」に修正し、traceability.jsonの対応関係と本文引用IDの粒度を揃える。 | New |
 
 ### Validation Tool Results
 
-本ステージ定義に紐づく自動検証ツールの明示的な指定は確認されなかったため、上流文書(nfr-requirements配下6ファイル、functional-design/rules.md・entities.md・functional-spec.md、および統合点としてinception/contract-design/contract-summary.mdのschema-ingestion API定義)との突き合わせによる手動検証のみを実施した。
+本ステージ定義に紐づく自動検証ツールの明示的な指定は確認されなかったため、上流文書(nfr-requirements配下の各NFR要件ファイル、functional-design/rules.md BR1.1〜BR6.1、functional-spec.md、entities.md)との突き合わせによる手動検証のみを実施した。
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| (自動検証ツールなし) | N/A | 上流文書・shared契約との相互参照を手動で確認 |
+| (自動検証ツールなし) | N/A | 上流文書・BR定義・traceability.jsonとの相互参照を手動で確認 |
 
 ### Summary
 
-logical-components.mdが定義する2コンポーネント(RESTコントローラ・サービス)以外への参照は7ファイル中どこにも見つからず、audit-log Unitで見つかったような「実装帰属先が宙に浮く」Critical欠陥は本Unitには存在しない。traceability.jsonのupstream_idsとcoverageは、schema-ingestion nfr-requirements/traceability.jsonで確定した全10項目(NFR1.1・NFR1.2、NFR-DATA.1・NFR-DATA.2・NFR-AUTHZ.1、NFR2.1・NFR2.2、NFR-RESILIENCE.1、NFR3.1、NFR4)を過不足なく網羅している。ステートレス設計(永続エンティティなし)とlogical-components.mdがリポジトリコンポーネントを持たない設計とは整合しており、functional-design(rules.md BR1.1〜BR6.1、entities.md)との矛盾も見つからなかった。唯一、NFR4のtraceabilityエントリが実際にはlogical-components.mdに存在しない内容を参照先として主張している点をMajor指摘とし、加えて上流security-requirements.mdの既存Minor指摘(未解消)を申し送りとして記録した。Critical指摘はなくMajorも1件のみのためREADYと判定する。
+今回のレビュー依頼は、別Unit(dynamic-data-access)の表記フォーマット不具合修正に伴うnfr-designステージ全体へのRequest Changesでper-unit reviewステータスが一律リセットされたことによる再確認であり、schema-ingestion Unit自身の7ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)はいずれも前回READY判定時点から内容の変更が確認されなかった。performance-design.md/reliability-design.md/observability-design.md/logical-components.mdは、対応する上流NFR要件(NFR1.1/NFR1.2、NFR-RESILIENCE.1、NFR3.1、NFR4以外)およびfunctional-design/rules.mdのBR1.1〜BR6.1と整合しており、logical-components.mdで定義された「RESTコントローラ」「サービス」以外のコンポーネントへの参照もない。既知のMajor指摘(traceability.jsonのNFR4参照不整合)は前回同様未解消のまま繰延べ事項として記録し、新たにscalability-design.mdの参照ID粒度に関するMinor指摘を追加した。Critical指摘はなく、Majorも1件(繰延べ)にとどまるため、前回同様READYと判定する。

@@ -24,7 +24,7 @@ APIクライアントコンポーネントが行う`POST /api/auth/refresh`成�
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T15:46:52Z
+**Date:** 2026-09-08T13:50:52Z
 **Iteration:** 1
 
 ### Findings
@@ -33,17 +33,17 @@ APIクライアントコンポーネントが行う`POST /api/auth/refresh`成�
 
 ### Validation Tool Results
 
-本ステージに指定された自動検証ツールはなし。performance-design.md/security-design.md/logical-components.md/traceability.jsonの4ファイル相互、およびnfr-requirements配下の上流4ファイル(performance-requirements.md, security-requirements.md, tech-stack-decisions.md, traceability.json)、functional-spec.md `## Review` R-07、nfr-design-questions.mdとの突き合わせによる手動検証。
+本ステージに機械的な検証ツールの指定はないため、artifacts間の照合を手動で実施した。
 
 | 確認項目 | 結果 |
 |---|---|
-| security-design.md「既知の繰延べ事項(Major、NFR-AUTHN.1)」とfunctional-spec.md R-07(重大度・技術内容・帰結・スコープ外扱い)の一致 | 一致(誇張・過小評価なし)。`POST /api/auth/refresh`成功時にaccessTokenのみ差し替える設計、リフレッシュトークンローテーション未追従、2回目以降のアクセストークン更新で早期強制ログアウトに至る帰結、修正はcode-generation段階以降というスコープ外扱いまで、R-07およびnfr-requirements/security-requirements.md NFR-AUTHN.1の記述と技術的に整合している |
-| security-design.md NFR-AUTHN.1節と、nfr-requirements/security-requirements.md NFR-AUTHN.1節の一致 | 一致。「トークン管理の責務はAPIクライアントコンポーネントに帰属する」という実装帰属先の明記は、上流にはない付加情報だが、上流の記述と矛盾せず、nfr-designステージの責務(論理コンポーネントへの割り当て)に沿った具体化である |
-| logical-components.mdで定義された3コンポーネント(画面コンポーネント・共通UIコンポーネント・APIクライアント)以外への参照が他ファイルに存在するか | 存在しない。security-design.md・performance-design.mdはいずれも「画面コンポーネント」「APIクライアント(コンポーネント)」のみを参照している |
-| traceability.jsonのNFR3のN/A判定記録(frontend-admin Unitレビュー指摘R-01を踏まえた改善の有効性) | 有効に機能している。upstream_idsにNFR3を明示的に含め、coverageでstatus: "N/A"とし、対象欄に判定理由(UI側では構造化ログ・OpenTelemetry計装を扱わない)と、姉妹Unit frontend-adminのnfr-requirements段階レビューでの指摘(認可エラー時の画面表示切替を可観測性の根拠にすることは論理的誤り)への参照を明記している。加えて、frontend-core自身のnfr-requirements/traceability.jsonでは既にnfr-requirements段階でNFR3=N/A判定済み(同ステージのレビューもREADY・指摘なし)であるため、frontend-adminのケース(上流に未解消のMajorが残存)とは異なり「継続」である旨を明記しており、状況の違いを正確に反映した記録になっている |
-| nfr-design-questions.md Consolidated Summary Confirmation(traceability.json節)と実ファイルの一致 | 一致。「NFR3は…N/Aとする(既にnfr-requirements段階でN/A判定済み、継続)」という承認内容どおりの記録になっている |
-| 4ファイル間の矛盾 | なし |
+| performance-design.md NFR1.1/NFR1.2 と nfr-requirements/performance-requirements.md の一致 | 一致(応答速度の一般方針、バックエンドページネーション利用とも表現・内容が対応) |
+| security-design.md NFR-DATA.1/NFR-DATA.2/NFR-AUTHZ.1/NFR-INJECTION.1 と nfr-requirements/security-requirements.md の一致 | 一致(recordId不透明化、アカウント存在有無非開示、X-Active-Role境界、React標準エスケープのいずれも技術内容が対応) |
+| security-design.md NFR-AUTHN.1(既知の繰延べ事項)と nfr-requirements/security-requirements.md NFR-AUTHN.1、functional-spec.md `## Review` R-07 の一致 | 一致。重大度(Major)・原因(リフレッシュトークンローテーション追従漏れ)・影響(2回目以降のアクセストークン更新で早期強制ログアウト)・責務帰属(APIクライアントコンポーネント)・対応時期(code-generation段階以降)のいずれも誇張・過小評価なく引き継がれている |
+| logical-components.md で定義された3コンポーネント(画面コンポーネント/共通UIコンポーネント/APIクライアント)以外への参照の有無 | なし。performance-design.md・security-design.mdの記述はいずれも「画面コンポーネント」「APIクライアントコンポーネント」の範囲内で閉じている |
+| traceability.json upstream_ids と nfr-requirements/traceability.json coverage(NFR1→NFR1.1/NFR1.2に分解された対象含む)の過不足 | 過不足なし。NFR-DATA.1/NFR-DATA.2/NFR-AUTHZ.1/NFR-INJECTION.1/NFR-AUTHN.1はsecurity-requirements.md側の見出しIDと一致し、NFR3のN/A判定もnfr-requirements/traceability.jsonの判定(frontend-adminレビュー指摘を踏まえた見直し)をそのまま継続していることを確認した |
+| 4ファイル(performance-design.md/security-design.md/logical-components.md/traceability.json)間の矛盾 | なし |
 
 ### Summary
 
-security-design.md・performance-design.md・logical-components.md・traceability.jsonの4ファイルは、nfr-requirements配下の対応要件およびfunctional-spec.md R-07の記述と正確に整合しており、既知の繰延べ事項(NFR-AUTHN.1)も誇張・過小評価なく記録されている。frontend-admin Unitレビューで指摘されたtraceability.jsonのNFR3無言省略という問題は、本Unitでは発生しておらず、N/A判定・理由・姉妹Unit指摘への参照のいずれも明示的に記録されている点を確認した。指摘事項なし、READYと判定する。
+frontend-core Unitのnfr-design成果物4ファイルは、nfr-requirements段階の各要件文書およびfunctional-spec.mdのR-07と正確に整合しており、既知の繰延べ事項(NFR-AUTHN.1)も誇張・過小評価なく記録されている。logical-components.mdで定義された3コンポーネント以外への参照もなく、traceability.jsonのcoverageにも過不足はない。iteration 1でREADY判定を受けた内容から変更はなく、独立した検証でも同一の結論に至った。READYと判定する。

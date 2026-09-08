@@ -14,7 +14,7 @@ permission Unitのnfr-design成果物を以下の内容で確定します。
 
 **reliability-design.md**: 契約#3(dynamic-data-access)・契約#22(config-management)からの権限確認呼び出し自体が例外(内部H2接続断等)を起こした場合、フェイルセーフ(fail-closed、拒否側)として扱う(NFR-FAILSAFE.1)。呼び出し元Unit(dynamic-data-access・config-management)は、この例外を5xxとして自身の呼び出し元へ伝播させる(リトライは行わない)。
 
-**observability-design.md**: 権限確認呼び出し(契約#3・#20・#21・#22)自体は監査ログ対象外とする(高頻度なプロセス内呼び出しであり、BR8.1相当の監査イベントは定義されていない)。ロール・グループ・割当・権限設定のCRUD操作(管理系エンドポイント経由)については、他Unitと同様に監査ログイベント発行の対象とする(functional-design側で確定済みの範囲を踏襲)。
+**observability-design.md**: 権限確認呼び出し(契約#3・#20・#21・#22)自体は監査ログ対象外とする(高頻度なプロセス内呼び出しであり、BR8.1相当の監査イベントは定義されていない)。拒否(403)判定発生時は判定理由(デフォルト拒否か明示的権限不足か)を区別するDEBUGレベルの構造化ログを出力する。管理系エンドポイント経由のCRUD操作(ロール・グループの作成/変更/削除、権限設定、ロール割当)は、契約summary.mdの監査ログイベント契約(#5〜#8)のpublishers一覧にpermissionが含まれていないため、監査ログイベント発行の対象としない(nfr-design iteration 1レビューで検出したCritical指摘R-01フォロー、契約との矛盾を修正済み)。
 
 **logical-components.md**: permissionは以下4つの論理コンポーネントで構成する。RESTコントローラ(管理系エンドポインドの受付、isAdmin認可検証)、内部呼び出しAPI(契約#3・#20・#21・#22によるプロセス内呼び出しの受付窓口)、サービス(ロール割当の全置換〈BR3.2〉、冪等処理〈BR1.2・BR3.3〉、有効ロール集合の計算〈直接割当+グループ経由の和集合、BR4.1〉、テーブル/カラム権限判定〈BR5.1・BR5.2・BR5.3〉、カスケード削除〈BR1.4・BR1.5〉)、リポジトリ(Role/Group/GroupMembership/RoleAssignment/TablePermission/ColumnPermissionの内部H2永続化)。障害ドメインはpermission自身に閉じ、契約呼び出し元(dynamic-data-access・auth・account-management・config-management)への影響はフェイルセーフ設計(上記reliability-design.md)により限定される。
 

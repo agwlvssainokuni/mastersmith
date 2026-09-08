@@ -24,27 +24,21 @@ targetDescriptionはイベント発行元Unitが構成する人間可読な説�
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T14:41:28Z
-**Iteration:** 2
+**Date:** 2026-09-07T20:42:31Z
+**Iteration:** 1
 
 ### Findings
 
 (指摘なし)
 
-前回iteration(1)のCritical指摘R-01「RESTコントローラの依存列に未定義の『サービス』が記載されており、BR2.1・BR2.2・BR3.1・BR4.1の実装帰属先が宙に浮いている」について、`logical-components.md`のコンポーネント表に「サービス」コンポーネントが追加され、以下のとおり解消を確認した。
-
-- サービスの責務欄に、BR2.1・BR2.2(絞り込み条件とtargetDescription部分一致のAND組み立て)、BR3.1(CSV/JSON形式のエクスポート生成)、BR4.1(`olderThanDays`からの削除基準日時算出と一括削除実行)、BR4.2(retentionDays設定更新)が明記されており、rules.mdの記載と一致する。RESTコントローラ→サービス→リポジトリという依存列も宙に浮いた参照なく解決している。
-- BR4.3(olderThanDaysの1以上整数制約)はサービスの責務欄には明記されないが、security-design.md「入力検証」節で「コントローラのDTOレベルで検証し、不正な値がサービス層・リポジトリ層へ到達しない設計とする」と記載されており、コントローラ層での検証という帰属先も明確であり矛盾はない。
-- security-design.mdが前提とする「認可はコントローラ層の入口で完結させ、サービス層以降には認可判定を持ち込まない」という境界は、logical-components.mdの新しいサービス定義(検索条件組み立て・エクスポート生成・削除基準算出・設定更新のみを責務とし、認可判定を含まない)と整合している。
-- reliability-design.mdのコード例(イベントリスナーが`auditLogRepository.save(...)`を直接呼び出す)は、logical-components.mdの「イベントリスナー→リポジトリ」の依存(サービスを経由しない)と一致しており、BR1.1・BR1.2の記録受付処理には新設のサービスコンポーネントが関与しない設計であることも整合している。
-- performance-design.md(BR2.1・BR2.2のインデックス設計・ページネーション)、scalability-design.md(単一インスタンス・BR4.1の一括削除による増加抑制)、observability-design.md(BR1.2の構造化ログ)は、いずれも新設のサービスコンポーネントの責務範囲と矛盾しない。
-- traceability.jsonのカバレッジ記述(NFR-AUTHZ.1〜NFR-DATA.1)もsecurity-design.mdの各節と一致しており、新設コンポーネントによる不整合は生じていない。
-- functional-design/rules.md(BR1.1〜BR6.1)との突き合わせでも、全ビジネスルールの実装帰属先(イベントリスナー/RESTコントローラ/サービス/リポジトリのいずれか)が明確になっており、宙に浮いたルールは残っていない。
-
 ### Validation Tool Results
 
-本ステージに指定された自動検証ツールはない(スキル・ステージ定義に検証ツールの記載なし)。手作業でのクロスリファレンス確認(7ファイル間、およびfunctional-design/rules.mdとの突き合わせ)を実施した。
+本ステージ定義にaudit-log Unit向けの自動検証ツールの指定は見当たらず、目視でのクロスリファレンス検証のみを実施した。
+
+- `logical-components.md`で定義された4コンポーネント(イベントリスナー・RESTコントローラ・サービス・リポジトリ)以外への依存参照は、performance/security/scalability/reliability/observability-design.mdのいずれにも存在しない(iteration 1で指摘された未定義「サービス」依存の問題は解消済みであることを再確認)。
+- `traceability.json`のupstream_ids(NFR1.1〜NFR-SEC.1、NFR5)は、`nfr-requirements/traceability.json`のcoverage(NFR1〜NFR9の詳細化)と完全に対応しており、抜け漏れ・孤立参照はない。
+- security-design.md・performance-design.md・scalability-design.md・reliability-design.md・observability-design.mdの各記述は、`functional-design/rules.md`のBR1.1〜BR6.1、`functional-design/functional-spec.md`のワークフロー1〜5と矛盾しない(BR5.1のisAdmin認可、BR6.1の記録不変性、BR4.1/BR4.2/BR4.3のretentionDays/olderThanDays下限などを個別に突き合わせ済み)。
 
 ### Summary
 
-iteration 1のCritical指摘(R-01)は、logical-components.mdへの「サービス」コンポーネント追加により実質的に解消されている。BR2.1・BR2.2・BR3.1・BR4.1・BR4.2の実装帰属先はサービスに明確に定まり、BR4.3はコントローラ層での入力検証として帰属先が明確である。security-design.mdが前提とする「サービス層に認可判定を持ち込まない」境界も新しいサービス定義と整合しており、他の6ファイル・functional-design(rules.md)との間に新たな矛盾は見つからなかった。Critical・Majorの指摘はなく、READY と判定する。
+今回のレビュー依頼はdynamic-data-access Unitの表記フォーマット不具合修正に伴うnfr-designステージ全体のstate-level reject後の再確認であり、audit-log Unit自身の7ファイルの内容はiteration 2時点から変更がないことを確認した。上流のnfr-requirements・functional-designとの整合性、logical-components.mdで定義されたコンポーネント以外への参照がないこと、traceability.jsonの網羅性のいずれにも問題は見つからず、iteration 2と同様にREADY判定とする。
