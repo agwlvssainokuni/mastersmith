@@ -16,7 +16,7 @@ RESTコントローラは、account-managementの全操作(アカウント作成
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-08T13:38:18Z
+**Date:** 2026-09-08T22:01:27Z
 **Iteration:** 1
 
 ### Findings
@@ -25,17 +25,12 @@ RESTコントローラは、account-managementの全操作(アカウント作成
 
 ### Validation Tool Results
 
-本ステージの検証は目視でのクロスリファレンス照合により実施した(自動検証ツールの指定なし)。
-
-| 検証観点 | 結果 |
-|---|---|
-| nfr-requirements(performance/security/scalability/reliability/observability-requirements.md)のNFR IDと本Unit7ファイルの参照整合性 | 一致(NFR1.1, NFR1.2, NFR-AUTHZ.1, NFR-DATA.1, NFR-DATA.2, NFR2.1, NFR-CONSISTENCY.1, NFR-FAILSAFE.1, NFR-FAILSAFE.2, NFR3.1, NFR3.2 すべて出典文書に定義済み) |
-| functional-design/rules.md(BR1.1〜BR5.1)との整合性 | 一致(BR1.2/BR1.3/BR4.1/BR5.1の記述内容がsecurity-design.md・reliability-design.mdの記述と矛盾なし) |
-| entities.md・contract-summary.md(契約#4・#21)との整合性 | 一致(account-managementは永続エンティティを持たず、契約#4(auth)・契約#21(permission)経由の委譲のみである旨が全ファイルで一貫) |
-| logical-components.mdで定義済みのコンポーネント以外への参照有無 | なし(RESTコントローラ・サービスの2コンポーネントのみを参照、auth/permissionへの依存は契約経由と明記) |
-| traceability.jsonの網羅性 | 11件の上流NFR IDすべてがcoverageにOKで記載され、未網羅・過剰記載なし |
-| reliability-design.mdの「アカウント無効化とリフレッシュトークン失効の依存関係」節とauth Unit側既知ギャップの現状整合性 | 一致。auth/functional-design/functional-spec.md `## Review` R-03(Status: New)、auth/nfr-design/security-design.md `## Review` R-01・R-02(Status: Unresolved (Accepted as deferred / non-blocking))のいずれとも矛盾なく、「解消されるまで残る既知の依存先ギャップ」という記述は現状のStatusと整合している |
+本ステージ定義にvalidation toolの指定はなく、実行していない。performance-design.md・security-design.md・scalability-design.md・reliability-design.md・observability-design.md・logical-components.md・traceability.jsonの7ファイルは、auth Unitのsecurity-design.mdへのstage-level Request Changes(Status値の表記修正)による全Unitリセットの影響を受けたのみで、本Unit自身の本文は前回READY判定時点から一切変更されていないことを確認した(旧`## Review`セクションの除去のみ)。
 
 ### Summary
 
-前回iteration 1でREADY判定を受けた時点から、account-management Unitのnfr-design成果物7ファイルの内容に変更はない。今回はdynamic-data-access Unitの表記フォーマット不具合修正に伴うstage-level Request Changesによるper-unitレビュー状態リセットを受けての再確認であり、上流のnfr-requirements・functional-design(rules.md/functional-spec.md/entities.md)・contract-summary.md(契約#4・#21)との整合性、logical-components.mdで定義されたコンポーネント以外への参照がないこと、traceability.jsonの網羅性、およびauth Unit側の既知ギャップ(functional-spec.md R-03、security-design.md R-01・R-02)との整合性をいずれも再確認した結果、指摘事項はなく、前回同様READYと判定する。
+nfr-requirements(performance/security/scalability/reliability/observability-requirements.md)、functional-design(rules.md BR1.1〜BR5.1、functional-spec.md、entities.md)、inception/contract-design/contract-summary.md契約#4・#21と突き合わせ、独立に再検証した。logical-components.mdで定義された2コンポーネント(RESTコントローラ、サービス)以外への参照は7ファイル中に見られず、リポジトリコンポーネントを持たないという設計とも整合している。isAdmin検証による403応答、email一意性検証・パスワードハッシュ化のauthへの全面委譲、無効化(disable)の論理削除限定とトークン失効のauth委譲、page=0/size=20の既定ページネーション、単一インスタンス構成、BR1.3の部分失敗許容(400応答へのaccountId同梱)、監査ログのactionType語彙(ACCOUNT_CREATED/UPDATED/DISABLED)は、いずれも上流のnfr-requirements・functional-designの記述と正確に一致している。
+
+reliability-design.md「アカウント無効化とリフレッシュトークン失効の依存関係」節が依存を明記するauth Unit側の既知ギャップについては、現時点のStatus値を実際に照合した。auth/functional-design/functional-spec.md R-03は**Status: New**(無効化時のRefreshToken即時失効ロジックが未実装のまま)であり、auth/nfr-design/security-design.md R-01・R-02は**Status: Accepted risk**(同一ギャップをリスクとして受容した表記修正済み)である。account-management側の記述「auth Unit自身のfunctional-design・nfr-design双方で既に記録済みの未解消事項である」は、ギャップの実体(無効化後も最大7日間セッションが継続し得ること)がいずれの段階でも未解消のまま残っている点では正確である。ただし「未解消事項」という表現は、nfr-design側がStatus: Accepted risk(リスクとして正式に受容・記録済み)であるのに対し、functional-design側のStatus: New(受容の判断すらまだ行われていない未対応)とは状態の性質が異なる。この語感のずれは前回サイクルのnfr-requirements/security-requirements.mdレビュー(R-01、Minor、Status: New)で既に指摘済みの同種の軽微な問題であり、実害はなく(ギャップの存在自体・影響範囲の記述はいずれも正確)、READY判定をブロックするものではないため、今回は新規Findingとして起票せずSummaryへの記録に留める。
+
+Critical/Majorな欠陥は検出されず、前回READY判定と同じ結論に至った。

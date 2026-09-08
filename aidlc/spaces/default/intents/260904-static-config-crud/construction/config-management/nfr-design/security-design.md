@@ -24,25 +24,25 @@ credentialRefの実値(復号後の業務DB認証情報)は、アプリケーシ
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-08T13:33:20Z
+**Date:** 2026-09-08T21:04:06Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | construction/config-management/nfr-design/observability-design.md > 監査ログイベントによる可観測性 | observability-design.mdが、監査ログイベント発行失敗時の非ブロッキング特性(契約#5〜#8のasync仕様、姉妹Unit authでは明記済み)への言及を欠いていた。 | 「イベント発行失敗は主処理をブロックしない(契約#5〜#8のasync仕様どおり)。」という一文を該当節に追記する。 | Resolved |
-| R-02 | Minor | construction/config-management/nfr-design/observability-design.md > メトリクス・分散トレーシング | 異常系(schema-ingestion呼び出し失敗時の5xx応答、監査ログ発行失敗等)の可観測性について、Spring Boot Actuator + Micrometerの標準メトリクスに委ねる判断理由(本Unit固有の追加実装を行わない根拠)が記載されていない。 | 標準メトリクスで異常系を十分捕捉できると判断した理由、またはTBDである旨を一文で補記する。 | Unresolved |
+| R-01 | Major | observability-design.md > 監査ログイベントによる可観測性 | イベント発行失敗が主処理をブロックしない旨の記載(前回iteration 2で追記)が現行ファイルに維持されているか確認した。「イベント発行失敗は主処理をブロックしない(契約#5〜#8のasync仕様どおり)。」の一文が7行目に維持されている。 | なし。維持を確認済み。 | Resolved |
+| R-02 | Minor | observability-design.md > メトリクス・分散トレーシング | 異常系(schema-ingestion呼び出し失敗、キャッシュ不整合等)発生時にActuator/Micrometer標準計装以外の追加可観測性(専用メトリクス・エラー種別の分類等)を設けない判断理由が明記されていない | 判断理由(標準計装で十分と判断した根拠、または将来検討事項であることの明記)をobservability-design.mdに一言補足する。非ブロッキングとして継続受理する | Unresolved |
 
 ### Validation Tool Results
 
-本stageに割り当てられた自動検証ツールの実行結果なし(スキーマ検証・循環依存検証等の専用ツールは本stage定義に列挙されていない)。手動でのクロスリファレンス検証を実施した。
-
-- logical-components.mdで定義された3コンポーネント(RESTコントローラ・サービス・リポジトリ)以外への参照なし。他Unitへの言及はいずれも契約IDを伴うプロセス内呼び出し(契約#1: schema-ingestion、契約#22: permission、契約#5〜#8: audit-log)であり、契約summary.mdの記載と整合する。
-- performance-design.md/scalability-design.md/reliability-design.md/security-design.md/observability-design.mdが引用するBR ID(BR2.1〜BR2.8、BR4.3、BR5.1〜5.3、BR6.1〜6.2、BR7.1、BR8.1)は、いずれもfunctional-design/rules.mdに実在することを確認した。
-- traceability.jsonの14件のupstream_ids(nfr-requirements配下の全NFR ID)は全件coverageに列挙され、statusはすべてOK。NFR3.1のtargetはobservability-design.mdの今回追記部分(発行失敗時の非ブロッキング特性)を反映済みで、参照先の記述と一致する。
-- 契約summary.md 107行目「asyncという記載は、監査ログの記録失敗が呼び出し元の主処理を止めないことを意味する」と、observability-design.mdの追記文とを突き合わせ、内容が一致することを確認した。
+このステージにはツールによる自動検証は指定されていない(手動でのクロスリファレンス検証のみ実施)。今回の再レビューではconfig-management自身の7ファイルの内容変更は無く(security-design.md自体からの旧Reviewセクション除去のみ)、以下を再確認した。
+- nfr-requirements/配下の全5ファイル(performance/security/scalability/reliability/observability-requirements.md)とnfr-design/配下の対応ファイルとの間で、数値・挙動レベルの不一致は検出されなかった。
+- functional-design/rules.md のBR2.1・BR4.3・BR5.1〜BR5.3・BR6.1〜BR6.2・BR7.1・BR8.1と、nfr-designの記述との間で矛盾は検出されなかった。
+- inception/contract-design/contract-summary.md の契約#1(schema-ingestion→config-management)、契約#5(config-management→audit-log)、契約#22(permission→config-management)の呼び出し方向は、logical-components.md・security-design.md・reliability-design.mdの記述と一致している。
+- logical-components.mdで定義された3コンポーネント(RESTコントローラ・サービス・リポジトリ)以外への参照は見当たらない(schema-ingestion・permission・内部H2への言及は許容されるUnit外部依存)。
+- traceability.jsonのNFR1.1〜NFR3.2の全14件がstatus: OKでカバーされており、参照先ファイル名・見出しも現行ファイルと一致している。
 
 ### Summary
 
-前回Major指摘(R-01)はobservability-design.mdへの一文追記により解消を確認した。前回Minor指摘(R-02)は今回未修正のため既知の繰延べ事項として維持する(非ブロッキング)。その他、上流NFR要件・rules.md・contract-summary.mdとの整合性、logical-components.md外への参照の有無、traceability.jsonの網羅性を再検証したが新規の指摘事項はなかった。
+今回の再レビューは、別Unit(auth)のsecurity-design.mdの不正なStatus値修正に伴うステージ全体のRequest Changesを契機とするものであり、config-management自身の成果物には内容変更がない。前回iteration 2で修正されたMajor指摘(R-01、イベント発行失敗の非ブロッキング特性の明記)は維持されており、繰延べMinor指摘(R-02、異常系可観測性の判断理由未記載)も非ブロッキングとして継続受理する。上流要件・functional-design・契約summaryとの整合性にも新たな不一致は見つからなかった。

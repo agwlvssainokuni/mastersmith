@@ -20,7 +20,7 @@ RESTコントローラが受け付ける管理系エンドポイント(ロール
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T20:45:49Z
+**Date:** 2026-09-08T15:03:12Z
 **Iteration:** 1
 
 ### Findings
@@ -31,15 +31,12 @@ RESTコントローラが受け付ける管理系エンドポイント(ロール
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| 手動突合(自動検証ツールの指定なし) | 差分なし | permission Unitのnfr-design成果物7ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)の内容は、iteration 2でREADY判定を受けた時点から変更されていないことを確認した。今回のレビュー依頼は、別Unit(dynamic-data-access)のFindingsテーブル記法不具合の是正に伴うnfr-designステージ全体のstage-level Request Changesによって、per-unit reviewステータスがフレームワーク側の状態管理上リセットされたことによる再確認である。 |
+| grep(観測性設計と共有契約publishers一覧の整合) | observability-design.mdの記述`[config-management, dynamic-data-access, auth, account-management]`は、contract-summary.md 監査ログイベント契約(#5〜#8)のpublishers一覧と完全一致し、permissionが含まれないことも一致 | iteration 2で修正されたCritical指摘(監査ログ対象範囲の誤記述)は現在のファイルでも維持されている |
+| grep(logical-components.mdのコンポーネント参照範囲) | RESTコントローラ・内部呼び出しAPI・サービス・リポジトリの4コンポーネント以外への参照なし。security-design.md/observability-design.md/reliability-design.md/performance-design.md/scalability-design.mdのいずれも同4コンポーネントの用語のみを用いている | コンポーネント境界の逸脱なし |
+| grep(BR参照の解決確認) | 参照されているBR1.2・BR1.4・BR1.5・BR3.2・BR3.3・BR4.1・BR5.1・BR5.2・BR5.3はすべてfunctional-design/rules.mdに定義済み | 業務ルール参照はすべて解決する |
+| grep(契約参照の解決確認) | 参照されている契約#3・#20・#21・#22はいずれもcontract-summary.mdに定義済みで、Consumer/Provider/Failure behaviorの記述内容もnfr-design側の記述と矛盾しない | 契約参照はすべて解決する |
+| traceability.json上流ID確認 | NFR1.1・NFR1.2・NFR-AUTHZ.1〜.3・NFR-FAILSAFE.1(security/reliability両requirements)・NFR2.1・NFR2.2・NFR3.1・NFR5はすべてnfr-requirements配下の対応ファイルに存在する | 上流トレーサビリティに欠落なし |
 
 ### Summary
 
-以下の観点で再検証し、いずれも整合していることを確認した。
-
-1. **観測性設計と共有契約の整合**: observability-design.mdの「監査ログ対象範囲」節は、contract-summary.md「監査ログイベント契約(#5〜#8)」のpublishers一覧 `[config-management, dynamic-data-access, auth, account-management]` に照らして再確認した。permissionはこの一覧に含まれておらず、`actionType`語彙も定義されていないため、AuditableActionOccurredEventの発行対象外とする記述は引き続き契約summary.mdの実際の記述と一致している。functional-design/rules.mdにもpermission自身の監査ログ発行に相当するBR(BR8.1相当)は存在せず、整合している。
-2. **信頼性設計とnfr-requirements時点の繰延べ事項(R-01)**: reliability-design.mdは、nfr-requirements/security-requirements.mdのReviewで指摘されたMajor R-01(NFR-FAILSAFE.1がBR4.1・契約#3のFailure behaviorを「permission自身の障害」の根拠として誤引用していた問題)を踏まえ、(a)明示的な不許可判定(dynamic-data-access BR4.1・config-management BR4.3)によるfail-closedの経路と、(b)permission自身の未捕捉例外・応答不能の経路(契約summary.md共通規約Q8により500)とを明確に分離して記述しており、traceability.jsonのカバレッジ記載(「5xx応答の帰属先を契約summary共通規約〈Q8〉に正しく再帰属させた」)と実際の内容が一致している。契約#22のFailure behaviorが「該当なし(エラー条件ではない)」とだけ規定し、permission自身の内部例外時の挙動を明示的に規定していない点も、contract-summary.mdの契約#22本文と一致する形で正直に記述されている。
-3. **論理コンポーネントと参照整合**: logical-components.mdが挙げる4コンポーネント(RESTコントローラ・内部呼び出しAPI・サービス・リポジトリ)以外への参照は、7ファイル中に見当たらない。内部呼び出しAPIコンポーネントが受け付ける契約#3・#20・#21・#22は、いずれもcontract-summary.mdの「プロセス内同期呼び出し契約」節に実在し、Consumer/Provider/Failure behaviorの記述内容も設計側の記述と矛盾しない。
-4. **traceability.jsonの網羅性**: upstream_idsに列挙された11件のNFR ID(NFR1.1・NFR1.2・NFR-AUTHZ.1〜.3・NFR-FAILSAFE.1×2ファイル・NFR2.1・NFR2.2・NFR3.1・NFR5)はすべてcoverage配列でstatus: OKとして個別にターゲットへ紐付けられており、抜け・重複はない。NFR5(内部H2の`ms_`接頭辞)はtech-stack-decisions.md由来の全Unit共通NFRであり、logical-components.mdの記述(6エンティティは本Unit専有テーブル)とも矛盾しない。
-
-以上より、permission Unitのnfr-design成果物はiteration 2時点の内容から変更されておらず、上流のnfr-requirements・functional-design(rules.md/functional-spec.md)・契約summary.mdとの整合も引き続き確認できたため、READY判定を維持する。
+iteration 2で修正されたCritical指摘(observability-design.mdの監査ログ対象範囲記述と契約summary.mdのpublishers一覧との不整合)は、現在のファイル内容でも正しく維持されている。7ファイルの内容は前回iteration 2からの変更がなく、上流のnfr-requirements・functional-design(rules.md)・contract-summary.mdとの整合性、およびlogical-components.mdで定義された4コンポーネント以外への参照がないことを再確認し、新たな指摘は見つからなかった。

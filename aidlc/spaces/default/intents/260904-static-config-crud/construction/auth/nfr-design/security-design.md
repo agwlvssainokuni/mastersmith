@@ -28,28 +28,20 @@ isAdminクレームはアクセストークン発行時の判定材料として�
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-08T13:30:42Z
+**Date:** 2026-09-08T20:37:30Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | security-design.md 全体 | 契約#4(account-management→auth)経由でAccountがstatus=disabledに変更された際、既発行のリフレッシュトークンが即座には失効しない既知のギャップが、本ドキュメントに明記されていない。functional-spec.mdのBR1.1・BR1.2(ログイン時のstatus=disabled判定)は新規ログインをブロックするのみで、既存のリフレッシュトークンのローテーション処理(BR3.2)にstatus再判定のロジックがなく、無効化後もアクセストークンの再発行が継続し得る。この既知ギャップはauth Unit自身のfunctional-design・nfr-requirements両段階で既にMajorとして記録済みであり、繰延べ事項として扱う。 | security-design.mdの「リフレッシュトークン」節に、この既知の未対応ギャップと、対応方針(将来のリフレッシュ時status再検証の追加、またはアカウント無効化時の一括revoke処理の追加)をリスクとして明記する。実装判断はcode-generation段階以降で確定してよいが、設計文書に不可視のまま残さない。 | Unresolved (Accepted as deferred / non-blocking) |
-| R-02 | Major | traceability.json > NFR-AUTHN.2行 | traceability.jsonのNFR-AUTHN.2カバレッジ記述(リフレッシュトークンハッシュ永続化・ローテーション)が、R-01と同じ既知ギャップ(アカウント無効化時の即時失効未反映)への言及を欠いており、トレーサビリティ上もこのリスクが不可視になっている。 | traceability.jsonのNFR-AUTHN.2エントリのtargetに、当該ギャップが繰延べ事項として認識済みである旨の注記を追加する。 | Unresolved (Accepted as deferred / non-blocking) |
+| R-01 | Major | security-design.md 全体 | 契約#4(account-management→auth)経由でAccountがstatus=disabledに変更された際、既発行のリフレッシュトークンが即座には失効しない既知のギャップが、本ドキュメントに明記されていない。functional-spec.mdのBR1.1・BR1.2(ログイン時のstatus=disabled判定)は新規ログインをブロックするのみで、既存のリフレッシュトークンのローテーション処理(BR3.2)にstatus再判定のロジックがなく、無効化後もアクセストークンの再発行が継続し得る。この既知ギャップはauth Unit自身のfunctional-design・nfr-requirements両段階で既にMajorとして記録済みであり、繰延べ事項として扱う。 | security-design.mdの「リフレッシュトークン」節に、この既知の未対応ギャップと、対応方針(将来のリフレッシュ時status再検証の追加、またはアカウント無効化時の一括revoke処理の追加)をリスクとして明記する。実装判断はcode-generation段階以降で確定してよいが、設計文書に不可視のまま残さない。 | Accepted risk |
+| R-02 | Major | traceability.json > NFR-AUTHN.2行 | traceability.jsonのNFR-AUTHN.2カバレッジ記述(リフレッシュトークンハッシュ永続化・ローテーション)が、R-01と同じ既知ギャップ(アカウント無効化時の即時失効未反映)への言及を欠いており、トレーサビリティ上もこのリスクが不可視になっている。 | traceability.jsonのNFR-AUTHN.2エントリのtargetに、当該ギャップが繰延べ事項として認識済みである旨の注記を追加する。 | Accepted risk |
 
 ### Validation Tool Results
 
-本レビューサイクルでは、他Unit(dynamic-data-access)のnfr-designステージ内1ファイルの表記フォーマット不具合(Findingsテーブル記法崩れ)を修正するためのstage-level Request Changesにより、auth Unitを含む全11Unitのper-unit reviewステータスがエンジンの状態管理上リセットされたことに伴う再検証である。auth Unit自身の7成果物ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)はいずれも前回iteration 1のREADY判定時点から内容変更なし(git履歴上も単一コミットのみで、以降の変更なし)であることを確認した。
-
-| Tool | Result | Interpretation |
-|---|---|---|
-| 上流整合性確認(手動) | PASS | nfr-requirements配下の全NFR(NFR1.1〜NFR3.2、NFR-AUTHN.1〜4、NFR-AUTHZ.1、NFR-FAILSAFE.1〜2、NFR9)がtraceability.jsonでOK/Deferredのいずれかにマッピングされ、functional-design/rules.md(BR1.1〜BR8.1)・functional-spec.mdとの整合が取れている |
-| logical-components.md参照整合性(手動) | PASS | performance/security/scalability/reliability/observability-design.mdのいずれも、logical-components.mdで定義されたRESTコントローラ・サービス・リポジトリ以外のコンポーネントへの参照はない |
-| traceability.json網羅性(手動) | PASS | upstream_idsとcoverage配列の項目数・ID一致を確認、抜け漏れなし |
-| NFR9 Deferred判定(手動) | PASS | 初期管理者アカウント自動作成の繰延べは、functional-designステージ終了ゲートで既に確認済みとtraceability.jsonに明記されており、本ステージでの再設計対象外という判定は妥当 |
-| 契約#4整合性(手動、R-01根拠) | 既知ギャップ確認 | account-management→auth契約#4(contract-summary.md L48-52)にはアカウント無効化時のリフレッシュトークン即時失効に関する取り決めがなく、rules.md BR1.1/BR1.2・BR3.2にも該当ロジックがないことを確認。前回iteration 1の指摘内容と一致し、新規指摘ではなく既知の繰延べ事項として扱う |
+本イテレーションはR-01・R-02のStatus値の表記修正のみを目的とし、security-design.md・performance-design.md・scalability-design.md・reliability-design.md・observability-design.md・logical-components.md・traceability.jsonの本文はすべて前回レビュー時点から変更されていないことを確認した(diffなし)。上流のnfr-requirements/security-requirements.md(R-01・R-02、Status: New)、functional-design/rules.md(BR1.1・BR1.2・BR3.2)を再照合し、R-01・R-02の指摘内容が上流記録と矛盾しないことを確認した。ツール実行結果に変化はない。
 
 ### Summary
 
-auth Unitのnfr-design成果物7ファイルは前回iteration 1のREADY判定時点から内容の変更がなく、上流のnfr-requirements・functional-design(rules.md/functional-spec.md)・契約サマリとの整合、logical-components.mdへの参照の妥当性、traceability.jsonの網羅性、NFR9のDeferred判定のいずれも再検証の結果問題は見つからなかった。既知のMajor指摘2件(契約#4由来のアカウント無効化時リフレッシュトークン即時失効ギャップの不可視化)は前回から継続する繰延べ事項であり、新規指摘として重複計上していない。今回のレビューはdynamic-data-access Unitの表記不具合修正に伴うstage-levelリセットに起因する再確認であり、auth Unit自身の設計変更は一切ない。よってREADY(Major 2件、非ブロッキング)を維持する。
+今回の再レビューはStatus値の表記修正(不正な自由記述文からフレームワーク正規値`Accepted risk`への訂正)のみが目的であり、指摘内容・対応方針・本文はすべて前回と同一である。既知のMajor 2件(R-01・R-02)はいずれも上流段階で既に記録済みの繰延べ事項であり、Acceptedとして扱ってREADY判定を維持する。

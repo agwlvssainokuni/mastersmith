@@ -4,7 +4,7 @@
 
 ## Consolidated Summary Confirmation
 
-audit-log Unitのnfr-design成果物を以下の内容で確定します。
+nfr-designステージ全体のRequest Changes後の回復手続きとして、audit-log Unitのnfr-design成果物を、以下の内容(前回READY判定を受けた最終版、イベントリスナー・RESTコントローラ・サービス・リポジトリの4論理コンポーネント構成)で内容変更なしのまま再確定します。
 
 **performance-design.md**: 参照・絞り込み(BR2.1・BR2.2)のクエリに対応するため、AuditLogEntryテーブルにoccurredAt・actorAccountId・actionTypeの各カラムへインデックスを設ける。キャッシュ層は設けない(監査ログは追記主体・参照頻度が低い管理者専用機能のため、キャッシュ導入のコストに見合わない)。
 

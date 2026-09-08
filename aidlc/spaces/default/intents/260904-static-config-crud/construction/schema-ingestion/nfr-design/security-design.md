@@ -16,24 +16,24 @@
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-07T20:49:59Z
+**Date:** 2026-09-08T17:26:22Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Major | nfr-design/traceability.json > NFR4のcoverageエントリ | NFR4のtargetが「logical-components.md(JDBCドライバのアプリケーション内包、tech-stack-decisions.md継続)」となっているが、logical-components.mdの本文にはJDBCドライバのアプリケーション内包(バンドル)に関する記述が実際には存在しない(同ファイルが扱うのはJDBC DatabaseMetaDataによるRDBMS方言差異の吸収ロジックのみ)。JDBCドライバ内包の記述は上流のnfr-requirements/tech-stack-decisions.mdにのみ存在する。前回レビュー(iteration 1、READY・Major 1件/Minor 1件)で指摘済みの繰延べ事項であり、その後dynamic-data-access Unitの表記フォーマット不具合を理由とするnfr-designステージ全体へのRequest Changesでper-unit reviewステータスがリセットされたことに伴う再確認だが、schema-ingestion Unit自身の成果物ファイルの内容(本Major指摘の対象箇所を含む)は前回レビュー時点から変更されておらず、指摘は未解消のまま残っている。 | traceability.jsonのNFR4エントリのtargetを「tech-stack-decisions.md(JDBCドライバのアプリケーション内包)」を主参照とする記述に修正するか、logical-components.mdの「コンポーネント構成」節にJDBCドライバをアプリケーションに内包する旨(project.md Mandated根拠)を明記したうえでtargetの記述と実体を一致させる。 | Unresolved |
-| R-02 | Minor | nfr-design/scalability-design.md > スケーリングアーキテクチャ | 「単一インスタンス構成(NFR2)」と、上流IDの粒度(NFR2.1/NFR2.2)ではなく上位の「NFR2」を直接引用している。同ファイル内の次節は「NFR2.2」と粒度を揃えて引用しており、また本ファイル自身のtraceability.jsonはこの記述をNFR2.1のcoverage対象としているため、本文中の参照ID表記がNFR2.1ではなくNFR2になっている点で軽微な不整合がある。 | 「単一インスタンス構成(NFR2)」を「単一インスタンス構成(NFR2.1)」に修正し、traceability.jsonの対応関係と本文引用IDの粒度を揃える。 | New |
+| R-01 | Major | nfr-design/traceability.json > NFR4のcoverageエントリ | traceability.jsonはNFR4を「logical-components.md(JDBCドライバのアプリケーション内包)」に対応付けているが、requirements.mdのNFR4は「フロントエンド/バックエンドを単一の実行可能WARにパッケージングすること」であり、JDBCドライバのバンドルとは異なる関心事である。JDBCドライバ内包の根拠は本来project.md Mandated(TC-01由来)であり、NFR4のtarget記述として誤っている。 | traceability.jsonのNFR4行を、実際に対応する上流ID(該当するNFR、または project.md Mandated由来である旨)に修正するか、NFR4(WARパッケージング)に対応する記述を別途追加する。 | Unresolved |
+| R-02 | Minor | nfr-design/scalability-design.md ならびに traceability.json > NFR2.1/NFR2.2 | nfr-requirements/scalability-requirements.mdはNFR2.1(単一インスタンス・単一業務前提)とNFR2.2(走査の対象範囲)を分けて定義しているのに対し、nfr-design側の記述粒度がやや粗く、両IDの対応関係がtraceability.jsonの記載だけでは読み取りづらい。実質的な設計内容自体に誤りはない。 | scalability-design.mdの見出し・本文でNFR2.1/NFR2.2それぞれに対応する記述であることを明示し、traceability.jsonのtarget記述の粒度をnfr-requirements側に揃える。 | New |
 
 ### Validation Tool Results
 
-本ステージ定義に紐づく自動検証ツールの明示的な指定は確認されなかったため、上流文書(nfr-requirements配下の各NFR要件ファイル、functional-design/rules.md BR1.1〜BR6.1、functional-spec.md、entities.md)との突き合わせによる手動検証のみを実施した。
+本ステージ定義に紐づく自動検証ツールの明示的な指定は確認されなかったため、上流文書(nfr-requirements配下の6ファイル、functional-design/rules.md・functional-spec.md・entities.md)との突き合わせによる手動検証を実施した。
 
 | Tool | Result | Interpretation |
 |---|---|---|
-| (自動検証ツールなし) | N/A | 上流文書・BR定義・traceability.jsonとの相互参照を手動で確認 |
+| (自動検証ツールなし) | N/A | 上流文書・logical-components.mdの2コンポーネント定義との相互参照を手動で確認 |
 
 ### Summary
 
-今回のレビュー依頼は、別Unit(dynamic-data-access)の表記フォーマット不具合修正に伴うnfr-designステージ全体へのRequest Changesでper-unit reviewステータスが一律リセットされたことによる再確認であり、schema-ingestion Unit自身の7ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)はいずれも前回READY判定時点から内容の変更が確認されなかった。performance-design.md/reliability-design.md/observability-design.md/logical-components.mdは、対応する上流NFR要件(NFR1.1/NFR1.2、NFR-RESILIENCE.1、NFR3.1、NFR4以外)およびfunctional-design/rules.mdのBR1.1〜BR6.1と整合しており、logical-components.mdで定義された「RESTコントローラ」「サービス」以外のコンポーネントへの参照もない。既知のMajor指摘(traceability.jsonのNFR4参照不整合)は前回同様未解消のまま繰延べ事項として記録し、新たにscalability-design.mdの参照ID粒度に関するMinor指摘を追加した。Critical指摘はなく、Majorも1件(繰延べ)にとどまるため、前回同様READYと判定する。
+今回はnfr-designステージ全体に対する2回目のRequest Changes(auth Unitのsecurity-design.mdにおけるStatus値不正の是正が目的)を受けた再確認であり、schema-ingestion自身の7ファイルは内容を一切変更していない。performance-design.md/security-design.md/scalability-design.md/reliability-design.md/observability-design.mdはいずれもnfr-requirements配下の対応するNFR(NFR1.1〜NFR-RESILIENCE.1)およびfunctional-design/rules.mdのBR5.1・BR6.1と整合しており、logical-components.mdで定義された2コンポーネント(RESTコントローラ・サービス)以外への参照も確認されなかった。既知の繰延べ指摘R-01(traceability.json NFR4のtarget記述不一致、Major・Unresolved)とR-02(NFR2表記粒度、Minor・New)はいずれも非ブロッキングとして踏襲し、新規のCritical/Major指摘はないためREADYと判定する。
