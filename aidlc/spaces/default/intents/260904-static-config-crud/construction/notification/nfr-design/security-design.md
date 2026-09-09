@@ -12,7 +12,7 @@
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-08T14:02:23Z
+**Date:** 2026-09-08T22:55:51Z
 **Iteration:** 1
 
 ### Findings
@@ -21,13 +21,15 @@
 
 ### Validation Tool Results
 
-本ステージ定義に紐付く自動検証ツールの指定は確認できなかったため、nfr-design 7ファイルとアップストリーム文書(nfr-requirements/7ファイル、functional-design/rules.md、functional-design/entities.md)との突き合わせによる手動検証を実施した。
+本ステージ定義に紐づく自動検証ツールの明示的な指定は確認できなかったため、成果物7ファイル(performance-design.md、security-design.md、scalability-design.md、reliability-design.md、observability-design.md、logical-components.md、traceability.json)を手動で照合した。
 
-| Tool | Result | Interpretation |
+| 検証観点 | 結果 | 解釈 |
 |---|---|---|
-| (該当なし) | — | 本ステージにvalidationツールの指定なし。手動クロスチェックで代替。 |
+| traceability.jsonの上流ID解決性 | PASS | `NFR1.1`/`NFR1.2`/`NFR-DATA.1`/`NFR-INJECTION.1`/`NFR2.1`/`NFR-FAILSAFE.1`/`NFR3.1`はいずれも`nfr-requirements/`配下の対応ファイル(performance-requirements.md、security-requirements.md、scalability-requirements.md、reliability-requirements.md、observability-requirements.md)に実在し、IDのずれはない。coverageの各`target`欄が指す節も実在する。 |
+| logical-components.mdで定義したコンポーネント(イベントリスナー、サービス)以外への参照有無 | PASS | 7ファイルすべてで「イベントリスナー」「サービス(コンポーネント)」以外のコンポーネント名(リポジトリ等)への言及はない。逆に、性能・信頼性・可観測性・セキュリティの各設計記述は、いずれかのコンポーネントの責務(イベント購読・変換、テンプレート描画・SMTP送信・ログ記録)に紐づいている。 |
+| rules.md/entities.mdとの整合性 | PASS | reliability-design.mdのリトライなし方針はBR3.1と、observability-design.mdの送信失敗ログはBR3.1と、security-design.mdのHTMLエスケープはBR2.1(Mustache描画)と、scalability-design.mdの非永続化前提はentities.mdのEmailDispatch(非永続)と、それぞれ矛盾なく対応している。 |
+| 旧`## Review`セクションの除去確認 | PASS | security-design.mdに旧レビュー記録は残存していなかった(本レビュー追記前の時点で確認済み)。 |
 
 ### Summary
 
-logical-components.mdが定義する2コンポーネント(イベントリスナー・サービス)以外への参照は7ファイル中に存在せず、リポジトリコンポーネントへの言及もない。traceability.jsonが列挙する7件のNFR ID(NFR1.1、NFR1.2、NFR-DATA.1、NFR-INJECTION.1、NFR2.1、NFR-FAILSAFE.1、NFR3.1)はいずれもnfr-requirements配下の対応ファイルに実在し、各design側の記述内容も要件文と矛盾しない。BR1.1〜BR3.1・EmailDispatch非永続化などfunctional-design(rules.md、entities.md)の記述との整合性にも齟齬はない。前回iteration 1のREADY判定時点から内容は変更されておらず、独立した再検証でも同一の結論(READY)に至った。
-
+7ファイルはいずれもnfr-requirements配下の対応ID、rules.md/entities.mdの業務ルール・エンティティ定義、logical-components.mdが定義する2コンポーネント(イベントリスナー・サービス、リポジトリなし)と矛盾なく整合しており、前回READY判定時点から内容が変更されていないことも確認した。実装をブロックする指摘はない。

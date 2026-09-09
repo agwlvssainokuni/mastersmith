@@ -1,0 +1,9 @@
+{
+  "stage": "nfr-design",
+  "unit": "packaging",
+  "upstream_ids": ["NFR-DATA.1", "NFR-DATA.2"],
+  "coverage": [
+    { "id": "NFR-DATA.1", "status": "OK", "target": "security-design.md(ビルド設定内での秘密情報非参照、実行時の環境変数注入。上流nfr-requirements/security-requirements.mdの根拠なき4項目目〈業務DB接続情報の暗号鍵〉は本Unit固有の関心事ではないため本設計では踏襲しない旨を明記)" },
+    { "id": "NFR-DATA.2", "status": "OK", "target": "security-design.md(application.ymlのプレースホルダ化、プロファイル機構による分離)" }
+  ]
+}

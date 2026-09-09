@@ -7,7 +7,7 @@
 - **Scope**: mastersmith-mvp
 - **Start Date**: 2026-09-04T12:56:32Z
 - **State Version**: 8
-- **Active Agent**: aidlc-architect-agent
+- **Active Agent**: aidlc-developer-agent
 - **Worktree Path**:
 - **Bolt Refs**:
 - **Practices Affirmed Timestamp**: 2026-09-05T11:43:19Z
@@ -27,8 +27,8 @@
 
 ## Execution Plan Summary
 - **Total Stages**: 21
-- **Completed**: 17
-- **In Progress**: nfr-design
+- **Completed**: 18
+- **In Progress**: code-generation
 
 ## Runtime State
 - **Revision Count**: 20
@@ -77,9 +77,9 @@
 Per unit: [TBD]
 - [x] functional-design — EXECUTE
 - [x] nfr-requirements — EXECUTE
-- [R] nfr-design — EXECUTE
+- [x] nfr-design — EXECUTE
 - [ ] infrastructure-design — SKIP
-- [ ] code-generation — EXECUTE
+- [-] code-generation — EXECUTE
 - [ ] build-and-test — EXECUTE
 - [ ] ci-pipeline — EXECUTE
 
@@ -94,12 +94,13 @@ Per unit: [TBD]
 
 ## Current Status
 - **Lifecycle Phase**: CONSTRUCTION
-- **Current Stage**: nfr-design
-- **Next Stage**: code-generation
+- **Current Stage**: code-generation
+- **Next Stage**: build-and-test
 - **Status**: Running
-- **Last Updated**: 2026-09-08T22:37:19Z
+- **Construction Autonomy Mode**: gated
+- **Last Updated**: 2026-09-08T23:06:33Z
 
 ## Session Resume Point
-- **Last Completed Stage**: nfr-requirements
-- **Next Action**: Execute NFR Design
+- **Last Completed Stage**: nfr-design
+- **Next Action**: Execute Code Generation
 - **Pending Artifacts**: none

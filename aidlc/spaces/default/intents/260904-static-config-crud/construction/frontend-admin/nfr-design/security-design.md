@@ -16,21 +16,19 @@ frontend-admin自身は認可判定ロジックを持たない。URLを直接指
 
 **Verdict:** READY
 **Reviewer:** aidlc-architecture-reviewer-agent
-**Date:** 2026-09-08T13:44:06Z
+**Date:** 2026-09-08T22:43:13Z
 **Iteration:** 1
 
 ### Findings
 
 | ID | Severity | Location | Finding | Required action | Status |
 |---|---|---|---|---|---|
-| R-01 | Minor | nfr-design/logical-components.md > コンポーネント構成 | security-design.mdの「管理者ゲーティング」節は「AppShellレベルのルートガード」と記述しているが、nfr-design/logical-components.mdの論理コンポーネント表(画面コンポーネント・共通UIコンポーネント・APIクライアントの3件)にはAppShellが独立した項目として明示されていない。AppShell自体はfunctional-design/frontend-components.mdで「全画面共通のシェル」として定義済みの実在コンポーネントであり参照先は妥当だが、nfr-design側の論理コンポーネント表がそれを「画面コンポーネント」に含めているのか独立要素として扱っているのかが本Unit成果物内で明記されていない。 | logical-components.mdの表または注記に、AppShellが「画面コンポーネント」に含まれる旨(または独立コンポーネントである旨)を一言明記する。 | New |
-
-前回iteration 1のREADY判定時のMajor指摘R-01(traceability.jsonがNFR3をupstream_ids/coverageから完全に省略しており、Consolidated Summary Confirmationの内容と食い違っていた点)は、今回の修正により解消を確認した。nfr-design/traceability.jsonのupstream_idsおよびcoverageにNFR3が明示的に追加され、status: "N/A"として、認可エラー時の画面表示切替(NFR-AUTHZ.2)を可観測性の根拠にするのは論理的誤りである旨の判定理由と、上流nfr-requirements/traceability.jsonのNFR3=OK判定に未解消のMajor指摘(status: New)が残っている旨への言及が記載されている。上流nfr-requirements/security-requirements.mdのReviewセクションで実際にR-01がStatus: "New"のまま残存していることも確認済みであり、記述内容は事実と一致している。
+| R-01 | Minor | logical-components.md > コンポーネント構成 | security-design.md「管理者ゲーティング」節はAppShellレベルのルートガードに言及しているが、logical-components.mdのコンポーネント表(画面コンポーネント/共通UIコンポーネント/APIクライアントの3件)にAppShell自体が明示的な行として記載されていない。ルートガードの実装主体がどの論理コンポーネントに属するのか、表からは一意に読み取れない。 | logical-components.mdの表にAppShell(またはルートガードの帰属先)を明示するか、既存いずれかのコンポーネントの責務説明にAppShell/ルートガードを含む旨を追記する。 | Unresolved |
 
 ### Validation Tool Results
 
-本ステージに指定された自動検証ツールはなし。上記はnfr-requirements配下の要件ファイル(performance-requirements.md/security-requirements.md/traceability.json)、functional-spec.md「管理者ゲーティング」節、frontend-components.mdとの手動突き合わせによる検証。
+本ステージに指定された自動検証ツールはなし。手動検証: (1) traceability.jsonのNFR3判定が前回修正(N/A判定への変更、nfr-requirements側の未解消Major R-01への言及)のまま維持されていることを確認。(2) nfr-requirements/security-requirements.md・performance-requirements.mdの内容(NFR-AUTHZ.1/NFR-AUTHZ.2/NFR-INJECTION.1/NFR1.1/NFR1.2)とperformance-design.md/security-design.mdの記述を突き合わせ、文言・対象画面・エラー処理方針とも整合していることを確認。(3) functional-spec.md「管理者ゲーティング」節(FR5.5・FR5.6)とsecurity-design.mdの記述(AppShellルートガード、403応答時のエラー表示切替、isAdminクレームの発行元・検証はauth Unit/バックエンド側の責務)が矛盾しないことを確認。(4) 4成果物内でlogical-components.mdに定義された3コンポーネント(画面コンポーネント・共通UIコンポーネント・APIクライアント)以外への参照がないことを確認(AppShellはlogical-components.mdの表に明示されていないためR-01として再記録)。
 
 ### Summary
 
-前回iteration 1のMajor指摘(NFR3の無言省略)は今回の修正で解消されており、内容も上流の未解消Major指摘の存在を正確に反映している。NFR-AUTHZ.1/NFR-AUTHZ.2/NFR-INJECTION.1の各設計はfunctional-spec.md「管理者ゲーティング」節・security-requirements.mdの記述と整合し、performance-design.mdもperformance-requirements.mdと整合している。AppShellへの参照がlogical-components.mdの表で明示されていない点(R-01、Minor)を除き、実装を妨げる論点はない。
+今回のリクエストは内容の変更を伴わない再レビュー依頼であり、前回イテレーションで修正済みのMajor指摘(traceability.jsonのNFR3無言省略)は維持されている。既知の繰延べMinor指摘(R-01、AppShellがlogical-components.mdの表に明示されていない)は非ブロッキング事項として同一内容で再記録した。上流のnfr-requirements/functional-spec.mdとの整合性、および3論理コンポーネント以外への参照がないことも改めて確認しており、Critical/新規Major指摘はない。
