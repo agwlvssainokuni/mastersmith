@@ -906,3 +906,60 @@
 **Agent**: aidlc-design-agent
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T14:51:50Z
+**Event**: DECISION_RECORDED
+**Stage**: rough-mockups
+**Decision**: 6問のラフモックアップ質問への回答方法
+**Options**: Guide me,I'll edit the file,Chat
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:52:17Z
+**Event**: QUESTION_ANSWERED
+**Stage**: rough-mockups
+**Details**: Guide me
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:59:55Z
+**Event**: QUESTION_ANSWERED
+**Stage**: rough-mockups
+**Details**: Q1=Other(トップ画面カード形式), Q2=A, Q3=B(デスクトップ+タブレット), Q4=A(特別な要件なし)
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T15:02:40Z
+**Event**: QUESTION_ANSWERED
+**Stage**: rough-mockups
+**Details**: Q5=A(非表示), Q6=B(折りたたみ可能)
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T15:02:52Z
+**Event**: DECISION_RECORDED
+**Stage**: rough-mockups
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/rough-mockups/rough-mockups-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-10T15:22:31Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: rough-mockups
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/rough-mockups/rough-mockups-questions.md
+**Questions SHA-256**: 3f24d93eab58ba3d8d254c1882560a1b19ab94902fdb28534c1aae679a137182
+**Hash Scope**: confirmed-content-v1
+**Summary Authorization Id**: ae48b73134d24a10562cab0f288293b0a077c392e4f5ab9217fb4d1c56cd6bfc
+
+---
