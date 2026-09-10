@@ -765,3 +765,76 @@
 **Agent**: aidlc-product-agent
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T14:01:56Z
+**Event**: DECISION_RECORDED
+**Stage**: scope-definition
+**Decision**: 11問のスコープ定義質問への回答方法
+**Options**: Guide me,I'll edit the file,Chat
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:02:46Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Guide me
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:06:21Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Q1=Other (hybrid: admin-editable, DB-backed, file export/import), Q2=B (app-body feature)
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:31:04Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Q3=A,B,C,D,+ユーザ管理+監査ログ; Q4=A(含めない); Q5=B+詳細な権限モデル(ロール/主権限4種/階層継承/補助権限CREATE-DELETE); Q6=表示可否は権限とは別軸
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:40:46Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Q7=A(FK動的許容); Q8=B(多言語含める); Q9=業務メニューN階層+管理メニュー(業務メニュー設定/ユーザ管理/監査ログ管理)、sidebar表示、パンくずなし、frontend自前デザインシステム; Q10=C(こだわりなし)
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:41:41Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Q11=A(特になし)
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T14:43:09Z
+**Event**: DECISION_RECORDED
+**Stage**: scope-definition
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/scope-definition/scope-definition-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-10T14:44:28Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: scope-definition
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/scope-definition/scope-definition-questions.md
+**Questions SHA-256**: fa6cd1c67c7f87f8f803896aae27b7102d592a960d68450087fc7a74be71e154
+**Hash Scope**: confirmed-content-v1
+**Summary Authorization Id**: f5c1e046b9ac2bad6076b555cc90c13b1426115733c14682e41c6540609bc108
+
+---
