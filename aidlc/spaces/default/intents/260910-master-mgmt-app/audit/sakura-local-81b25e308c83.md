@@ -963,3 +963,153 @@
 **Summary Authorization Id**: ae48b73134d24a10562cab0f288293b0a077c392e4f5ab9217fb4d1c56cd6bfc
 
 ---
+
+## Review Requested
+**Timestamp**: 2026-09-10T15:24:00Z
+**Event**: REVIEW_REQUESTED
+**Stage**: rough-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:e77241f3cdb274c9f9c4f437894b114bc096f849f831a6a64fc52d99d5192571
+**Request Id**: review:db16be2c620d5cd462b336d67a7bf70f
+
+---
+
+## Review Completed
+**Timestamp**: 2026-09-10T15:25:38Z
+**Event**: REVIEW_COMPLETED
+**Stage**: rough-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Verdict**: READY
+**Request Fingerprint**: sha256:e77241f3cdb274c9f9c4f437894b114bc096f849f831a6a64fc52d99d5192571
+**Artifact Fingerprint**: sha256:e77241f3cdb274c9f9c4f437894b114bc096f849f831a6a64fc52d99d5192571
+**Request Id**: review:db16be2c620d5cd462b336d67a7bf70f
+**Review Record**: .aidlc-reviews/rough-mockups/stage/07d5d3eddad289df/1.json
+**Review Record Digest**: sha256:bc79c4b7a10da5e69574d531ceab8fc025f7b92cfc4d4185a345002066f77c71
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-09-10T15:25:48Z
+**Event**: MEMORY_EMPTY
+**Stage**: scope-definition
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T15:25:59Z
+**Event**: DECISION_RECORDED
+**Stage**: rough-mockups
+**Decision**: Anything to add for next time?
+**Options**: Nothing to add,Add a note
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T15:27:18Z
+**Event**: QUESTION_ANSWERED
+**Stage**: rough-mockups
+**Details**: Add a note — こまめにコミットするのを忘れないでね(既存のproject.mdルールの再確認)
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-10T15:27:33Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: rough-mockups
+
+---
+
+## Gate Rejected
+**Timestamp**: 2026-09-10T15:30:52Z
+**Event**: GATE_REJECTED
+**Stage**: rough-mockups
+**Feedback**: R-01: 複数ロールを持つユーザの操作時ロール選択UIをワイヤーフレームに追加してほしい
+
+---
+
+## Stage Revising
+**Timestamp**: 2026-09-10T15:30:52Z
+**Event**: STAGE_REVISING
+**Stage**: rough-mockups
+**Revision count**: 1
+**Feedback**: R-01: 複数ロールを持つユーザの操作時ロール選択UIをワイヤーフレームに追加してほしい
+
+---
+
+## Error Logged
+**Timestamp**: 2026-09-10T15:32:18Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log review --stage rough-mockups --reviewer aidlc-product-lead-agent --iteration 2
+**Error**: Cannot request review pass 2 for "rough-mockups" because this stage allows 1 review pass. Do not ask the reviewer again; include the findings in the approval summary for the human.\n{"kind":"ask","ask_type":"guard-recovery","response_route":"execute-remedy","question":"The next action for \"rough-mockups\" would be refused. Choose one authority-preserving recovery action.","stage":"rough-mockups","reason_codes":["REVIEW_BUDGET_EXHAUSTED"],"remedies":[{"op":"redo-jump","action":"This stage is mid-revision; the way to restart it cleanly is a redo jump: /aidlc --stage rough-mockups (your recorded answers survive; you will re-confirm the summary once).","command":"bun .claude/tools/aidlc-orchestrate.ts next --stage rough-mockups","requiresHuman":true,"executableNow":true}]}
+
+---
+
+## Stage Jump
+**Timestamp**: 2026-09-10T15:33:27Z
+**Event**: STAGE_JUMPED
+**Direction**: REDO
+**Source**: rough-mockups
+**Target**: rough-mockups
+**Scope**: config-driven-admin-mvp
+**Details**: REDO jump from rough-mockups to rough-mockups (1.6). Scope: config-driven-admin-mvp.
+**Source Baseline**: sha256:cb83b1135a98908b95f1f1bf1e3eb8ef3f80c933650eee7f8cf8fa59fcdd783f
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-10T15:33:27Z
+**Event**: STAGE_STARTED
+**Stage**: rough-mockups
+**Agent**: aidlc-design-agent
+**Source Baseline**: sha256:cb83b1135a98908b95f1f1bf1e3eb8ef3f80c933650eee7f8cf8fa59fcdd783f
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T15:34:48Z
+**Event**: DECISION_RECORDED
+**Stage**: rough-mockups
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/rough-mockups/rough-mockups-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T15:39:18Z
+**Event**: DECISION_RECORDED
+**Stage**: rough-mockups
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/rough-mockups/rough-mockups-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-10T15:40:37Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: rough-mockups
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/rough-mockups/rough-mockups-questions.md
+**Questions SHA-256**: 3496a24704b91f64ab63f16559ca61c3d6462b19aa29ee242e15e3bf1bf47deb
+**Hash Scope**: confirmed-content-v1
+**Summary Authorization Id**: 93ec1d09cde942dbbb5cc8cd356c85112324df7f214558b2e9461b6652d4cc2a
+
+---
+
+## Review Requested
+**Timestamp**: 2026-09-10T15:40:48Z
+**Event**: REVIEW_REQUESTED
+**Stage**: rough-mockups
+**Reviewer**: aidlc-product-lead-agent
+**Iteration**: 1
+**Artifact Fingerprint**: sha256:7390cadf24c0fae095d4bd32a7955e6bc29dde92340e28cfd85d2faf31e9d648
+**Request Id**: review:3bf1b38fbf6539d48ca4b023803ab770
+
+---
