@@ -1,85 +1,154 @@
-# Practices Discovery エビデンス(ドラフト)
+# Practices Discovery エビデンス
 
-> **ステータス: ドラフト(未承認)**
-> 本プロジェクトはグリーンフィールド(既存コードベースなし)であり、
-> reverse-engineering ステージはスコープ上SKIPされているため、リポジトリ内コードの
-> 静的解析による証跡は存在しない。本ドラフトは代わりに、フレームワーク既定値と
-> 本プロジェクトで既に確定済みの決定事項を調査した結果をエビデンスとして記録する。
-> チームの意図・追認は未確認であり、本ステージ後続のインタビューステップで確認する。
+> **ステータス: 確定(人間インタビューにより承認済み)**
+> 本プロジェクトはグリーンフィールド(既存コードベースなし)であり、reverse-engineering
+> ステージはスコープ上SKIPされているため、リポジトリ内コードの静的解析による証跡は
+> 存在しない。本ファイルは、(1) フレームワーク既定値と本プロジェクトで既に確定済みの
+> 決定事項の調査、(2) リード(pipeline-deploy-agent)+quality/developer/devsecopsの
+> 3エージェントによるレビュー、(3) 14問(+2副問)の人間インタビュー、の3段階を通じて
+> 得られたエビデンスを記録する。
 
-## 調査対象
+## 1. 調査対象(ドラフト段階)
 
-### 1. `aidlc/spaces/default/memory/org.md`(フレームワーク既定値)
+### 1-1. `aidlc/spaces/default/memory/org.md`(フレームワーク既定値)
 
-グリーンフィールドプロジェクトの出発点として、以下5セクションを確認した。
+グリーンフィールドプロジェクトの出発点として、Way of Working / Walking Skeleton /
+Testing Posture / Deployment / Code Style の5セクションを確認し、ドラフト
+team-practices.md の初期値として転記した。
 
-- **Way of Working**: トランクベース開発、短命フィーチャーブランチ、Constructionの
-  worktreeベース/マージ先は `main`、Squash-mergeでのBolt統合。
-- **Walking Skeleton**: スコープファイルの `skeleton: on/off` 宣言に応じたBolt 1の扱い、
-  Bolt 1完了後のラダープロンプト(自律継続 or 毎Boltゲート)。
-- **Testing Posture**: 既定 Methodology は test-after、Ordering は「各テスト対象レイヤー
-  実装後にそのレイヤーのテストを作成・実行する」。スコープ種別ごとのカバレッジ/回帰
-  フロアの追加ルール。
-- **Deployment**: マージ時staging自動デプロイ、Production手動承認ゲート。
-- **Code Style**: フォーマッタ/リンタはプロジェクトルート設定に委譲、言語慣用の命名規約。
+### 1-2. `aidlc/spaces/default/memory/project.md`(既確定のプロジェクト固有事項)
 
-これらはあくまでフレームワークの既定(デフォルト)であり、本プロジェクトのチームが
-まだ明示的に確認・追認した事実ではない。org.md自身も「Way of Working」「Testing
-Posture」等の各セクションで、Methodology/Orderingは practices-discovery で追認されて
-初めて `team.md` に記録される旨を明記している。
+コミット運用(こまめなコミット・日本語メッセージ・ユーザー承認)、Apache License 2.0
+ヘッダー規約、パス表記(相対パス)規約、および `## Decided` に記録済みの
+intent-capture/scope-definition/rough-mockupsの決定事項(MasterSmithの位置付け、
+想定利用者、成功定義、MVPスコープへのユーザ管理・監査ログ・RBAC追加、表示設定・
+ロール選択UIの追加)を前提として踏襲した。
 
-### 2. `aidlc/spaces/default/memory/project.md`(既確定のプロジェクト固有事項)
+### 1-3. `aidlc-state.md`(スコープ・ワークフロー状況)
 
-以下は本プロジェクトで既に決定済みの事実であり、再確認の対象ではなく前提として
-そのまま踏襲する。
+スコープ `config-driven-admin-mvp`、Depth: Comprehensive、Test Strategy:
+Comprehensive、Change Control: relaxed。運用系ステージ(4.1〜4.7、
+deployment-pipeline等)はすべてSKIP対象であることを確認した。
 
-- **Way of Working**: こまめなコミット(状態更新・Step/Item完了単位)、コミット提案は
-  AIが自発的に行いユーザー承認を得てから実行、コミットメッセージは日本語、
-  `reference/` はGit管理外資料置き場、ドキュメントから `reference/` 配下への
-  ファイルパス直接参照はしない(内容は読み込んで要点をドキュメントへ直接記載する)。
-  (決定 2026-09-10)
-- **Code Style**: 生成ソースファイル先頭にApache License 2.0標準ヘッダー
-  (年 `2026`、著作権者 `agwlvssainokuni` 固定)を挿入する。ドキュメント中のパス表記は
-  プロジェクトルート(`mastersmith`)からの相対パスとする。(決定 2026-09-10)
-- **Decided(既存決定事項、`## Decided` セクション)**: MasterSmithの位置付け
-  (MasterMeisterの後継ではなく別アプリ)、想定利用者(社内業務担当者)、成功定義
-  (単一アプリ+設定入替による複数業務への転用)、MVPスコープ(ユーザ管理・監査ログ・
-  RBAC含む)、表示設定(テーマ/フォントサイズ)とロール選択UIの追加、など。
-  いずれもideationフェーズの各ステージ(intent-capture, scope-definition,
-  rough-mockups)で既に確認済み。
-- **Corrections**: `aidlc engine review-brief summary` のツール内部エラー時の代替手順
-  (learned 2026-09-10)。これは運用上の学習事項であり、本ステージの対象である
-  team-practices/discovered-rules とは別種の記録である。
+## 2. 各参加者の調査・指摘内容
 
-`project.md` の `## Walking Skeleton`・`## Testing Posture`・`## Change Control`・
-`## Deployment`・`## Tech Stack`・`## Scope Overrides`・`## Forbidden`・`## Mandated` は
-現時点でいずれも空欄であり、これらの領域についてはプロジェクト固有の特化ルールが
-まだ存在しない。
+### 2-1. リード(pipeline-deploy-agent)
 
-### 3. スコープ・ワークフロー状況(`aidlc-state.md`)
+上記1の調査結果をもとに、org.md既定値を「確認待ちの提案」としてteam-practices.mdへ
+転記し、discovered-rules.mdはMandated/Forbiddenともに空(人間の明示発言待ち)とした
+ドラフトを作成した。
 
-- スコープ: `config-driven-admin-mvp`、Depth: Comprehensive、Test Strategy: Comprehensive、
-  Change Control: relaxed(ユーザー設定)。
-- 操作・運用系ステージ(4.1〜4.7、deployment-pipeline等)はすべてSKIP対象であり、
-  本プロジェクトの現段階ではデプロイ実行そのものより、方針としてのDeployment
-  プラクティスを合意しておくことに主眼がある。
+### 2-2. aidlc-quality-agent(QA/テスト観点)
 
-## エビデンスの限界
+- RBAC(ロール階層継承・主/補助権限)は組み合わせ数が多く、test-after一辺倒では
+  テストが実装の後追いになるリスクを指摘。権限判定ロジックに限った test-first/ATDD寄り
+  の例外運用の要否をインタビューで問うことを提案。
+- 80%行カバレッジは権限判定ロジックの組み合わせ漏れを検出できないため、権限判定・
+  監査ログ記録に限りテーブル駆動の権限マトリクステストを追加合格条件とすることを提案。
+- Test Strategy「Comprehensive」の具体的な試験種別(単体/統合/E2E/契約/負荷)が
+  未定義である点を指摘。
+- config-driven特有の必須テスト種別(設定スキーマ契約テスト、複数プロファイル横断
+  E2Eテスト、RBAC否定系テスト、監査ログ整合性テスト)がドラフトに欠落している点を指摘。
+- テストデータ/フィクスチャ戦略への言及不足、およびWalking Skeletonの最小スコープに
+  権限がらみのE2Eパスを含めるべきとの提案も行った。
+
+### 2-3. aidlc-developer-agent(開発者/コードスタイル観点)
+
+- 技術スタック未決定という事実を単なる注記に留めず、インタビューの明示的な論点として
+  扱うべきと指摘(後にQ12で「実は既に確定済み」と判明)。
+- レイヤー境界(共通エンジン層/業務固有設定層の分離)の規約がドラフトに存在しない点を
+  指摘し、MasterSmithの成功定義(設定入替による複数業務転用)を実装で守るための
+  最重要規約として明文化を提案。
+- construction.mdフェーズガードレール(サイレント失敗禁止、回復可能/致命的エラーの
+  区別)がCode Styleへ反映されていない点を指摘し、設定定義エラーと利用者入力エラーの
+  区別を提案。
+- ファイル構成・命名規約(設定ディレクトリの命名が `reference/` と混同されないこと等)、
+  RBAC用語のグロッサリー整備、テストデータ戦略についても申し送り事項として記録した。
+
+### 2-4. aidlc-devsecops-agent(セキュリティ観点)
+
+- ドラフトにSAST/DAST・シークレットスキャン・依存関係脆弱性スキャンの記載が
+  一切ない点を指摘。RBAC・監査ログ・ユーザ管理を持つ本プロジェクトの性質上、
+  これらのセキュリティパイプライン統合をチームプラクティスとして明示的に検討・記録
+  すべきと提案。
+- discovered-rules.mdが完全に空欄のままインタビューへ進む計画に対し、RBAC/監査ログ/
+  認証情報に関する具体的なALWAYS/NEVER候補(サーバー側再検証、監査ログ改ざん防止、
+  認証情報ハッシュ化、権限昇格禁止)を候補として提示した上でYes/Noを問う形にすべきと
+  提案。この提案どおり、Q13でこれら4項目を候補として提示し、人間が明示的に採否を
+  回答する形式をとった。
+
+## 3. 人間インタビューによる決定事項(`practices-discovery-questions.md` Q1〜Q14b)
+
+- **Q1(ブランチ運用)**: トランクベース+squash-mergeを現状案どおり採用(A)。
+- **Q2(ウォーキングスケルトン)**: `skeleton: on`。Bolt 1は
+  ログイン→ロール選択→一覧/編集での権限制御→監査ログ記録の一連の流れを最低限確認
+  すれば十分とし(A)、権限の組み合わせは1パターンのみで良いと補足された。
+- **Q3(Bolt 1後の進め方)**: 自律的に継続(B)。Construction Autonomy Mode = autonomous。
+- **Q4(テストの基本方針)**: test-afterを全体の基本方針とする(A)。
+- **Q5(権限ロジックの例外)**: 権限判定ロジックのみtest-first/ATDD寄りの例外を認める(A)。
+  Q4+Q5の組み合わせにより、Testing Postureの `Methodology` はスキーム上「custom」
+  (混在するケイデンス)として記録する。
+- **Q6(カバレッジの上乗せ)**: 権限判定・監査ログ記録に限り、80%行カバレッジに加え
+  権限マトリクスのテーブル駆動テストを追加合格条件とする(A)。
+- **Q7(Comprehensiveの中身)**: 単体テストに加え統合テスト・E2Eテスト・契約テスト
+  (設定ファイル形式チェック)を含む(A, B, C)。負荷・性能テストは対象外(D不採用)。
+- **Q8(config-driven特有の必須テスト)**: 設定不正時の安全失敗テスト、複数プロファイル
+  横断E2Eテスト、権限拒否(negative-authorization)テストを必須とする(A, B, C)。
+  監査ログ完全性テスト(D)は、2度の確認の上で意図的に必須から除外された(下記4章参照)。
+- **Q9(リリースの仕方)**: 運用フェーズの全ステージがSKIPのため、CIでのビルド/テストの
+  みを行い、実デプロイ方針は運用フェーズのステージが追加された時点で改めて決定する
+  (X. Other)。org.mdの「staging自動デプロイ+production手動承認」既定はこのプロジェクトの
+  現段階には適用しない。
+- **Q10(層分けルール)**: 共通エンジン層/業務固有設定層の分離ルールを明文化する(A)。
+- **Q11(エラーの扱いの区別)**: 設定定義エラー(fail fast)と利用者入力エラー
+  (業務担当者向けメッセージ)の区別を明文化する(A)。
+- **Q12(技術スタック決定タイミング)**: インタビュー中に、技術スタックがFeasibility
+  ステージ(2026-09-10)で既に確定済みであることが判明した(再確認・再質問は不要と
+  整理)。出典:
+  `aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/feasibility/constraint-register.md`、
+  `feasibility-questions.md` Q5。バックエンドはJava 25 + Spring Boot(最新)+
+  Gradle(最新)、フロントエンドはTypeScript + Vite + React、パッケージングは
+  フロントエンド同梱の実行可能WAR(CORS不要)、対象RDBMSはPostgreSQL/MySQL/MariaDBの
+  複数対応であることを確認し、Code Style節へ具体化した。
+- **Q12b(内部設定DBの位置づけ)**: 内部設定DB(表示設定・RBAC・ユーザ管理・監査ログ)は
+  業務データとは別接続(B)とし、埋め込みDB(H2等)を用いる(B)。この論点は技術スタック
+  確認の過程で新たに浮上したものであり、Feasibilityステージの既存決定には含まれて
+  いなかった新規決定事項である。
+- **Q13(ハード制約)**: devsecopsエージェントが提示した4候補(サーバー側再検証、
+  監査ログ改ざん防止、認証情報ハッシュ化、権限昇格禁止)すべてを採用(A, B, C, D)。
+  discovered-rules.mdのMandated/Forbiddenへ計上した。
+- **Q14(セキュリティCIチェック)**: SAST・シークレットスキャンを導入(A, B)。依存関係
+  脆弱性スキャンは意図的に今回は対象外(C不採用)。DASTは既定どおり運用フェーズ持ち越し
+  (D)。
+- **Consolidated Summary Confirmation**: Looks correct(確認済み)。
+
+## 4. 意図的なスコープ除外(見落としではなく明示的な決定)
+
+以下はいずれも、抜け漏れではなく人間が確認の上で明示的に選ばなかった、または後続へ
+持ち越すことを決めた事項である。
+
+- **監査ログ完全性テストの非必須化**: Q8で監査ログ完全性テスト(更新・作成・削除の
+  全操作が監査ログへ記録されることの網羅的検証)を必須テスト種別として含めるか問うたが、
+  A/B/Cのみが選ばれDは選ばれなかった。人間の意図確認は2度行われ(Q8本体、および
+  Consolidated Summary Confirmationでの最終確認)、いずれも同じ結論であった。監査ログの
+  記録自体(監査ログの存在・改ざん防止)はQ13でALWAYS制約として別途採用されており、
+  除外されたのは「完全性の網羅的テスト」という試験種別のみである。
+- **依存関係脆弱性スキャンの非採用**: Q14でSAST・シークレットスキャンは採用された
+  一方、依存関係脆弱性スキャン(C)は明示的に不採用とされた。技術スタック確定直後の
+  段階でCIパイプラインの範囲を絞り、将来必要になった時点で個別に再検討する判断で
+  ある。
+- **DASTの運用フェーズ持ち越し**: 動的アプリケーションセキュリティテストは、運用
+  (Operation)フェーズの各ステージが現状スコープ上SKIPであることと整合させ、方針の
+  記録のみを行い実施はしない。運用フェーズのステージが追加された段階で改めて検討する。
+- **デプロイ方針の一時保留(Q9)**: org.mdの「マージ時staging自動デプロイ+production
+  手動承認」既定は、実デプロイ先が存在しない本ワークフローの現段階には適用しない
+  ことを明示的に確認した。これは既定を否定するものではなく、運用フェーズのステージが
+  未追加である間の暫定的な適用除外である。
+
+## 5. エビデンスの限界
 
 - コードベース・既存CI設定・既存ブランチ運用の実地調査は存在しない(グリーンフィールド
   かつreverse-engineeringステージSKIPのため)。
-- したがって team-practices.md の内容はorg.md既定値の転記であり、「発見された事実」
-  ではなく「確認待ちの提案」である。
-- discovered-rules.md の Mandated/Forbidden は、人間が明示的に述べた制約のみを計上する
-  方針上、インタビュー未実施の現時点では実質空である。
-
-## 次のステップ(本ステージの後続、インタビューステップ)
-
-- team-practices.md の5セクション(Way of Working / Walking Skeleton / Testing Posture /
-  Deployment / Code Style)をユーザーに提示し、org.md既定を追認するか、修正するかを確認する。
-- 特に Testing Posture の Methodology(test-after妥当か、TDD/BDD等を希望するか)と
-  Walking Skeletonの `skeleton: on/off` および Construction Autonomy Mode の希望を確認する。
-- 人間から明示的なALWAYS/NEVER制約が述べられた場合、discovered-rules.mdへ反映する。
-- 確認・承認された内容を最終版として整理し、`aidlc-state.ts practices-promote` 等の
-  書き込み経路を通じて `team.md` / `project.md` へ昇格する(本ドラフト自体を直接
-  memory配下へコピーする作業ではない)。
+- discovered-rules.mdのMandated/Forbiddenは、インタビューで人間が明示的に肯定した
+  項目(Q10、Q11、Q13)のみを計上しており、エージェントが候補として提示したが人間の
+  明示的な同意確認プロセスを経ていない項目は含めていない。

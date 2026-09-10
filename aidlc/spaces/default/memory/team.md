@@ -7,21 +7,73 @@
 
 ## Way of Working
 
-<!-- Affirmed during practices-discovery. Example: -->
-<!-- We use GitHub Flow with feature branches. Branches live 3-5 days max. -->
-<!-- Hotfixes branch from main and merge back via expedited review. -->
+- トランクベース開発を採用する。すべての作業は短命なフィーチャーブランチ(目安1〜2日で解決)を経て
+  `main` にマージする(インタビューQ1: A. この方針のまま進める)。
+- Constructionのworktreeは、ベースブランチを `main`、マージ先を `main` とする。
+- 複数環境(staging/production)が必要になっても単一トランクを維持し、タグや環境別デプロイ設定で
+  リリースを制御する。長命リリースブランチは用いない。
+- BoltブランチはSquash-mergeで `main` に統合する。各Boltはトランク上で1コミットとなり、
+  Boltスラッグを名前に用いる。Bolt元ブランチの詳細なコミット履歴は、worktreeを破棄するまで
+  ソースブランチ上に保持する。
+- Squash方式により `main` の履歴は delivery-planning のBolt順序と1:1に対応する線形なものになる。
+  中間コミットが `main` 上から失われるトレードオフは、監査ログ(audit log)がイベント系列を
+  完全に保持することで許容する。
+
+(参考: `project.md` にはコミット運用(こまめなコミット・日本語コミットメッセージ・
+コミット前のユーザー承認)・ライセンスヘッダー・パス表記など既に確定済みのプロジェクト
+固有ルールがあり、本ステージのインタビューでは再確認せず、既定として継続適用する。)
 
 ## Walking Skeleton
 
-<!-- Affirmed during practices-discovery. Example: -->
-<!-- We don't run a walking skeleton — our deployment pipeline is mature -->
-<!-- and the slice cost outweighs the value at our maturity stage. -->
+- 本プロジェクトの `config-driven-admin-mvp` スコープは `skeleton: on` を宣言しており、
+  walking-skeleton Boltを**最初**に実行する。Bolt 1は単独実行・ゲート付きとし、ユーザーが
+  明示的に承認してから残りのBoltを実行する(org.md既定どおり)。
+- Bolt 1(walking skeleton)の最小スコープは、次の一連の流れが一通り繋がって動くことを
+  確認できれば十分とする(インタビューQ2: A. 補足あり)。
+  - ログイン → ロール選択 → 一覧/編集画面での権限制御の作動 → 監査ログ記録
+  - 権限の組み合わせは**1パターンのみ**でよく、RBACの全組み合わせ(ロール階層継承 ×
+    主権限 × 補助権限のフルマトリクス)の検証はBolt 1の対象外とする。全組み合わせ検証は
+    後続Boltで扱う。
+- Bolt 1が完了した後、オーケストレーターのラダープロンプト(「残りのBoltはどのように
+  進めるか?」)に対する回答は「基本は自動で進めてよい(自律的に継続)」である
+  (インタビューQ3: B)。`Construction Autonomy Mode` は **autonomous** として
+  `aidlc-state.md` に保持する。
 
 ## Testing Posture
 
-<!-- Affirmed during practices-discovery. Example: -->
-<!-- We use BDD. Specifications drive scenarios; scenarios drive code. -->
-<!-- Each Unit ships with feature files in /features/. -->
+- **Methodology**: custom
+- **Ordering**: 原則として各テスト対象レイヤーを実装した後にそのレイヤーのテストを
+  作成・実行する(test-after)。ただし権限判定ロジック(ロール階層継承・主権限
+  FULL/READ/NONE/指定なし・補助権限CREATE/DELETEの解決処理)に限り、実装に先立って
+  権限マトリクス(組み合わせケース)を洗い出してから実装する、test-first/ATDD寄りの
+  例外的な進め方を認める(インタビューQ4: A. 全体はtest-afterを基本方針とする。
+  Q5: A. 権限判定ロジックだけこの例外を認める)。
+- テストはすべてのBoltにおいて第一級の成果物として扱う。
+- **カバレッジフロア**: スコープ `config-driven-admin-mvp`(`mvp` 系)の既定に従い、
+  80%行カバレッジとマージ前のCI実行を課す。
+- **権限・監査ログの追加合格条件**: 権限判定ロジックおよび監査ログ記録の実装に限り、
+  80%行カバレッジに加えて「主要な権限マトリクスの組み合わせを網羅するテーブル駆動
+  テスト」を追加の合格条件とする(80%行カバレッジという基準そのものを緩めるのではなく、
+  この2箇所にのみ上乗せする)(インタビューQ6: A)。
+- **Test Strategy「Comprehensive」の具体的内容**: 単体テストに加え、統合テスト・
+  画面操作を通したE2Eテスト・設定ファイルの契約テスト(config-schemaの形式チェック)を
+  標準として含む。負荷・性能テストは既定には含めない(インタビューQ7: A, B, C選択、
+  Dは対象外)。
+- **設定駆動(config-driven)特有の必須テスト種別**: 「アプリ本体を1つのまま設定の
+  入れ替えだけで複数業務に転用できる」という成功定義を検証するため、以下を必須とする
+  (インタビューQ8: A, B, C選択)。
+  - (a) 設定ファイルが不正・不完全なときにアプリが安全に失敗する(バリデーションエラー
+    になる)ことを確認する安全失敗/バリデーションテスト
+  - (b) 実際に2種類以上の異なる業務ドメインの設定プロファイル(例: 商品マスタ用・
+    蔵書マスタ用)で同一の操作シナリオを流し、「設定を差し替えるだけで動く」ことを
+    確認する複数プロファイル横断E2Eテスト
+  - (c) 権限が不足する操作は確実に拒否されることを狙って確認する認可拒否
+    (negative-authorization)専用テスト
+  - **監査ログ完全性テスト(更新・作成・削除の全操作が監査ログへ記録されることの網羅的
+    検証)は、今回のMVPスコープでは必須としない**。これはインタビューで2度確認した上での
+    意図的なスコープ判断であり(Q8選択肢Dは不採用)、見落としではない。
+- Build and Test ステージは、定義済みカバレッジフロアと確認済み品質目標の充足を検証する。
+  これらのステップを通過させるために基準を緩めることはしない。
 
 ## Change Control
 
@@ -29,14 +81,89 @@
 
 ## Deployment
 
-<!-- Affirmed during practices-discovery. -->
+- 本ワークフローのスコープでは、運用(Operation)フェーズの全ステージ(deployment-pipeline、
+  environment-provisioning、deployment-execution等)がSKIP対象であり、staging/production
+  いずれの実デプロイ先も現時点では存在しない。したがって本ステージでは、**CIでの
+  ビルド・テスト実行(マージ時)のみ**を確定プラクティスとする(インタビューQ9: X。
+  org.mdの「マージ時staging自動デプロイ+production手動承認」既定はこのプロジェクトの
+  現段階には適用しない)。
+- 実際のデプロイ方針(staging自動デプロイの是非、production手動承認の要否等)は、
+  将来Operationフェーズのステージがスコープに追加された時点で改めて決定する。
+  本節はその時点までの暫定合意であり、org.mdのDeployment既定を上書きするteam.md固有の
+  記録として残す。
 
 ## Code Style
 
-<!-- Team-specific conventions beyond the linter. Example: -->
-<!-- - Prefer named exports over default exports -->
-<!-- - All async functions return Result<T, E>, never throw -->
+### 技術スタック(Feasibilityステージで確定済み・本ステージで具体化)
 
+技術スタックは practices-discovery 以前、Feasibilityステージ(2026-09-10)で既に決定
+済みであることがインタビュー(Q12)で判明した。本ステージはこれを追認し、コードスタイル
+規約として具体化する。
+
+- **バックエンド**: Java 25 + Spring Boot(最新)+ Gradle(最新)
+- **フロントエンド**: TypeScript + Vite + React(社内デザインシステム
+  make-you-chic-ui を使用。詳細は `scope-document.md` を参照)
+- **パッケージング**: 実行可能WAR形式。フロントエンドの成果物を同梱し、Spring Bootから
+  配信する(CORS設定は不要)
+- **対象(業務データ)RDBMS**: PostgreSQL / MySQL / MariaDB の複数対応
+- **内部設定DB(新規決定、Q12b)**: アプリ自身の設定(表示設定、RBAC、ユーザ管理、
+  監査ログ)を保持するデータベースは、業務データ用RDBMSとは**別接続**とし、
+  埋め込みDB(例: H2)を用いる。業務データの接続先と内部設定DBの接続先は明確に分離する。
+
+### フォーマッタ・リンタ
+
+- **Java/Gradle側**: Spotless、Checkstyle等、Gradleエコシステムの慣用ツールを用いる
+  (具体的なツール・バージョンの最終選定は後続の技術詳細確定時に行う)。
+- **TypeScript/Vite側**: ESLint、Prettier等、TypeScript/Vite/Reactエコシステムの
+  慣用ツールを用いる(具体的なツール・バージョンの最終選定は後続の技術詳細確定時に行う)。
+- CIにてマージ前に実行し、失敗した場合はPRをブロックする。
+- 命名規約は各言語の慣用に従う(Java/TypeScriptとも一般的な命名慣用)。フレームワークが
+  コードスタイルを提案する場合、まずプロジェクトのリンタ設定を確認し、リンタで既に
+  カバーされていない場合にのみ提案を適用する。
+
+### レイヤー境界の規約(Mandated、詳細は discovered-rules.md 参照)
+
+「単一のアプリ本体を設定の入れ替えだけで複数業務に転用できる」という成功定義を実装で
+守るため、以下をコードスタイル上の必須規約とする(インタビューQ10: A. 明文化する)。
+
+- **共通エンジン層**(一覧/編集画面、権限判定、監査ログ記録、テーマ/フォントサイズ等の
+  表示設定)には、特定業務固有のテーブル名・カラム名・業務ルールをハードコードしない。
+- **業務固有の設定層**(表示名・表示順・書式・編集部品・バリデーション定義)は、
+  コードを変更せずに差し替え可能なデータとしてエンジン層から読み込む。
+
+### エラーハンドリングの区別(Mandated、詳細は discovered-rules.md 参照)
+
+以下の2種のエラーを区別して扱う(インタビューQ11: A. 明文化する)。
+
+- **設定定義自体の誤り**(必須プロパティ欠落等): 起動時・設定読込時に検知し fail fast する。
+- **利用者(業務担当者)の入力データ検証エラー**: 開発者向けのスタックトレースではなく、
+  フィールド単位のエラーメッセージとして返す。
+
+### セキュリティ関連CIゲート(方針、詳細は discovered-rules.md/evidence.md 参照)
+
+- SAST(静的アプリケーションセキュリティテスト)とシークレットスキャンをマージ前の
+  CIブロッキングチェックとして導入する(インタビューQ14: A, B)。具体的ツールは技術
+  スタック確定後に選定するが、Java/Gradleエコシステムでは SpotBugs/Semgrep 等、
+  シークレットスキャンでは gitleaks 等が候補になる(あくまで例示であり、ツール確定を
+  強制するものではない)。
+- 依存関係の脆弱性スキャンは、今回は意図的に導入対象としない(インタビューQ14: Cは
+  不採用と明示確認済み)。
+- DAST(動的アプリケーションセキュリティテスト)は運用(Operation)フェーズ
+  (現状スコープ外)まで持ち越し、現時点では方針の記録のみとする(インタビューQ14: D)。
+
+### 既存のプロジェクト固有規約(継続適用、再確認対象外)
+
+`project.md` に既に確定している以下の規約は、本ステージのインタビュー対象ではなく、
+そのまま継続適用する。
+
+- コミットはこまめに行い、コミットのタイミングはAIが提案し、実行前に必ずユーザー承認を得る。
+- コミットメッセージは日本語で記述する。
+- ユーザー提供の参考資料は `reference/`(Git管理外)に置き、ドキュメントから
+  `reference/` 配下へのファイルパス直接参照はしない(内容は読み込んで要点を
+  ドキュメントへ直接記載する)。
+- 生成ソースファイル先頭には Apache License 2.0 標準ヘッダー(年 `2026`、著作権者
+  `agwlvssainokuni`)を挿入する。
+- ドキュメント中のパス表記はプロジェクトルート(`mastersmith`)からの相対パスとする。
 ## Forbidden
 
 <!-- Team-specific forbidden patterns -->

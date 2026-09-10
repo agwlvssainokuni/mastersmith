@@ -2149,3 +2149,233 @@
 **Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
 
 ---
+
+## Subagent Completed
+**Timestamp**: 2026-09-10T17:09:43Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a08e1abb16adaed83
+**Message**: Getting commit hash and UTC timestamp
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-10T17:10:15Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a5f1bf95121513f57
+**Message**: Drafting final practices-discovery artifacts
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-10T17:10:47Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/team-practices.md
+**Context**: inception > practices-discovery > team-practices.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-10T17:10:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/team-practices.md
+**Context**: inception > practices-discovery > team-practices.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-10T17:11:10Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/discovered-rules.md
+**Context**: inception > practices-discovery > discovered-rules.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-10T17:11:17Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa373fe8169443e14
+**Message**: Writing discovered-rules.md sections
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-10T17:12:07Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/evidence.md
+**Context**: inception > practices-discovery > evidence.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-10T17:12:10Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/practices-discovery-timestamp.md
+**Context**: inception > practices-discovery > practices-discovery-timestamp.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-10T17:12:18Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: ab377456d5249aae5
+**Message**: Emitting practices-discovered audit event
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-10T17:12:31Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: aidlc-pipeline-deploy-agent
+**Agent ID**: a930e8cde8dd09a0a
+**Message**: The `aidlc engine state practices-event` command is blocked for delegated agents by the state-transition guard hook — it must be run by the main orchestrator session, not by this subagent. I'm reporti
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:12:33Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---
+
+## Practices Discovered
+**Timestamp**: 2026-09-10T17:12:37Z
+**Event**: PRACTICES_DISCOVERED
+**Sources Scanned**: org.md defaults, project.md prior decisions, feasibility-stage tech-stack decision, quality/developer/devsecops contributions, 14-question human interview
+**Drafts**: team-practices.md, discovered-rules.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-10T17:12:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/practices-discovery/discovered-rules.md
+**Context**: inception > practices-discovery > discovered-rules.md
+**Summary Authorization Id**: b7ece582778bbba8c304eeca74b0906db781911a1699026553381f0953c5e872
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T17:13:48Z
+**Event**: DECISION_RECORDED
+**Stage**: practices-discovery
+**Decision**: Anything to add for next time?
+**Options**: Nothing to add,Add a note
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:15:02Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:15:41Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:15:51Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T17:15:54Z
+**Event**: QUESTION_ANSWERED
+**Stage**: practices-discovery
+**Details**: Nothing to add
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-10T17:15:58Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: practices-discovery
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:16:30Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---
+
+## Practices Affirmed
+**Timestamp**: 2026-09-10T17:16:36Z
+**Event**: PRACTICES_AFFIRMED
+**Affirming User**: agwlvssainokuni
+**Sections Written**: Way of Working, Walking Skeleton, Testing Posture, Deployment, Code Style
+**Mandated Rules Appended**: 17
+**Forbidden Rules Appended**: 2
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-09-10T17:18:13Z
+**Event**: GATE_APPROVED
+**Stage**: practices-discovery
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-09-10T17:18:13Z
+**Event**: STAGE_COMPLETED
+**Stage**: practices-discovery
+**Validation Basis**: {"graphContract":"sha256:886af627a0fea6d271a662e4a54b4c5993ecee715d6144d46d4a58c2bc3d19bb","inputs":[],"outputs":[{"artifact":"discovered-rules","contentHash":"sha256:4b3cb6f160d3c2a283daea4e4a53a1c643e4f7da8d1a5a38e382280ce92e0c00","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":true,"structureHash":"sha256:3e01749ed9028945ecbc9df4e9cd2e785b0f9cac3ff1a544558a31699812496e"},{"artifact":"evidence","contentHash":"sha256:518bd8bdf32978f890dbba34e435e89e05fc6b5cb6e1f437d4b2e6994289f2fa","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":true,"structureHash":"sha256:dd3315e70600c69ef4175cfb29e90a9af3ba6479bc614ae59781d0cbe08b7a9d"},{"artifact":"practices-discovery-timestamp","contentHash":"sha256:31695745a3dee8664f0e934f701801be5191e4ef16dff841abf4995a1773933c","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":true,"structureHash":"sha256:c2bf94145676af863115035c7daf520c57aa38622bf7e6146da534f53b13398c"},{"artifact":"team-practices","contentHash":"sha256:4229e9865d892a394fefa8991497cce5c8448f790bbe3432f73281cda8a39915","instanceCount":1,"presentCount":1,"producer":"practices-discovery","required":true,"structureHash":"sha256:623c712df14d5cce2a4b572e1115e2fd9f80b403a6fc5e2e31910ddb491e1d59"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Practices Discovery approved by gate
+**Tokens In**: 304
+**Tokens Out**: 118467
+**Cache Read**: 28685428
+**Cache Write**: 713881
+**Cost USD**: 13.79
+**By Model**: sonnet-5=13.79
+**By Agent**: main=11.25; aidlc-pipeline-deploy-agent=1.62; aidlc-developer-agent=0.32; aidlc-devsecops-agent=0.35; aidlc-quality-agent=0.25
+**Tokens By Model**: sonnet-5=304/118.5k/28.7M/713.9k
+**Tokens By Agent**: main=242/85.7k/26.8M/322.4k; aidlc-pipeline-deploy-agent=40/21k/1.3M/239.7k; aidlc-developer-agent=6/5.8k/149.6k/51.1k; aidlc-devsecops-agent=10/4.9k/287.9k/50.5k; aidlc-quality-agent=6/1k/149.2k/50.2k
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-10T17:18:13Z
+**Event**: STAGE_STARTED
+**Stage**: requirements-analysis
+**Agent**: aidlc-product-agent
+
+---
+
+## Memory Empty
+**Timestamp**: 2026-09-10T17:18:13Z
+**Event**: MEMORY_EMPTY
+**Stage**: practices-discovery
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-10T17:18:44Z
+**Event**: HUMAN_TURN
+**Session**: fe93726e-e820-48b1-ac35-a8d27cf5a635
+
+---

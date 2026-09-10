@@ -84,11 +84,19 @@
 <!-- Format: NEVER [behavior] (affirmed [date]) -->
 <!-- Example: NEVER throw exceptions across service layer boundaries (affirmed 2026-05-17) -->
 
+- NEVER 権限の昇格(自分自身への昇格を含む)を、権限管理者による明示的な操作を経ずに許可する(インタビューQ13: D) (affirmed 2026-09-10)
+
 ## Mandated
 
 <!-- Populated by practices-discovery affirmation gate. -->
 <!-- Format: ALWAYS [behavior] (affirmed [date]) -->
 <!-- Example: ALWAYS use Result<T,E> for fallible operations in service layer (affirmed 2026-05-17) -->
+
+- ALWAYS 権限の判定は画面表示の出し分け(クライアント側UI非表示)だけに依存せず、必ずサーバー側(API/ドメイン層)で実効権限(ロール階層継承後の権限)を再検証する(インタビューQ13: A) (affirmed 2026-09-10)
+- ALWAYS 監査ログは改ざん・削除ができないようにする。アプリケーションからのUPDATE/DELETE経路を持たない追記専用(append-only)とし、少なくとも操作者・操作対象・操作種別・日時・変更前後の値を記録する(インタビューQ13: B) (affirmed 2026-09-10)
+- ALWAYS パスワード等の認証情報はハッシュ化して保存し、平文でログ・監査ログ・エラーメッセージに出力しない(インタビューQ13: C) (affirmed 2026-09-10)
+- ALWAYS 共通エンジン層(一覧/編集画面、権限判定、監査ログ記録、テーマ/フォントサイズ等の表示設定)には特定業務固有のテーブル名・カラム名・業務ルールをハードコードしない。業務固有の設定層(表示名・表示順・書式・編集部品・バリデーション定義)は、コードを変更せずに差し替え可能なデータとしてエンジン層から読み込む(インタビューQ10: A) (affirmed 2026-09-10)
+- ALWAYS 設定定義自体の誤り(必須プロパティ欠落等)は起動時・設定読込時に検知しfail fastする。利用者(業務担当者)の入力データ検証エラーは、開発者向けのスタックトレースではなくフィールド単位のエラーメッセージとして返す(インタビューQ11: A) (affirmed 2026-09-10)
 
 ## Corrections
 
