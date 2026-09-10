@@ -94,3 +94,4 @@
 
 <!-- Project-specific corrections from human feedback. -->
 <!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->
+- aidlc engine review-brief summary がツール内部エラー(aidlc-review-brief.ts does not export main(argv))で失敗した場合は、コンパクトな決定ブリーフの自動生成をスキップし、統合サマリーを手動で作成してユーザーに提示してよい (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:approval-handoff:6e52038d846ed3058b78672ea08cc94d83d08b55f68c1667a4a2f6e320d8f5af -->
