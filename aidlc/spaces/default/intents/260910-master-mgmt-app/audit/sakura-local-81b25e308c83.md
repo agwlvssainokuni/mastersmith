@@ -716,3 +716,52 @@
 **Summary Authorization Id**: 022c110691ad97b64ab475770ee0742dd8ef7243566d63e25221487f38c1ee04
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T13:57:50Z
+**Event**: DECISION_RECORDED
+**Stage**: feasibility
+**Decision**: Anything to add for next time?
+**Options**: Nothing to add,Add a note
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T13:58:12Z
+**Event**: QUESTION_ANSWERED
+**Stage**: feasibility
+**Details**: Nothing to add
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-10T13:58:22Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: feasibility
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-09-10T13:59:32Z
+**Event**: GATE_APPROVED
+**Stage**: feasibility
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-09-10T13:59:32Z
+**Event**: STAGE_COMPLETED
+**Stage**: feasibility
+**Validation Basis**: {"graphContract":"sha256:543912e848784f58af817ec322275022445da586f78256c281d1c37d967b15aa","inputs":[{"artifact":"intent-statement","contentHash":"sha256:33cdec1960027ad4f7ec9f31b006bc251dfb190595e71dcb28318b5c301d8151","instanceCount":1,"presentCount":1,"producer":"intent-capture","required":true,"structureHash":"sha256:89be973f32ce6c26b2d1ccfdb82fd136a15fbf3dc7413fc07f8afeb314e2bcb2"}],"outputs":[{"artifact":"constraint-register","contentHash":"sha256:d88d4c350c322c0c41dc88a424f12c379c41c3fa4018c30c50f55703f81a0ccc","instanceCount":1,"presentCount":1,"producer":"feasibility","required":true,"structureHash":"sha256:aca3b2559fecbee2ba1731c2839cfd830ba2129e5af0bad5af08104b23c14d56"},{"artifact":"feasibility-assessment","contentHash":"sha256:a341a62da6b86e3be9ed3711432baa3cef8b17ea69d4fed5d8f88e10a6665228","instanceCount":1,"presentCount":1,"producer":"feasibility","required":true,"structureHash":"sha256:49f2798c43a9d2c433cca977d06fdd998ae57d374a4900f7af98a90c79565b5d"},{"artifact":"feasibility-questions","contentHash":"sha256:33a4746c6a73d0693f5736e53b2487de4570c4aa1206f4383db933057aa3562d","instanceCount":1,"presentCount":1,"producer":"feasibility","required":true,"structureHash":"sha256:46ad5c4e2d68be766e75bfd101f8b411f4ed0684f9e15043f3a5a239d76e3071"},{"artifact":"raid-log","contentHash":"sha256:62e50949a5241f1d9d1cf8d4cf8af1fff6ba00b47a170f0e11de715eff1d8985","instanceCount":1,"presentCount":1,"producer":"feasibility","required":true,"structureHash":"sha256:ad9d97275714f84c0691b3db829a6b36a7a0d8d798d862e5853fc2f5db7e4366"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Feasibility & Constraints approved by gate
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-10T13:59:32Z
+**Event**: STAGE_STARTED
+**Stage**: scope-definition
+**Agent**: aidlc-product-agent
+
+---
