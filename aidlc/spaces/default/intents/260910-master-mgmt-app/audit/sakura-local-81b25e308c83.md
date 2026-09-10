@@ -838,3 +838,71 @@
 **Summary Authorization Id**: f5c1e046b9ac2bad6076b555cc90c13b1426115733c14682e41c6540609bc108
 
 ---
+
+## Memory Empty
+**Timestamp**: 2026-09-10T14:45:01Z
+**Event**: MEMORY_EMPTY
+**Stage**: feasibility
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T14:45:13Z
+**Event**: DECISION_RECORDED
+**Stage**: scope-definition
+**Decision**: Anything to add for next time?
+**Options**: Nothing to add,Add a note
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T14:45:48Z
+**Event**: QUESTION_ANSWERED
+**Stage**: scope-definition
+**Details**: Add a note
+
+---
+
+## Rule Learned
+**Timestamp**: 2026-09-10T14:46:11Z
+**Event**: RULE_LEARNED
+**Stage**: scope-definition
+**Candidate-ID**: note1
+**Content-Hash**: abadce739116e455be20bbd8da6a3b76c8365d42c4a68d1a7f8bb0c7367d505c
+**Destination**: <project-dir>/aidlc/spaces/default/memory/project.md
+**Heading**: ## Decided
+**Source**: user_addition
+
+---
+
+## Stage Awaiting Approval
+**Timestamp**: 2026-09-10T14:46:24Z
+**Event**: STAGE_AWAITING_APPROVAL
+**Stage**: scope-definition
+
+---
+
+## Gate Approved
+**Timestamp**: 2026-09-10T14:47:48Z
+**Event**: GATE_APPROVED
+**Stage**: scope-definition
+**User Input**: Approve
+
+---
+
+## Stage Completion
+**Timestamp**: 2026-09-10T14:47:48Z
+**Event**: STAGE_COMPLETED
+**Stage**: scope-definition
+**Validation Basis**: {"graphContract":"sha256:f507bca6811bab5a3fbe73663d1debe5d0de707829c0a8a0d3c77b97f91a29c7","inputs":[{"artifact":"constraint-register","contentHash":"sha256:d88d4c350c322c0c41dc88a424f12c379c41c3fa4018c30c50f55703f81a0ccc","instanceCount":1,"presentCount":1,"producer":"feasibility","required":false,"structureHash":"sha256:aca3b2559fecbee2ba1731c2839cfd830ba2129e5af0bad5af08104b23c14d56"},{"artifact":"feasibility-assessment","contentHash":"sha256:a341a62da6b86e3be9ed3711432baa3cef8b17ea69d4fed5d8f88e10a6665228","instanceCount":1,"presentCount":1,"producer":"feasibility","required":false,"structureHash":"sha256:49f2798c43a9d2c433cca977d06fdd998ae57d374a4900f7af98a90c79565b5d"},{"artifact":"intent-statement","contentHash":"sha256:33cdec1960027ad4f7ec9f31b006bc251dfb190595e71dcb28318b5c301d8151","instanceCount":1,"presentCount":1,"producer":"intent-capture","required":true,"structureHash":"sha256:89be973f32ce6c26b2d1ccfdb82fd136a15fbf3dc7413fc07f8afeb314e2bcb2"}],"outputs":[{"artifact":"intent-backlog","contentHash":"sha256:18d5e7e1b3ef57499b349ca2c2bf2858036b867cb12e5deec79639c3da2165fb","instanceCount":1,"presentCount":1,"producer":"scope-definition","required":true,"structureHash":"sha256:46ca5a83eaaa8f27967fbc4b21f1ffbf5267606bb274350997b448b6e61a4a5f"},{"artifact":"scope-definition-questions","contentHash":"sha256:d5bc8da11b40a774d2835ad3de9ee6cff9aa2bc1920767934d48edc67434e95e","instanceCount":1,"presentCount":1,"producer":"scope-definition","required":true,"structureHash":"sha256:1a76530f2fad54e3f43659a6995e1e34e679bb1fd39204a971320f4788ee0e98"},{"artifact":"scope-document","contentHash":"sha256:ffa7500a5810c76bd99c5e896eef6548866015cd47fc493b25601f37987ed787","instanceCount":1,"presentCount":1,"producer":"scope-definition","required":true,"structureHash":"sha256:b9d1301920d4658982ab136033e88498d6f038a98bf5780f7e0ccdda5b413ad9"}],"projectType":"greenfield","schema":3}
+**Details**: Stage Scope Definition approved by gate
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-10T14:47:48Z
+**Event**: STAGE_STARTED
+**Stage**: rough-mockups
+**Agent**: aidlc-design-agent
+
+---

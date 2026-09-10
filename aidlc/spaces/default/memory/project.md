@@ -72,6 +72,7 @@
 - DECIDED: MasterSmithはMasterMeister(動的スキーマ探索方式)の後継・置き換えではなく、カスタマイズ性(表示名/表示順/書式/編集部品/バリデーション)重視の別アプリとして新規に立ち上げる。MasterMeisterはEOLにしない (Stage intent-capture, 2026-09-10) (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:intent-capture:8ae3a77ca57f74c74435bcb80c9c9209e4a8b1631ff920dcca047a19c22269fc -->
 - DECIDED: 利用者は社内の業務担当者。汎用DBアクセスツールはエンジニア寄りで使いにくく、業務特化に見えるマスタ管理ツールへのニーズがある (Stage intent-capture, 2026-09-10) (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:intent-capture:f23f02a182d7e6f202f4ab7c66b637e691a73fef5f48b1c20f83c2aad854a1c9 -->
 - DECIDED: 成功の定義は、単一のアプリ本体を設定の入れ替えだけで複数業務(ECショップ、ポイント管理システム、蔵書管理など)のマスタ管理に転用できること (Stage intent-capture, 2026-09-10) (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:intent-capture:e21e04fc4df6e663f233a9246d2384467405b05bb1ccf3810e9bb90ababffd25 -->
+- DECIDED: 当初想定のMVP範囲(一覧/詳細編集/メニュー画面)から、ユーザ管理・監査ログ・詳細な権限制御(RBAC: ロール/主権限FULL-READ-NONE-指定なし/階層継承/補助権限CREATE-DELETE)を追加でMVPスコープに含める。複数テーブル合成画面は引き続き対象外 (Stage scope-definition, 2026-09-10) (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:scope-definition:abadce739116e455be20bbd8da6a3b76c8365d42c4a68d1a7f8bb0c7367d505c -->
 ## Scope Overrides
 
 <!-- Custom scope rules for this project. -->
