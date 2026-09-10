@@ -11,9 +11,11 @@
 
 ## Way of Working
 
-<!-- Project-specific specialisation. Example: -->
-<!-- This monorepo requires package-scoped branch names and a package owner -->
-<!-- review in addition to the team's normal merge policy. -->
+- コミットはこまめに行う。ファイル変更のまとまりごと(例: `aidlc-state.md`/`audit.md` 更新時、Step/Item完了時)に区切ってコミットする。
+- コミットのタイミングはAIが自発的に判断し提案する。ユーザーからの明示的な指示(「コミットして」等)を待たない。
+- コミットを実行する前に、必ずユーザーの承認を得る。承認なしにコミットを実行しない。
+- コミットメッセージは日本語で記述する。
+(決定 2026-09-10)
 
 ## Walking Skeleton
 
