@@ -37,7 +37,26 @@
 
 ## Code Style
 
-<!-- Project-specific specialisation. -->
+- 生成する成果物(プログラムのソースファイル)には、先頭に必ずApache License 2.0の標準ヘッダーコメントを挿入する。年は `2026` 固定、著作権者名は `agwlvssainokuni` 固定(リポジトリのGitユーザー名)。コメント記法は言語のコメント構文に合わせて変換する。
+
+  ```
+  Copyright 2026 agwlvssainokuni
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ```
+
+- ドキュメントや回答の文章中でファイル・ディレクトリのパスに言及する際は、絶対パスではなくプロジェクトルート(`mastersmith`)からの相対パスで記述する(例: `aidlc/spaces/default/memory/project.md`)。ツール呼び出しの引数(Read/Write/Edit/Bash等)では引き続き絶対パスを使用してよい。
+(決定 2026-09-10)
 
 ## Tech Stack
 
