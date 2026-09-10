@@ -650,3 +650,69 @@
 **Agent**: aidlc-architect-agent
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T13:45:04Z
+**Event**: DECISION_RECORDED
+**Stage**: feasibility
+**Decision**: 8問のフィージビリティ・制約質問への回答方法
+**Options**: Guide me,I'll edit the file,Chat
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T13:45:31Z
+**Event**: QUESTION_ANSWERED
+**Stage**: feasibility
+**Details**: Guide me
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T13:47:51Z
+**Event**: QUESTION_ANSWERED
+**Stage**: feasibility
+**Details**: Q1=A, Q2=A, Q3=C, Q4=B
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-10T13:54:05Z
+**Event**: QUESTION_ANSWERED
+**Stage**: feasibility
+**Details**: Q5=Other (Java 25+Spring Boot+Gradle backend, TS+Vite+React frontend, embedded WAR), Q6=A, Q7=A, Q8=A
+
+---
+
+## Error Logged
+**Timestamp**: 2026-09-10T13:54:29Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage feasibility --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/feasibility/feasibility-questions.md --decision Does this all look correct before I generate the artifact? --options Looks correct,Request changes
+**Error**: Summary confirmation section in aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/feasibility/feasibility-questions.md must contain exactly one `[Answer]:` line with a blank value before this command runs.
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-10T13:54:52Z
+**Event**: DECISION_RECORDED
+**Stage**: feasibility
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/feasibility/feasibility-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-10T13:56:15Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: feasibility
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/ideation/feasibility/feasibility-questions.md
+**Questions SHA-256**: 68cd5f9cca1f10947119d9dcd76d35a1c06ada916fe67b5c80df3791241fd899
+**Hash Scope**: confirmed-content-v1
+**Summary Authorization Id**: 022c110691ad97b64ab475770ee0742dd8ef7243566d63e25221487f38c1ee04
+
+---
