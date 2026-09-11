@@ -34,6 +34,8 @@
 ## Runtime State
 - **Revision Count**: 1
 
+- **Parked**: 2026-09-11T13:50:35Z
+- **Parked At Stage**: refined-mockups
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -95,7 +97,7 @@ Per unit: [TBD]
 - **Current Stage**: refined-mockups
 - **Next Stage**: domain-design
 - **Status**: Running
-- **Last Updated**: 2026-09-11T13:49:28Z
+- **Last Updated**: 2026-09-11T13:50:35Z
 
 ## Session Resume Point
 - **Last Completed Stage**: requirements-analysis
