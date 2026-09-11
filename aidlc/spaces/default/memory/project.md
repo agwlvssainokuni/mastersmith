@@ -103,3 +103,6 @@
 <!-- Project-specific corrections from human feedback. -->
 <!-- Format: NEVER/ALWAYS [behavior] (learned [date]) -->
 - aidlc engine review-brief summary がツール内部エラー(aidlc-review-brief.ts does not export main(argv))で失敗した場合は、コンパクトな決定ブリーフの自動生成をスキップし、統合サマリーを手動で作成してユーザーに提示してよい (learned 2026-09-10) <!-- cid:260910-master-mgmt-app:approval-handoff:6e52038d846ed3058b78672ea08cc94d83d08b55f68c1667a4a2f6e320d8f5af -->
+- 回答の中に新しい認証方式(例: JWTのアクセストークン/リフレッシュトークン)への言及があった場合、既存のセッション用語(タイムアウト等)との対応関係を明示的にフォローアップ質問で確認してから要件化する。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:5e33c4b5d710a31835a8ee8d75051380ebb06940cdc13784de25c5e9e509e5e5 -->
+- 機能(実装すること)と非機能(達成すべき水準)の両方の性質を持つ項目は、FR/NFR両方に相互参照付きで記載する(例: OTELエクスポート対応)。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:93085cba9c3ae9992b82258886b7ffa4b05a63b3067f7d83300ab86aba29e34c -->
+- ideationのintent-backlogに明記のない項目でも、requirements-guide.mdの完全性チェックリスト(データexport/import等)に基づき能動的に質問し、回答があればスコープに含めてよい。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:7142481501cad408324b9dbffc63248dd847205d96524309c90c5a451b0d177c -->
