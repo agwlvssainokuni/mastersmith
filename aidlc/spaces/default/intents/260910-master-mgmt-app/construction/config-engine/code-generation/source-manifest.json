@@ -1,0 +1,20 @@
+{
+  "stage": "code-generation",
+  "unit": "config-engine",
+  "version": 1,
+  "writes": [
+    { "path": ".gitignore" },
+    { "path": "build.gradle.kts" },
+    { "path": "settings.gradle.kts" },
+    { "path": "gradlew" },
+    { "path": "gradlew.bat" },
+    { "path": "gradle/" },
+    { "path": "backend/build.gradle.kts" },
+    { "path": "backend/config/" },
+    { "path": "backend/src/main/java/com/mastersmith/MastersmithApplication.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/" },
+    { "path": "backend/src/main/resources/application.yml" },
+    { "path": "backend/src/test/java/com/mastersmith/config/" },
+    { "path": "backend/src/test/resources/application.yml" }
+  ]
+}

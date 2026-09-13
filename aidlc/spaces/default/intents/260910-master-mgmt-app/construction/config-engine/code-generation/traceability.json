@@ -1,0 +1,37 @@
+{
+  "stage": "code-generation",
+  "unit": "config-engine",
+  "upstream_ids": [
+    "FR1.1", "FR1.2", "FR1.3", "FR1.5",
+    "BR1.1", "BR1.2", "BR1.3", "BR1.4", "BR1.5", "BR1.6", "BR1.7", "BR1.8", "BR1.9", "BR1.10", "BR1.11", "BR1.12",
+    "NFR1.1", "NFR1.2", "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR3.1", "NFR4.1", "NFR4.2", "NFR5.1"
+  ],
+  "coverage": [
+    { "id": "FR1.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/entity/TableConfig.java" },
+    { "id": "FR1.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/rdbms/RdbmsTypeNormalizer.java" },
+    { "id": "FR1.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/store/ConfigEngineStartupRunner.java" },
+    { "id": "FR1.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/validation/ChoiceOrFkExclusiveValidator.java" },
+    { "id": "BR1.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/validation/ConfigValidator.java" },
+    { "id": "BR1.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/entity/TableConfig.java" },
+    { "id": "BR1.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java" },
+    { "id": "BR1.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/validation/ChoiceOrFkExclusive.java" },
+    { "id": "BR1.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/translation/I18nKeyDerivation.java" },
+    { "id": "BR1.6", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/translation/I18nKeyDerivation.java" },
+    { "id": "BR1.7", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java" },
+    { "id": "BR1.8", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java" },
+    { "id": "BR1.9", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/model/ValidationRule.java" },
+    { "id": "BR1.10", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/translation/TranslationStore.java" },
+    { "id": "BR1.11", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/exception/ConfigValidationException.java" },
+    { "id": "BR1.12", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/rdbms/RdbmsTypeNormalizer.java" },
+    { "id": "NFR1.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java" },
+    { "id": "NFR1.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java" },
+    { "id": "NFR2.1", "status": "N/A", "target": "config-engine自身は認可判定を実装しない(PermissionEngineへの委譲設計、nfr-design/security-design.md)。呼び出し元となる管理用REST API・PermissionEngine統合はContract Design追補後の別Boltで実装するため、本Bolt時点でのコード実装対象は存在しない" },
+    { "id": "NFR2.2", "status": "N/A", "target": "現行はConfigEngineApi(C9)の内部Javaインタフェースのみで認証境界を持たない。将来の管理用REST APIが未実装のため、本Bolt時点でのコード実装対象は存在しない" },
+    { "id": "NFR2.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/exception/ConfigValidationException.java" },
+    { "id": "NFR2.4", "status": "OK", "target": "backend/src/main/resources/application.yml" },
+    { "id": "NFR3.1", "status": "GAP", "target": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java はnfr-requirements/nfr-designで人間が明示的に受入れ済みの単一インスタンス限定設計をそのまま実装している。上流NFR3の水平スケール要件は引き続き未充足であり、コード生成でも解消しない(意図的なGAPの継続)" },
+    { "id": "NFR4.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/store/ConfigEngineStartupRunner.java" },
+    { "id": "NFR4.2", "status": "OK", "target": "backend/src/main/resources/application.yml" },
+    { "id": "NFR5.1", "status": "N/A", "target": "config-engine固有の追加メトリクス・ログを設けないという設計判断(nfr-design/observability-design.md)どおり、対応する追加実装は存在しない" }
+  ]
+}

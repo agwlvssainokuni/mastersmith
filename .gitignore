@@ -87,3 +87,13 @@ aidlc/diagnostics/
 # Project-specific (not part of the AI-DLC managed block above).
 # User-provided reference material: local-only, never committed.
 reference/
+
+# Java/Gradle build output (backend, config-engine以降のユニットで共有)。
+/.gradle/
+/build/
+/backend/build/
+*.class
+# 内部設定DB(H2ファイルモード)のローカルファイル。開発機ごとに生成される。
+/backend/data/
+*.mv.db
+*.trace.db

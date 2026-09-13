@@ -7,7 +7,7 @@
 - **Scope**: config-driven-admin-mvp
 - **Start Date**: 2026-09-10T12:22:39Z
 - **State Version**: 8
-- **Active Agent**: aidlc-architect-agent
+- **Active Agent**: aidlc-developer-agent
 - **Worktree Path**:
 - **Bolt Refs**:
 - **Practices Affirmed Timestamp**: 2026-09-10T17:16:36Z
@@ -29,7 +29,7 @@
 ## Execution Plan Summary
 - **Total Stages**: 21
 - **Completed**: 15
-- **In Progress**: nfr-requirements
+- **In Progress**: code-generation
 
 ## Runtime State
 - **Revision Count**: 10
@@ -76,10 +76,10 @@
 ### CONSTRUCTION PHASE
 Per unit: [TBD]
 - [S] functional-design — EXECUTE
-- [R] nfr-requirements — EXECUTE
-- [ ] nfr-design — EXECUTE
+- [S] nfr-requirements — EXECUTE
+- [S] nfr-design — EXECUTE
 - [ ] infrastructure-design — SKIP
-- [ ] code-generation — EXECUTE
+- [-] code-generation — EXECUTE
 - [ ] build-and-test — EXECUTE
 - [ ] ci-pipeline — EXECUTE
 
@@ -94,12 +94,12 @@ Per unit: [TBD]
 
 ## Current Status
 - **Lifecycle Phase**: CONSTRUCTION
-- **Current Stage**: nfr-requirements
-- **Next Stage**: nfr-design
+- **Current Stage**: code-generation
+- **Next Stage**: build-and-test
 - **Status**: Running
-- **Last Updated**: 2026-09-13T12:24:55Z
+- **Last Updated**: 2026-09-13T15:24:58Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
-- **Next Action**: Execute NFR Requirements
+- **Next Action**: Execute Code Generation
 - **Pending Artifacts**: none
