@@ -9214,3 +9214,192 @@
 **Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
 
 ---
+
+## Unit Started
+**Timestamp**: 2026-09-13T10:21:46Z
+**Event**: UNIT_STARTED
+**Stage**: nfr-requirements
+**Unit**: config-engine
+**Run floor**: STAGE_JUMPED:2026-09-13T04:44:50Z#7
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-13T10:22:18Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:22:21Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: 質問ファイルへの回答方法をどのように進めますか?
+**Options**: Guide me,I'll edit the file,Chat
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:22:36Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T10:22:39Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: Guide me
+**Unit**: config-engine
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:22:43Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: Q1〜Q5: config-engineの性能目標/キャッシュ戦略/永続化・バックアップ/可観測性/想定データ量
+**Options**: Q1-A,Q1-B,Q1-C,Q2-A,Q2-B,Q2-C,Q3-A,Q3-B,Q3-C,Q4-A,Q4-B,Q4-C,Q5-A,Q5-B,Q5-C
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:25:24Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T10:25:30Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: Q1=A. 50ms以内(p95)、同一プロセス内呼び出し。Q2=A. 起動時全読み込みメモリキャッシュ、管理画面からの更新時にキャッシュ更新。Q3=A. H2をファイルモードで永続化し方針のみ記録、自動バックアップの仕組み自体はOperationフェーズ(現状スコープ外)に委ねる。Q4=A. config-engine固有の追加メトリクス・ログは設けない（呼び出し元のHTTPメトリクスでカバー）
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:26:08Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T10:26:11Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-requirements
+**Details**: Q5=A. 1業務プロファイルあたりテーブル数は数十〜百程度、カラム数はテーブルあたり数個〜数十個、TranslationEntryは(ColumnConfig数+TableConfig数)×2言語程度を上限の目安とする
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:17Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:24Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:37Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:44Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:26:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:26:53Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-requirements
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:27:55Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:27:59Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Context**: construction > config-engine > nfr-requirements > nfr-requirements-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-13T10:28:03Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-requirements
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/nfr-requirements/nfr-requirements-questions.md
+**Questions SHA-256**: be57a0197e8e7515d541a9daa4d544dfac2acd9d00c51a043fee706ae091fee1
+**Hash Scope**: confirmed-content-v1
+**Unit**: config-engine
+**Summary Authorization Id**: c6672c5b3d21a2305d9eb5fca18606d328e5be38d1491218c60d023fbfe98687
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:28:20Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
