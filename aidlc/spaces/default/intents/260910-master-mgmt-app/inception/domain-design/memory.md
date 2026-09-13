@@ -17,3 +17,4 @@
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
 - 2026-09-13T01:40:00Z — AuditLoggingのイベント配信基盤(同一プロセス内同期ディスパッチか非同期メッセージングか)の技術選定は、NFR設計・機能設計ステージで確定する必要がある。
+- 2026-09-13T02:05:00Z — アーキテクチャレビュー指摘R-01〜R-08への対応として、DataImportExportのConfigEngine依存の対称性修正、Part B(人間可読ビュー)のPart Aとの整合、User→Role参照の明示、FR1.6マッピング修正、FR4.2のアクティブロール保持(Sessionエンティティ、AuthenticationService所有)追加、監査イベント発行元のdepends_on(style: event)明示を行った。これによりPermissionEngine↔AuditLogging、およびConfigEngine→AuditLogging→PermissionEngine→ConfigEngineの2つの意図的な循環依存が生じたため、components.mdのRationaleとdecisions.md ADR-005に明記した。

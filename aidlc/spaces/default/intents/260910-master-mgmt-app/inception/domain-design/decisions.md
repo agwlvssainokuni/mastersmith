@@ -171,6 +171,7 @@ FR8(監査ログ)は、RecordEditEngine・UserManagement・ConfigEngine・Permis
 #### Negative
 - イベント配信の信頼性(配信保証、順序保証)をNFR設計で明確にしないと、監査ログの完全性(FR8.1)が損なわれるリスクがある。イベント基盤の技術選定(同一プロセス内の同期的イベントディスパッチか、非同期メッセージングか)は次工程(NFR設計・機能設計)で確定する
 - デバッグ時に「誰がいつ記録したか」の呼び出し経路が、直接のdepends_onよりも追いにくくなる
+- `AuditLogging`が監査ログ閲覧画面のアクセス権限判定のため`PermissionEngine`へ同期依存する一方、`PermissionEngine`（および`ConfigEngine`等）がイベント発行で`AuditLogging`へ依存するため、`components.md`のRationaleに記載の通り意図的な循環依存(`PermissionEngine`←→`AuditLogging`、および`ConfigEngine`→`AuditLogging`→`PermissionEngine`→`ConfigEngine`)が生じる。同期呼び出しと非同期イベント発行という性質の異なる依存の組み合わせであり、デッドロック等の実行時問題は生じないと判断するが、実装フェーズでの初期化順序・循環importに注意する必要がある
 
 #### Neutral
 - `team-practices.md`で「監査ログ完全性テスト(全操作が監査ログへ記録されることの網羅的検証)は今回のMVPスコープでは必須としない」ことが明示的に確認済みであるため、イベント配信の信頼性保証の詳細化は次工程以降に委ねられる

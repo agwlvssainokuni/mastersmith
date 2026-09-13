@@ -18,7 +18,10 @@ components:
       - 複数RDBMS方言の吸収(FR1.2)
       - 設定定義の起動時fail fast検証(FR1.3)
       - 楽観ロック対象列の定義有無の管理(Q6-follow-up、FR6.3の条件付き適用)
-    depends_on: []
+    depends_on:
+      - component: AuditLogging
+        interaction: 設定変更(テーブル・カラム設定の追加/更新)のドメインイベントを発行する
+        style: event
     dependents:
       - component: SchemaIntrospector
         interaction: メタデータから生成した初期ドラフトを設定として取り込む
@@ -30,6 +33,8 @@ components:
         interaction: 権限判定対象のスキーマ・テーブル・カラム階層構造を取得する
       - component: ConfigImportExport
         interaction: 設定一式のexport元/import先として利用される
+      - component: DataImportExport
+        interaction: 対象テーブルのカラム定義・バリデーションルールを取得する
     external_dependencies:
       - name: 内部設定DB(組込みDB)
         kind: database
@@ -83,6 +88,9 @@ components:
       - component: DataImportExport
         interaction: 業務データCSVエクスポートを委譲する
         style: sync
+      - component: AuthenticationService
+        interaction: セッションのアクティブロール(Session.activeRoleId)を読み取り、PermissionEngine呼び出しの引数とする
+        style: sync
     dependents: []
     external_dependencies:
       - name: 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)
@@ -114,6 +122,12 @@ components:
       - component: DataImportExport
         interaction: 業務データCSVインポートを委譲する
         style: sync
+      - component: AuditLogging
+        interaction: 業務データの作成・更新・削除のドメインイベントを発行する
+        style: event
+      - component: AuthenticationService
+        interaction: セッションのアクティブロール(Session.activeRoleId)を読み取り、PermissionEngine呼び出しの引数とする
+        style: sync
     dependents: []
     external_dependencies:
       - name: 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)
@@ -139,6 +153,9 @@ components:
       - component: ConfigEngine
         interaction: 権限判定対象のスキーマ・テーブル・カラム階層構造を取得する
         style: sync
+      - component: AuditLogging
+        interaction: 権限変更(ロール・主権限・補助権限の割当変更)のドメインイベントを発行する
+        style: event
     dependents:
       - component: ListEngine
         interaction: カラム単位のREAD/CREATE/DELETE権限を判定させる
@@ -185,6 +202,9 @@ components:
       - component: PermissionEngine
         interaction: ユーザ管理画面へのアクセス権限を判定させる
         style: sync
+      - component: AuditLogging
+        interaction: ユーザー招待・更新・無効化のドメインイベントを発行する
+        style: event
     dependents:
       - component: AuthenticationService
         interaction: ログイン時のユーザー情報・パスワードハッシュ・ロック状態を参照する
@@ -199,6 +219,10 @@ components:
       - name: User
         identifier: userId
         attributes: [name, email, passwordHash, status, roleIds]
+        references:
+          - entity: Role
+            owned_by: PermissionEngine
+            relationship: 各Userは0個以上のRoleを保持する(複数ロール付与、FR4.2)
       - name: UserPreference
         identifier: userId
         attributes: [theme, fontSize, locale]
@@ -210,15 +234,21 @@ components:
       同一ユーザーが複数デバイスから同時にログインすることを許可する(FR3.2)。
       連続ログイン失敗によるアカウントの一時ロック機能を提供する。失敗回数の閾値・ロック時間は`application.yml`で設定する(refined-mockups レビュー指摘R-01対応。要件定義書FR2.7の文言修正を要するフォローアップ事項)。
       ロック中のログイン試行に対しては、通常の認証エラーと同一の汎用メッセージのみを返しロック状態を外部に漏らさない(refined-mockups-questions Q12)。
+      複数ロールを持つユーザーが操作時にヘッダーのロール選択UIで選択したロールをセッション単位で保持する。選択したロールは、リクエストを処理するListEngine/RecordEditEngine等がセッション情報(Session.activeRoleId)から読み取り、PermissionEngineへの権限判定呼び出しの引数として渡す(FR4.2)。PermissionEngineはAuthenticationServiceを直接呼び出さず、あくまで呼び出し元から渡されたアクティブロールIDを判定材料とする。
     responsibilities:
       - トークン発行・検証(FR3.1)
       - 複数デバイス同時ログインの許可(FR3.2)
       - ログイン失敗回数の追跡とアカウント一時ロック(FR2.7、application.yml方式)
+      - セッション単位のアクティブロール選択の保持(FR4.2)
     depends_on:
       - component: UserManagement
         interaction: ユーザー情報・パスワードハッシュ・ロック状態を参照/更新する
         style: sync
-    dependents: []
+    dependents:
+      - component: ListEngine
+        interaction: セッションのアクティブロールを読み取る
+      - component: RecordEditEngine
+        interaction: セッションのアクティブロールを読み取る
     external_dependencies:
       - name: 内部設定DB(組込みDB)
         kind: database
@@ -231,6 +261,16 @@ components:
           - entity: User
             owned_by: UserManagement
             relationship: 各LoginAttemptは1人のUserに対する試行である
+      - name: Session
+        identifier: sessionId
+        attributes: [userId, activeRoleId, issuedAt]
+        references:
+          - entity: User
+            owned_by: UserManagement
+            relationship: 各Sessionは1人のUserに対して発行される
+          - entity: Role
+            owned_by: PermissionEngine
+            relationship: 各Sessionはユーザーが選択した1個のアクティブRoleを保持する(単一ロールの場合は自動選択、FR4.2)
 
   - name: MenuNavigation
     summary: 業務メニュー(N階層)・管理メニューの構成と、権限に基づく表示可否を管理する
@@ -276,9 +316,21 @@ components:
       - 監査ログ閲覧画面へのデータ提供
     depends_on:
       - component: PermissionEngine
-        interaction: 監査ログ閲覧画面へのアクセス権限を判定させる
+        interaction: 監査ログ閲覧画面へのアクセス権限を判定させる(同期呼出、PermissionEngineとの間の意図的な循環については本ファイルのRationaleを参照)
         style: sync
-    dependents: []
+    dependents:
+      - component: ConfigEngine
+        interaction: 設定変更イベントを購読する
+      - component: RecordEditEngine
+        interaction: 業務データの作成・更新・削除イベントを購読する
+      - component: UserManagement
+        interaction: ユーザー招待・更新・無効化イベントを購読する
+      - component: PermissionEngine
+        interaction: 権限変更イベントを購読する
+      - component: ConfigImportExport
+        interaction: 設定インポート実行イベントを購読する
+      - component: DataImportExport
+        interaction: 業務データインポート実行イベントを購読する
     external_dependencies:
       - name: 内部設定DB(組込みDB)
         kind: database
@@ -311,6 +363,9 @@ components:
       - component: PermissionEngine
         interaction: RBAC設定をエクスポート対象に含める
         style: sync
+      - component: AuditLogging
+        interaction: 設定インポート実行のドメインイベントを発行する
+        style: event
     dependents: []
     external_dependencies: []
     entities: []
@@ -327,6 +382,9 @@ components:
       - component: ConfigEngine
         interaction: 対象テーブルのカラム定義・バリデーションルールを取得する
         style: sync
+      - component: AuditLogging
+        interaction: 業務データインポート実行のドメインイベントを発行する
+        style: event
     dependents:
       - component: ListEngine
         interaction: 一覧画面のツールバーからエクスポート/インポートを起動する
@@ -357,29 +415,37 @@ graph TD
   UserManagement -->|アクセス権限判定| PermissionEngine
   PermissionEngine -->|階層構造取得| ConfigEngine
   AuthenticationService -->|ユーザー情報参照| UserManagement
-  AuditLogging -->|アクセス権限判定| PermissionEngine
+  AuditLogging -->|閲覧権限判定| PermissionEngine
   ListEngine -->|CSVエクスポート委譲| DataImportExport
   RecordEditEngine -->|CSVインポート委譲| DataImportExport
   DataImportExport -->|カラム定義取得| ConfigEngine
+  ListEngine -->|アクティブロール取得| AuthenticationService
+  RecordEditEngine -->|アクティブロール取得| AuthenticationService
+  ConfigEngine -.->|設定変更イベント| AuditLogging
+  RecordEditEngine -.->|データ変更イベント| AuditLogging
+  PermissionEngine -.->|権限変更イベント| AuditLogging
+  UserManagement -.->|ユーザー操作イベント| AuditLogging
+  ConfigImportExport -.->|設定インポートイベント| AuditLogging
+  DataImportExport -.->|データインポートイベント| AuditLogging
 ```
 
-<!-- Text fallback: RecordEditEngine/ListEngine/SchemaIntrospector/ConfigImportExport/PermissionEngine/AuditLoggingはいずれもConfigEngineへ依存する。ListEngine/RecordEditEngine/MenuNavigation/UserManagement/AuditLoggingはPermissionEngineへ権限判定を依頼する。AuthenticationServiceはUserManagementへ依存する。ListEngine/RecordEditEngineはDataImportExportへCSV入出力を委譲し、DataImportExportはConfigEngineからカラム定義を取得する。ConfigImportExportはConfigEngine/MenuNavigation/PermissionEngineから設定一式を集約する。監査イベントの購読関係(AuditLoggingが他コンポーネントの発行するイベントを購読する関係)は非同期のため図には矢印を描かず、Rationaleに記載する。 -->
+<!-- Text fallback: 実線はsync呼び出し。RecordEditEngine/ListEngine/SchemaIntrospector/ConfigImportExport/PermissionEngine/DataImportExportはいずれもConfigEngineへ依存する。ListEngine/RecordEditEngine/MenuNavigation/UserManagement/AuditLoggingはPermissionEngineへ権限判定を依頼する。AuthenticationServiceはUserManagementへ依存し、ListEngine/RecordEditEngineはAuthenticationServiceからセッションのアクティブロールを取得する。ListEngine/RecordEditEngineはDataImportExportへCSV入出力を委譲し、DataImportExportはConfigEngineからカラム定義を取得する。ConfigImportExportはConfigEngine/MenuNavigation/PermissionEngineから設定一式を集約する。破線はイベント発行(非同期・疎結合)。ConfigEngine/RecordEditEngine/PermissionEngine/UserManagement/ConfigImportExport/DataImportExportは、それぞれの操作に対応するドメインイベントをAuditLoggingへ発行する。PermissionEngineとAuditLoggingの間、およびConfigEngine→AuditLogging→PermissionEngine→ConfigEngineの間には、sync呼び出しとイベント発行の性質の違いに起因する意図的な循環依存が存在する(詳細はRationale「意図的な循環依存」を参照)。 -->
 
 ### コンポーネントサマリー
 
 | Component | Purpose | Depends On | Dependents | Entities Owned |
 |---|---|---|---|---|
-| ConfigEngine | 表示設定・スキーマ定義の保持とDB方言吸収 | (なし) | SchemaIntrospector, ListEngine, RecordEditEngine, PermissionEngine, ConfigImportExport | TableConfig, ColumnConfig |
+| ConfigEngine | 表示設定・スキーマ定義の保持とDB方言吸収 | AuditLogging(event) | SchemaIntrospector, ListEngine, RecordEditEngine, PermissionEngine, ConfigImportExport, DataImportExport | TableConfig, ColumnConfig |
 | SchemaIntrospector | DBメタデータからの設定初期ドラフト生成 | ConfigEngine | (なし) | (なし) |
-| ListEngine | 一覧画面(検索・ページング・ソート) | ConfigEngine, PermissionEngine, DataImportExport | ConfigEngine(呼出元) | (なし) |
-| RecordEditEngine | 詳細・編集画面(フォーム・保存・楽観ロック) | ConfigEngine, PermissionEngine, DataImportExport | (なし) | (なし) |
-| PermissionEngine | RBAC判定(主権限・補助権限・階層継承) | ConfigEngine | ListEngine, RecordEditEngine, MenuNavigation, UserManagement, AuditLogging | Role, PrimaryPermission, AuxiliaryPermission |
-| UserManagement | ユーザー管理・表示設定(テーマ/フォント/言語) | PermissionEngine | AuthenticationService | User, UserPreference |
-| AuthenticationService | トークン認証・ロック判定 | UserManagement | (なし) | LoginAttempt |
-| MenuNavigation | メニュー階層・トップ画面表示制御 | PermissionEngine | (なし) | MenuItem |
-| AuditLogging | 監査ログ記録(イベント購読) | PermissionEngine | (なし) | AuditLogEntry |
-| ConfigImportExport | 設定一式のJSON export/import | ConfigEngine, MenuNavigation, PermissionEngine | (なし) | (なし) |
-| DataImportExport | 業務データのCSV export/import | ConfigEngine | ListEngine, RecordEditEngine | (なし) |
+| ListEngine | 一覧画面(検索・ページング・ソート) | ConfigEngine, PermissionEngine, DataImportExport, AuthenticationService | (なし) | (なし) |
+| RecordEditEngine | 詳細・編集画面(フォーム・保存・楽観ロック) | ConfigEngine, PermissionEngine, DataImportExport, AuditLogging(event), AuthenticationService | (なし) | (なし) |
+| PermissionEngine | RBAC判定(主権限・補助権限・階層継承) | ConfigEngine, AuditLogging(event) | ListEngine, RecordEditEngine, MenuNavigation, UserManagement, ConfigImportExport, AuditLogging | Role, PrimaryPermission, AuxiliaryPermission |
+| UserManagement | ユーザー管理・表示設定(テーマ/フォント/言語) | PermissionEngine, AuditLogging(event) | AuthenticationService | User, UserPreference |
+| AuthenticationService | トークン認証・ロック判定・アクティブロール保持 | UserManagement | ListEngine, RecordEditEngine | LoginAttempt, Session |
+| MenuNavigation | メニュー階層・トップ画面表示制御 | PermissionEngine | ConfigImportExport | MenuItem |
+| AuditLogging | 監査ログ記録(イベント購読) | PermissionEngine | ConfigEngine, RecordEditEngine, PermissionEngine, UserManagement, ConfigImportExport, DataImportExport | AuditLogEntry |
+| ConfigImportExport | 設定一式のJSON export/import | ConfigEngine, MenuNavigation, PermissionEngine, AuditLogging(event) | (なし) | (なし) |
+| DataImportExport | 業務データのCSV export/import | ConfigEngine, AuditLogging(event) | ListEngine, RecordEditEngine | (なし) |
 
 ### エンティティ所有
 
@@ -393,6 +459,7 @@ graph TD
 | User | UserManagement | userId | name, email, passwordHash, status, roleIds | Role(roleIds), owned by PermissionEngine |
 | UserPreference | UserManagement | userId | theme, fontSize, locale | User(userId) |
 | LoginAttempt | AuthenticationService | loginAttemptId | userId, attemptedAt, succeeded | User(userId), owned by UserManagement |
+| Session | AuthenticationService | sessionId | userId, activeRoleId, issuedAt | User(userId) owned by UserManagement; Role(activeRoleId) owned by PermissionEngine |
 | MenuItem | MenuNavigation | menuItemId | parentMenuItemId, label, order, targetTableConfigId | TableConfig(targetTableConfigId), owned by ConfigEngine |
 | AuditLogEntry | AuditLogging | auditLogEntryId | actorUserId, targetType, targetId, operationType, occurredAt, beforeValue, afterValue | User(actorUserId), owned by UserManagement |
 
@@ -421,12 +488,22 @@ graph TD
 | ListEngine / RecordEditEngine | 一覧(検索・ページング主体)と詳細編集(フォーム・保存・楽観ロック主体)は責務と変更理由が異なり、それぞれ独立してテスト可能(Q1回答B) |
 | PermissionEngine | ほぼ全コンポーネントから横断的に呼ばれる実効権限判定は、単一の変更理由(権限モデルの変更)を持つ独立コンポーネントとして切り出す方が、UserManagementに埋め込むより凝集度が高い(Q3回答A) |
 | UserManagement / AuthenticationService | ユーザーCRUD(変更頻度: 低〜中、管理者操作契機)とトークン発行・検証(変更頻度: 高、リクエストごとに実行)は実行特性が大きく異なるため分離(Q4回答A) |
+| Session(AuthenticationService所有) | 複数ロールを持つユーザーが選択したアクティブロール(FR4.2)は、セッション単位で変化するリクエストスコープの状態であり、恒常的なUser/Roleの割当(UserManagement/PermissionEngineが所有)とはライフサイクルが異なるため、セッション管理を担うAuthenticationServiceに配置する |
 | AuditLogging | 記録対象の操作が多数のコンポーネントに分散するため、明示的な同期依存(depends_on)ではなくイベント購読による疎結合を選択し、将来の記録対象追加が既存コンポーネントの変更を要さないようにする(Q5回答B) |
 | MenuNavigation | メニュー構成はConfigEngineの表示設定(カラム単位)とは粒度・変更理由が異なる(ナビゲーション階層の再編)ため分離(Q6回答B) |
 | UserManagement(表示設定を含む) | テーマ・フォントサイズ・言語はユーザーに強く紐づく属性であり、ユーザーのライフサイクル(登録・無効化)と共に変化するためUserManagementに含める(Q7回答A) |
 | ConfigImportExport / DataImportExport | 対象データ(設定一式 vs 業務データ行)・形式(JSON vs CSV)・利用画面(設定管理画面 vs 一覧画面)がいずれも異なり、変更理由も独立しているため分離(Q8回答A) |
 | 楽観ロックをRecordEditEngine内に配置 | 楽観ロック判定は詳細・編集画面の保存フロー内の一処理であり、独立コンポーネントに切り出すほどの複雑さ・再利用性がないため(Q9回答A) |
 | FR13/FR14をカタログ対象外 | CI・可観測性はビルド・運用時の関心事であり、実行時に呼び出される業務ロジックを持つコンポーネントではないため(Q10回答A) |
+
+### 意図的な循環依存(Deliberate Cycles)
+
+`AuditLogging` は監査ログ閲覧画面へのアクセス権限判定のために `PermissionEngine` へ同期依存する一方、`ConfigEngine`・`RecordEditEngine`・`UserManagement`・`PermissionEngine`・`ConfigImportExport`・`DataImportExport` は監査記録のためのドメインイベントを `AuditLogging` へ発行する(`style: event`の疎結合な依存)。この結果、次の2種類の循環が生じる。
+
+- **`PermissionEngine` ←→ `AuditLogging`**: `PermissionEngine`はイベント発行(疎結合)で`AuditLogging`に依存し、`AuditLogging`は閲覧権限判定のため`PermissionEngine`に同期依存する。
+- **`ConfigEngine` → `AuditLogging` → `PermissionEngine` → `ConfigEngine`**: 上記の`AuditLogging`→`PermissionEngine`の同期依存と、`PermissionEngine`→`ConfigEngine`の同期依存、`ConfigEngine`→`AuditLogging`のイベント発行が組み合わさって生じる3ノードの循環。
+
+いずれも「同期呼び出し(強い結合)」と「イベント発行(疎結合、非同期を前提とした将来実装を許容)」という性質の異なる依存が混在することで生じており、実行時のデッドロックや初期化順序の問題を引き起こすものではない(イベント発行は fire-and-forget であり、呼び出し元の処理completionを待たない)。将来的にイベント基盤を別プロセス・別コンポーネント(メッセージブローカー等)に切り出す場合は、この循環は解消される見込みである。
 
 ### Alternatives Rejected(主要な分割判断)
 
