@@ -36,8 +36,6 @@
 
 - **Construction Iteration**: unit-major
 - **Skeleton Stance**: on
-- **Active Unit**: config-engine
-- **Unit State**: in-progress
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -99,7 +97,7 @@ Per unit: [TBD]
 - **Current Stage**: nfr-requirements
 - **Next Stage**: nfr-design
 - **Status**: Running
-- **Last Updated**: 2026-09-13T11:35:36Z
+- **Last Updated**: 2026-09-13T12:24:55Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning

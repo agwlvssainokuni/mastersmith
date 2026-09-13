@@ -1,0 +1,17 @@
+{
+  "stage": "nfr-design",
+  "unit": "config-engine",
+  "upstream_ids": ["NFR1.1", "NFR1.2", "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR3.1", "NFR4.1", "NFR4.2", "NFR5.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md レイテンシ予算（ConfigCacheのメモリ参照により50ms以内p95を担保）" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md キャッシュアーキテクチャ（起動時全読み込み、書込時の全体スナップショット差し替え）" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md 認可アーキテクチャ（PermissionEngineApiへの委譲）" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md（現行は内部Javaインタフェースのみのため認証境界なし。将来のREST API追加時はBearer認証を要求する設計方針を記載）" },
+    { "id": "NFR2.3", "status": "OK", "target": "security-design.md エラー情報の安全な返却（ConfigValidationExceptionの構造化）" },
+    { "id": "NFR2.4", "status": "OK", "target": "security-design.md 暗号化・シークレット管理（内部設定DB接続情報の外部化）" },
+    { "id": "NFR3.1", "status": "GAP", "target": "scalability-design.md スケーリングアーキテクチャは単一インスタンス構成を前提とする設計であり、上流NFR3の水平スケール要件を完全には満たさない（nfr-requirements traceability.jsonで人間が明示的に受入れ済みのGAPを踏襲）。将来の水平スケール対応は同ファイルの「将来の水平スケール対応」節に設計オプションのみ記録し、本Boltでは実装しない" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md fail-fast検証の実行フロー" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md バックアップ・リカバリ" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md（config-engine固有の追加メトリクス・ログ・トレーシング・アラートを設けないという設計判断そのものが対応内容）" }
+  ]
+}
