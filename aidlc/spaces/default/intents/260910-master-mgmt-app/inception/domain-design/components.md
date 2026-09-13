@@ -192,7 +192,7 @@ components:
       管理者はユーザーを無効化できる。無効化と同時にリフレッシュトークンは即時失効するが、既発行のアクセストークンはその有効期限まで失効しない(FR2.3)。
       `application.yml`に設定された初期管理者アカウントを、存在しない場合に限りアプリ起動時に自動作成する(FR2.4)。
       パスワードは最小8文字以上とし、ハッシュ化して保存する(FR2.5, FR2.6)。
-      ユーザーごとにテーマ(ライト/ダーク)・フォントサイズ(大/中/小)・言語(日本語/English)を保持し、選択内容を全画面に適用する(FR9.1, FR10.1、refined-mockups-questions Q7)。
+      ユーザーごとにテーマ(ライト/ダーク)・フォントサイズ(大/中/小、FR9.1)を保持し、選択内容を全画面に適用する。あわせて、ユーザーごとの表示言語(日本語/English)も保持する。表示言語の切替機能自体はrefined-mockupsステージのレビュー指摘R-02で追加された機能であり、FR10.1(表示名・バリデーションメッセージのi18nキー構造化)・FR10.2(日英2言語分の翻訳リソース用意)を実現する上でのユーザー単位の切替手段として位置付ける(FR10.1自体は「ユーザーが言語を選択できる」ことを直接定めた要件ではない点に注意。refined-mockups-questions.md Q7参照)。
     responsibilities:
       - ユーザーの登録・更新・無効化(FR2.1〜FR2.3)
       - 初期管理者アカウントの自動作成(FR2.4)
@@ -440,7 +440,7 @@ graph TD
 | ListEngine | 一覧画面(検索・ページング・ソート) | ConfigEngine, PermissionEngine, DataImportExport, AuthenticationService | (なし) | (なし) |
 | RecordEditEngine | 詳細・編集画面(フォーム・保存・楽観ロック) | ConfigEngine, PermissionEngine, DataImportExport, AuditLogging(event), AuthenticationService | (なし) | (なし) |
 | PermissionEngine | RBAC判定(主権限・補助権限・階層継承) | ConfigEngine, AuditLogging(event) | ListEngine, RecordEditEngine, MenuNavigation, UserManagement, ConfigImportExport, AuditLogging | Role, PrimaryPermission, AuxiliaryPermission |
-| UserManagement | ユーザー管理・表示設定(テーマ/フォント/言語) | PermissionEngine, AuditLogging(event) | AuthenticationService | User, UserPreference |
+| UserManagement | ユーザー管理・表示設定(テーマ/フォント、FR9.1)・ユーザー単位の言語切替(FR10.1/FR10.2実現手段) | PermissionEngine, AuditLogging(event) | AuthenticationService | User, UserPreference |
 | AuthenticationService | トークン認証・ロック判定・アクティブロール保持 | UserManagement | ListEngine, RecordEditEngine | LoginAttempt, Session |
 | MenuNavigation | メニュー階層・トップ画面表示制御 | PermissionEngine | ConfigImportExport | MenuItem |
 | AuditLogging | 監査ログ記録(イベント購読) | PermissionEngine | ConfigEngine, RecordEditEngine, PermissionEngine, UserManagement, ConfigImportExport, DataImportExport | AuditLogEntry |

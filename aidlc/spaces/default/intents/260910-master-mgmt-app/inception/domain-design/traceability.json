@@ -56,7 +56,7 @@
     { "id": "FR8.3", "status": "OK", "target": "AuditLogging" },
     { "id": "FR8.4", "status": "OK", "target": "AuditLogging" },
     { "id": "FR9.1", "status": "OK", "target": "UserManagement" },
-    { "id": "FR10.1", "status": "OK", "target": "ConfigEngine" },
+    { "id": "FR10.1", "status": "OK", "target": "ConfigEngine(i18nキー構造の保持)。ユーザー単位の言語切替手段(UserManagement)はrefined-mockupsレビュー指摘R-02で追加された補足機能であり、FR10.1自体が定める要件ではない" },
     { "id": "FR10.2", "status": "N/A", "target": "翻訳リソース(言語ファイル)はビルド成果物であり実行時コンポーネントではないため、Code Generation/機能設計で提供する" },
     { "id": "FR11.1", "status": "OK", "target": "ConfigImportExport" },
     { "id": "FR11.2", "status": "OK", "target": "ConfigImportExport" },
