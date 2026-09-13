@@ -32,10 +32,8 @@
 - **In Progress**: refined-mockups
 
 ## Runtime State
-- **Revision Count**: 1
+- **Revision Count**: 2
 
-- **Parked**: 2026-09-11T13:50:35Z
-- **Parked At Stage**: refined-mockups
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -67,7 +65,7 @@
 - [x] practices-discovery — EXECUTE
 - [x] requirements-analysis — EXECUTE
 - [ ] user-stories — SKIP
-- [-] refined-mockups — EXECUTE
+- [R] refined-mockups — EXECUTE
 - [ ] domain-design — EXECUTE
 - [ ] units-generation — EXECUTE
 - [ ] contract-design — EXECUTE
@@ -97,7 +95,7 @@ Per unit: [TBD]
 - **Current Stage**: refined-mockups
 - **Next Stage**: domain-design
 - **Status**: Running
-- **Last Updated**: 2026-09-11T13:50:35Z
+- **Last Updated**: 2026-09-13T00:50:56Z
 
 ## Session Resume Point
 - **Last Completed Stage**: requirements-analysis

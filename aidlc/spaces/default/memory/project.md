@@ -19,6 +19,7 @@
 - ドキュメント(要件定義書、設計書などの成果物やコードコメント等)を作成する際、`reference/` 配下のファイルパスを書かない(`reference/` はGit管理外のため、リポジトリをcloneした他の読者の手元には存在せず、パス参照は成立しない)。`reference/` 配下のファイルの内容は積極的に読み込んで理解し、必要な内容(結論・要点)はドキュメントに直接書き込んでよい。
 (決定 2026-09-10)
 
+- 質問への回答が確定した時点(成果物生成前)、成果物を作成した時点、内容確認(サマリー確認や承認)を行った時点のそれぞれでこまめにコミットする(いずれもユーザー承認を得てから実行する既存ルールに従う)。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:refined-mockups:e640c85be4e3fec0833ea657dad40d98ae07b868a164de634d21d2e2bcb687b7 -->
 ## Walking Skeleton
 
 <!-- Project-specific specialisation. Example: -->
@@ -106,3 +107,7 @@
 - 回答の中に新しい認証方式(例: JWTのアクセストークン/リフレッシュトークン)への言及があった場合、既存のセッション用語(タイムアウト等)との対応関係を明示的にフォローアップ質問で確認してから要件化する。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:5e33c4b5d710a31835a8ee8d75051380ebb06940cdc13784de25c5e9e509e5e5 -->
 - 機能(実装すること)と非機能(達成すべき水準)の両方の性質を持つ項目は、FR/NFR両方に相互参照付きで記載する(例: OTELエクスポート対応)。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:93085cba9c3ae9992b82258886b7ffa4b05a63b3067f7d83300ab86aba29e34c -->
 - ideationのintent-backlogに明記のない項目でも、requirements-guide.mdの完全性チェックリスト(データexport/import等)に基づき能動的に質問し、回答があればスコープに含めてよい。 (learned 2026-09-11) <!-- cid:260910-master-mgmt-app:requirements-analysis:7142481501cad408324b9dbffc63248dd847205d96524309c90c5a451b0d177c -->
+- リファインドモックアップステージでuser-storiesがSKIP対象の場合、ラフモックアップ(wireframes.md/user-flow.md)と要件定義書(requirements.md)から直接モックアップを設計してよい。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:refined-mockups:accadee9ee046699483cff2ff33b602e35679a3cb791de18b740343019c6d4f6 -->
+- ラフモックアップが対象としていない画面(ログイン等の認証系画面、ユーザ管理・監査ログ等の管理系画面)がある場合、リファインドモックアップステージの冒頭でインタビューにより設計対象範囲を確認してから着手する。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:refined-mockups:f933887ec0267246d3f26af1dae1bd84e3fed51af19d234e1a70722118713154 -->
+- 本プロジェクトのアクセシビリティは、WCAG準拠レベルを明示的な達成目標とはせず、キーボード操作・ラベル付与・コントラスト確保等の個別項目チェックリストで十分とする。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:refined-mockups:89466355da28eb13f3bc82c6e2e4ddf5b309388605b3439294cddc775bfe91e4 -->
+- デザインシステム(make-you-chic-ui)の実際のコンポーネント一覧が未確認の場合、モックアップ・インタラクション仕様上は想定コンポーネント名で記載し、実装フェーズで実際のライブラリ内容に読み替える前提とする。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:refined-mockups:a366c255f3e6dc9a2d7e533c8577e80f109294d322b8c2035bebb65f194a73fc -->
