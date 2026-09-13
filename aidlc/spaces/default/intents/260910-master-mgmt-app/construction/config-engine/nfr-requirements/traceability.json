@@ -5,8 +5,8 @@
   "coverage": [
     { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
     { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4" },
-    { "id": "NFR3", "status": "OK", "target": "NFR3.1" },
-    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2" },
+    { "id": "NFR3", "status": "GAP", "target": "NFR3.1は単一インスタンス構成を前提とし、複数インスタンスへの水平スケール時のキャッシュ整合性には対応しない。上流NFR3（線形にリソースを追加できる設計）を完全には満たさないギャップとして正直に記録する。MVPスコープとして明示的に受入れ済み（nfr-requirements-questions.md Q2 Follow-up）。scalability-requirements.mdの「既知の制約」節参照" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2（NFR4の楽観ロック節はconfig-engine自身の設定データ（TableConfig/ColumnConfig/TranslationEntry）には適用しない。単一管理者による低頻度操作を前提とし同時編集競合検出は本ユニットのNFR要件としては必須としない。reliability-requirements.mdの「データ整合性・同時更新」節参照。楽観ロック機能自体はrecord-edit-engine, U11がFR6.3として業務データに対して実装する）" },
     { "id": "NFR5", "status": "OK", "target": "NFR5.1" },
     { "id": "NFR6", "status": "N/A", "target": "config-engineはバックエンドサービスであり直接のUI・ユーザー向け画面を持たないため、ユーザビリティ・アクセシビリティ要件は該当しない（frontend-ui, U12のNFR Requirementsで扱う）" },
     { "id": "NFR7", "status": "N/A", "target": "i18nキー構造・TranslationEntryによる翻訳テキスト管理はFunctional Design（entities.md/rules.md BR1.5, BR1.6, BR1.10）で構造的に解決済み。本ステージのNFRカテゴリ（性能/セキュリティ/スケーラビリティ/信頼性/可観測性/技術選定）には該当しない" },
