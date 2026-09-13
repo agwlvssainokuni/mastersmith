@@ -10,6 +10,7 @@
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-09-13T00:00:00Z — アクセシビリティはWCAG準拠を明示目標とせず、個別項目のみのチェックリストとした(Q10回答B)。`.claude/knowledge/aidlc-design-agent/accessibility-wcag.md`のWCAG 2.1 AAガイドは参考程度の位置づけに留める。
 - 2026-09-13T01:05:00Z — 2回目のadvisoryレビュー(R-05〜R-08)への対応として、ユーザ編集画面・ユーザ一覧画面にアクセシビリティの直接記述を追加し、招待モーダル・無効化確認モーダル・監査ログ差分比較モーダルのコンポーネント仕様をinteraction-spec.mdに追加した。本ステージのadvisoryレビューは1回限りのため、この2回目の修正はレビューなしで承認ゲートに進む(reviewer_max_iterationsの制約による)。
+- 2026-09-13T01:20:00Z — 3回目のadvisoryレビュー(R-09〜R-12)への対応として、ユーザ一覧のロール複数表示形式、無効化時のアクセストークン失効タイミングの注記、言語切替時のlang属性更新、監査ログ「期間」条件の入力形式(開始日・終了日の2欄)を追記した。
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
