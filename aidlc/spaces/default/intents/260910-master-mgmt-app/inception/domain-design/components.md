@@ -232,7 +232,7 @@ components:
     behaviour: >
       アクセストークン(有効期限10分)とリフレッシュトークン(有効期限30分)によるトークンベース認証を採用する。両トークンの有効期限は`application.yml`で設定可能とする(FR3.1)。
       同一ユーザーが複数デバイスから同時にログインすることを許可する(FR3.2)。
-      連続ログイン失敗によるアカウントの一時ロック機能を提供する。失敗回数の閾値・ロック時間は`application.yml`で設定する(refined-mockups レビュー指摘R-01対応。要件定義書FR2.7の文言修正を要するフォローアップ事項)。
+      連続ログイン失敗によるアカウントの一時ロック機能を提供する。失敗回数の閾値・ロック時間は`application.yml`で設定する(refined-mockups レビュー指摘R-01対応)。**注意:** 現行の要件定義書FR2.7は「管理画面から設定可能でなければならない」と記載されており、本設計の`application.yml`方式とは文言上一致していない。この不一致は既知のフォローアップ事項であり、要件定義書FR2.7の文言修正(`refined-mockups/mockups.md`のAssumptions & Open Questionsに記録済み)が完了するまでは未解消のままとなる。後続の機能設計・要件定義書更新の際に必ず反映すること。
       ロック中のログイン試行に対しては、通常の認証エラーと同一の汎用メッセージのみを返しロック状態を外部に漏らさない(refined-mockups-questions Q12)。
       複数ロールを持つユーザーが操作時にヘッダーのロール選択UIで選択したロールをセッション単位で保持する。選択したロールは、リクエストを処理するListEngine/RecordEditEngine等がセッション情報(Session.activeRoleId)から読み取り、PermissionEngineへの権限判定呼び出しの引数として渡す(FR4.2)。PermissionEngineはAuthenticationServiceを直接呼び出さず、あくまで呼び出し元から渡されたアクティブロールIDを判定材料とする。
     responsibilities:

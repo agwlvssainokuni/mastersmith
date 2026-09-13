@@ -29,7 +29,7 @@
     { "id": "FR2.4", "status": "OK", "target": "UserManagement" },
     { "id": "FR2.5", "status": "OK", "target": "UserManagement" },
     { "id": "FR2.6", "status": "OK", "target": "UserManagement" },
-    { "id": "FR2.7", "status": "OK", "target": "AuthenticationService" },
+    { "id": "FR2.7", "status": "OK", "target": "AuthenticationService(注: 設計はapplication.yml方式。要件定義書FR2.7の文言「管理画面から設定可能」との不一致は既知のフォローアップ事項、未解消)" },
     { "id": "FR2.8", "status": "OK", "target": "UserManagement" },
     { "id": "FR3.1", "status": "OK", "target": "AuthenticationService" },
     { "id": "FR3.2", "status": "OK", "target": "AuthenticationService" },
