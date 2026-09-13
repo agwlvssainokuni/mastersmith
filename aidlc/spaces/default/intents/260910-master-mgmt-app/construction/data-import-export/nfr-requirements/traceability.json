@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "data-import-export",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2, NFR4.3" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2, NFR5.3" },
+    { "id": "NFR6", "status": "N/A", "target": "data-import-exportはバックエンドサービスであり直接のUI・ユーザー向け画面を持たないため、ユーザビリティ・アクセシビリティ要件は該当しない(frontend-ui, U12のNFR Requirementsで扱う)" },
+    { "id": "NFR7", "status": "N/A", "target": "本ユニットが扱うCSVの列名・エラーメッセージ等のi18n対応は、config-engineの機能設計(BR1.5, BR1.6, BR1.10)で構造的に解決済みの仕組みを再利用する。本ステージのNFRカテゴリ(性能/セキュリティ/スケーラビリティ/信頼性/可観測性/技術選定)には該当しない" },
+    { "id": "NFR8", "status": "N/A", "target": "共通エンジン層のハードコード禁止はFunctional Design(`rules.md` BR8.1〜BR8.10がconfig-engine由来の動的な列定義に基づく設計になっていること)で構造的に充足済み。テストカバレッジ80%floorの検証はBuild and Testステージの対象であり、本ステージのNFRカテゴリには該当しない" }
+  ]
+}
