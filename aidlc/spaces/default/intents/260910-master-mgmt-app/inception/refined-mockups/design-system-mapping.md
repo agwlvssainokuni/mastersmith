@@ -25,8 +25,9 @@
 | 詳細・編集フォーム部品(1行テキスト等) | `TextField`, `TextArea`, `NumberField`, `DecimalField`, `DatePicker`, `DateTimePicker`, `Select`, `RadioGroup`, `Switch`, `Checkbox` | 既存再利用 | FR1.1の設定駆動フォーム部品一式に対応する既存部品群を想定 |
 | 楽観ロック競合エラーバナー | `InlineAlert(role="alert")` | 既存再利用 | 既存の警告バナーコンポーネントを想定 |
 | 保存/キャンセルボタン | `Button(primary)`, `Button(secondary)` | 既存再利用 | |
-| ユーザ招待モーダル | `Modal`, `Form`(既存)をベースにした`InviteUserModal`(新規) | 一部新規 | |
-| 監査ログ詳細比較モーダル | `Modal`, `DiffViewer`(新規または既存の差分表示部品) | 既存/新規未確定 | make-you-chic-uiに差分表示部品がない場合は新規コンポーネントとして追加する |
+| ユーザ招待モーダル | `Modal`, `Form`(既存)をベースにした`InviteUserModal`(新規) | 一部新規 | `interaction-spec.md`参照 |
+| ユーザー無効化確認モーダル | `ConfirmModal`(既存)をベースにした`DisableUserConfirmModal`(新規) | 一部新規 | `interaction-spec.md`参照(レビュー指摘R-07への対応) |
+| 監査ログ詳細比較モーダル | `Modal`(既存)をベースにした`AuditLogDiffModal`(新規) | 一部新規 | make-you-chic-uiに差分表示部品がないため新規コンポーネントとした。`interaction-spec.md`参照(レビュー指摘R-06への対応) |
 | 業務メニュー設定タブ | `Tabs`, `TabPanel` | 既存再利用 | |
 | JSON設定インポート確認モーダル | `Modal`, `FileInput`(既存)をベースにした`ConfigImportConfirmModal`(新規) | 一部新規 | |
 

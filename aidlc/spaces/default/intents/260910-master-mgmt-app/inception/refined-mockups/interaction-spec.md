@@ -327,6 +327,137 @@
 
 ---
 
+### ユーザ招待モーダル
+
+| Field | Value |
+|---|---|
+| Component | InviteUserModal |
+| Description | ユーザ管理画面から新規ユーザーを招待する際に、氏名・メールアドレス・付与ロールを入力するモーダル(FR2.1) |
+| Category | input |
+
+#### States
+
+| State | Description | Trigger |
+|---|---|---|
+| default | 入力フォームを表示 | 「+ ユーザーを招待」クリック |
+| loading | 招待メール送信中 | 「招待する」クリック |
+| error | 送信失敗(メールアドレス重複、SMTP接続エラー等) | 招待API失敗 |
+
+#### Props / Inputs
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| onSubmit | function | yes | — | 招待実行コールバック(氏名・メールアドレス・ロールを渡す) |
+| onCancel | function | yes | — | キャンセルコールバック |
+
+#### Responsive Behaviour
+
+| Breakpoint | Behaviour |
+|---|---|
+| tablet (768–1023px) | モーダル幅を画面幅の80%程度に縮小、フォーム項目を1カラム表示 |
+| desktop (1024px+) | 固定幅(480px程度)で中央表示 |
+
+#### Accessibility
+
+| Requirement | Implementation |
+|---|---|
+| ARIA role | `dialog`、`aria-modal="true"` |
+| Keyboard interaction | Escapeで閉じる、フォーム項目間はTabで移動、フォーカストラップ |
+| Label / aria-label | 各入力欄に`<label>`、`aria-labelledby`でモーダルタイトル「ユーザーを招待」と関連付け |
+| Contrast ratio | 4.5:1 以上 |
+| Screen reader | 送信失敗時は`aria-live="assertive"`でエラー内容を通知 |
+| Focus management | 開いたら氏名入力欄にフォーカス、閉じたら「+ ユーザーを招待」ボタンへフォーカスを戻す |
+
+---
+
+### ユーザー無効化確認モーダル
+
+| Field | Value |
+|---|---|
+| Component | DisableUserConfirmModal |
+| Description | ユーザー編集画面/ユーザー一覧画面から、ユーザーを無効化する前の確認ダイアログ(FR2.3) |
+| Category | feedback |
+
+#### States
+
+| State | Description | Trigger |
+|---|---|---|
+| default | 対象ユーザー名と無効化の影響(次回以降ログイン不可)を表示 | 「無効化」クリック |
+| loading | 無効化実行中 | 「無効化する」クリック |
+| error | 無効化失敗(権限喪失・DBエラー等) | 無効化API失敗 |
+
+#### Props / Inputs
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| userName | string | yes | — | 無効化対象のユーザー氏名 |
+| onConfirm | function | yes | — | 無効化実行コールバック |
+| onCancel | function | yes | — | キャンセルコールバック |
+
+#### Responsive Behaviour
+
+| Breakpoint | Behaviour |
+|---|---|
+| tablet (768–1023px) | モーダル幅を画面幅の80%程度に縮小 |
+| desktop (1024px+) | 固定幅(420px程度)で中央表示 |
+
+#### Accessibility
+
+| Requirement | Implementation |
+|---|---|
+| ARIA role | `dialog`、`aria-modal="true"` |
+| Keyboard interaction | Escapeで閉じる、フォーカストラップ |
+| Label / aria-label | `aria-labelledby`でモーダルタイトル「[氏名]を無効化しますか?」と関連付け |
+| Contrast ratio | 4.5:1 以上、無効化ボタンは危険操作として明確な色分け+ラベルで示す(色のみに依存しない) |
+| Screen reader | エラー時は`aria-live="assertive"`でエラー内容を通知 |
+| Focus management | 開いたら「キャンセル」にフォーカス(誤操作防止)、閉じたら操作前のトリガー要素へフォーカスを戻す |
+
+---
+
+### 監査ログ詳細比較モーダル
+
+| Field | Value |
+|---|---|
+| Component | AuditLogDiffModal |
+| Description | 監査ログ閲覧画面で「詳細」をクリックした際、変更前後の値を比較表示するモーダル(FR8.1) |
+| Category | display |
+
+#### States
+
+| State | Description | Trigger |
+|---|---|---|
+| default | 変更前後の値を項目ごとに並べて表示 | 「詳細」クリック |
+| create-only | 作成操作の場合、変更前は「(なし)」と表示 | 操作種別が作成 |
+| delete-only | 削除操作の場合、変更後は「(削除済み)」と表示 | 操作種別が削除 |
+
+#### Props / Inputs
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| operationType | `"create" \| "update" \| "delete"` | yes | — | 操作種別 |
+| beforeValues | object | no | null | 変更前の値(作成時はnull) |
+| afterValues | object | no | null | 変更後の値(削除時はnull) |
+
+#### Responsive Behaviour
+
+| Breakpoint | Behaviour |
+|---|---|
+| tablet (768–1023px) | 変更前/変更後を上下に積んで表示 |
+| desktop (1024px+) | 変更前/変更後を左右2列で表示 |
+
+#### Accessibility
+
+| Requirement | Implementation |
+|---|---|
+| ARIA role | `dialog`、`aria-modal="true"` |
+| Keyboard interaction | Escapeで閉じる、フォーカストラップ |
+| Label / aria-label | `aria-labelledby`でモーダルタイトル「変更内容の詳細」と関連付け |
+| Contrast ratio | 4.5:1 以上。変更箇所の強調は色のみに依存せず、太字やアイコンも併用する |
+| Screen reader | 開いた時点で操作種別(作成/更新/削除)を読み上げる |
+| Focus management | 開いたら「閉じる」ボタンにフォーカス、閉じたら「詳細」リンクへフォーカスを戻す |
+
+---
+
 ## 主要ユーザーフロー
 
 ### Flow: 初回ログイン(招待メールから)
