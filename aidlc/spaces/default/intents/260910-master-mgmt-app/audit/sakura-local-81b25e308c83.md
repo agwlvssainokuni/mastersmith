@@ -8495,3 +8495,526 @@
 **Agent**: aidlc-architect-agent
 
 ---
+
+## Workflow Parked
+**Timestamp**: 2026-09-13T07:58:19Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-13T07:58:32Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a3209a3afc3483880
+**Message**: /aidlc --resume
+
+---
+
+## Session End
+**Timestamp**: 2026-09-13T07:58:37Z
+**Event**: SESSION_ENDED
+**Reason**: clear
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-13T07:58:37Z
+**Event**: SESSION_STARTED
+**Source**: clear
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Session End
+**Timestamp**: 2026-09-13T07:59:02Z
+**Event**: SESSION_ENDED
+**Reason**: other
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T08:26:36Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-09-13T08:42:54Z
+**Event**: WORKFLOW_UNPARKED
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-13T09:18:56Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: 48f6914e-d887-4363-9927-c376bc3b3499
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-13T09:18:59Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: b640980b-029d-4546-a9b9-28b347e65bf6
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-13T09:19:00Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: 87a05281-7fc9-44e8-8115-e4e375bbf088
+
+---
+
+## Unit Started
+**Timestamp**: 2026-09-13T09:22:22Z
+**Event**: UNIT_STARTED
+**Stage**: functional-design
+**Unit**: config-engine
+**Run floor**: STAGE_JUMPED:2026-09-13T04:44:50Z#7
+
+---
+
+## Artifact Created
+**Timestamp**: 2026-09-13T09:23:38Z
+**Event**: ARTIFACT_CREATED
+**Tool**: Write
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:23:42Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Error Logged
+**Timestamp**: 2026-09-13T09:24:14Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision
+**Error**: Missing --stage <slug>
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T09:24:17Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: 質問ファイルへの回答方法をどのように進めますか?
+**Options**: Guide me,I'll edit the file,Chat
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T09:29:55Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T09:29:59Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Guide me
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T09:41:33Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T09:41:53Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Q1=A. schemaName.tableName等の文字列キー; Q2=A+C（型名正規化＋物理層SQL方言吸収の両方、Bの楽観ロック列自動検出規則の方言吸収は不採用）; Q3=A. 構造化データ+i18nキー; Q4=基本的にA方針だが、displayNameが静的リソースファイル限定なのは不十分で、i18nキーと言語別テキストを管理画面で登録編集できないか（新規要件と認識した上での提案）
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:42:00Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:42:08Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:42:13Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:42:31Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T09:42:35Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q4フォローアップ: i18nキー・翻訳テキストの管理画面での登録編集の対象範囲
+**Options**: A,B,C
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T09:44:02Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T09:44:06Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: C. 今回は対象外（後送り）。config-engineの機能設計では静的選択肢のdisplayNameも既存決定（ビルド成果物の翻訳リソース）のままとし、管理画面でのi18nキー・テキスト編集機能は別途の新規要件として後続で扱う
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:44:11Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T09:44:15Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q5: fail-fast検証の必須プロパティ範囲 / Q6: i18nキー命名規則
+**Options**: Q5-A,Q5-B,Q5-C,Q6-A,Q6-B,Q6-C
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T09:54:08Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T09:54:21Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Q5=B. 最小セット+select/radioの選択肢設定も必須。Q6=B. schemaName/tableName/columnNameを識別子に用いる階層キー。加えてQ4-followupの回答をCからBへ変更したい（静的選択肢のdisplayNameだけでなくQ6で回答したi18nキー全般を管理画面で編集できるようにしたい）
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:54:28Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:54:35Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T09:54:41Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T09:54:55Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q4-followup再確認: i18nキー管理画面が既存決定(FR10.2=ビルド成果物の翻訳リソース)と矛盾する点の確認
+**Options**: A,B
+**Unit**: config-engine
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-13T09:55:55Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: a64cf00a303682d08
+**Message**: i18n管理画面はfrontend-uiで一括して対応したい
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-13T09:55:57Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa3349dbef99f4abe
+**Message**: Resuming the MasterSmith AI-DLC build: doing functional design for the config-engine unit, and I just asked whether adding an editable i18n-translation admin screen should override the earlier "transl
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T09:59:50Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:01:01Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T10:01:06Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: A. 確定: 基盤(エンジン)層のi18n（共通ボタンラベル・汎用エラーメッセージ・ログイン画面文言等、業務設定に依存しない部分）は引き続きビルド成果物の翻訳リソースファイルで管理。業務設定層のi18n（TableConfig/ColumnConfigの表示名、select/radioの選択肢displayName、バリデーションメッセージ等、Q6の命名規則に従うi18nキー）はConfigEngineの内部設定DBにデータとして保持し、管理画面から登録・編集可能にする。FR10.2の既存決定（翻訳リソース=ビルド成果物）は覆さず、適用範囲を基盤層の固定UI文言に限定する明確化として整理する
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:01:18Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Error Logged
+**Timestamp**: 2026-09-13T10:01:37Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-log
+**Command**: aidlc-log engine log decision --stage functional-design --unit config-engine --checkpoint summary-confirmation --questions-file aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md --decision Does this all look correct before I generate the artifact? --options Looks correct,Request changes
+**Error**: Summary confirmation section in aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md must contain exactly one `[Answer]:` line with a blank value before this command runs.
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:01:42Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:01:46Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:03:56Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:04:01Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-13T10:04:04Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Questions SHA-256**: ed42d2b224936b40879ff5a175c7040d6c151dfec52326cb76da2a5ee4446fe9
+**Hash Scope**: confirmed-content-v1
+**Unit**: config-engine
+
+---
+
+## Subagent Completed
+**Timestamp**: 2026-09-13T10:04:09Z
+**Event**: SUBAGENT_COMPLETED
+**Agent Type**: 
+**Agent ID**: aa58d53e1827b8456
+**Message**: Q1のscopeRefを、schemaName.tableNameではなくtableConfigId/columnConfigIdにしてほしい
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:06:24Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:06:51Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:06:56Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:06:59Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Q5フォローアップ: displayNameフィールドの意味論とi18nキーの関係
+**Options**: A,B,C
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:08:10Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-13T10:08:14Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: B. displayNameフィールドを廃止する。i18nキーはQ6の命名規則（schemaName/tableName/columnNameから機械的導出）で決まるため、TableConfig/ColumnConfigに明示的なdisplayNameフィールドを持たない。Q5のfail-fast必須項目からもdisplayNameを除外する
+**Unit**: config-engine
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:08:21Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:08:27Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-13T10:08:31Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Unit**: config-engine
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:09:38Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-13T10:09:45Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Context**: construction > config-engine > functional-design > functional-design-questions.md
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-13T10:09:48Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-design-questions.md
+**Questions SHA-256**: de1d06266ed43a293eed30684a712645e94bb1d4ea2ea541bdf89805f551d67d
+**Hash Scope**: confirmed-content-v1
+**Unit**: config-engine
+**Summary Authorization Id**: 9344da07b493a02d5aa68d58f38f0e423db67d2727d9b103f84f7daad656b97c
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-13T10:11:40Z
+**Event**: HUMAN_TURN
+**Session**: 0cca9dc0-111e-472a-87d2-8bd79dd7fab8
+
+---
