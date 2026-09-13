@@ -36,8 +36,6 @@
 
 - **Construction Iteration**: unit-major
 - **Skeleton Stance**: on
-- **Parked**: 2026-09-13T17:26:48Z
-- **Parked At Stage**: functional-design
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -99,7 +97,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-13T17:26:48Z
+- **Last Updated**: 2026-09-13T23:10:03Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning

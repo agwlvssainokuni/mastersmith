@@ -1,0 +1,9 @@
+{
+  "stage": "functional-design",
+  "unit": "data-import-export",
+  "upstream_ids": ["FR12.1"],
+  "coverage": [
+    { "id": "FR12.1", "status": "OK", "target": "BR8.1, BR8.2, BR8.3, BR8.4, BR8.5, BR8.6, BR8.7, BR8.8, BR8.9, BR8.10（業務データCSVエクスポート・インポート、行単位バリデーションエラー提示を含む）" }
+  ],
+  "reverse": []
+}
