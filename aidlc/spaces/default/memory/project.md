@@ -123,3 +123,7 @@
 - HTTP APIのエラー形式はRFC 7807ではなくRFC 9457(2023年7月、RFC 7807を正式にobsolete)を採用する。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:contract-design:b57cea4bf337a9ae74f5dc88f7183fece0f42f1e768e74295fc6ca8a3c5e84bd -->
 - ユーザーが明示的に指定した場合、URLパスへのバージョン番号予約(`/api/v1/...`)も含め一切のバージョニングを省略してよい。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:contract-design:11cdfca4ac48189098db06fb4395eac84a920b71fbb9877bc3ae05006a19da80 -->
 - 内部向けAPIであっても簡易な取り決めで済ませず、標準のOpenAPI形式で正式に仕様化する。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:contract-design:292d7ebffb165bd856b1b757b206696f31008b15d6443394d2718b0111894f2e -->
+- Walking Skeletonの確定要件とユニット粒度方針(1Bolt=1Unit)が矛盾する場合、Walking Skeletonを例外として複数ユニットを束ね、それ以外は方針通り1Bolt=1Unitとする。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:delivery-planning:e1eda470e8a85a06f699a6b83b6022ae44496ddbc85588025eefd942585f83c4 -->
+- Walking Skeletonで最小実装済みのユニットの完全実装Boltは、その依存先ユニットの完全実装を待たずにリスク優先で先行してよい(DAG依存はWalking Skeletonで既に基本実装済みのため)。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:delivery-planning:6c730be31c9e3e4e2b1e2c4d7a42e62025c2a986cdaad32a500e62dcca984456 -->
+- ユニット数が多い場合、WSJFのような形式的スコアリングモデルより定性的な方針(スケルトン→リスク優先→基盤積み上げ)で十分としてよい。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:delivery-planning:eb706d230fa096d3e7880f68c31aefe0114522de60920bf428d21e6e6065d78c -->
+- Bolt粒度はユーザーの明示的選択(1Bolt=1Unit)を優先し、AIの推奨案(機能テーマ単位の粗いバンドル)を採用しない。 (learned 2026-09-13) <!-- cid:260910-master-mgmt-app:delivery-planning:a2ba7e65772d258ca5236bed31e96d3641ab912c5e59e8db5edf8fca59d680e6 -->
