@@ -104,16 +104,31 @@ erDiagram
 
 ## 業務ルールサマリー（`rules.md`からの派生ビュー）
 
-`rules.md`の全11ルール（BR1.1〜BR1.11）のうち、主要なものを要約する。詳細・完全な一覧は`rules.md`を参照。
+`rules.md`の全13ルール（BR1.1〜BR1.13）のうち、主要なものを要約する。詳細・完全な一覧は`rules.md`を参照。
 
 - **fail-fast検証**（BR1.1〜BR1.4）: TableConfig/ColumnConfigの必須プロパティ欠落、およびselect/radioの選択肢設定の不整合を、起動時・インポート時にfail-fastで検知する。
 - **i18nキー導出**（BR1.5, BR1.6）: 表示名・バリデーションメッセージのi18nキーは、schemaName/tableName/columnNameから機械的に導出し、テキストそのものは保持しない。
 - **楽観ロック**（BR1.7）: 対象列は明示設定のみを用い、RDBMS方言による自動検出は行わない。
 - **ドラフト取り込みの非上書き**（BR1.8）: schema-introspectorからの初期ドラフトは、既存設定がある場合はスキップする。
 - **業務設定層i18nのデータ管理**（BR1.10）: TranslationEntryにより、業務設定層のi18nキーの言語別テキストを管理画面から編集可能にする。基盤層固定UI文言は対象外。
+- **複数RDBMS方言の吸収**（BR1.12）: schema-introspectorが読み取ったDBメタデータの型名をConfigEngine内部論理型へ正規化し、物理層SQL生成方言をlist-engine/record-edit-engineへ提供する。
+- **監査ログ連携**（BR1.13）: ドラフト取り込み（W2）・設定一式インポート（W5）・i18nテキスト登録更新（W6）で変更されたエンティティごとに、AuditLogging（U7）へConfigChangedEventを発行する（下記「監査ログ連携」参照）。
+
+## 監査ログ連携（AuditLoggingへのイベント発行、BR1.13）
+
+`components.md`のコンポーネントカタログは`ConfigEngine -.->|設定変更イベント| AuditLogging`という疎結合なイベント発行依存を定義しており、AuditLogging側の`AuditLogEntry`エンティティ（`actorUserId, targetType, targetId, operationType, occurredAt, beforeValue, afterValue`）はエンティティ単位の記録を前提としている。本ユニットはこれを次のとおり実現する。
+
+1. W2（ドラフト取り込み）・W5（設定一式インポート）・W6（i18nテキスト登録・更新）で1件のTableConfig/ColumnConfig/TranslationEntryが作成・更新されるたびに、ConfigEngineは`ConfigChangedEvent(operation, targetType, targetId, beforeValue, afterValue, actor, occurredAt)`を1件生成する。1回のAPI呼び出しで複数エンティティが変更される場合（W2・W5で複数テーブルを扱う場合等）は、呼び出し単位でまとめず、変更されたエンティティごとに個別に発行する。
+   - `operation`: 新規作成なら`CREATED`、既存エンティティの更新なら`UPDATED`。
+   - `targetType`/`targetId`: 変更されたエンティティの種別とID（例: TableConfigなら`tableConfigId`、TranslationEntryなら`{i18nKey}:{locale}`）。
+   - `beforeValue`/`afterValue`: 変更前後のエンティティ状態のスナップショット。`CREATED`の場合`beforeValue`はnull。
+   - `actor`: 操作者。W2（schema-introspectorからの取り込み）はシステム操作として`"system"`を用いる。W5・W6は本来利用者操作であり、認証済みユーザーのIDをactorとして伝搬すべきだが、下記のとおり現状は未解決である。
+   - `occurredAt`: 発生日時。
+2. 生成したイベントは、AuditLogging（U7）がSpringの`ApplicationListener`/`@EventListener`等で購読する前提の疎結合発行（fire-and-forget）とする。ConfigEngine自身はAuditLoggingの購読処理完了を待たない。
 
 ## Assumptions & Open Questions
 
+- **[open question]** W5・W6（config-import-exportからのインポート、管理画面からのi18n登録・更新）は本来利用者操作であり、ConfigChangedEventのactorには操作を行った利用者のIDを記録すべきだが、既存契約（C9: writeTableConfigDraft, importConfigSet）は呼び出し元の認証コンテキスト（操作者ID）を引数として受け取らない。そのため現状の実装はW5・W6についてもactor="system"を用いており、`project.md` Mandated（監査ログは操作者を記録しなければならない）を完全には満たしていない。利用者操作のactor伝搬は、Contract Design追補（認証コンテキストの受け渡し契約）で解決する必要がある。
 - **[assumption]** W6（i18n管理）およびTableConfig/ColumnConfigのフィールド単位編集を実現するREST APIエンドポイントは、既存のContract Design（`contract-summary.md`）に未定義である。Code Generation（3.5）着手前に、Contract Designへの追補としてエンドポイント定義を解決する必要がある。
 - **[assumption]** FK参照選択肢の名称解決（W4）は、ConfigEngine自身ではなくlist-engine/record-edit-engineが業務データRDBMSへ直接アクセスして行う前提とした。ConfigEngineはfkReferenceの参照先メタデータ（静的設定）のみを提供する。
 - 既知の未解決フォローアップ（`unit-of-work.md` U5引継ぎ事項、`contract-summary.md` Open Questions）: FR2.7（ログイン失敗ロックアウト）の要件定義書文言と`application.yml`方式の不一致は、config-engineユニットの機能設計対象外（authentication-service, U5）のため、本書では扱わない。

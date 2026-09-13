@@ -1,17 +1,20 @@
 {
   "stage": "functional-design",
   "unit": "config-engine",
-  "upstream_ids": ["FR1.1", "FR1.2", "FR1.3", "FR1.5", "FR1.6", "FR10.1"],
+  "upstream_ids": ["FR1.1", "FR1.2", "FR1.3", "FR1.4", "FR1.5", "FR1.6", "FR10.1", "FR11.1"],
   "coverage": [
     { "id": "FR1.1", "status": "OK", "target": "BR1.2, BR1.3, BR1.4, BR1.9" },
     { "id": "FR1.2", "status": "OK", "target": "BR1.12" },
     { "id": "FR1.3", "status": "OK", "target": "BR1.1, BR1.11" },
+    { "id": "FR1.4", "status": "OK", "target": "BR1.8（W2: writeTableConfigDraftによる受け入れ処理）。DBメタデータの読み取り自体はschema-introspector（U2）の責務であり、config-engineは初期ドラフトの受け入れ・非上書き判定のみを担う" },
     { "id": "FR1.5", "status": "OK", "target": "BR1.4" },
     { "id": "FR1.6", "status": "N/A", "target": "アーキテクチャ制約（横断）。config-engineの全設定エンティティ（TableConfig/ColumnConfig）がデータとして保持され、コード変更なしに差し替え可能であること自体がこの制約充足の前提条件であり、config-engine単体の業務ルールとしては定義しない。関連: BR1.5, BR1.10" },
-    { "id": "FR10.1", "status": "OK", "target": "BR1.5, BR1.6, BR1.10" }
+    { "id": "FR10.1", "status": "OK", "target": "BR1.5, BR1.6, BR1.10" },
+    { "id": "FR11.1", "status": "OK", "target": "BR1.1, BR1.11（W5: getExportableConfigSet/importConfigSetによるJSON export/import、インポート時のfail-fast検証）" }
   ],
   "reverse": [
     { "id": "BR1.7", "status": "N/A", "target": "record-edit-engine（U11）のFR6.3（楽観ロック競合検出）における技術的前提条件。FR6.3はconfig-engineユニットのFRではないため本ユニットのupstream_idsに含まれない" },
-    { "id": "BR1.8", "status": "N/A", "target": "schema-introspector（U2）との内部インタフェース契約（contract-summary.md C9のwriteTableConfigDraft note）に基づく技術的な統合ルールであり、特定のFRに対応しない" }
+    { "id": "BR1.8", "status": "N/A", "target": "schema-introspector（U2）との内部インタフェース契約（contract-summary.md C9のwriteTableConfigDraft note）に基づく技術的な統合ルールであり、特定のFRに対応しない" },
+    { "id": "BR1.13", "status": "N/A", "target": "project.md Mandated（監査ログの操作者・操作対象・操作種別・日時記録）およびcomponents.mdのConfigEngine→AuditLoggingイベント発行依存に基づく横断ルールであり、特定のFRに対応しない" }
   ]
 }

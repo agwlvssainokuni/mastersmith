@@ -168,6 +168,33 @@ rules:
     violation_behaviour: N/A（変換ロジックであり違反ケースは想定しない。未対応の方言が
       検出された場合はConfigValidationExceptionとして扱う）
     source: FR1.2
+
+  - id: BR1.13
+    statement: >
+      ConfigEngineは、TableConfig/ColumnConfig/TranslationEntryを変更する操作（W2の
+      ドラフト取り込み、W5の設定一式インポート、W6のi18nテキスト登録・更新）において、
+      変更されたエンティティごとに1件、AuditLogging（U7）へドメインイベント
+      （ConfigChangedEvent）を発行しなければならない。イベントは変更後にAuditLogEntry
+      （components.md参照）へマッピング可能な、操作種別・対象エンティティ種別・対象ID・
+      変更前後の値・操作者・発生日時を含む。1回のAPI呼び出しで複数エンティティが
+      変更される場合でも、呼び出し単位で1件にまとめてはならない。
+    category: policy
+    applies_to: [TableConfig, ColumnConfig, TranslationEntry]
+    trigger: "writeTableConfigDraft（W2）、importConfigSet（W5）、TranslationEntry登録・更新（W6）における、各エンティティの作成・更新成功時"
+    logic: >
+      IF あるTableConfig/ColumnConfig/TranslationEntryの作成または更新が成功 THEN
+      ConfigChangedEvent(operation, targetType, targetId, beforeValue, afterValue,
+      actor, occurredAt)を当該エンティティ1件につき1つ生成しAuditLoggingへ発行する
+      （fire-and-forget、components.md「意図的な循環依存」Rationale参照）。
+      operationは新規作成ならCREATED、既存エンティティの更新ならUPDATEDとし、
+      beforeValueはCREATEDの場合null、UPDATEDの場合は変更前スナップショットとする。
+      schema-introspectorからの取り込み（W2）はシステム操作としてactor="system"を用いる
+    violation_behaviour: N/A（イベント発行はfire-and-forgetであり、AuditLogging側の
+      購読処理完了を待たないため、発行元の処理結果には影響しない）
+    source: "project.md Mandated（監査ログは操作者・操作対象・操作種別・日時・変更前後
+      の値を記録しなければならない）。フィールド形状はcomponents.mdのAuditLogEntry定義
+      （actorUserId/targetType/targetId/operationType/occurredAt/beforeValue/afterValue）
+      に合わせる"
 ```
 
 ## ルールサマリー
@@ -186,3 +213,4 @@ rules:
 | BR1.10 | policy | 業務設定層i18nはTranslationEntryで管理、基盤層は対象外 |
 | BR1.11 | policy | 設定バリデーションエラーはフィールド単位で返す |
 | BR1.12 | policy | 複数RDBMS方言（型名正規化・物理層SQL方言）の吸収 |
+| BR1.13 | policy | 設定変更操作ごとにAuditLoggingへドメインイベント（ConfigChangedEvent）を発行する |

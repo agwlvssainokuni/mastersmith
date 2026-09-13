@@ -158,14 +158,74 @@ entities:
       - "(i18nKey, locale)の組み合わせで一意（複合主キー）"
       - "対応するTranslationEntryが未登録のi18nKeyは、フロントエンド側で未翻訳表示（例: キー文字列そのものの表示）にフォールバックする（本ユニットはフォールバック値そのものは保持しない）"
     relationships: []
+
+  - name: ConfigChangedEvent
+    description: >
+      TableConfig/ColumnConfig/TranslationEntryの変更をAuditLogging（U7）へ通知する
+      ドメインイベント（BR1.13）。内部設定DBへ永続化されるエンティティではなく、
+      fire-and-forgetで発行される値オブジェクトである（`components.md`の
+      `ConfigEngine -.->|設定変更イベント| AuditLogging`に対応）。AuditLogging側が保持する
+      `AuditLogEntry`（components.md参照）はactorUserId/targetType/targetId/operationType/
+      occurredAt/beforeValue/afterValueをエンティティ単位で要求するため、本イベントは
+      *変更されたエンティティ1件につき1イベント*を発行する形状とする。W2（ドラフト取り込み）・
+      W5（設定一式インポート）のように1回の呼び出しで複数のTableConfig/ColumnConfigが
+      変更される場合は、変更されたエンティティごとに個別のConfigChangedEventを発行し、
+      呼び出し単位でまとめた1イベントにはしない。
+    attributes:
+      - name: operation
+        type: string
+        required: true
+        allowed_values: [CREATED, UPDATED]
+        description: >
+          対象エンティティに対する操作種別（AuditLogEntry.operationTypeに対応）。W2で
+          新規作成された場合はCREATED、W5のインポートで既存エンティティが更新された
+          場合や、W6のTranslationEntry登録・更新はCREATED/UPDATEDのいずれか該当する方
+      - name: targetType
+        type: string
+        required: true
+        allowed_values: [TableConfig, ColumnConfig, TranslationEntry]
+        description: 変更されたエンティティの種別（AuditLogEntry.targetTypeに対応）
+      - name: targetId
+        type: string
+        required: true
+        description: >
+          変更されたエンティティのID（AuditLogEntry.targetIdに対応）。TableConfigは
+          tableConfigId、ColumnConfigはcolumnConfigId、TranslationEntryは
+          "{i18nKey}:{locale}"を用いる
+      - name: beforeValue
+        type: object
+        required: false
+        description: >
+          変更前のエンティティ状態のスナップショット（AuditLogEntry.beforeValueに対応）。
+          新規作成（CREATED）の場合はnull
+      - name: afterValue
+        type: object
+        required: true
+        description: 変更後のエンティティ状態のスナップショット（AuditLogEntry.afterValueに対応）
+      - name: actor
+        type: string
+        required: true
+        description: >
+          操作者（AuditLogEntry.actorUserIdに対応）。schema-introspectorからの取り込み
+          （W2）はシステム操作として"system"を用いる。W5・W6は本来利用者操作のIDを
+          伝搬すべきだが未解決である（functional-spec.mdのAssumptions & Open Questions参照）。
+      - name: occurredAt
+        type: datetime
+        required: true
+        description: イベント発生日時（AuditLogEntry.occurredAtに対応）
+    entity_constraints:
+      - "内部設定DBへ永続化しない（AuditLoggingが購読・記録する側の責務）"
+      - "1回のAPI呼び出しで複数エンティティが変更される場合、変更されたエンティティごとに1件発行する（呼び出し単位で集約しない）"
+    relationships: []
 ```
 
 ## 人間可読サマリー
 
-config-engineユニットは3つのエンティティを保持する。
+config-engineユニットは3つの永続エンティティと1つのドメインイベントを保持する。
 
 - **TableConfig**: テーブル単位の表示設定（表示順・楽観ロック対象列の有無）。表示名テキストは持たず、i18nキーを`schemaName`/`tableName`から機械的に導出する。
 - **ColumnConfig**: カラム単位の表示設定（表示順・書式・編集部品種別・バリデーションルール・表示可否・静的選択肢またはFK参照）。TableConfigと同様、表示名・バリデーションメッセージのテキストは持たずi18nキーを導出する。`editorType`がselect/radioの場合は、静的選択肢（`choiceOptions`）とFK参照（`fkReference`）のいずれか一方を必ず設定する。
 - **TranslationEntry**: 業務設定層のi18nキーに対する言語別（日本語/英語）テキスト。管理画面から登録・編集できる実行時データであり、Q4 Follow-upで新設が確定した。基盤層の固定UI文言（ビルド成果物の翻訳リソース）とは明確に区別される。
+- **ConfigChangedEvent**: TableConfig/ColumnConfig/TranslationEntryの変更操作をAuditLogging（U7）へ通知するドメインイベント（BR1.13）。内部設定DBへ永続化しない値オブジェクトであり、fire-and-forgetで発行される。
 
 権限（Role/PrimaryPermission/AuxiliaryPermission）はPermissionEngineが別途保持し、`scopeRef`として`schemaName.tableName`等の文字列キーでTableConfig/ColumnConfigと間接的に対応付く（Q1確定）。ConfigEngine側のエンティティに権限フィールドは持たない。
