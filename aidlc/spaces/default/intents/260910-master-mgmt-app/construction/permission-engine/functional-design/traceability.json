@@ -1,0 +1,19 @@
+{
+  "stage": "functional-design",
+  "unit": "permission-engine",
+  "upstream_ids": ["FR3.3", "FR3.4", "FR4.1", "FR4.2", "FR4.3", "FR4.4", "FR1.6"],
+  "coverage": [
+    { "id": "FR3.3", "status": "OK", "target": "BR3.7" },
+    { "id": "FR3.4", "status": "OK", "target": "BR3.8" },
+    { "id": "FR4.1", "status": "OK", "target": "BR3.1, BR3.2, BR3.3" },
+    { "id": "FR4.2", "status": "OK", "target": "BR3.3, BR3.4（ロール選択UI自体はauthentication-serviceの責務。本ユニットはactiveRoleIdを受け取り選択可能ロール一覧の算出・実効権限判定を担う部分のみ）" },
+    { "id": "FR4.3", "status": "OK", "target": "BR3.4, BR3.6" },
+    { "id": "FR4.4", "status": "OK", "target": "BR3.5, BR3.6" },
+    { "id": "FR1.6", "status": "OK", "target": "BR3.12（本ユニットが担当する部分。他ユニット分は各ユニットの機能設計で別途カバー）" }
+  ],
+  "reverse": [
+    { "id": "BR3.9", "status": "N/A", "target": "特定FRに対応しない技術的制約（assignPermissionの呼び出し経路をconfig-import-exportに限定するunit-of-work.md U9由来の設計制約）" },
+    { "id": "BR3.10", "status": "N/A", "target": "canAccessScreenの画面キー体系はmenu-navigation（FR7.1, FR7.2所有）からの委譲呼び出しを受ける側の技術的規約であり、本ユニット自身のFRには対応しない" },
+    { "id": "BR3.11", "status": "N/A", "target": "監査イベント発行の粒度に関する技術的規約であり、特定のFRではなくcomponents.mdのイベント発行定義に対応する" }
+  ]
+}
