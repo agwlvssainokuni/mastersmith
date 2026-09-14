@@ -1,0 +1,17 @@
+{
+  "stage": "code-generation",
+  "unit": "data-import-export",
+  "version": 1,
+  "writes": [
+    { "path": "backend/build.gradle.kts" },
+    { "path": "backend/src/main/resources/application.yml" },
+    { "path": "backend/src/main/java/com/mastersmith/config/dto/ColumnDraftEntry.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/store/ConfigEngineApi.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java" },
+    { "path": "backend/src/test/java/com/mastersmith/config/entity/ColumnConfigJpaTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/config/store/ConfigModelStoreTest.java" },
+    { "path": "backend/src/main/java/com/mastersmith/dataio/" },
+    { "path": "backend/src/test/java/com/mastersmith/dataio/" }
+  ]
+}

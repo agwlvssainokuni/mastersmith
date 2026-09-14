@@ -42,6 +42,14 @@ public interface ConfigEngineApi {
   /** 指定されたtableConfigIdに属する全ColumnConfigを返す(表示順は保証しない。呼び出し元がdisplayOrderでソートする)。 */
   List<ColumnConfig> getColumnConfigs(String tableConfigId);
 
+  /**
+   * 指定されたtableConfigIdに対応するTableConfigを返す(物理テーブル名(schemaName/tableName)の解決が必要な
+   * 内部コンシューマー向け。data-import-export(U8)がCSVエクスポート・インポート対象の物理テーブルを
+   * 解決するために必要とする、C9契約への追加メソッド。functional-spec.md W1/W2はtableConfigIdのみを
+   * 受け取るため、getTableConfig(schemaName, tableName)とは逆方向の解決が別途必要となる)。
+   */
+  TableConfig getTableConfigById(String tableConfigId) throws TableConfigNotFoundException;
+
   /** 対象テーブルの楽観ロック対象列(更新日時/バージョン列)の明示設定を返す(BR1.7)。 */
   Optional<String> getOptimisticLockColumn(String tableConfigId)
       throws TableConfigNotFoundException;

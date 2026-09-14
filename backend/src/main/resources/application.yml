@@ -39,9 +39,15 @@ spring:
     console:
       enabled: false
 
-# 業務データ用RDBMS接続は本Boltでは未使用のプレースホルダ。
-# schema-introspector/list-engine/record-edit-engineユニットで、内部設定DBとは別の
-# DataSourceとして実装される想定(team.md「内部設定DB(新規決定)」を参照)。
+# 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)接続。内部設定DBとは別のDataSourceとして
+# BusinessDataSourceConfig(com.mastersmith.dataio.config)がenabled=trueの場合にのみBeanを
+# 生成する(team.md「内部設定DB(新規決定)」を参照)。実際の接続先が未確定な開発環境では
+# enabled=falseのまま(既定)にしておくことで、data-import-export(U8)を含むCSV
+# エクスポート/インポート機能に依存しない他ユニットの起動に影響を与えない。
 mastersmith:
   business-datasource:
-    enabled: false
+    enabled: ${MASTERSMITH_BUSINESS_DB_ENABLED:false}
+    url: ${MASTERSMITH_BUSINESS_DB_URL:}
+    driver-class-name: ${MASTERSMITH_BUSINESS_DB_DRIVER:}
+    username: ${MASTERSMITH_BUSINESS_DB_USERNAME:}
+    password: ${MASTERSMITH_BUSINESS_DB_PASSWORD:}

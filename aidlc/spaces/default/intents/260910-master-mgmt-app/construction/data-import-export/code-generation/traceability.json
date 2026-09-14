@@ -1,0 +1,21 @@
+{
+  "stage": "code-generation",
+  "unit": "data-import-export",
+  "upstream_ids": ["FR12.1", "BR8.1", "BR8.2", "BR8.3", "BR8.4", "BR8.5", "BR8.6", "BR8.7", "BR8.8", "BR8.9", "BR8.10"],
+  "coverage": [
+    { "id": "FR12.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvExportService.java, backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java" },
+    { "id": "BR8.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvExportService.java" },
+    { "id": "BR8.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/csv/CsvColumnDefinitionResolver.java" },
+    { "id": "BR8.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/csv/CsvRowValidator.java" },
+    { "id": "BR8.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java" },
+    { "id": "BR8.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/csv/CsvRowValidator.java" },
+    { "id": "BR8.6", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/dto/RowError.java" },
+    { "id": "BR8.7", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java" },
+    { "id": "BR8.8", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvExportService.java, backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java（PermissionEngineへの問い合わせを行わない設計）" },
+    { "id": "BR8.9", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/event/ImportExecutedEvent.java, backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java" },
+    { "id": "BR8.10", "status": "OK", "target": "backend/src/main/java/com/mastersmith/dataio/service/CsvExportService.java（fetchSize指定カーソル）, backend/src/main/java/com/mastersmith/dataio/service/CsvImportService.java（1回のストリーミング走査）" }
+  ],
+  "reverse": [
+    { "id": "BR1.14", "status": "N/A", "target": "config-engineの前提修正（backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java）に対応するルールであり、本Unit自身のFRには対応しない" }
+  ]
+}

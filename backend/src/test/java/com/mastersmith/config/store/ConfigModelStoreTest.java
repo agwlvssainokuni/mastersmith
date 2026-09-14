@@ -102,6 +102,23 @@ class ConfigModelStoreTest {
   }
 
   @Test
+  void getTableConfigByIdReturnsCachedValueWhenPresent() {
+    TableConfig tableConfig = new TableConfig("public", "products");
+    when(cache.findTableConfigById(tableConfig.getTableConfigId()))
+        .thenReturn(Optional.of(tableConfig));
+
+    assertThat(store.getTableConfigById(tableConfig.getTableConfigId())).isSameAs(tableConfig);
+  }
+
+  @Test
+  void getTableConfigByIdThrowsWhenNotFound() {
+    when(cache.findTableConfigById("unknown")).thenReturn(Optional.empty());
+
+    assertThatThrownBy(() -> store.getTableConfigById("unknown"))
+        .isInstanceOf(TableConfigNotFoundException.class);
+  }
+
+  @Test
   void getOptimisticLockColumnReturnsConfiguredColumn() {
     TableConfig tableConfig = new TableConfig("t1", "public", "products", 0, "updated_at");
     when(cache.findTableConfigById("t1")).thenReturn(Optional.of(tableConfig));
@@ -164,6 +181,29 @@ class ConfigModelStoreTest {
     verify(cache, times(1)).reload();
     verify(eventPublisher, times(1))
         .publishEvent(any(com.mastersmith.config.event.ConfigChangedEvent.class));
+  }
+
+  @Test
+  void writeTableConfigDraftPropagatesIsPrimaryKeyFromColumnDraftEntryToColumnConfig() {
+    when(cache.findTableConfig("public", "new_table")).thenReturn(Optional.empty());
+    when(rdbmsTypeNormalizer.normalize(RdbmsDialect.POSTGRESQL, "int"))
+        .thenReturn(LogicalType.INTEGER);
+    TableConfigDraft draft =
+        new TableConfigDraft(
+            RdbmsDialect.POSTGRESQL,
+            List.of(
+                new TableDraftEntry(
+                    "public",
+                    "new_table",
+                    List.of(new ColumnDraftEntry("id", "int", true)))));
+
+    store.writeTableConfigDraft(draft);
+
+    org.mockito.ArgumentCaptor<List<ColumnConfig>> captor =
+        org.mockito.ArgumentCaptor.forClass(List.class);
+    verify(columnConfigRepository, times(1)).saveAll(captor.capture());
+    assertThat(captor.getValue()).hasSize(1);
+    assertThat(captor.getValue().get(0).isPrimaryKey()).isTrue();
   }
 
   @Test

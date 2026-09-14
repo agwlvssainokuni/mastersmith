@@ -112,6 +112,26 @@ class ColumnConfigJpaTest {
   }
 
   @Test
+  void savesAndReloadsIsPrimaryKeyFlag() {
+    ColumnConfig primaryKeyColumn =
+        new ColumnConfig("table-3", "id", EditorType.INTEGER, true);
+    ColumnConfig nonPrimaryKeyColumn = new ColumnConfig("table-3", "name", EditorType.TEXT);
+
+    entityManager.persist(primaryKeyColumn);
+    entityManager.persist(nonPrimaryKeyColumn);
+    entityManager.flush();
+    entityManager.clear();
+
+    assertThat(entityManager.find(ColumnConfig.class, primaryKeyColumn.getColumnConfigId()).isPrimaryKey())
+        .isTrue();
+    assertThat(
+            entityManager
+                .find(ColumnConfig.class, nonPrimaryKeyColumn.getColumnConfigId())
+                .isPrimaryKey())
+        .isFalse();
+  }
+
+  @Test
   void rejectsDuplicateTableConfigIdAndColumnName() {
     ColumnConfig first = new ColumnConfig("table-2", "duplicate_column", EditorType.TEXT);
     entityManager.persist(first);

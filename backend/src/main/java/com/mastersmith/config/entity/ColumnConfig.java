@@ -98,11 +98,30 @@ public class ColumnConfig {
   @Column(name = "fk_reference")
   private FkReference fkReference;
 
+  /**
+   * 対象テーブルの主キー列かどうか(Contract Design追補C9、data-import-export/entities.md
+   * CsvColumnDefinition.isPrimaryKey)。schema-introspectorが対象RDBMSのメタデータ読み取り時に
+   * 判定した結果を{@link #ColumnConfig(String, String, EditorType, boolean)}経由でのみ設定でき、
+   * setterは公開しない(rules.md BR1.14: writeTableConfigDraft経由の構築時にのみ設定され、
+   * 手動編集・importConfigSet等の他経路からは変更不可能とする)。
+   */
+  @Column(name = "is_primary_key", nullable = false)
+  private boolean primaryKey;
+
   protected ColumnConfig() {
     // JPA用
   }
 
   public ColumnConfig(String tableConfigId, String columnName, EditorType editorType) {
+    this(tableConfigId, columnName, editorType, false);
+  }
+
+  /**
+   * schema-introspector専用のwriteTableConfigDraft経由の構築コンストラクタ(BR1.14)。
+   * isPrimaryKeyは他の経路(手動編集・importConfigSet)からは設定・変更できない。
+   */
+  public ColumnConfig(
+      String tableConfigId, String columnName, EditorType editorType, boolean isPrimaryKey) {
     this.columnConfigId = UUID.randomUUID().toString();
     this.tableConfigId = tableConfigId;
     this.columnName = columnName;
@@ -111,6 +130,7 @@ public class ColumnConfig {
     this.visibility = Visibility.VISIBLE;
     this.validationRule = ValidationRule.empty();
     this.choiceOptions = new ArrayList<>();
+    this.primaryKey = isPrimaryKey;
   }
 
   public String getColumnConfigId() {
@@ -187,6 +207,10 @@ public class ColumnConfig {
 
   public void setFkReference(FkReference fkReference) {
     this.fkReference = fkReference;
+  }
+
+  public boolean isPrimaryKey() {
+    return primaryKey;
   }
 
   /** BR1.5: 表示名i18nキーの機械的導出。 */

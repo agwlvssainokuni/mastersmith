@@ -6,15 +6,15 @@ data-import-exportは業務データそのものを所有せず、CSVエクス�
 
 本Unitのupsert判定(BR8.3)が必要とする`ColumnConfig.isPrimaryKey`は、Contract Design追補(Q8=A)によりconfig-engine(U1)のC9契約に追加されたが、config-engineの実コード(既にCode Generation完了済み)には未反映である。本Boltの前提修正として、config-engine側に最小限のin-place修正を加える(brownfield、既存ファイルへの追加)。
 
-- [ ] `ColumnConfig`エンティティ(`backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java`)に`isPrimaryKey`(boolean)フィールドを追加する。既存の3引数コンストラクタ(`tableConfigId, columnName, editorType`、isPrimaryKey=falseで初期化)は既存呼び出し元(テスト等)との互換のため維持し、新規4引数コンストラクタ(`tableConfigId, columnName, editorType, isPrimaryKey`)を追加する。getterのみを公開し、setterは公開しない(BR1.14: writeTableConfigDraft経由の構築時にのみ設定され、他の経路(手動編集・importConfigSet)からは変更不可能とする設計をコンストラクタ限定で保証する)
-- [ ] JPAマッピング: `column_config`テーブルへ`is_primary_key`カラム(boolean, not null, default false)を追加する(H2自動DDL)
-- [ ] `ColumnDraftEntry`(`backend/src/main/java/com/mastersmith/config/dto/ColumnDraftEntry.java`)に`isPrimaryKey`(boolean)フィールドを追加する(schema-introspectorが主キー判定結果を渡すためのDTO拡張)
-- [ ] `ConfigModelStore.buildColumnConfigs`(`backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java`)で、新規4引数コンストラクタを用いて`columnDraft.isPrimaryKey()`を新規`ColumnConfig`へそのまま設定する(BR1.14)
+- [x] `ColumnConfig`エンティティ(`backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java`)に`isPrimaryKey`(boolean)フィールドを追加する。既存の3引数コンストラクタ(`tableConfigId, columnName, editorType`、isPrimaryKey=falseで初期化)は既存呼び出し元(テスト等)との互換のため維持し、新規4引数コンストラクタ(`tableConfigId, columnName, editorType, isPrimaryKey`)を追加する。getterのみを公開し、setterは公開しない(BR1.14: writeTableConfigDraft経由の構築時にのみ設定され、他の経路(手動編集・importConfigSet)からは変更不可能とする設計をコンストラクタ限定で保証する)
+- [x] JPAマッピング: `column_config`テーブルへ`is_primary_key`カラム(boolean, not null, default false)を追加する(H2自動DDL)
+- [x] `ColumnDraftEntry`(`backend/src/main/java/com/mastersmith/config/dto/ColumnDraftEntry.java`)に`isPrimaryKey`(boolean)フィールドを追加する(schema-introspectorが主キー判定結果を渡すためのDTO拡張)
+- [x] `ConfigModelStore.buildColumnConfigs`(`backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java`)で、新規4引数コンストラクタを用いて`columnDraft.isPrimaryKey()`を新規`ColumnConfig`へそのまま設定する(BR1.14)
 
 ### 前提修正のテスト(test-after)
 
-- [ ] `ColumnConfigJpaTest`に`isPrimaryKey`の保存・取得往復ケースを追加する
-- [ ] `ConfigModelStoreTest`に、`writeTableConfigDraft`が`ColumnDraftEntry.isPrimaryKey`を新規`ColumnConfig.isPrimaryKey`へ正しく伝播することを確認するケースを追加する
+- [x] `ColumnConfigJpaTest`に`isPrimaryKey`の保存・取得往復ケースを追加する
+- [x] `ConfigModelStoreTest`に、`writeTableConfigDraft`が`ColumnDraftEntry.isPrimaryKey`を新規`ColumnConfig.isPrimaryKey`へ正しく伝播することを確認するケースを追加する
 
 ## Testing Contract
 
@@ -97,57 +97,57 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 1: プロジェクト構造(パッケージ作成)
 
-- [ ] `backend/src/main/java/com/mastersmith/dataio/`配下にパッケージ構造を作成する(`dto`, `csv`, `service`のサブパッケージ)
+- [x] `backend/src/main/java/com/mastersmith/dataio/`配下にパッケージ構造を作成する(`dto`, `csv`, `service`のサブパッケージ)
 
 ## Step 2: テストランナー確認
 
-- [ ] 既存のGradleテストタスク(`./gradlew :backend:test`)がdata-import-export配下の新規テストクラスを実行できることを確認する(config-engineで確立済みのテスト基盤を再利用、追加設定不要)
+- [x] 既存のGradleテストタスク(`./gradlew :backend:test`)がdata-import-export配下の新規テストクラスを実行できることを確認する(config-engineで確立済みのテスト基盤を再利用、追加設定不要)
 
 ## Step 3: データモデル層の実装(DTO・値オブジェクト、entities.md準拠)
 
-- [ ] `CsvExportRequest`(record: tableConfigId, filter, sort, permittedColumnNames)を実装する
-- [ ] `CsvImportRequest`(record: tableConfigId, file, actor)を実装する
-- [ ] `CsvColumnDefinition`(record: columnName, editorType, validationRule, visibility, isPrimaryKey)を実装する
-- [ ] `CsvImportRowResult`(record: rowNumber, outcome, operation, errors)、`RowError`(record: field, message)を実装する
-- [ ] `ImportResult`(record: successCount, errors)、`ImportExecutedEvent`(record: tableConfigId, actor, successCount, errorCount, committed, occurredAt)を実装する(`ConfigChangedEvent`と同様、Springの`ApplicationEventPublisher`で発行するイベント)
+- [x] `CsvExportRequest`(record: tableConfigId, filter, sort, permittedColumnNames)を実装する
+- [x] `CsvImportRequest`(record: tableConfigId, file, actor)を実装する
+- [x] `CsvColumnDefinition`(record: columnName, editorType, validationRule, visibility, isPrimaryKey)を実装する
+- [x] `CsvImportRowResult`(record: rowNumber, outcome, operation, errors)、`RowError`(record: field, message)を実装する
+- [x] `ImportResult`(record: successCount, errors)、`ImportExecutedEvent`(record: tableConfigId, actor, successCount, errorCount, committed, occurredAt)を実装する(`ConfigChangedEvent`と同様、Springの`ApplicationEventPublisher`で発行するイベント)
 
 ## Step 4: データモデル層のテスト(test-after)
 
-- [ ] 各recordのコンパクトコンストラクタ・不変性の単体テスト(該当する場合)
+- [x] 各recordのコンパクトコンストラクタ・不変性の単体テスト(該当する場合)
 
 ## Step 5: ビジネスロジック層の実装(エクスポート、BR8.1・BR8.2・BR8.8・BR8.10)
 
-- [ ] `CsvColumnDefinitionResolver`を実装する: `ConfigEngineApi.getColumnConfigs`から取得したColumnConfig一覧を、`visibility: hidden`列および`permittedColumnNames`に含まれない列を除外して`CsvColumnDefinition`一覧へ変換する(BR8.2)
-- [ ] `CsvExportService`を実装する: `exportCsv(tableConfigId, filter, sort, permittedColumnNames)`(C13契約)を提供し、業務データ用RDBMSへJDBCカーソル経由で対象データを逐次読み取り、UTF-8 BOM付き・カンマ区切り・ヘッダー行・CRLF形式(BR8.1)で1行ずつ`OutputStream`(CSV)へ書き込む。全件を一括でメモリへ読み込まない(BR8.10)
+- [x] `CsvColumnDefinitionResolver`を実装する: `ConfigEngineApi.getColumnConfigs`から取得したColumnConfig一覧を、`visibility: hidden`列および`permittedColumnNames`に含まれない列を除外して`CsvColumnDefinition`一覧へ変換する(BR8.2)
+- [x] `CsvExportService`を実装する: `exportCsv(tableConfigId, filter, sort, permittedColumnNames)`(C13契約)を提供し、業務データ用RDBMSへJDBCカーソル経由で対象データを逐次読み取り、UTF-8 BOM付き・カンマ区切り・ヘッダー行・CRLF形式(BR8.1)で1行ずつ`OutputStream`(CSV)へ書き込む。全件を一括でメモリへ読み込まない(BR8.10)
 
 ## Step 6: ビジネスロジック層のテスト(エクスポート)
 
-- [ ] `CsvColumnDefinitionResolverTest`: hidden列・permittedColumnNames対象外列の除外、両方を満たす列のみ残ることを確認するテーブル駆動テスト
-- [ ] `CsvExportServiceTest`: 正常系(生成されるCSVの形式・内容がBR8.1に従うこと)、空データ(ヘッダー行のみ)、対象テーブル不在時の`TableConfigNotFoundException`伝播
+- [x] `CsvColumnDefinitionResolverTest`: hidden列・permittedColumnNames対象外列の除外、両方を満たす列のみ残ることを確認するテーブル駆動テスト
+- [x] `CsvExportServiceTest`: 正常系(生成されるCSVの形式・内容がBR8.1に従うこと)、空データ(ヘッダー行のみ)、対象テーブル不在時の`TableConfigNotFoundException`伝播
 
 ## Step 7: ビジネスロジック層の実装(インポート、BR8.3〜BR8.7・BR8.10)
 
-- [ ] `CsvRowValidator`を実装する: `CsvColumnDefinition`に基づき、1行分の値を`editorType`に応じた型へ変換し(変換失敗は型変換エラー)、`validationRule`を適用する(BR8.5)。主キー列の値の有無からupsert種別(INSERT/UPDATE)を判定する(BR8.3、対象行が存在しない場合はエラー)
-- [ ] `CsvImportService`を実装する: `importCsv(tableConfigId, file, actor)`(C13契約)を提供し、CSVファイルを1回のストリーミング走査で1行ずつ読み取りながら`CsvRowValidator`を適用し、検証済みの軽量な行データ(`CsvImportRowResult`)を一時バッファ(メモリ上のリスト)へ蓄積する(BR8.10)。全行の読み取り完了後、1件でも`outcome=INVALID`があれば何も反映せず`ImportResult`を返す。全行が有効な場合のみ、1つの`@Transactional`メソッド内でINSERT/UPDATEを実行し、楽観ロック競合検出は行わない(BR8.4、常に後勝ち)
+- [x] `CsvRowValidator`を実装する: `CsvColumnDefinition`に基づき、1行分の値を`editorType`に応じた型へ変換し(変換失敗は型変換エラー)、`validationRule`を適用する(BR8.5)。主キー列の値の有無からupsert種別(INSERT/UPDATE)を判定する(BR8.3、対象行が存在しない場合はエラー)
+- [x] `CsvImportService`を実装する: `importCsv(tableConfigId, file, actor)`(C13契約)を提供し、CSVファイルを1回のストリーミング走査で1行ずつ読み取りながら`CsvRowValidator`を適用し、検証済みの軽量な行データ(`CsvImportRowResult`)を一時バッファ(メモリ上のリスト)へ蓄積する(BR8.10)。全行の読み取り完了後、1件でも`outcome=INVALID`があれば何も反映せず`ImportResult`を返す。全行が有効な場合のみ、1つの`@Transactional`メソッド内でINSERT/UPDATEを実行し、楽観ロック競合検出は行わない(BR8.4、常に後勝ち)
 
 ## Step 8: ビジネスロジック層のテスト(インポート、安全失敗/バリデーションテスト含む)
 
-- [ ] `CsvRowValidatorTest`(テーブル駆動): 型変換エラー、validationRule各種違反(required/minLength/maxLength/min/max/pattern)、主キー値ありでUPDATE対象行が存在しないケース、正常系のINSERT/UPDATE判定(`team.md`確定の必須テスト種別(a)安全失敗/バリデーションテスト)
-- [ ] `CsvImportServiceTest`: 全行有効時の一括コミット、1件でもエラーがあれば全体ロールバック(成功見込みだった行も反映されないことを確認、BR8.7)、既存行への後勝ち上書き(楽観ロック対象列があってもバージョン競合を検出しないこと、BR8.4)
+- [x] `CsvRowValidatorTest`(テーブル駆動): 型変換エラー、validationRule各種違反(required/minLength/maxLength/min/max/pattern)、主キー値ありでUPDATE対象行が存在しないケース、正常系のINSERT/UPDATE判定(`team.md`確定の必須テスト種別(a)安全失敗/バリデーションテスト)
+- [x] `CsvImportServiceTest`: 全行有効時の一括コミット、1件でもエラーがあれば全体ロールバック(成功見込みだった行も反映されないことを確認、BR8.7)、既存行への後勝ち上書き(楽観ロック対象列があってもバージョン競合を検出しないこと、BR8.4)
 
 ## Step 9: 監査ログ連携の実装(BR8.9)
 
-- [ ] `CsvImportService`の処理完了時(コミット・ロールバックいずれも)に、`ImportExecutedEvent(tableConfigId, actor, successCount, errorCount, committed, occurredAt)`をSpringの`ApplicationEventPublisher`でfire-and-forget発行する
+- [x] `CsvImportService`の処理完了時(コミット・ロールバックいずれも)に、`ImportExecutedEvent(tableConfigId, actor, successCount, errorCount, committed, occurredAt)`をSpringの`ApplicationEventPublisher`でfire-and-forget発行する
 
 ## Step 10: 監査ログ連携のテスト
 
-- [ ] `CsvImportServiceTest`に、成功時・全体ロールバック時それぞれで`ImportExecutedEvent`が正しい内容(successCount/errorCount/committed)で1件発行されることを確認するケースを追加する(Springの`ApplicationEvents`アサーション機構を使用)
+- [x] `CsvImportServiceTest`に、成功時・全体ロールバック時それぞれで`ImportExecutedEvent`が正しい内容(successCount/errorCount/committed)で1件発行されることを確認するケースを追加する(Springの`ApplicationEvents`アサーション機構を使用)
 
 ## Step 11: 環境・ビルド設定
 
-- [ ] 新規パッケージがconfig-engineと同一のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(追加設定は不要)
+- [x] 新規パッケージがconfig-engineと同一のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(追加設定は不要)
 
 ## Step 12: ドキュメント・トレーサビリティ
 
-- [ ] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する
-- [ ] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する(オーケストレーターが実施)
+- [x] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する
+- [x] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する(オーケストレーターが実施)

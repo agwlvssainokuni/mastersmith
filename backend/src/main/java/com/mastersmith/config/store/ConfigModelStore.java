@@ -88,6 +88,16 @@ public class ConfigModelStore implements ConfigEngineApi {
   }
 
   @Override
+  public TableConfig getTableConfigById(String tableConfigId) {
+    return cache
+        .findTableConfigById(tableConfigId)
+        .orElseThrow(
+            () ->
+                new TableConfigNotFoundException(
+                    "TableConfig not found: tableConfigId=" + tableConfigId));
+  }
+
+  @Override
   public Optional<String> getOptimisticLockColumn(String tableConfigId) {
     TableConfig tableConfig =
         cache
@@ -139,7 +149,10 @@ public class ConfigModelStore implements ConfigEngineApi {
           rdbmsTypeNormalizer.normalize(draft.dialect(), columnDraft.rawTypeName());
       columnConfigs.add(
           new ColumnConfig(
-              tableConfigId, columnDraft.columnName(), logicalType.defaultEditorType()));
+              tableConfigId,
+              columnDraft.columnName(),
+              logicalType.defaultEditorType(),
+              columnDraft.isPrimaryKey()));
     }
     return columnConfigs;
   }
