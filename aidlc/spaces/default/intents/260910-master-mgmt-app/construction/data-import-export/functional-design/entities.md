@@ -79,9 +79,9 @@ entities:
         required: true
         description: >
           インポートを実行した利用者のユーザーID（BR8.9の`ImportExecutedEvent.actor`の
-          出所）。record-edit-engineが認証済みセッションから取得し、DataImportExportへ
-          渡す想定だが、C13の現行シグネチャには対応するパラメータがない（レビュー指摘
-          R-02対応、Contract Designへの追補が必要）
+          出所）。record-edit-engineが自身のREST層(C2、Bearer認証済み)のSpring Security
+          認証済みプリンシパルから取得し、DataImportExportの内部インタフェース`importCsv`
+          （C13、Contract Design追補Q7=Aで解決済み）へパラメータとして渡す
     entity_constraints:
       - "永続化しない。呼び出しごとの一時的なリクエストパラメータ"
     relationships: []
@@ -122,11 +122,16 @@ entities:
     relationships:
       - target: CsvExportRequest
         cardinality: "0..*"
-        direction: "CsvExportRequest/CsvImportRequest 1 -> 0..* CsvColumnDefinition"
+        direction: "CsvExportRequest 1 -> 0..* CsvColumnDefinition"
         description: >
-          1回のエクスポート/インポート実行(CsvExportRequestまたはCsvImportRequest)は、
-          対象テーブルの列数に応じた0件以上のCsvColumnDefinitionを解決して参照する
-          （レビュー指摘R-04対応で表記・方向を明確化）
+          1回のエクスポート実行(CsvExportRequest)は、対象テーブルの列数に応じた0件以上の
+          CsvColumnDefinitionを解決して参照する（レビュー指摘R-04対応で表記・方向を明確化）
+      - target: CsvImportRequest
+        cardinality: "0..*"
+        direction: "CsvImportRequest 1 -> 0..* CsvColumnDefinition"
+        description: >
+          1回のインポート実行(CsvImportRequest)は、対象テーブルの列数に応じた0件以上の
+          CsvColumnDefinitionを解決して参照する（レビュー指摘R-02対応で関係を明示化）
 
   - name: CsvImportRowResult
     description: >
