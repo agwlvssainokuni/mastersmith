@@ -1,0 +1,13 @@
+{
+  "stage": "functional-design",
+  "unit": "schema-introspector",
+  "upstream_ids": ["FR1.4"],
+  "coverage": [
+    { "id": "FR1.4", "status": "OK", "target": "BR2.1, BR2.2, BR2.3, BR2.4, BR2.5, BR2.7, BR2.10" }
+  ],
+  "reverse": [
+    { "id": "BR2.6", "status": "N/A", "target": "特定FRに対応しない設計制約(Q2確定。楽観ロック対象列は自動検出しないという既存確定事項の継続適用)" },
+    { "id": "BR2.8", "status": "N/A", "target": "project.md Mandated(サーバー側での実効権限再検証)に対応する横断的なアクセス制御規約であり、FR1.4固有の要件ではない" },
+    { "id": "BR2.9", "status": "N/A", "target": "project.md Mandated(設定定義自体の誤りはfail fast検知)に対応する技術的なエラーハンドリング規約であり、特定のFRには対応しない" }
+  ]
+}
