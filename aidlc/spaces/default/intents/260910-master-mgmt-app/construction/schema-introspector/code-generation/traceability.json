@@ -1,0 +1,92 @@
+{
+  "stage": "code-generation",
+  "unit": "schema-introspector",
+  "upstream_ids": [
+    "FR1.4",
+    "BR2.1",
+    "BR2.2",
+    "BR2.3",
+    "BR2.4",
+    "BR2.5",
+    "BR2.6",
+    "BR2.7",
+    "BR2.8",
+    "BR2.9",
+    "BR2.10",
+    "NFR1.1",
+    "NFR4.1",
+    "NFR5.1"
+  ],
+  "coverage": [
+    {
+      "id": "FR1.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    },
+    {
+      "id": "BR2.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java"
+    },
+    {
+      "id": "BR2.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    },
+    {
+      "id": "BR2.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java"
+    },
+    {
+      "id": "BR2.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java"
+    },
+    {
+      "id": "BR2.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    },
+    {
+      "id": "BR2.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    },
+    {
+      "id": "BR2.7",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    },
+    {
+      "id": "BR2.8",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/web/SchemaIntrospectionController.java"
+    },
+    {
+      "id": "BR2.9",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/exception/SchemaIntrospectionException.java"
+    },
+    {
+      "id": "BR2.10",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/dto/RdbmsColumnMetadata.java"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java"
+    }
+  ]
+}

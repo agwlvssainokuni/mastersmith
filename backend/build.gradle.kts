@@ -40,6 +40,8 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    // schema-introspector(U2): 最初にRESTコントローラ(C8)を必要とするUnitのため、ここでWeb starterを導入する。
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.core:jackson-databind")
     // data-import-export(U8): CSVエクスポート/インポートのストリーミング読み書き
     // (nfr-requirements/tech-stack-decisions.md「CSVパースライブラリ: Apache Commons CSV」)。
@@ -53,6 +55,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Spring Boot 4.0でDataJpaTest等のテストスライスは個別モジュールへ分離された。
     testImplementation("org.springframework.boot:spring-boot-data-jpa-test")
+    // schema-introspector(U2): @WebMvcTest(SchemaIntrospectionControllerTest)用
+    // (Jacksonのテスト自動構成を含むstarterでなければObjectMapperがテストスライスへ自動構成されない)。
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
 }
 
 tasks.withType<JavaCompile> {

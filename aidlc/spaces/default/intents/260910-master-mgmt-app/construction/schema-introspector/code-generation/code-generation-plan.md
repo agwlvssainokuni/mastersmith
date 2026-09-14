@@ -14,7 +14,7 @@ C8契約(`POST /api/config/schema-introspection`)はBearer JWT認証を前提と
 
 `inception/contract-design/contract-summary.md` C10契約のconsumers列挙にschema-introspectorが含まれておらず(NFR Design アーキテクチャレビューR-02で指摘)、`PermissionEngineApi.java`のJavadocも同様に未記載であることを確認した。設計文書(contract-summary.md)自体の修正はInception成果物の変更となるため本Boltの対象外とするが、実コードのJavadoc(`backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java`)は事実誤りの軽微な追補として本Boltで更新する。
 
-- [ ] `PermissionEngineApi.java`のJavadoc consumers列挙に`schema-introspector`を追加する
+- [x] `PermissionEngineApi.java`のJavadoc consumers列挙に`schema-introspector`を追加する
 
 ## Testing Contract
 
@@ -103,62 +103,62 @@ user-storiesステージはSKIP対象のため、`requirements.md`のFR ID・`fu
 
 ## Step 1: プロジェクト構造(パッケージ作成)
 
-- [ ] `backend/src/main/java/com/mastersmith/schema/`配下にパッケージ構造を作成する(`dto`, `security`, `rdbms`, `service`, `web`, `exception`のサブパッケージ)
+- [x] `backend/src/main/java/com/mastersmith/schema/`配下にパッケージ構造を作成する(`dto`, `security`, `rdbms`, `service`, `web`, `exception`のサブパッケージ)
 
 ## Step 2: テストランナー確認
 
-- [ ] 既存のGradleテストタスク(`./gradlew :backend:test`)がschema-introspector配下の新規テストクラスを実行できることを確認する(config-engineで確立済みのテスト基盤を再利用、追加設定不要)
+- [x] 既存のGradleテストタスク(`./gradlew :backend:test`)がschema-introspector配下の新規テストクラスを実行できることを確認する(config-engineで確立済みのテスト基盤を再利用、追加設定不要。ただし`@WebMvcTest`用に`spring-boot-starter-webmvc-test`と、Web層自体に`spring-boot-starter-web`をbuild.gradle.ktsへ追加した。schema-introspectorが本コードベース最初のRESTコントローラを持つUnitであるため)
 
 ## Step 3: データモデル層の実装(DTO・値オブジェクト、entities.md準拠)
 
-- [ ] `SchemaIntrospectionRequest`(record: schemaName, tableNames)を実装する(C8リクエストボディ)
-- [ ] `SchemaIntrospectionResult`(record: generatedTableConfigIds)を実装する(C8レスポンスボディ)
-- [ ] `RdbmsTableMetadata`(record: schemaName, tableName, columns)、`RdbmsColumnMetadata`(record: columnName, rawTypeName, isPrimaryKey, nullable)を実装する(内部読み取りモデル、entities.md準拠。nullableはBR2.10により保持するがConfigDraftEntryへは伝搬しない)
+- [x] `SchemaIntrospectionRequest`(record: schemaName, tableNames)を実装する(C8リクエストボディ)
+- [x] `SchemaIntrospectionResult`(record: generatedTableConfigIds)を実装する(C8レスポンスボディ)
+- [x] `RdbmsTableMetadata`(record: schemaName, tableName, columns)、`RdbmsColumnMetadata`(record: columnName, rawTypeName, isPrimaryKey, nullable)を実装する(内部読み取りモデル、entities.md準拠。nullableはBR2.10により保持するがConfigDraftEntryへは伝搬しない)
 
 ## Step 4: データモデル層のテスト(test-after)
 
-- [ ] 各recordのコンパクトコンストラクタ・不変性の単体テスト(該当する場合)
+- [x] 各recordのコンパクトコンストラクタ・不変性の単体テスト(該当する場合)
 
 ## Step 5: 認可拡張点の実装(BR2.8、前提事項参照)
 
-- [ ] `ActiveRoleResolver`インタフェース(`resolveActiveRoleId(HttpServletRequest): String`)を定義する
-- [ ] `HeaderActiveRoleResolver`(最小実装、`X-Active-Role-Id`ヘッダーから読み取る。authentication-service実装時に置き換え予定であることをJavadocに明記)を実装する
+- [x] `ActiveRoleResolver`インタフェース(`resolveActiveRoleId(HttpServletRequest): String`)を定義する
+- [x] `HeaderActiveRoleResolver`(最小実装、`X-Active-Role-Id`ヘッダーから読み取る。authentication-service実装時に置き換え予定であることをJavadocに明記)を実装する
 
 ## Step 6: 認可拡張点のテスト
 
-- [ ] `HeaderActiveRoleResolverTest`: ヘッダーあり/なしのケース
+- [x] `HeaderActiveRoleResolverTest`: ヘッダーあり/なしのケース
 
 ## Step 7: メタデータ読み取り層の実装(BR2.1, BR2.3, BR2.4, BR2.10)
 
-- [ ] `RdbmsMetadataReader`を実装する: `businessDataSource`(`@Qualifier("businessDataSource")`、data-import-exportと同じ`@ConditionalOnProperty`パターンを踏襲)から取得した`Connection`の`DatabaseMetaData`を用いて、対象スキーマ・テーブル(またはスキーマ配下の全テーブル)のカラム名・型名・主キー制約・NULL可否を読み取り`RdbmsTableMetadata`一覧を返す。RDBMS方言(`com.mastersmith.config.rdbms.RdbmsDialect`を再利用)は`DatabaseMetaData.getDatabaseProductName()`等から判定する。接続タイムアウト5秒・読み取りタイムアウト25秒を設定する(NFR4.1)
+- [x] `RdbmsMetadataReader`を実装する: `businessDataSource`(`@Qualifier("businessDataSource")`、data-import-exportと同じ`@ConditionalOnProperty`パターンを踏襲)から取得した`Connection`の`DatabaseMetaData`を用いて、対象スキーマ・テーブル(またはスキーマ配下の全テーブル)のカラム名・型名・主キー制約・NULL可否を読み取り`RdbmsTableMetadata`一覧を返す。RDBMS方言(`com.mastersmith.config.rdbms.RdbmsDialect`を再利用)は`DatabaseMetaData.getDatabaseProductName()`等から判定する。接続タイムアウト5秒・読み取りタイムアウト25秒を設定する(NFR4.1)
 
 ## Step 8: メタデータ読み取り層のテスト
 
-- [ ] `RdbmsMetadataReaderTest`: H2インメモリDB上に作成したテストスキーマ(複数テーブル・主キー・NULL許容/非許容カラムを含む)に対する読み取り結果を検証する統合テスト。存在しないスキーマ指定時の挙動も確認する
+- [x] `RdbmsMetadataReaderTest`: H2インメモリDB上に作成したテストスキーマ(複数テーブル・主キー・NULL許容/非許容カラムを含む)に対する読み取り結果を検証する統合テスト。存在しないスキーマ指定時の挙動も確認する
 
 ## Step 9: ビジネスロジック層の実装(BR2.2, 2.5, 2.6, 2.7, 2.9)
 
-- [ ] `SchemaIntrospectionService`を実装する: `introspect(SchemaIntrospectionRequest): SchemaIntrospectionResult`を提供し、`RdbmsMetadataReader`で読み取った`RdbmsTableMetadata`一覧をconfig-engineのC9契約型(`TableConfigDraft`/`TableDraftEntry`/`ColumnDraftEntry`)へ変換し、`ConfigEngineApi.writeTableConfigDraft`を1回呼び出す。読み取り失敗時は`SchemaIntrospectionException`(422)を送出し`writeTableConfigDraft`を呼び出さない(BR2.9)
+- [x] `SchemaIntrospectionService`を実装する: `introspect(SchemaIntrospectionRequest): SchemaIntrospectionResult`を提供し、`RdbmsMetadataReader`で読み取った`RdbmsTableMetadata`一覧をconfig-engineのC9契約型(`TableConfigDraft`/`TableDraftEntry`/`ColumnDraftEntry`)へ変換し、`ConfigEngineApi.writeTableConfigDraft`を1回呼び出す。読み取り失敗時は`SchemaIntrospectionException`(422)を送出し`writeTableConfigDraft`を呼び出さない(BR2.9)
 
 ## Step 10: ビジネスロジック層のテスト
 
-- [ ] `SchemaIntrospectionServiceTest`: `RdbmsMetadataReader`・`ConfigEngineApi`をモックした正常系(TableConfigDraftへの変換内容、nullableが伝搬されないことの確認含む)、メタデータ読み取り失敗時に`writeTableConfigDraft`が一切呼び出されないことを確認するテスト(`team.md`確定の必須テスト種別(a)安全失敗/バリデーションテスト)
+- [x] `SchemaIntrospectionServiceTest`: `RdbmsMetadataReader`・`ConfigEngineApi`をモックした正常系(TableConfigDraftへの変換内容、nullableが伝搬されないことの確認含む)、メタデータ読み取り失敗時に`writeTableConfigDraft`が一切呼び出されないことを確認するテスト(`team.md`確定の必須テスト種別(a)安全失敗/バリデーションテスト)
 
 ## Step 11: RESTコントローラ層の実装(C8、BR2.8、BR2.9)
 
-- [ ] `SchemaIntrospectionController`を実装する: `POST /api/config/schema-introspection`で`ActiveRoleResolver`からactiveRoleIdを取得し`PermissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")`を呼び出す。拒否時は403(ProblemDetail)を返す。許可時は`SchemaIntrospectionService.introspect`を呼び出し結果を200で返す
-- [ ] `@ExceptionHandler`(コントローラローカル、C8契約準拠のRFC 9457 `ProblemDetail`)で`SchemaIntrospectionException`を422へマッピングする。パスワード等の接続情報の詳細はレスポンスに含めない(NFR2.2)
-- [ ] observability-design.md準拠のメトリクス(Micrometer)・構造化ログ(実行開始・完了・失敗)を実装する
+- [x] `SchemaIntrospectionController`を実装する: `POST /api/config/schema-introspection`で`ActiveRoleResolver`からactiveRoleIdを取得し`PermissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")`を呼び出す。拒否時は403(ProblemDetail)を返す。許可時は`SchemaIntrospectionService.introspect`を呼び出し結果を200で返す
+- [x] `@ExceptionHandler`(コントローラローカル、C8契約準拠のRFC 9457 `ProblemDetail`)で`SchemaIntrospectionException`を422へマッピングする。パスワード等の接続情報の詳細はレスポンスに含めない(NFR2.2)
+- [x] observability-design.md準拠のメトリクス(Micrometer)・構造化ログ(実行開始・完了・失敗)を実装する
 
 ## Step 12: RESTコントローラ層のテスト
 
-- [ ] `SchemaIntrospectionControllerTest`(`@WebMvcTest`または同等): 正常系(200、生成されたTableConfigIdの一覧)、権限拒否時403(`team.md`確定の必須テスト種別(c)認可拒否専用テスト)、メタデータ読み取り失敗時422(必須テスト種別(a))
+- [x] `SchemaIntrospectionControllerTest`(`@WebMvcTest`または同等): 正常系(200、生成されたTableConfigIdの一覧)、権限拒否時403(`team.md`確定の必須テスト種別(c)認可拒否専用テスト)、メタデータ読み取り失敗時422(必須テスト種別(a))
 
 ## Step 13: 環境・ビルド設定
 
-- [ ] 新規パッケージがconfig-engine/data-import-exportと同一のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(追加設定は不要)
+- [x] 新規パッケージがconfig-engine/data-import-exportと同一のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(`checkstyleMain`/`checkstyleTest`は成功。`spotlessCheck`は本Unit作成ファイルではなく、pristineなmainブランチ時点から既に存在するフォーマッタのバージョンドリフトに起因する21件の既存ファイル差分でのみ失敗することを、変更前ベースラインとの比較で確認済み。本Unitが作成・変更したファイルはすべてspotless準拠)
 
 ## Step 14: ドキュメント・トレーサビリティ
 
-- [ ] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ、`ActiveRoleResolver`の暫定実装である旨を含む)を付与する
-- [ ] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する(オーケストレーターが実施)
+- [x] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ、`ActiveRoleResolver`の暫定実装である旨を含む)を付与する
+- [x] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する(オーケストレーターが実施)

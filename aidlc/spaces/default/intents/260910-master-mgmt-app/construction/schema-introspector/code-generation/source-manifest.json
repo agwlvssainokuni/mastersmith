@@ -1,0 +1,28 @@
+{
+  "stage": "code-generation",
+  "unit": "schema-introspector",
+  "version": 1,
+  "writes": [
+    { "path": "backend/build.gradle.kts" },
+    { "path": "backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/dto/SchemaIntrospectionRequest.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/dto/SchemaIntrospectionResult.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/dto/RdbmsColumnMetadata.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/dto/RdbmsTableMetadata.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/security/ActiveRoleResolver.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/security/HeaderActiveRoleResolver.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/exception/SchemaIntrospectionException.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/exception/SchemaIntrospectionForbiddenException.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsSchemaSnapshot.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/rdbms/RdbmsMetadataReader.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/service/SchemaIntrospectionService.java" },
+    { "path": "backend/src/main/java/com/mastersmith/schema/web/SchemaIntrospectionController.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/dto/SchemaIntrospectionRequestTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/dto/SchemaIntrospectionResultTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/dto/RdbmsTableMetadataTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/security/HeaderActiveRoleResolverTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/rdbms/RdbmsMetadataReaderTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/service/SchemaIntrospectionServiceTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/schema/web/SchemaIntrospectionControllerTest.java" }
+  ]
+}
