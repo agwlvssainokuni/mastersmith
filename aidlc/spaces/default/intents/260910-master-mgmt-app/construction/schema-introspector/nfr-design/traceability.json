@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-design",
+  "unit": "schema-introspector",
+  "upstream_ids": ["NFR1.1", "NFR2.1", "NFR2.2", "NFR2.3", "NFR3.1", "NFR4.1", "NFR4.2", "NFR5.1"],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md 同期実行・1パスJDBCメタデータ走査による30秒以内の応答時間設計" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md 認証・認可アーキテクチャ(JWT検証+canAccessScreen委譲)" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md 接続情報・シークレットの非露出設計" },
+    { "id": "NFR2.3", "status": "OK", "target": "security-design.md(全ユニット共通のCIセキュリティゲートをそのまま適用、本ユニット固有の追加設計なし)" },
+    { "id": "NFR3.1", "status": "OK", "target": "scalability-design.md embedded単一インスタンス構成・パーティショニングなしの設計" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md fail-fast実行フロー(接続5秒・読み取り25秒のタイムアウト設定)" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md(本ユニットは永続データを持たないため独自のバックアップ・リカバリ設計は不要という設計判断そのものが対応内容)" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md Micrometer/OTELによるメトリクス・構造化ログ・トレーシングの実装方式" }
+  ]
+}
