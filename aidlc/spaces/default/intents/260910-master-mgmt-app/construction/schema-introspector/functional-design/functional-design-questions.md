@@ -17,7 +17,7 @@ schema-introspectorは、対象RDBMSのメタデータ(テーブル/カラム/�
 - C. 型カテゴリに基づくeditorType/formatマッピングは行うが、外部キー検出によるselect化は本ユニットの対象外とする(将来の別課題とする)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. SQLの型カテゴリ(文字列/数値/日付時刻/真偽値等)に基づく単純なマッピングをeditorType/formatの既定値とし、外部キー参照カラムは自動的にeditorType=selectとする(業務担当者は生成後に必要に応じて手動調整する)
 
 ## Q2. 楽観ロック対象列(optimisticLockColumn)の自動検出
 
@@ -27,7 +27,7 @@ schema-introspectorは、対象RDBMSのメタデータ(テーブル/カラム/�
 - B. 特定のカラム名パターン(例: updated_at, version, lock_version等)に一致する場合は自動的にoptimisticLockColumnとして設定する
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. 自動検出は行わない。ドラフトでは常に未設定(null)とし、業務担当者が手動で指定する(特定の命名規則を前提としないシンプルな設計で、FR1.6のハードコード禁止方針とも整合する)
 
 ## Q3. 再実行時のスキップ粒度
 
@@ -37,4 +37,19 @@ schema-introspectorは、対象RDBMSのメタデータ(テーブル/カラム/�
 - B. テーブル単位。TableConfigが既に存在するテーブルは丸ごとスキップし、新規カラムがあっても追加しない(再実行は未設定の新規テーブルのみを対象とする、より単純な設計)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. カラム単位。既にTableConfigが存在するテーブルでも、まだColumnConfigが存在しない新規カラムのみを追加ドラフトとして生成する(差分検出。スキーマ変更への追従が容易)
+
+## Consolidated Summary Confirmation
+
+以下の内容でschema-introspectorのFunctional Design成果物(entities.md/rules.md/functional-spec.md/traceability.json)を生成します。
+
+- Q1(editorType/format決定ルール): SQL型カテゴリに基づく単純マッピングを既定値とし、外部キー参照カラムは自動的にeditorType=selectとする。業務担当者は生成後に必要に応じて手動調整する。
+- Q2(楽観ロック対象列の自動検出): 自動検出は行わない。ドラフトでは常に未設定(null)とし、業務担当者が手動で指定する。
+- Q3(再実行時のスキップ粒度): カラム単位で差分検出する。既存TableConfigがあっても、まだColumnConfigが存在しない新規カラムのみを追加ドラフトとして生成する。
+
+Does this all look correct before I generate the artifact?
+
+- Looks correct
+- Request changes
+
+[Answer]: Looks correct
