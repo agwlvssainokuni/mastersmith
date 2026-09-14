@@ -167,4 +167,4 @@ user-storiesステージはSKIP対象（`project.md`学習事項）のため、`
 ## Step 14: ドキュメント・トレーサビリティ
 
 - [x] 各クラス・メソッドに必要最小限のJavadoc（非自明な設計判断のみ、実装が自明な内容は記述しない）を付与する
-- [ ] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する（Step 5〜6として本ステージ手順に規定済み、開発者エージェントは対象外。オーケストレーターが実施）
+- [x] `code-summary.md`・`source-manifest.json`・`traceability.json`を作成する（Step 5〜6として本ステージ手順に規定済み、開発者エージェントは対象外。オーケストレーターが実施）

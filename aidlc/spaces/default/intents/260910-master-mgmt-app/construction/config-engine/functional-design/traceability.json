@@ -15,6 +15,7 @@
   "reverse": [
     { "id": "BR1.7", "status": "N/A", "target": "record-edit-engine（U11）のFR6.3（楽観ロック競合検出）における技術的前提条件。FR6.3はconfig-engineユニットのFRではないため本ユニットのupstream_idsに含まれない" },
     { "id": "BR1.8", "status": "N/A", "target": "schema-introspector（U2）との内部インタフェース契約（contract-summary.md C9のwriteTableConfigDraft note）に基づく技術的な統合ルールであり、特定のFRに対応しない" },
-    { "id": "BR1.13", "status": "N/A", "target": "project.md Mandated（監査ログの操作者・操作対象・操作種別・日時記録）およびcomponents.mdのConfigEngine→AuditLoggingイベント発行依存に基づく横断ルールであり、特定のFRに対応しない" }
+    { "id": "BR1.13", "status": "N/A", "target": "project.md Mandated（監査ログの操作者・操作対象・操作種別・日時記録）およびcomponents.mdのConfigEngine→AuditLoggingイベント発行依存に基づく横断ルールであり、特定のFRに対応しない" },
+    { "id": "BR1.14", "status": "N/A", "target": "Contract Design追補C9（ColumnConfig.isPrimaryKey、レビュー指摘R-05対応）に基づく技術的な統合ルールであり、特定のFRに対応しない" }
   ]
 }

@@ -105,6 +105,16 @@ entities:
         required: false
         defaults: "visible（未設定時）"
         description: 権限とは独立した表示可否軸（FR4.5）。READ権限未満の場合の非表示制御はPermissionEngine側の判定と組み合わされる
+      - name: isPrimaryKey
+        type: boolean
+        required: true
+        defaults: "false（未設定時）"
+        description: >
+          対象テーブルの主キー列であるかどうか（Contract Design追補C9、レビュー指摘R-05対応）。
+          schema-introspector（U2）が対象RDBMSのメタデータ読み取り時に主キー制約を判定し、
+          `writeTableConfigDraft`経由でドラフト生成時に設定する（BR1.14）。data-import-export
+          （U8）のCSVインポート時のupsert判定（INSERT/UPDATE）に用いられる。単一主キー列を
+          主な想定とし、複合主キーの詳細な取り扱いは本MVPスコープの対象外とする
       - name: choiceOptions
         type: array
         required: false

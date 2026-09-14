@@ -22,11 +22,11 @@ limitations under the License.
 entities:
   - name: CsvExportRequest
     description: >
-      CSVエクスポート実行時の入力パラメータ。C1契約(`/api/tables/{tableConfigId}/records/export`)
-      への追補として、一覧画面の現在の検索条件・ソート順、および列単位の実効READ権限情報を
-      渡すために必要となる（Q2確定・レビュー指摘R-01対応。既存のContract Design契約には
-      filter/sort/permittedColumnNamesのいずれのパラメータも未定義であり、Contract Design
-      への追補が必要。functional-spec.mdのAssumptions & Open Questions参照）。
+      CSVエクスポート実行時の内部パラメータ(list-engineからDataImportExportへの内部呼び出し
+      専用。WEB APIには公開しない)。一覧画面の現在の検索条件・ソート順(C1: `GET
+      /records/export`のfilter/sortクエリパラメータをlist-engineが中継)、および列単位の
+      実効READ権限情報(list-engineがサーバー側で算出したpermittedColumnNames)を渡す
+      （Q2確定・レビュー指摘R-01対応、Contract Design追補Q6=Aで解決済み）。
     attributes:
       - name: tableConfigId
         type: string
@@ -59,10 +59,11 @@ entities:
 
   - name: CsvImportRequest
     description: >
-      CSVインポート実行時の入力パラメータ（レビュー指摘R-02対応で明示化）。C13契約
-      (`importCsv`)への追補として、実行者情報を渡すために必要となる（既存のContract
-      Design契約にはactorパラメータが未定義であり、Contract Designへの追補が必要。
-      functional-spec.mdのAssumptions & Open Questions参照）。
+      CSVインポート実行時の内部パラメータ（レビュー指摘R-02対応で明示化。record-edit-engine
+      からDataImportExportへの内部呼び出し専用で、WEB API(C2)のリクエストボディには
+      actorを公開しない）。実行者情報はrecord-edit-engineが自身のREST層(C2、Bearer認証済み)
+      のSpring Security認証済みプリンシパルから取得して渡す（Contract Design追補Q7=Aで
+      解決済み）。
     attributes:
       - name: tableConfigId
         type: string
@@ -113,12 +114,9 @@ entities:
         required: true
         description: >
           対象テーブルの主キー列かどうか。インポート時のINSERT/UPDATE判定（Q4/BR8.3）に用いる。
-          schema-introspector（U2）は対象RDBMSのメタデータ（主キー情報を含む）を読み取るが
-          （`unit-of-work.md` U2責務）、config-engineのC9契約（`TableConfig`/`ColumnConfig`型）
-          には主キー列を示す属性が現状存在しない（レビュー指摘R-05対応で判明した欠落）。
-          本ユニットの機能設計は、config-engineのColumnConfigに`isPrimaryKey`相当の属性が
-          追加される前提で設計するが、これはDomain Design／Contract Designへの追補が必要な
-          未解決事項である（functional-spec.mdのAssumptions & Open Questions参照）
+          schema-introspector（U2）が対象RDBMSのメタデータ読み取り時に判定し、config-engine
+          のC9契約（`ColumnConfig.isPrimaryKey`、Contract Design追補Q8=Aで解決済み）から
+          そのまま取得する（`construction/config-engine/functional-design/rules.md` BR1.14）
     entity_constraints:
       - "永続化しない。エクスポート/インポート実行のたびにconfig-engineから取得し直す一時データ"
     relationships:
@@ -202,9 +200,9 @@ entities:
 
 data-import-exportユニットは、業務データそのものを所有する永続エンティティを持たない。エクスポート・インポート処理の実行に必要な一時的な値オブジェクトと、監査ログ連携用のドメインイベントのみを保持する。
 
-- **CsvExportRequest**: エクスポート実行時の入力(対象テーブル・検索条件・ソート順・実効READ権限列一覧)。Q2確定により一覧画面の検索条件を反映するため、Contract Designへの追補(C1へのfilter/sort/permittedColumnNamesパラメータ追加)が前提となる。
-- **CsvImportRequest**: インポート実行時の入力(対象テーブル・CSVファイル・実行者)。C13へのactorパラメータ追補が前提となる。
-- **CsvColumnDefinition**: config-engineの`ColumnConfig`から導出する、エクスポート列の絞り込み・インポートバリデーション・主キー判定に使う一時的な列定義。永続化しない。主キー判定用の`isPrimaryKey`は、config-engine側の契約(C9)に現状存在しない属性であり、追補が前提となる。
+- **CsvExportRequest**: エクスポート実行時の内部パラメータ(対象テーブル・検索条件・ソート順・実効READ権限列一覧)。list-engineからDataImportExportへの内部呼び出し専用で、WEB APIには公開しない(Contract Design追補Q6=Aで解決済み)。
+- **CsvImportRequest**: インポート実行時の内部パラメータ(対象テーブル・CSVファイル・実行者)。record-edit-engineからDataImportExportへの内部呼び出し専用で、WEB APIには公開しない(Contract Design追補Q7=Aで解決済み)。
+- **CsvColumnDefinition**: config-engineの`ColumnConfig`から導出する、エクスポート列の絞り込み・インポートバリデーション・主キー判定に使う一時的な列定義。永続化しない。主キー判定用の`isPrimaryKey`は、config-engine側の契約(C9)から取得する(Contract Design追補Q8=Aで解決済み)。
 - **CsvImportRowResult**: インポート処理内部で保持する行単位の中間結果(バリデーション結果・INSERT/UPDATE区分・エラー内容)。最終的に公開されるのは成功件数とエラー一覧(C13の`ImportResult`)のみ。
 - **ImportExecutedEvent**: AuditLogging(U7)へ発行する実行単位のサマリイベント。Q8確定により行単位の変更前後値は含まない。この点はproject.mdのMandated(監査ログの変更前後値記録)との関係で意図的なスコープ判断として明示している(functional-spec.md参照)。
 

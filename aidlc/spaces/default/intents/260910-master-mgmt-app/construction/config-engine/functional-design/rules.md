@@ -195,6 +195,24 @@ rules:
       の値を記録しなければならない）。フィールド形状はcomponents.mdのAuditLogEntry定義
       （actorUserId/targetType/targetId/operationType/occurredAt/beforeValue/afterValue）
       に合わせる"
+
+  - id: BR1.14
+    statement: >
+      ColumnConfig.isPrimaryKeyは、schema-introspector（U2）からのwriteTableConfigDraft
+      呼び出し（W2、ドラフト取り込み）時に、渡された主キー判定結果（対象RDBMSのメタデータ
+      から読み取った主キー制約）をそのまま設定する。ドラフト以外の経路（管理画面からの
+      手動編集、importConfigSet）ではisPrimaryKeyの変更を許可しない（既存値を保持する）。
+    category: policy
+    applies_to: [ColumnConfig]
+    trigger: "writeTableConfigDraft呼び出し（W2）"
+    logic: >
+      IF writeTableConfigDraft呼び出しでColumnConfigDraftにisPrimaryKey判定結果が
+      含まれる THEN 新規作成するColumnConfig.isPrimaryKeyへそのまま設定する。
+      未設定（デフォルトfalse）のまま伝播した場合はfalseとする。単一主キー列を主な
+      想定とし、複合主キーの詳細な取り扱いは本MVPスコープの対象外とする
+    violation_behaviour: "手動編集・importConfigSet経由でisPrimaryKeyの変更が試行された
+      場合、当該フィールドを無視し既存値を維持する（fail-fastエラーとはしない）"
+    source: "Contract Design追補C9（isPrimaryKey、レビュー指摘R-05対応）"
 ```
 
 ## ルールサマリー
@@ -214,3 +232,4 @@ rules:
 | BR1.11 | policy | 設定バリデーションエラーはフィールド単位で返す |
 | BR1.12 | policy | 複数RDBMS方言（型名正規化・物理層SQL方言）の吸収 |
 | BR1.13 | policy | 設定変更操作ごとにAuditLoggingへドメインイベント（ConfigChangedEvent）を発行する |
+| BR1.14 | policy | ColumnConfig.isPrimaryKeyはwriteTableConfigDraft経由でのみ設定される |

@@ -35,7 +35,7 @@ limitations under the License.
 2. schema-introspectorはConfigEngineの`writeTableConfigDraft`を呼び出す。
 3. 対象テーブルごとに、ConfigEngineは(schemaName, tableName)の組で既存TableConfigの有無を確認する。
 4. IF 既存TableConfigが存在する THEN 当該テーブルの取り込みをスキップする（BR1.8。エラーとしない）。
-5. ELSE メタデータの型名をConfigEngine内部の論理型へ正規化し（Q2確定）、新規TableConfig・ColumnConfigを作成する。editorTypeの初期値は正規化された論理型から推定する。
+5. ELSE メタデータの型名をConfigEngine内部の論理型へ正規化し（Q2確定）、新規TableConfig・ColumnConfigを作成する。editorTypeの初期値は正規化された論理型から推定する。schema-introspectorが判定した主キー制約の有無を、各ColumnConfig.isPrimaryKeyへそのまま設定する（BR1.14、Contract Design追補C9）。
 6. 生成した各TableConfigのtableConfigIdの一覧を呼び出し元へ返す。
 
 ### W3: 表示設定・バリデーション設定の取得（C9: getTableConfig, getColumnConfigs, getOptimisticLockColumn）
@@ -90,6 +90,7 @@ erDiagram
         string editorType
         object validationRule
         string visibility
+        boolean isPrimaryKey
         array choiceOptions
         object fkReference
     }
@@ -104,7 +105,7 @@ erDiagram
 
 ## 業務ルールサマリー（`rules.md`からの派生ビュー）
 
-`rules.md`の全13ルール（BR1.1〜BR1.13）のうち、主要なものを要約する。詳細・完全な一覧は`rules.md`を参照。
+`rules.md`の全14ルール（BR1.1〜BR1.14）のうち、主要なものを要約する。詳細・完全な一覧は`rules.md`を参照。
 
 - **fail-fast検証**（BR1.1〜BR1.4）: TableConfig/ColumnConfigの必須プロパティ欠落、およびselect/radioの選択肢設定の不整合を、起動時・インポート時にfail-fastで検知する。
 - **i18nキー導出**（BR1.5, BR1.6）: 表示名・バリデーションメッセージのi18nキーは、schemaName/tableName/columnNameから機械的に導出し、テキストそのものは保持しない。
@@ -113,6 +114,7 @@ erDiagram
 - **業務設定層i18nのデータ管理**（BR1.10）: TranslationEntryにより、業務設定層のi18nキーの言語別テキストを管理画面から編集可能にする。基盤層固定UI文言は対象外。
 - **複数RDBMS方言の吸収**（BR1.12）: schema-introspectorが読み取ったDBメタデータの型名をConfigEngine内部論理型へ正規化し、物理層SQL生成方言をlist-engine/record-edit-engineへ提供する。
 - **監査ログ連携**（BR1.13）: ドラフト取り込み（W2）・設定一式インポート（W5）・i18nテキスト登録更新（W6）で変更されたエンティティごとに、AuditLogging（U7）へConfigChangedEventを発行する（下記「監査ログ連携」参照）。
+- **主キー列情報の設定**（BR1.14）: ColumnConfig.isPrimaryKeyは、schema-introspectorからのドラフト取り込み（W2）時にのみ設定され、手動編集・importConfigSet経由では変更されない。data-import-export（U8）のCSVインポートupsert判定に用いられる（Contract Design追補C9、レビュー指摘R-05対応）。
 
 ## 監査ログ連携（AuditLoggingへのイベント発行、BR1.13）
 

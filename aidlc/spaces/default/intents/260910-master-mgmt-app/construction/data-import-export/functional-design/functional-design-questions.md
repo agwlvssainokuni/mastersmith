@@ -121,6 +121,8 @@ Contract Design(C13)の`importCsv`は「行単位のバリデーションエラ�
 
 ## Consolidated Summary Confirmation
 
+（再確認: Contract Design追補反映）Contract Design追補(Q6/Q7/Q8=A)により、本書が指摘していた3件のOpen Question(W1のfilter/sort/permittedColumnNames、W2のactor、主キー判定のisPrimaryKey)がすべて解決した。`functional-spec.md`・`entities.md`を、確定した契約内容(内部専用パラメータとしての伝達方式)に合わせて更新した。業務ルール(`rules.md`)・トレーサビリティに変更はない。
+
 - Looks correct
 - Request changes
 

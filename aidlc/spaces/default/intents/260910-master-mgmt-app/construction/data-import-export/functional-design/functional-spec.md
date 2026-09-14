@@ -22,7 +22,7 @@ limitations under the License.
 
 ### W1: 業務データCSVエクスポート(FR12.1、C13: exportCsv、C1: `/records/export`)
 
-1. 利用者が一覧画面のツールバーで「CSVエクスポート」を選択する。list-engineは、現在の一覧画面の検索条件・ソート順(Q2確定)、および自身がPermissionEngineへ問い合わせ済みの列単位の実効READ権限列一覧(`permittedColumnNames`)を`CsvExportRequest`として組み立て、DataImportExportの`exportCsv`を呼び出す(この検索条件・ソート順・permittedColumnNamesの受け渡しにはContract Design(C1)への追補が必要。「Assumptions & Open Questions」参照)。
+1. 利用者が一覧画面のツールバーで「CSVエクスポート」を選択する。フロントエンドはC1(`GET /records/export`、Contract Design追補Q6=A)の`filter`・`sort`クエリパラメータへ現在の一覧画面の検索条件・ソート順を渡す。list-engineはこれを受け取り、自身がPermissionEngineへ問い合わせ済みの列単位の実効READ権限列一覧(`permittedColumnNames`)とあわせて`CsvExportRequest`(内部パラメータ、WEB APIには公開しない)として組み立て、DataImportExportの内部インタフェース`exportCsv`(C13追補)を呼び出す。
 2. DataImportExportは、config-engineの`getTableConfig`・`getColumnConfigs`を呼び出し、対象テーブルの列定義を取得する。
 3. 取得した列定義から、`visibility: hidden`の列、および`CsvExportRequest.permittedColumnNames`に含まれない列を除外した`CsvColumnDefinition`一覧を組み立てる(BR8.2)。列単位の実効READ権限の判定自体はlist-engineがPermissionEngineへの問い合わせ済みであり、DataImportExport自身は権限の再検証を行わない(BR8.8)。
 4. DataImportExportは、業務データ用RDBMSへBR8.10のとおりカーソル経由で対象データを逐次読み取り、BR8.1のCSV形式(UTF-8 BOM付き・カンマ区切り・ヘッダー行・CRLF)で1行ずつCSV出力ストリームへ書き込む。
@@ -30,8 +30,8 @@ limitations under the License.
 
 ### W2: 業務データCSVインポート(FR12.1、C13: importCsv、C1: `/records/import`)
 
-1. 利用者が一覧画面のツールバーで「CSVインポート」を選択し、CSVファイルを選択する。record-edit-engineは、CREATE権限(および行によってはFULL権限、Q7)の実効権限を検証済みのうえで、認証済みセッションから取得した実行者ユーザーIDとあわせて`CsvImportRequest { tableConfigId, file, actor }`を組み立て、DataImportExportの`importCsv`を呼び出す(actorの受け渡しにはContract Design(C13)への追補が必要。「Assumptions & Open Questions」参照)。
-2. DataImportExportは、config-engineの`getTableConfig`・`getColumnConfigs`を呼び出し、対象テーブルの列定義(型・validationRule)から`CsvColumnDefinition`一覧を組み立てる。主キー列の判定(`isPrimaryKey`)は、config-engine側の契約(C9)に現状主キー属性が存在しないため、Domain Design/Contract Designへの追補が前提となる(「Assumptions & Open Questions」参照)。
+1. 利用者が一覧画面のツールバーで「CSVインポート」を選択し、CSVファイルを選択する。フロントエンドはC2(`POST /records/import`)へファイルを送信する。record-edit-engineは、CREATE権限(および行によってはFULL権限、Q7)の実効権限を検証済みのうえで、自身のREST層(C2、Bearer認証済み)のSpring Security認証済みプリンシパルから取得した実行者ユーザーIDとあわせて`CsvImportRequest { tableConfigId, file, actor }`(内部パラメータ、WEB APIのリクエストボディには`actor`を公開しない)を組み立て、DataImportExportの内部インタフェース`importCsv`(C13追補、Contract Design追補Q7=A)を呼び出す。
+2. DataImportExportは、config-engineの`getTableConfig`・`getColumnConfigs`を呼び出し、対象テーブルの列定義(型・validationRule・`isPrimaryKey`)から`CsvColumnDefinition`一覧を組み立てる。主キー列の判定(`isPrimaryKey`)は、config-engineのC9契約(Contract Design追補Q8=A)により`ColumnConfig.isPrimaryKey`として提供される。
 3. DataImportExportは、CSVファイルを1回のストリーミング走査で1行ずつ逐次読み取る(BR8.10)。各行について:
    a. 主キー列の値の有無を確認し、BR8.3によりINSERT/UPDATEを判定する(主キー値ありかつ対象行が存在しない場合はBR8.6のエラーとする)。
    b. 各列の値を`editorType`に応じた型へ変換し、変換できない場合は型変換エラーとする(BR8.5)。
@@ -104,9 +104,9 @@ erDiagram
 
 ## Assumptions & Open Questions
 
-- **[open question]** W1(エクスポート)は、一覧画面の現在の検索条件・ソート順、および列単位の実効READ権限一覧(`permittedColumnNames`、レビュー指摘R-01対応)を反映する(Q2確定・BR8.2)。しかし既存のContract Design契約(`contract-summary.md` C1: `/api/tables/{tableConfigId}/records/export`)にはfilter/sort/permittedColumnNamesのいずれのパラメータも定義されていない。list-engineの一覧取得エンドポイント(同じくC1の`GET /records`)が受け取るfilter/sortと同じ形状のクエリパラメータ、および列単位の実効READ権限一覧を渡すパラメータをエクスポートエンドポイントにも追加する契約追補が、Code Generation(3.5)着手前に必要である。
-- **[open question]** W2(インポート)の`ImportExecutedEvent.actor`(BR8.9)は、実行者のユーザーIDを要求するが、既存のContract Design契約(C13: `importCsv(tableConfigId, file)`)には実行者を渡すパラメータが定義されていない(レビュー指摘R-02対応)。record-edit-engineが認証済みセッションから取得したユーザーIDを`CsvImportRequest.actor`として渡す想定で本書を作成したが、C13へのactorパラメータ追加(またはSpring Securityの`SecurityContext`等、暗黙のセキュリティコンテキスト経由での取得とする代替設計)は、Code Generation(3.5)着手前にContract Designへの追補として解決する必要がある。
-- **[open question]** BR8.3(upsert判定)・BR8.10で必要とする「対象テーブルの主キー列」情報は、schema-introspector(U2)が対象RDBMSのメタデータ読み取り時に把握するはずの情報だが(`unit-of-work.md` U2責務)、config-engineの契約(C9: `TableConfig`/`ColumnConfig`型)には主キー列を示す属性が現状定義されていない(レビュー指摘R-05対応で判明)。config-engineのColumnConfigへ`isPrimaryKey`相当の属性を追加するDomain Design/Contract Designへの追補が、Code Generation(3.5)着手前に必要である。複合主キーのテーブルへの対応可否(CSVに複数の主キー列を含める運用となるか)についても、本機能設計では単一主キー列を主な想定とし、詳細な取り扱いは当該追補とあわせて個別確認する。
+- **[解決済み]** W1(エクスポート)が必要とする一覧画面の検索条件・ソート順、および列単位の実効READ権限一覧(`permittedColumnNames`)は、Contract Design追補(Q6=A)により解決した。C1(`GET /records/export`)に`filter`・`sort`クエリパラメータを追加し、`permittedColumnNames`はWEB APIには公開せず、C13の内部インタフェース`exportCsv`のパラメータとしてのみ渡す(list-engineがサーバー側で算出)。
+- **[解決済み]** W2(インポート)の`ImportExecutedEvent.actor`が必要とする実行者ユーザーIDは、Contract Design追補(Q7=A)により解決した。C13の内部インタフェース`importCsv`に`actor`パラメータを追加し、record-edit-engineが自身のREST層(C2、Bearer認証済み)のSpring Security認証済みプリンシパルから取得して渡す。WEB API(C2)のリクエストボディには`actor`を追加しない。
+- **[解決済み]** BR8.3(upsert判定)・BR8.10で必要とする「対象テーブルの主キー列」情報は、Contract Design追補(Q8=A)により解決した。config-engineのC9契約の`ColumnConfig`型に`isPrimaryKey: boolean`を追加し、schema-introspector(U2)が対象RDBMSのメタデータ読み取り時に判定した結果を`writeTableConfigDraft`経由で設定する(`construction/config-engine/functional-design/rules.md` BR1.14)。複合主キーのテーブルへの対応は本MVPスコープの主要な対象外とし、単一主キー列を主な想定とする。
 - **[assumption]** project.mdの`## Mandated`は「監査ログは... 変更前後の値を記録する」としているが、本ユニットのBR8.9(ImportExecutedEvent)は、CSVインポートで変更された個々の行の変更前後値を記録しない実行単位のサマリイベントとする(Q8・Q8 Follow-up確定)。これは見落としではなく、CSVインポートは業務データの一括投入・移行用途であり個々の行の変更前後値までは監査ログの対象としない、というインタビューで明示的に確認済みのスコープ判断である。config-engineの機能設計(`construction/config-engine/functional-design/rules.md` BR1.13)が採用した「変更されたエンティティごとに1イベント発行」という粒度とは異なる方針を、本ユニットについては意図的に採用している。
 - **[assumption]** BR8.7の「全件検証後の一括コミット」は、C13契約の`importCsv`のnote(「行単位のバリデーションエラーを収集して返す(全体を即時失敗にはしない)」)を、「行単位バリデーションを最初のエラーで中断せず全行分の結果を収集する」という意味であると解釈し、DBへの反映(コミット)単位とは別の論点として整理した(Q10確定)。この解釈はfunctional-design-questions.md Q10で明示的に確認済みである。
 - **[assumption]** BR8.7(全件検証後の一括コミット)とBR8.10(ストリーミング処理)は、CSVファイルの読み取り自体は1回のストリーミング走査とし、検証済みの変換後データ(軽量な行データ)のみを一時バッファへ保持することで両立させる設計とした(レビュー指摘R-03対応)。NFR1の想定規模(最大10万行)であれば、一時バッファのメモリ影響は限定的と評価している(`rules.md` BR8.10のnotes参照)。より大規模なデータ量への対応が必要になった場合は、一時テーブルへのバッファリング方式への切り替えを検討する。
