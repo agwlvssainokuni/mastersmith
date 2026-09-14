@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "schema-introspector",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1(管理者による低頻度・単発実行が前提のため、NFR3が本来想定する同時接続数拡大への線形リソース追加は該当しないが、対象スキーマ規模の想定自体はNFR3.1として個別に定義済み)" },
+    { "id": "NFR4", "status": "N/A", "target": "NFR4.1/NFR4.2(reliability-requirements.md)で明示するとおり、本ユニットは永続データを持たず楽観ロック対象にもならない。書き込み結果(TableConfig/ColumnConfig)の変更監査はconfig-engine側のConfigChangedEvent発行(construction/config-engine/functional-design/rules.md BR1.13)に委ねる" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1" },
+    { "id": "NFR6", "status": "N/A", "target": "schema-introspectorはバックエンドサービスであり直接のUI・ユーザー向け画面を持たないため、ユーザビリティ・アクセシビリティ要件は該当しない(frontend-ui, U12のNFR Requirementsで扱う)" },
+    { "id": "NFR7", "status": "N/A", "target": "本ユニットは表示名・バリデーションメッセージ等の利用者向けテキストを生成しない(i18nキー導出はconfig-engine側の責務、entities.md参照)。本ステージのNFRカテゴリには該当しない" },
+    { "id": "NFR8", "status": "N/A", "target": "共通エンジン層のハードコード禁止(業務固有テーブル名・カラム名の非ハードコード)はFunctional Design(entities.md/rules.md)で構造的に充足済み。テストカバレッジ80%floorの検証はBuild and Testステージの対象であり、本ステージのNFRカテゴリには該当しない" }
+  ]
+}
