@@ -1,0 +1,40 @@
+{
+  "stage": "nfr-design",
+  "unit": "permission-engine",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2", "NFR1.3", "NFR1.4",
+    "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR2.5", "NFR2.6", "NFR2.7", "NFR2.8",
+    "NFR3.1", "NFR3.2", "NFR3.3", "NFR3.4", "NFR3.5",
+    "NFR4.1", "NFR4.2", "NFR4.3", "NFR4.4", "NFR4.5",
+    "NFR5.1", "NFR5.2", "NFR5.3", "NFR5.4", "NFR5.5"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md: スコープ階層探索の最大5回DB問い合わせ設計、20列直列呼び出し予算検証" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md: canAccessScreenはresolveEffectivePermission相当ロジック1回のみ" },
+    { "id": "NFR1.3", "status": "N/A", "target": "assignPermissionは個別応答時間目標を設けない方針(nfr-requirements NFR1.3のまま)" },
+    { "id": "NFR1.4", "status": "OK", "target": "performance-design.md: Caffeineキャッシュアーキテクチャ(キー・TTL・無効化)" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md: 認証・認可アーキテクチャ、サーバー側実効権限再検証の実装" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md: assignPermissionの2段階実装(ブートストラップ判定→昇格チェック)、R-07の既知の制約を明記" },
+    { "id": "NFR2.3", "status": "OK", "target": "observability-design.md: permission_escalation_denied_totalメトリクス" },
+    { "id": "NFR2.4", "status": "OK", "target": "security-design.md: JPA/Spring Dataパラメータ化クエリ、文字列長上限検証" },
+    { "id": "NFR2.5", "status": "N/A", "target": "認証情報を保持しないため本ユニットの設計対象外(nfr-requirements NFR2.5のまま)" },
+    { "id": "NFR2.6", "status": "OK", "target": "security-design.md: PermissionChangedイベントのApplicationEventPublisher発行" },
+    { "id": "NFR2.7", "status": "N/A", "target": "team.md既定の横断方針をそのまま適用、ユニット固有設計なし" },
+    { "id": "NFR2.8", "status": "OK", "target": "performance-design.md/security-design.md: Caffeine invalidateAll()によるキャッシュ全体の即時無効化(スコープ階層フォールバックを跨ぐ取りこぼしを回避、レビュー指摘R-01対応)。単一インスタンス運用を前提条件とし、複数インスタンス構成時の制約をsecurity-design.mdに明記(R-02対応)" },
+    { "id": "NFR3.1", "status": "OK", "target": "scalability-design.md: データパーティショニング不要の判断" },
+    { "id": "NFR3.2", "status": "OK", "target": "scalability-design.md: (role_id, scope_type, scope_ref)等の複合インデックス設計" },
+    { "id": "NFR3.3", "status": "N/A", "target": "追加のロック機構・スロットリング不要(nfr-requirements NFR3.3のまま)" },
+    { "id": "NFR3.4", "status": "OK", "target": "scalability-design.md: Caffeineキャッシュサイズ上限設計" },
+    { "id": "NFR3.5", "status": "OK", "target": "scalability-design.md: 将来の成長への対応方針" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md: @Transactionalによるupsert単位のトランザクション境界、R-07との関係を明記" },
+    { "id": "NFR4.2", "status": "OK", "target": "security-design.md: PermissionChangedのfire-and-forget発行方式" },
+    { "id": "NFR4.3", "status": "N/A", "target": "楽観ロック非対象(nfr-requirements NFR4.3のまま)" },
+    { "id": "NFR4.4", "status": "N/A", "target": "ユニット単体のSLA/SLOを設定しない方針(nfr-requirements NFR4.4のまま)" },
+    { "id": "NFR4.5", "status": "N/A", "target": "内部設定DB共通のバックアップ方針に従う(nfr-requirements NFR4.5のまま)" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md: Micrometerカウンタ/タイマー実装" },
+    { "id": "NFR5.2", "status": "OK", "target": "observability-design.md: Logback JSON構造化ログ実装" },
+    { "id": "NFR5.3", "status": "OK", "target": "observability-design.md: Micrometer Tracing/Observation APIによる自動計装" },
+    { "id": "NFR5.4", "status": "N/A", "target": "アプリ全体のヘルスチェックに相乗り(reliability-design.mdに記載)" },
+    { "id": "NFR5.5", "status": "N/A", "target": "ダッシュボード設計は運用フェーズに委ねる(observability-design.mdに候補指標を記録)" }
+  ]
+}
