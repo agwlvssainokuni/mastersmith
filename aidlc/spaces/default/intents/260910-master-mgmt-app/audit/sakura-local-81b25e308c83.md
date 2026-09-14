@@ -15591,3 +15591,733 @@
 **Session**: b18e56a8-49b8-4ed3-abf2-b06d14bd2585
 
 ---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:09:40Z
+**Event**: HUMAN_TURN
+**Session**: b18e56a8-49b8-4ed3-abf2-b06d14bd2585
+
+---
+
+## Workflow Parked
+**Timestamp**: 2026-09-14T00:09:45Z
+**Event**: WORKFLOW_PARKED
+**Stage**: functional-design
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T00:10:21Z
+**Event**: SESSION_ENDED
+**Reason**: clear
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T00:10:21Z
+**Event**: SESSION_STARTED
+**Source**: clear
+**Session**: c9d55af9-0a87-43e7-aa08-b08316453dc9
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T00:10:29Z
+**Event**: SESSION_ENDED
+**Reason**: prompt_input_exit
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T00:10:43Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: bd1585b4-9159-4984-b009-ab56db6e62f6
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:11:06Z
+**Event**: HUMAN_TURN
+**Session**: bd1585b4-9159-4984-b009-ab56db6e62f6
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:12:02Z
+**Event**: HUMAN_TURN
+**Session**: bd1585b4-9159-4984-b009-ab56db6e62f6
+
+---
+
+## Workflow Unparked
+**Timestamp**: 2026-09-14T00:12:10Z
+**Event**: WORKFLOW_UNPARKED
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:12:22Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:12:26Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:12:39Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:12:59Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:13:34Z
+**Event**: HUMAN_TURN
+**Session**: bd1585b4-9159-4984-b009-ab56db6e62f6
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:15:11Z
+**Event**: HUMAN_TURN
+**Session**: bd1585b4-9159-4984-b009-ab56db6e62f6
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T00:15:27Z
+**Event**: SESSION_ENDED
+**Reason**: clear
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T00:15:27Z
+**Event**: SESSION_STARTED
+**Source**: clear
+**Session**: 28147506-b8e0-45a9-a0fe-fde4c9db881e
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T00:15:33Z
+**Event**: SESSION_ENDED
+**Reason**: prompt_input_exit
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T00:15:39Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: 444b1cb9-290e-4a29-95a1-f8cfe4055ed5
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T00:15:44Z
+**Event**: SESSION_ENDED
+**Reason**: clear
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T00:15:44Z
+**Event**: SESSION_STARTED
+**Source**: clear
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:15:49Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:15:54Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:15:58Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:16:04Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:16:09Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:16:18Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:17:08Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:17:13Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:18:31Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:18:36Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:19:00Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:19:30Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:19:51Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:19:58Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:21:39Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:22:25Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:22:31Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:23:46Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T00:25:56Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:26:00Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:26:18Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:27:03Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:27:33Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:27:58Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:28:08Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:28:12Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Bash
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Plan Approval Blocked
+**Timestamp**: 2026-09-14T00:29:17Z
+**Event**: PLAN_APPROVAL_BLOCKED
+**Tool**: Write
+**Target**: 
+**Stage**: code-generation
+**Unit**: (missing marker)
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T02:03:39Z
+**Event**: SESSION_ENDED
+**Reason**: prompt_input_exit
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T02:04:25Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: afaec4db-48cc-4211-8aaa-ea62846bd4fe
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T02:04:29Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: 0c635e68-163e-4fe2-a8bc-9337bcf84d23
+
+---
+
+## Session Start
+**Timestamp**: 2026-09-14T02:04:29Z
+**Event**: SESSION_STARTED
+**Source**: startup
+**Session**: bc960684-17d0-4803-bd9c-79941fc008f4
+
+---
+
+## Session Resume
+**Timestamp**: 2026-09-14T02:04:32Z
+**Event**: SESSION_RESUMED
+**Source**: resume
+**Session**: 92877c15-bad0-4d81-85d6-65640814f459
+
+---
+
+## Session End
+**Timestamp**: 2026-09-14T02:05:10Z
+**Event**: SESSION_ENDED
+**Reason**: resume
+
+---
+
+## Session Resume
+**Timestamp**: 2026-09-14T02:05:10Z
+**Event**: SESSION_RESUMED
+**Source**: resume
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:05:28Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:08:16Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:08:55Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:13:36Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:13:45Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Error Logged
+**Timestamp**: 2026-09-14T02:14:46Z
+**Event**: ERROR_LOGGED
+**Tool**: aidlc-state
+**Command**: aidlc-state engine state reject functional-design --feedback レビュー指摘(R-05)修正後の内容(entities.md/functional-spec.md/rules.md、2026-09-13T16:58Z保存)に対して、要約確認レシートが修正前(2026-09-13T10:09:48Z)のままのため再確認が必要。設計内容の変更は不要、修正済みの内容をそのまま再承認する。 --user-input Request Changes --project-dir <project-dir>
+**Error**: Refusing to reject "functional-design": the recovery-question choice was not Request Changes. Carry out that action, or re-present the recovery question and wait for the human to choose Request Changes.
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:15:05Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:22:19Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:22:31Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Phase Completion
+**Timestamp**: 2026-09-14T02:22:35Z
+**Event**: PHASE_COMPLETED
+**From phase**: construction
+**To phase**: inception
+**Stages completed**: 13
+**Details**: Phase boundary crossed via backward jump
+
+---
+
+## Phase Verification
+**Timestamp**: 2026-09-14T02:22:35Z
+**Event**: PHASE_VERIFIED
+**Phase boundary**: construction → inception
+**Details**: Traceability verification on jump
+
+---
+
+## Phase Start
+**Timestamp**: 2026-09-14T02:22:35Z
+**Event**: PHASE_STARTED
+**Phase**: inception
+**Scope**: config-driven-admin-mvp
+
+---
+
+## Stage Jump
+**Timestamp**: 2026-09-14T02:22:35Z
+**Event**: STAGE_JUMPED
+**Direction**: BACKWARD
+**Source**: functional-design
+**Target**: contract-design
+**Scope**: config-driven-admin-mvp
+**Details**: BACKWARD jump from functional-design to contract-design (2.8). Scope: config-driven-admin-mvp.
+**Changed Upstream Artifacts**: ["aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-summary.md"]
+**Invalidated Downstream Artifacts**: ["aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/entities.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-spec.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/rules.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/traceability.json","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/data-import-export/functional-design/entities.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/data-import-export/functional-design/functional-spec.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/data-import-export/functional-design/rules.md","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/data-import-export/functional-design/traceability.json","aidlc/spaces/default/intents/260910-master-mgmt-app/inception/delivery-planning/bolt-plan.md","aidlc/spaces/default/intents/260910-master-mgmt-app/inception/delivery-planning/delivery-planning-questions.md","aidlc/spaces/default/intents/260910-master-mgmt-app/inception/delivery-planning/external-dependency-map.md","aidlc/spaces/default/intents/260910-master-mgmt-app/inception/delivery-planning/risk-and-sequencing-rationale.md","aidlc/spaces/default/intents/260910-master-mgmt-app/inception/delivery-planning/team-allocation.md"]
+**Invalidated Downstream Reviews**: ["aidlc/spaces/default/intents/260910-master-mgmt-app/construction/config-engine/functional-design/functional-spec.md#Review","aidlc/spaces/default/intents/260910-master-mgmt-app/construction/data-import-export/functional-design/functional-spec.md#Review"]
+**Source Baseline**: sha256:d26fca7c44fe9c48c8cc2f08da191b3351f89a5e847f6b2d43c159e4a377b1fa
+
+---
+
+## Stage Start
+**Timestamp**: 2026-09-14T02:22:35Z
+**Event**: STAGE_STARTED
+**Stage**: contract-design
+**Agent**: aidlc-architect-agent
+**Source Baseline**: sha256:d26fca7c44fe9c48c8cc2f08da191b3351f89a5e847f6b2d43c159e4a377b1fa
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:22:42Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:32:04Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:32:50Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-14T02:32:50Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+**Context**: inception > contract-design > contract-design-questions.md
+**Summary Authorization Id**: 2a5516c29da442d9ed9c81b967e8e22355980b0953af7c919619c5221244eab7
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:32:56Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-14T02:32:56Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+**Context**: inception > contract-design > contract-design-questions.md
+**Summary Authorization Id**: 2a5516c29da442d9ed9c81b967e8e22355980b0953af7c919619c5221244eab7
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:33:13Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-14T02:33:13Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+**Context**: inception > contract-design > contract-design-questions.md
+**Summary Authorization Id**: 2a5516c29da442d9ed9c81b967e8e22355980b0953af7c919619c5221244eab7
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:33:19Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-14T02:33:20Z
+**Event**: DECISION_RECORDED
+**Stage**: contract-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-14T02:36:16Z
+**Event**: HUMAN_TURN
+**Session**: bcb6a7fe-72e8-4271-a6f2-c63b611da413
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:36:25Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-14T02:36:25Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+**Context**: inception > contract-design > contract-design-questions.md
+**Summary Authorization Id**: 2a5516c29da442d9ed9c81b967e8e22355980b0953af7c919619c5221244eab7
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:36:30Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-14T02:36:30Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: contract-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/inception/contract-design/contract-design-questions.md
+**Questions SHA-256**: e2b34f3e38a6526df09a2659c6d404989d1b8ed5535ec5729021d29044b636e0
+**Hash Scope**: confirmed-content-v1
+**Summary Authorization Id**: 1c0699911a846b68a98f91abcebd019f58d6fbadd8019e74562770715725974f
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-14T02:36:35Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---

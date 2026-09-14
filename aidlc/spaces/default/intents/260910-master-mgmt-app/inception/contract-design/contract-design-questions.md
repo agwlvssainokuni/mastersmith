@@ -52,17 +52,51 @@ Units Generationの`unit-of-work-dependency.md`では、frontend-ui↔各バッ�
 
 [Answer]: A(ただし、規格はRFC 7807ではなくRFC 9457(Problem Details for HTTP APIs、2023年7月発行、RFC 7807を正式にobsoleteした最新版)を採用する。フィールドの構成自体はRFC 7807から実質的な変更はないが、規格として最新のRFC 9457を明示的に参照する)
 
+## Q6. C1(list-engine)エクスポートAPIへの検索条件・ソート順・列単位実効READ権限の反映方法
+
+`construction/data-import-export/functional-design/functional-spec.md`のOpen Question(レビュー指摘R-01対応)により、W1(CSVエクスポート)は一覧画面の現在の検索条件・ソート順、および列単位の実効READ権限一覧(`permittedColumnNames`)を反映する必要があるが、既存のC1(`GET /records/export`)にはこれらのパラメータが定義されていなかった。どう追加しますか?
+
+- A. `GET /records/export`に、既存の`GET /records`と同じ形状の`filter`・`sort`クエリパラメータを追加する。ただし`permittedColumnNames`(列単位の実効READ権限一覧)はWEB APIのパラメータにはしない。list-engineがサーバー側で(自身がPermissionEngineへ問い合わせ済みの)実効READ権限を算出し、内部インタフェース契約(C13)の`exportCsv`呼び出し時にのみ渡す。クライアント(ブラウザ)が権限一覧を指定できる余地を作らない(推奨)
+- B. `permittedColumnNames`も含めすべてWEB APIのクエリパラメータとして公開する
+- X. Other (please specify)
+
+[Answer]: A(ユーザー確認済み: 権限一覧はWEB APIに追加する必要はなく、内部Java APIにのみ追加する)
+
+## Q7. C13(data-import-export)インポートへの実行者ユーザーID(actor)の反映方法
+
+`functional-spec.md`のOpen Question(レビュー指摘R-02対応)により、W2(CSVインポート)の監査ログイベント(`ImportExecutedEvent`)は実行者ユーザーIDを要求するが、既存のC13契約(`importCsv(tableConfigId, file)`)には実行者を渡すパラメータがなかった。どう追加しますか?
+
+- A. `importCsv`の内部インタフェース契約(C13)にのみ`actor`パラメータを追加する(`importCsv(tableConfigId, file, actor)`)。record-edit-engineは自身のREST層(C2、Bearer認証済み)のSpring Security認証済みプリンシパルからユーザーIDを取得し、そのまま内部呼び出しの引数として渡す。WEB API(C2の`POST /records/import`)のリクエストボディに`actor`フィールドを追加する必要はない(推奨)
+- B. WEB API(C2)のリクエストボディにも`actor`フィールドを追加する
+- X. Other (please specify)
+
+[Answer]: A(ユーザー確認済み: actorは内部Java APIにのみ追加し、WEB APIへの追加は不要)
+
+## Q8. C9(config-engine)のColumnConfigへの主キー列情報の追加
+
+`functional-spec.md`のOpen Question(レビュー指摘R-05対応)により、W2(CSVインポート)のupsert判定(INSERT/UPDATE)に必要な「対象テーブルの主キー列」情報が、既存のC9契約(`ColumnConfig`型)に定義されていなかった。どう追加しますか?
+
+- A. `ColumnConfig`型に`isPrimaryKey: boolean`を追加する。単一主キー列を主な想定とし(複合主キーは今回のMVPスコープの主要な対象外)、schema-introspector(U2)が対象RDBMSのメタデータ読み取り時に判定し、`TableConfigDraft`(`writeTableConfigDraft`経由)に含める(推奨)
+- B. `TableConfig`型に主キー列名を直接保持する(`ColumnConfig`側には追加しない)
+- X. Other (please specify)
+
+[Answer]: A
+
 ## Assumptions & Open Questions
 
 None.
 
 ## Decomposition Plan Summary
 
-- **契約範囲**: REST/HTTP契約(OpenAPI、frontend-ui向け)8件(list-engine, record-edit-engine, menu-navigation, authentication-service, user-management, audit-logging, config-import-export, schema-introspector)+ 内部Javaインタフェース契約(shared-schema、バックエンド間)5件(config-engine, permission-engine, user-management→authentication-service, menu-navigation→config-import-export, data-import-export)= 計13契約。
+- **契約範囲**: REST/HTTP契約(OpenAPI、frontend-ui向け)8件(list-engine, record-edit-engine, menu-navigation, authentication-service, user-management, audit-logging, config-import-export, schema-introspector)+ 内部Javaインタフェース契約(shared-schema、バックエンド間)6件(config-engine, permission-engine, user-management→authentication-service, menu-navigation→config-import-export, data-import-export, authentication-service→list-engine/record-edit-engine)= 計14契約(C14はレビュー指摘R-01対応で既に追加済み)。
 - **対象外**: packaging(U13)は実行時APIを持たないビルド成果物のため契約対象外。
 - **エラー形式**: RFC 9457(Problem Details for HTTP APIs)。401/403/404/422を適切に使い分ける。
 - **バージョニング**: 内部・REST問わず一切のバージョン番号・パス予約を行わない(`/api/...`)。
 - **所有権**: 各契約はプロバイダー側ユニットが所有し、破壊的変更はコンシューマーとの合意を要する。
+- **本ラウンドで追加した3件の追補(data-import-exportユニットのCode Generation着手前に必要だった契約ギャップの解消)**:
+  - **C1(list-engine `/records/export`)**: `filter`・`sort`クエリパラメータを追加(既存`GET /records`と同形状)。`permittedColumnNames`(列単位の実効READ権限一覧)はWEB APIには追加せず、C13の内部インタフェース経由でのみ渡す(Q6=A)。
+  - **C13(data-import-export内部インタフェース)**: `exportCsv`に`filter`・`sort`・`permittedColumnNames`を追加、`importCsv`に監査ログ用の実行者ユーザーID`actor`を追加。いずれもWEB API(C1/C2)には現れない内部専用の拡張(Q6=A, Q7=A)。
+  - **C9(config-engine `ColumnConfig`)**: `isPrimaryKey: boolean`を追加。単一主キー列を主な想定とする(Q8=A)。
 
 ## Consolidated Summary Confirmation
 
