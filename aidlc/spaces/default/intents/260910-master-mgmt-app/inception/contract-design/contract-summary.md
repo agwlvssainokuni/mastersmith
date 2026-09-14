@@ -84,12 +84,24 @@ paths:
         "422": { $ref: "#/components/responses/ValidationError" }
   /api/tables/{tableConfigId}/records/export:
     get:
-      summary: 業務データCSVエクスポート(data-import-exportへ内部委譲、FR12.1)
+      summary: >
+        業務データCSVエクスポート(data-import-exportへ内部委譲、FR12.1)。
+        一覧画面の現在の検索条件・ソート順を反映する(Contract Design追補Q6=A)。
+        列単位の実効READ権限一覧(permittedColumnNames)はlist-engineがサーバー側で
+        算出し、本WEB APIには公開しない(C13参照)。
       security: [{ bearerAuth: [] }]
       parameters:
         - name: tableConfigId
           in: path
           required: true
+          schema: { type: string }
+        - name: filter
+          in: query
+          description: 一覧画面の現在の検索条件(GET /recordsと同形状)
+          schema: { type: object, additionalProperties: true }
+        - name: sort
+          in: query
+          description: 一覧画面の現在のソート順(GET /recordsと同形状)
           schema: { type: string }
       responses:
         "200":
@@ -583,13 +595,15 @@ shared-schema:
       throws: [ConfigValidationException]
   types:
     TableConfig: { tableConfigId: string, schemaName: string, tableName: string, displayName: string, displayOrder: int, optimisticLockColumn: "string | null" }
-    ColumnConfig: { columnConfigId: string, tableConfigId: string, columnName: string, displayName: string, displayOrder: int, format: string, editorType: string, validationRule: string, visibility: string }
+    ColumnConfig: { columnConfigId: string, tableConfigId: string, columnName: string, displayName: string, displayOrder: int, format: string, editorType: string, validationRule: string, visibility: string, isPrimaryKey: boolean }
   exceptions:
     - name: TableConfigNotFoundException
       httpMapping: N/A(内部呼び出し、Java例外)
     - name: ConfigValidationException
       description: 設定定義自体の誤り(必須プロパティ欠落等)。fail fastで起動時・設定読込時・インポート時に検知する(project.md Mandated)
 ```
+
+**主キー列情報の追加(Contract Design追補Q8=A、レビュー指摘R-05対応)**: `ColumnConfig.isPrimaryKey`は、data-import-export(U8)のCSVインポート時のupsert判定(INSERT/UPDATE、主キー列の値の有無で判定)に用いる。schema-introspector(U2)が対象RDBMSのメタデータ読み取り時に主キー制約を判定し、`writeTableConfigDraft`経由で設定する。単一主キー列を主な想定とし、複合主キーのテーブルへの詳細な対応(CSVに複数の主キー列を含める運用等)は本MVPスコープの主要な対象外とする。
 
 ### C10: permission-engine 内部インタフェース契約
 
@@ -676,11 +690,22 @@ shared-schema:
   consumers: [list-engine, record-edit-engine]
   methods:
     - name: exportCsv
-      params: { tableConfigId: string }
+      description: >
+        一覧画面の現在の検索条件・ソート順(C1のfilter/sortをlist-engineが中継)、
+        および列単位の実効READ権限一覧(permittedColumnNames)を反映してCSVを生成する
+        (Contract Design追補Q6=A、レビュー指摘R-01対応)。permittedColumnNamesは
+        list-engineが自身のPermissionEngine問い合わせ結果から算出した値であり、
+        WEB API(C1)では公開しない内部専用パラメータである。
+      params: { tableConfigId: string, filter: "object (nullable)", sort: "string (nullable)", permittedColumnNames: "List<string>" }
       returns: "InputStream (CSV)"
     - name: importCsv
-      description: 行単位のバリデーションエラーを収集して返す(全体を即時失敗にはしない)
-      params: { tableConfigId: string, file: "InputStream (CSV)" }
+      description: >
+        行単位のバリデーションエラーを収集して返す(全体を即時失敗にはしない)。
+        actorは監査ログイベント(ImportExecutedEvent)の実行者記録用(Contract Design
+        追補Q7=A、レビュー指摘R-02対応)。record-edit-engineが自身のREST層(C2、
+        Bearer認証済み)のSpring Security認証済みプリンシパルから取得して渡す
+        内部専用パラメータであり、WEB API(C2)のリクエストボディには公開しない。
+      params: { tableConfigId: string, file: "InputStream (CSV)", actor: string }
       returns: "ImportResult { successCount: int, errors: List<RowError> }"
   types:
     RowError: { row: int, message: string }
