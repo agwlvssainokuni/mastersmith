@@ -29,8 +29,8 @@ InputStream exportCsv(String tableConfigId, Map<String, Object> filter, String s
 ImportResult importCsv(String tableConfigId, InputStream file, String actor);
 ```
 
-- `permittedColumnNames`はJavaのメソッドパラメータであり、HTTPリクエスト(C1)とは独立した内部インタフェース(C13)の変更として扱う。C1(list-engineのfrontend-ui向けREST API)にfilter/sort/permittedColumnNames相当のクエリパラメータを追加する契約追補は別途必要(Contract Designへの追補課題、`functional-spec.md`のAssumptions & Open Questions参照)。
-- `actor`は`nfr-design-questions.md` Q1確定によりC13へ明示的なパラメータとして追加する(SecurityContextHolder方式は不採用)。record-edit-engineが認証済みセッションから取得した実行者ユーザーIDをそのまま渡す。
+- `permittedColumnNames`はJavaのメソッドパラメータであり、HTTPリクエスト(C1)とは独立した内部インタフェース(C13)のみに現れる(Contract Design追補Q6=Aで解決済み)。C1(list-engineのfrontend-ui向けREST API、`GET /records/export`)には`filter`・`sort`クエリパラメータのみを追加し、`permittedColumnNames`はWEB APIには一切公開しない。クライアント(ブラウザ)が自身の権限範囲を指定できる余地を作らないための意図的な設計であり、list-engineがサーバー側で算出した値をC13呼び出し時にのみ渡す。
+- `actor`は`nfr-design-questions.md` Q1確定によりC13へ明示的なパラメータとして追加する(SecurityContextHolder方式は不採用、Contract Design追補Q7=Aで解決済み)。record-edit-engineが自身のREST層(C2、Bearer認証済み)のSpring Security認証済みプリンシパルから取得した実行者ユーザーIDをそのまま渡す。WEB API(C2)のリクエストボディには`actor`を公開しない。
 
 ## 入力検証設計(NFR2.3・NFR2.4関連)
 
