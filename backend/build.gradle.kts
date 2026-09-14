@@ -44,6 +44,10 @@ dependencies {
     // data-import-export(U8): CSVエクスポート/インポートのストリーミング読み書き
     // (nfr-requirements/tech-stack-decisions.md「CSVパースライブラリ: Apache Commons CSV」)。
     implementation("org.apache.commons:commons-csv:1.12.0")
+    // permission-engine(U3): 実効権限のインメモリキャッシュ(performance-design.md「キャッシュアーキテクチャ」、Caffeine採用)。
+    implementation("com.github.ben-manes.caffeine:caffeine")
+    // permission-engine(U3): メトリクス計装(observability-design.md、MeterRegistry Beanの自動構成に必要)。
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     runtimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

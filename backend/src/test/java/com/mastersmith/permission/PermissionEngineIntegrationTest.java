@@ -1,0 +1,248 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.mastersmith.permission;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.mastersmith.MastersmithApplication;
+import com.mastersmith.config.dto.ConfigImportSet;
+import com.mastersmith.config.entity.ColumnConfig;
+import com.mastersmith.config.entity.EditorType;
+import com.mastersmith.config.entity.TableConfig;
+import com.mastersmith.config.store.ConfigEngineApi;
+import com.mastersmith.permission.dto.EffectivePermission;
+import com.mastersmith.permission.entity.Group;
+import com.mastersmith.permission.entity.GroupMembership;
+import com.mastersmith.permission.entity.GroupRole;
+import com.mastersmith.permission.entity.PermissionLevel;
+import com.mastersmith.permission.entity.Role;
+import com.mastersmith.permission.entity.ScopeType;
+import com.mastersmith.permission.exception.PermissionEscalationException;
+import com.mastersmith.permission.repository.GroupMembershipRepository;
+import com.mastersmith.permission.repository.GroupRepository;
+import com.mastersmith.permission.repository.GroupRoleRepository;
+import com.mastersmith.permission.repository.RoleRepository;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * permission-engine(U3)のSpring Boot統合テスト(組込みH2、実際のDB状態を検証、plan Step10)。
+ *
+ * <p>各テストは{@link Transactional}によりロールバックされ、テスト間で状態を共有しない(Role等はコンストラクタで都度新しいUUIDを採番するため、
+ * ロールバックに関わらずキャッシュキーの衝突も生じない)。認可拒否(negative-authorization)専用テスト(team.md Q8-c必須項目)として{@link
+ * #deniesAccessWhenNoPermissionIsGranted()}・{@link
+ * #assignPermissionThrowsWhenActorAttemptsToExceedTheirOwnEffectivePermission()}を含む。
+ */
+@SpringBootTest(classes = MastersmithApplication.class)
+@Transactional
+class PermissionEngineIntegrationTest {
+
+  @Autowired private PermissionEngineApi permissionEngineApi;
+  @Autowired private RoleRepository roleRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private GroupMembershipRepository groupMembershipRepository;
+  @Autowired private GroupRoleRepository groupRoleRepository;
+  @Autowired private ConfigEngineApi configEngineApi;
+
+  @Test
+  void resolvesEffectivePermissionThroughColumnToTableToSchemaFallbackAgainstRealDatabase() {
+    String schemaName = "schema-" + UUID.randomUUID();
+    TableConfig tableConfig = new TableConfig(schemaName, "products");
+    ColumnConfig columnConfig =
+        new ColumnConfig(tableConfig.getTableConfigId(), "price", EditorType.DECIMAL);
+    configEngineApi.importConfigSet(
+        new ConfigImportSet(List.of(tableConfig), List.of(columnConfig), List.of()));
+
+    Role role = roleRepository.save(new Role("role-" + UUID.randomUUID()));
+    // ブートストラップ状態(PrimaryPermission行が0件)のため、昇格チェックなしで割当できる。
+    permissionEngineApi.assignPermission(
+        role.getRoleId(), role.getRoleId(), ScopeType.SCHEMA, schemaName, PermissionLevel.FULL);
+
+    // COLUMN・TABLEいずれにも明示設定がないため、SCHEMA階層まで遡って解決される(rules.md BR3.4)。
+    EffectivePermission result =
+        permissionEngineApi.resolveEffectivePermission(
+            role.getRoleId(), ScopeType.COLUMN, columnConfig.getColumnConfigId());
+
+    assertThat(result.level()).isEqualTo(PermissionLevel.FULL);
+  }
+
+  @Test
+  void deniesAccessWhenNoPermissionIsGranted() {
+    // negative-authorization: 権限が一切割り当てられていないロールは、実効権限NONE・画面アクセス不可となる。
+    Role role = roleRepository.save(new Role("role-" + UUID.randomUUID()));
+    String scopeRef = "schema-" + UUID.randomUUID();
+
+    EffectivePermission result =
+        permissionEngineApi.resolveEffectivePermission(
+            role.getRoleId(), ScopeType.SCHEMA, scopeRef);
+
+    assertThat(result.level()).isEqualTo(PermissionLevel.NONE);
+    assertThat(result.canCreate()).isFalse();
+    assertThat(result.canDelete()).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(role.getRoleId(), scopeRef)).isFalse();
+  }
+
+  @Test
+  void resolveEffectivePermissionDeniesAnActiveRoleIdThatDoesNotExist() {
+    // negative-authorization: 実在しないRoleに対しては安全側のデフォルトを返す(security-design.md「多層防御」)。
+    EffectivePermission result =
+        permissionEngineApi.resolveEffectivePermission(
+            "non-existent-role-id", ScopeType.SCHEMA, "public");
+
+    assertThat(result).isEqualTo(EffectivePermission.NONE);
+  }
+
+  @Test
+  void bootstrapAllowsFirstAssignmentThenEnforcesEscalationCheckAfterward() {
+    Role adminRole = roleRepository.save(new Role("admin-" + UUID.randomUUID()));
+    Role limitedRole = roleRepository.save(new Role("limited-" + UUID.randomUUID()));
+    String scopeRef = "schema-" + UUID.randomUUID();
+
+    // BR3.13(a): ブートストラップ状態では、初期管理者が最初のRBACインポート画面へ無条件で到達できる。
+    assertThat(permissionEngineApi.canAccessScreen(adminRole.getRoleId(), "config-import-export"))
+        .isTrue();
+
+    // BR3.13(b): ブートストラップ状態では昇格チェックをスキップし、無条件に割当を許可する。
+    permissionEngineApi.assignPermission(
+        adminRole.getRoleId(),
+        adminRole.getRoleId(),
+        ScopeType.SCHEMA,
+        scopeRef,
+        PermissionLevel.FULL);
+    permissionEngineApi.assignPermission(
+        adminRole.getRoleId(),
+        limitedRole.getRoleId(),
+        ScopeType.SCHEMA,
+        scopeRef,
+        PermissionLevel.READ);
+
+    // ブートストラップ状態は永続的に終了しており、limitedRole(READ)がadminRole相当(FULL)への
+    // 昇格を試みると拒否される。
+    assertThatThrownBy(
+            () ->
+                permissionEngineApi.assignPermission(
+                    limitedRole.getRoleId(),
+                    limitedRole.getRoleId(),
+                    ScopeType.SCHEMA,
+                    scopeRef,
+                    PermissionLevel.FULL))
+        .isInstanceOf(PermissionEscalationException.class);
+
+    // 拒否された割当はDBへ反映されない: limitedRoleの実効権限はREADのまま。
+    EffectivePermission stillRead =
+        permissionEngineApi.resolveEffectivePermission(
+            limitedRole.getRoleId(), ScopeType.SCHEMA, scopeRef);
+    assertThat(stillRead.level()).isEqualTo(PermissionLevel.READ);
+  }
+
+  @Test
+  void assignPermissionThrowsWhenActorAttemptsToExceedTheirOwnEffectivePermission() {
+    // negative-authorization: 自分自身への昇格(project.md Forbidden)も同じ経路で拒否される。
+    Role role = roleRepository.save(new Role("role-" + UUID.randomUUID()));
+    String scopeRef = "schema-" + UUID.randomUUID();
+    // ブートストラップを終えるため、別スコープへ先に1件割り当てておく。
+    permissionEngineApi.assignPermission(
+        role.getRoleId(),
+        role.getRoleId(),
+        ScopeType.SCHEMA,
+        "bootstrap-" + UUID.randomUUID(),
+        PermissionLevel.READ);
+
+    assertThatThrownBy(
+            () ->
+                permissionEngineApi.assignPermission(
+                    role.getRoleId(),
+                    role.getRoleId(),
+                    ScopeType.SCHEMA,
+                    scopeRef,
+                    PermissionLevel.FULL))
+        .isInstanceOf(PermissionEscalationException.class);
+  }
+
+  @Test
+  void cacheIsInvalidatedSoADemotionTakesEffectImmediately() {
+    Role adminRole = roleRepository.save(new Role("admin-" + UUID.randomUUID()));
+    Role targetRole = roleRepository.save(new Role("target-" + UUID.randomUUID()));
+    String scopeRef = "schema-" + UUID.randomUUID();
+
+    permissionEngineApi.assignPermission(
+        adminRole.getRoleId(),
+        adminRole.getRoleId(),
+        ScopeType.SCHEMA,
+        scopeRef,
+        PermissionLevel.FULL);
+    permissionEngineApi.assignPermission(
+        adminRole.getRoleId(),
+        targetRole.getRoleId(),
+        ScopeType.SCHEMA,
+        scopeRef,
+        PermissionLevel.FULL);
+
+    // 1回目の解決でキャッシュへ載る。
+    assertThat(
+            permissionEngineApi
+                .resolveEffectivePermission(targetRole.getRoleId(), ScopeType.SCHEMA, scopeRef)
+                .level())
+        .isEqualTo(PermissionLevel.FULL);
+
+    // adminRole自身をREADへ降格(この時点でadminRoleの実効権限はFULLなので許可される)。
+    permissionEngineApi.assignPermission(
+        adminRole.getRoleId(),
+        targetRole.getRoleId(),
+        ScopeType.SCHEMA,
+        scopeRef,
+        PermissionLevel.READ);
+
+    // performance-design.md R-01: invalidateAll()により、キャッシュ済みだったtargetRoleのエントリも
+    // 即座に無効化され、降格後の値が返る(TTL経過を待たない)。
+    assertThat(
+            permissionEngineApi
+                .resolveEffectivePermission(targetRole.getRoleId(), ScopeType.SCHEMA, scopeRef)
+                .level())
+        .isEqualTo(PermissionLevel.READ);
+  }
+
+  @Test
+  void getGroupDerivedRoleIdsReflectsActualGroupMembershipInTheDatabase() {
+    Role directRole = roleRepository.save(new Role("direct-" + UUID.randomUUID()));
+    Role groupRole1 = roleRepository.save(new Role("group-role-1-" + UUID.randomUUID()));
+    Role groupRole2 = roleRepository.save(new Role("group-role-2-" + UUID.randomUUID()));
+    Group group = groupRepository.save(new Group("group-" + UUID.randomUUID()));
+    String userId = "user-" + UUID.randomUUID();
+    groupMembershipRepository.save(new GroupMembership(group.getGroupId(), userId));
+    groupRoleRepository.save(new GroupRole(group.getGroupId(), groupRole1.getRoleId()));
+    groupRoleRepository.save(new GroupRole(group.getGroupId(), groupRole2.getRoleId()));
+
+    List<String> derivedRoleIds = permissionEngineApi.getGroupDerivedRoleIds(userId);
+
+    // 直接付与ロール(directRole)は本メソッドの対象外(BR3.2: Group経由のみ)。
+    assertThat(derivedRoleIds)
+        .containsExactlyInAnyOrder(groupRole1.getRoleId(), groupRole2.getRoleId())
+        .doesNotContain(directRole.getRoleId());
+  }
+
+  @Test
+  void getGroupDerivedRoleIdsReturnsEmptyListForAUserWithNoGroupMembership() {
+    assertThat(permissionEngineApi.getGroupDerivedRoleIds("lone-user-" + UUID.randomUUID()))
+        .isEmpty();
+  }
+}

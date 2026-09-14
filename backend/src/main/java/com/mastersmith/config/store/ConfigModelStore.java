@@ -88,6 +88,11 @@ public class ConfigModelStore implements ConfigEngineApi {
   }
 
   @Override
+  public Optional<ColumnConfig> findColumnConfigById(String columnConfigId) {
+    return cache.findColumnConfigById(columnConfigId);
+  }
+
+  @Override
   public TableConfig getTableConfigById(String tableConfigId) {
     return cache
         .findTableConfigById(tableConfigId)

@@ -67,44 +67,44 @@
 
 ## Steps
 
-- [ ] Step 1: プロジェクト構造・エンティティ定義
+- [x] Step 1: プロジェクト構造・エンティティ定義
   - `Role`, `PrimaryPermission`, `AuxiliaryPermission`, `Group`, `GroupMembership`, `GroupRole`のJPAエンティティを`com.mastersmith.permission.entity`に作成(entities.md準拠、Role.parentRoleId等の親子関係は持たない)
   - `ScopeType`列挙型(SCHEMA/TABLE/COLUMN)を追加
-- [ ] Step 2: 権限判定ロジックのテストケース洗い出し(ATDD、権限判定ロジックのみ例外的にtest-first)
+- [x] Step 2: 権限判定ロジックのテストケース洗い出し(ATDD、権限判定ロジックのみ例外的にtest-first)
   - BR3.4(主権限のスコープ階層解決)・BR3.5(補助権限の解決)・BR3.6(デフォルト値)の権限マトリクス組み合わせケースを洗い出し、`PermissionResolverTest`(テーブル駆動)の失敗するテストを先に書く
   - ケース例: COLUMN明示設定あり/TABLEのみ/SCHEMAのみ/すべて指定なし(NONE)、補助権限も同様(TABLE/SCHEMA/すべて指定なしDeny)
-- [ ] Step 3: 権限判定ロジックの実装(Green)
+- [x] Step 3: 権限判定ロジックの実装(Green)
   - `PermissionResolver`(スコープ階層探索、BR3.4/BR3.5/BR3.6実装)をStep 2のテストが通るように実装
-- [ ] Step 4: Repository/データアクセス層
+- [x] Step 4: Repository/データアクセス層
   - Spring Data JPAの`RoleRepository`, `PrimaryPermissionRepository`, `AuxiliaryPermissionRepository`, `GroupRepository`, `GroupMembershipRepository`, `GroupRoleRepository`
   - `(roleId, scopeType, scopeRef)`複合インデックス等をエンティティの`@Table`/`@Index`定義に反映(scalability-design.md準拠)
   - Repository層のテスト作成・実行
-- [ ] Step 5: キャッシュ層(Caffeine)
+- [x] Step 5: キャッシュ層(Caffeine)
   - `build.gradle.kts`にCaffeine依存追加
   - `PermissionCacheConfig`(Caffeineキャッシュのbean定義、TTL・サイズ上限設定)
   - キャッシュ層のテスト作成・実行
-- [ ] Step 6: ブートストラップ判定・権限昇格チェックの実装
+- [x] Step 6: ブートストラップ判定・権限昇格チェックの実装
   - `BootstrapStateChecker`(PrimaryPermission行数=0判定、BR3.13)
   - `PermissionEscalationChecker`(BR3.8、操作者の実効権限との比較)
   - テスト作成・実行(昇格許可/拒否/ブートストラップ例外の各ケース)
-- [ ] Step 7: `PermissionEngineApi`実装(公開API層、C10契約)
+- [x] Step 7: `PermissionEngineApi`実装(公開API層、C10契約)
   - `resolveEffectivePermission`, `canAccessScreen`, `assignPermission`の実装(W1/W2/W4のワークフローを反映)
   - `getGroupDerivedRoleIds(userId): List<String>`の追加実装(計画外・正当化された逸脱。functional-spec.md「Domain Design/Contract Designへの追補」で識別した契約ギャップに対応。C10の既存コンシューマーであるuser-managementが選択可能ロール一覧算出に利用する。config-engineの`getTableConfigById`追加と同種の、ユニット自身の契約への軽微な拡張)
   - `EffectivePermission`, `PermissionEscalationException`等のDTO/例外クラス
   - `activeRoleId`存在検証(BR実装、security-design.md準拠)
   - テスト作成・実行
-- [ ] Step 8: PermissionChangedイベント発行
+- [x] Step 8: PermissionChangedイベント発行
   - `PermissionChangedEvent`(Springアプリケーションイベント、config-engineの`ConfigChangedEvent`と同じパターン)
   - `assignPermission`成功時のfire-and-forget発行(BR3.11、インポート実行単位のサマリではなく、本ユニット単体では各`assignPermission`呼び出しの粒度で発行し、実行単位への集約はconfig-import-export側の責務とする。C13(data-import-export)の`ImportExecutedEvent`集約パターンとは異なり、config-import-exportが複数の`assignPermission`呼び出し結果を集約してサマリイベントとして扱う設計とする)
   - テスト作成・実行
-- [ ] Step 9: メトリクス・ログ実装(observability-design.md準拠)
+- [x] Step 9: メトリクス・ログ実装(observability-design.md準拠)
   - Micrometerカウンタ`permission_escalation_denied_total`、タイマー`permission_check_duration_seconds`
   - 構造化ログ出力
-- [ ] Step 10: 統合テスト
+- [x] Step 10: 統合テスト
   - Spring Boot統合テスト(組込みH2、実際のDB状態を検証)
   - 認可拒否(negative-authorization)専用テスト(team.md Q8-c必須項目)
   - 設定ファイル不正時の安全失敗テスト(該当する場合)
-- [ ] Step 11: ドキュメント・トレーサビリティ
+- [x] Step 11: ドキュメント・トレーサビリティ
   - `code-summary.md`, `source-manifest.json`, `traceability.json`の作成
 
 ## 既知の未解決事項(実装時に踏襲、修正はスコープ外)

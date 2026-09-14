@@ -102,6 +102,22 @@ class ConfigModelStoreTest {
   }
 
   @Test
+  void findColumnConfigByIdReturnsCachedValueWhenPresent() {
+    ColumnConfig columnConfig = new ColumnConfig("t1", "name", EditorType.TEXT);
+    when(cache.findColumnConfigById(columnConfig.getColumnConfigId()))
+        .thenReturn(Optional.of(columnConfig));
+
+    assertThat(store.findColumnConfigById(columnConfig.getColumnConfigId())).contains(columnConfig);
+  }
+
+  @Test
+  void findColumnConfigByIdReturnsEmptyWhenNotFound() {
+    when(cache.findColumnConfigById("unknown")).thenReturn(Optional.empty());
+
+    assertThat(store.findColumnConfigById("unknown")).isEmpty();
+  }
+
+  @Test
   void getTableConfigByIdReturnsCachedValueWhenPresent() {
     TableConfig tableConfig = new TableConfig("public", "products");
     when(cache.findTableConfigById(tableConfig.getTableConfigId()))
@@ -193,9 +209,7 @@ class ConfigModelStoreTest {
             RdbmsDialect.POSTGRESQL,
             List.of(
                 new TableDraftEntry(
-                    "public",
-                    "new_table",
-                    List.of(new ColumnDraftEntry("id", "int", true)))));
+                    "public", "new_table", List.of(new ColumnDraftEntry("id", "int", true)))));
 
     store.writeTableConfigDraft(draft);
 

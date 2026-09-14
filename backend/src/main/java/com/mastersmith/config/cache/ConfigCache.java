@@ -75,6 +75,10 @@ public class ConfigCache {
     return snapshot().columnConfigsByTable().getOrDefault(tableConfigId, List.of());
   }
 
+  public Optional<ColumnConfig> findColumnConfigById(String columnConfigId) {
+    return Optional.ofNullable(snapshot().columnConfigById().get(columnConfigId));
+  }
+
   public Optional<String> findTranslation(String i18nKey, String locale) {
     return Optional.ofNullable(snapshot().translations().get(new TranslationKey(i18nKey, locale)));
   }
@@ -103,13 +107,15 @@ public class ConfigCache {
       Map<TableConfigKey, TableConfig> byNameKey,
       Map<String, TableConfig> byId,
       Map<String, List<ColumnConfig>> columnConfigsByTable,
+      Map<String, ColumnConfig> columnConfigById,
       Map<TranslationKey, String> translations,
       List<TableConfig> tableConfigList,
       List<ColumnConfig> columnConfigList,
       List<TranslationEntry> translationEntryList) {
 
     static Snapshot empty() {
-      return new Snapshot(Map.of(), Map.of(), Map.of(), Map.of(), List.of(), List.of(), List.of());
+      return new Snapshot(
+          Map.of(), Map.of(), Map.of(), Map.of(), Map.of(), List.of(), List.of(), List.of());
     }
 
     static Snapshot of(
@@ -134,6 +140,11 @@ public class ConfigCache {
                   .collect(
                       Collectors.groupingBy(
                           ColumnConfig::getTableConfigId, Collectors.toUnmodifiableList())));
+      Map<String, ColumnConfig> columnConfigById =
+          columnConfigs.stream()
+              .collect(
+                  Collectors.toUnmodifiableMap(
+                      ColumnConfig::getColumnConfigId, cc -> cc, (a, b) -> a));
       Map<TranslationKey, String> translations =
           translationEntries.stream()
               .collect(
@@ -145,6 +156,7 @@ public class ConfigCache {
           byNameKey,
           byId,
           columnConfigsByTable,
+          columnConfigById,
           translations,
           List.copyOf(tableConfigs),
           List.copyOf(columnConfigs),

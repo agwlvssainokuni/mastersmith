@@ -84,6 +84,29 @@ class ConfigCacheTest {
   }
 
   @Test
+  void findColumnConfigByIdReturnsTheMatchingColumnAfterReload() {
+    TableConfig tableConfig = new TableConfig("public", "products");
+    ColumnConfig columnConfig =
+        new ColumnConfig(tableConfig.getTableConfigId(), "name", EditorType.TEXT);
+    when(tableConfigRepository.findAll()).thenReturn(List.of(tableConfig));
+    when(columnConfigRepository.findAll()).thenReturn(List.of(columnConfig));
+    when(translationEntryRepository.findAll()).thenReturn(List.of());
+    cache.reload();
+
+    assertThat(cache.findColumnConfigById(columnConfig.getColumnConfigId())).contains(columnConfig);
+  }
+
+  @Test
+  void findColumnConfigByIdReturnsEmptyForUnknownColumnConfigId() {
+    when(tableConfigRepository.findAll()).thenReturn(List.of());
+    when(columnConfigRepository.findAll()).thenReturn(List.of());
+    when(translationEntryRepository.findAll()).thenReturn(List.of());
+    cache.reload();
+
+    assertThat(cache.findColumnConfigById("unknown-id")).isEmpty();
+  }
+
+  @Test
   void findColumnConfigsReturnsEmptyListForUnknownTableConfigId() {
     when(tableConfigRepository.findAll()).thenReturn(List.of());
     when(columnConfigRepository.findAll()).thenReturn(List.of());

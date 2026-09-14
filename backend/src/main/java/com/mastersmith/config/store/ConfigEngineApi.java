@@ -43,6 +43,16 @@ public interface ConfigEngineApi {
   List<ColumnConfig> getColumnConfigs(String tableConfigId);
 
   /**
+   * 指定されたcolumnConfigIdに対応するColumnConfigを返す(存在しない場合はempty)。permission-engine(U3)が主権限のスコープ階層解決
+   * (rules.md BR3.4: COLUMN→TABLE→SCHEMA)において、COLUMNスコープから親TABLEのtableConfigIdを解決するために必要とする、
+   * C9契約への追加メソッド({@link #getTableConfigById(String)}と同種の軽微な拡張)。例外ではなく{@code
+   * Optional.empty()}を返す設計とするのは、
+   * 呼び出し元(permission-engine)がこの不在を「データ不整合」ではなく「それ以上の階層解決を打ち切りBR3.6のデフォルトへフォールバックする」という
+   * 通常の制御フローとして扱うため。
+   */
+  Optional<ColumnConfig> findColumnConfigById(String columnConfigId);
+
+  /**
    * 指定されたtableConfigIdに対応するTableConfigを返す(物理テーブル名(schemaName/tableName)の解決が必要な
    * 内部コンシューマー向け。data-import-export(U8)がCSVエクスポート・インポート対象の物理テーブルを
    * 解決するために必要とする、C9契約への追加メソッド。functional-spec.md W1/W2はtableConfigIdのみを

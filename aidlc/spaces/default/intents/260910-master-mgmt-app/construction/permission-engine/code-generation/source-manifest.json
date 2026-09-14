@@ -1,0 +1,15 @@
+{
+  "stage": "code-generation",
+  "unit": "permission-engine",
+  "version": 1,
+  "writes": [
+    { "path": "backend/build.gradle.kts" },
+    { "path": "backend/src/main/java/com/mastersmith/config/store/ConfigEngineApi.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java" },
+    { "path": "backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java" },
+    { "path": "backend/src/test/java/com/mastersmith/config/cache/ConfigCacheTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/config/store/ConfigModelStoreTest.java" },
+    { "path": "backend/src/main/java/com/mastersmith/permission/" },
+    { "path": "backend/src/test/java/com/mastersmith/permission/" }
+  ]
+}

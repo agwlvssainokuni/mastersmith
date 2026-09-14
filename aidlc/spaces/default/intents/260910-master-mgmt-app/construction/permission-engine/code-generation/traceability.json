@@ -1,0 +1,36 @@
+{
+  "stage": "code-generation",
+  "unit": "permission-engine",
+  "upstream_ids": [
+    "FR1.6", "FR3.3", "FR3.4", "FR4.1", "FR4.2", "FR4.3", "FR4.4",
+    "BR3.1", "BR3.2", "BR3.3", "BR3.4", "BR3.5", "BR3.6", "BR3.7", "BR3.8",
+    "BR3.9", "BR3.10", "BR3.11", "BR3.12", "BR3.13", "BR3.14", "BR3.15"
+  ],
+  "coverage": [
+    { "id": "FR1.6", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/entity/PrimaryPermission.java, backend/src/main/java/com/mastersmith/permission/entity/AuxiliaryPermission.java（scopeRefを不透明な識別子として扱い、業務固有のテーブル名・カラム名をハードコードしない）" },
+    { "id": "FR3.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（resolveEffectivePermission）" },
+    { "id": "FR3.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/escalation/PermissionEscalationChecker.java" },
+    { "id": "FR4.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/entity/Role.java, backend/src/main/java/com/mastersmith/permission/entity/Group.java, backend/src/main/java/com/mastersmith/permission/entity/GroupMembership.java, backend/src/main/java/com/mastersmith/permission/entity/GroupRole.java, backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（assignPermission/assignAuxiliaryPermission）" },
+    { "id": "FR4.2", "status": "Deferred", "target": "authentication-service/frontend-ui（ロール選択UI自体の表示・単一ロール時の非表示制御はfunctional-spec.md W3の通り本ユニットの責務外。本ユニットはgetGroupDerivedRoleIdsによる選択可能ロール一覧の算出のみを担う）" },
+    { "id": "FR4.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/resolver/PermissionResolver.java（主権限のスコープ階層解決）" },
+    { "id": "FR4.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/resolver/PermissionResolver.java（補助権限のスコープ階層解決）" },
+    { "id": "BR3.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/entity/Role.java（parentRoleIdを持たない構造）" },
+    { "id": "BR3.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（getGroupDerivedRoleIds）" },
+    { "id": "BR3.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（getGroupDerivedRoleIdsの和集合算出。直接付与分との合成はuser-management側の責務）" },
+    { "id": "BR3.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/resolver/PermissionResolver.java（buildScopeChain, resolvePrimaryLevel）" },
+    { "id": "BR3.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/resolver/PermissionResolver.java（resolveAuxiliaryField）" },
+    { "id": "BR3.6", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/dto/EffectivePermission.java（NONE定数）, backend/src/main/java/com/mastersmith/permission/resolver/PermissionResolver.java" },
+    { "id": "BR3.7", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java（resolveEffectivePermission/canAccessScreenが唯一のサーバー側検証経路であることを契約として明示）" },
+    { "id": "BR3.8", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/escalation/PermissionEscalationChecker.java" },
+    { "id": "BR3.9", "status": "N/A", "target": "設計制約であり本ユニット自身のコードでは表現されない。assignPermission/assignAuxiliaryPermissionの唯一の呼び出し元がconfig-import-exportであることは、C10コンシューマー一覧（後続Bolt）で担保される" },
+    { "id": "BR3.10", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（canAccessScreen、RESERVED_SCREEN_SCHEMAS）" },
+    { "id": "BR3.11", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/event/PermissionChangedEvent.java" },
+    { "id": "BR3.12", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/entity/PrimaryPermission.java, backend/src/main/java/com/mastersmith/permission/entity/AuxiliaryPermission.java（scopeRefのみに基づく汎用的なロジック、業務固有識別子のハードコードなし）" },
+    { "id": "BR3.13", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/bootstrap/BootstrapStateChecker.java" },
+    { "id": "BR3.14", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/entity/PrimaryPermission.java（scopeRefの実在チェックを行わない設計。config-engineへの整合性検証呼び出しが存在しないこと自体が実装）" },
+    { "id": "BR3.15", "status": "OK", "target": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java（RESERVED_SCREEN_SCHEMAS定数）" }
+  ],
+  "reverse": [
+    { "id": "BR1.14", "status": "N/A", "target": "config-engineの既存ルール（前提修正の対象外、本Unit自身のFR/BRには対応しない）" }
+  ]
+}
