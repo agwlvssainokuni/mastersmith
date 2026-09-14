@@ -1,0 +1,29 @@
+{
+  "stage": "nfr-design",
+  "unit": "data-import-export",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2", "NFR1.3",
+    "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4",
+    "NFR3.1", "NFR3.2", "NFR3.3",
+    "NFR4.1", "NFR4.2", "NFR4.3",
+    "NFR5.1", "NFR5.2", "NFR5.3"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md ストリーミングI/O設計(CsvReader/CsvWriter)、HikariCP共有設定" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md ストリーミングI/O設計(エクスポート側)" },
+    { "id": "NFR1.3", "status": "OK", "target": "performance-design.md ストリーミングI/O設計、scalability-design.md ImportRowBuffer" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md 監査ログ設計(ImportCommitterのApplicationEventPublisher)" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md 認可アーキテクチャ(permittedColumnNames/actorのC13パラメータ設計)" },
+    { "id": "NFR2.3", "status": "OK", "target": "security-design.md 入力検証設計(CSVインジェクション対策なし、意図的なリスク受容の実装レベルへの反映)" },
+    { "id": "NFR2.4", "status": "OK", "target": "security-design.md 入力検証設計(アップロードファイル検証追加なし)" },
+    { "id": "NFR3.1", "status": "OK", "target": "scalability-design.md ステートレス設計" },
+    { "id": "NFR3.2", "status": "OK", "target": "scalability-design.md 同時実行制御を設けない設計" },
+    { "id": "NFR3.3", "status": "OK", "target": "scalability-design.md メモリバッファのスケーラビリティ設計(ImportRowBufferインタフェース化)" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md トランザクション設計(@Transactional)" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md 障害復旧(再開機能なし)" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design.md 楽観ロック非適用の実装への反映" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md メトリクス実装(Micrometer)" },
+    { "id": "NFR5.2", "status": "OK", "target": "observability-design.md ログ設計" },
+    { "id": "NFR5.3", "status": "OK", "target": "observability-design.md アラート(対象外、方針記録のみ)" }
+  ]
+}
