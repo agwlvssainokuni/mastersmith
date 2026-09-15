@@ -1,0 +1,35 @@
+{
+  "stage": "nfr-design",
+  "unit": "audit-logging",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2", "NFR1.3",
+    "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR2.5",
+    "NFR3.1", "NFR3.2", "NFR3.3", "NFR3.4",
+    "NFR4.1", "NFR4.2", "NFR4.3", "NFR4.4", "NFR4.5", "NFR4.6",
+    "NFR5.1", "NFR5.2", "NFR5.3", "NFR5.4"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md インデックス設計・応答時間予算" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md インデックス設計(Flywayによるoccurred_at降順+target_type複合インデックス)" },
+    { "id": "NFR1.3", "status": "N/A", "target": "performance-design.md Performance Anti-Requirements(内部処理時間に個別の数値目標を設けない、意図的なスコープ判断)" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md 認可アーキテクチャ(canAccessScreenへのサーバー側委譲)" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md データ完全性(AuditLogEntryRepositoryのINSERT専用設計)" },
+    { "id": "NFR2.3", "status": "OK", "target": "security-design.md 機微情報の非記録・非出力" },
+    { "id": "NFR2.4", "status": "OK", "target": "security-design.md Security Anti-Requirements(team.md既定のCIゲートをそのまま適用)" },
+    { "id": "NFR2.5", "status": "OK", "target": "security-design.md クエリパラメータの入力検証・エラーレスポンスの情報開示制御" },
+    { "id": "NFR3.1", "status": "OK", "target": "scalability-design.md 想定利用規模の継承" },
+    { "id": "NFR3.2", "status": "OK", "target": "scalability-design.md 成長への対応(パーティショニング不要の判断)" },
+    { "id": "NFR3.3", "status": "OK", "target": "scalability-design.md 再検討トリガーの実装への反映(8万行到達時の月次運用監視)" },
+    { "id": "NFR3.4", "status": "OK", "target": "scalability-design.md 同時アクセス" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md データ完全性" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md イベントリスナーの例外遮断設計(同期try-catch、Q1確定)" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design.md 無期限保持" },
+    { "id": "NFR4.4", "status": "OK", "target": "reliability-design.md 内部設定DB接続断時の閲覧APIの挙動(503)" },
+    { "id": "NFR4.5", "status": "OK", "target": "reliability-design.md イベント発行元の疎結合" },
+    { "id": "NFR4.6", "status": "OK", "target": "reliability-design.md 監査記録パイプライン全断の既知の残存リスク(受容済みリスクの明記)" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md メトリクス実装・相関ID伝播" },
+    { "id": "NFR5.2", "status": "OK", "target": "observability-design.md 構造化ログ" },
+    { "id": "NFR5.3", "status": "OK", "target": "observability-design.md 専用メトリクス・アラートを設けない領域" },
+    { "id": "NFR5.4", "status": "OK", "target": "observability-design.md ヘルスチェック" }
+  ]
+}
