@@ -14,7 +14,7 @@ user-management(U4)・config-import-export(U9)・record-edit-engine(U11)はま�
 - B. 将来発行される可能性のあるイベントも見越して、共通の親インタフェース(例: `AuditableEvent`)をこのBoltで新規定義し、既存3ユニット(config-engine・permission-engine・data-import-export)の既存イベントクラスを遡って修正し、そのインタフェースを実装させる
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q2: targetType/targetIdへのマッピング方法(イベントごとに形状が異なる)
 
@@ -31,7 +31,7 @@ user-management(U4)・config-import-export(U9)・record-edit-engine(U11)はま�
 - C. `targetType`・`targetId`の意味論をイベント間で無理に揃えず、全イベント共通で`targetType`="イベントクラス名の単純名"(`"ConfigChangedEvent"`等)とし、`targetId`はイベント固有の識別情報を文字列化したもの(PermissionChangedEventなら`scopeType + ":" + scopeRef`のように複数フィールドを連結)とする
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q3: operationType値の決定方法(イベントによってoperation相当のフィールドの有無が異なる)
 
@@ -41,7 +41,7 @@ user-management(U4)・config-import-export(U9)・record-edit-engine(U11)はま�
 - B. 全イベント共通で、イベントクラスの単純名をそのまま`operationType`として使う(`"ConfigChangedEvent"`・`"PermissionChangedEvent"`・`"ImportExecutedEvent"`)。個々の操作種別の粒度はUIから`targetType`・`targetId`と合わせて解釈させる
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q4: actorフィールドの意味論の不一致(PermissionChangedEvent.actorは実際にはactiveRoleId)
 
@@ -57,7 +57,7 @@ audit-loggingは、この意味論が不揃いな`actor`値を`AuditLogEntry.act
 - B. `ConfigChangedEvent`・`PermissionChangedEvent`由来のエントリについては、`actorUserId`を`null`にし、代わりに新設する`actorRaw`のような別フィールドに元の値(ロールID等)を保持する(「ユーザーIDである」という含意を`actorUserId`という名前で偽らない)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: B
 
 ## Q5: beforeValue/afterValueの扱い(現時点でどのイベントも変更前後の値を運ばない)
 
@@ -67,7 +67,7 @@ audit-loggingは、この意味論が不揃いな`actor`値を`AuditLogEntry.act
 - B. 今回のBoltの対象外の3イベントについても、`beforeValue`/`afterValue`を空値ではなく何らかのプレースホルダ値(例: 対象エンティティの現在の全体スナップショット)で埋める追加実装を行う
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q6: 監査ログ閲覧APIの並び順とフィルタ範囲
 
@@ -77,7 +77,7 @@ Contract Design(C6: `GET /api/audit-log`)は`page`・`pageSize`・`targetType`�
 - B. `occurredAt`の昇順(古い記録が先頭、時系列順)を既定の並び順とする
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q7: 追記専用(append-only)の強制方法
 
@@ -87,7 +87,7 @@ Contract Design(C6: `GET /api/audit-log`)は`page`・`pageSize`・`targetType`�
 - B. Aに加えて、内部設定DB(組込みDB)側にもUPDATE/DELETEを拒否するトリガー等のDBレベルの防御を設ける(アプリケーション層のバグやオペレーターの直接SQL操作からも保護する多層防御)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q8: 監査記録処理自体が失敗した場合の扱い
 
@@ -97,7 +97,7 @@ Contract Design(C6: `GET /api/audit-log`)は`page`・`pageSize`・`targetType`�
 - B. 失敗時は一定回数リトライする(例: 3回、指数バックオフ)。リトライも失敗した場合は構造化ログへ記録し、それ以上は追跡しない
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q9: 複数イベントの並行到着時の記録順序保証
 
@@ -107,4 +107,11 @@ Contract Design(C6: `GET /api/audit-log`)は`page`・`pageSize`・`targetType`�
 - B. `AuditLogEntry`に発行元とは独立した単調増加のシーケンス番号(DB採番)を追加し、同一`occurredAt`(秒精度)のイベント間でも一意な記録順序を保証する
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
+
+## Consolidated Summary Confirmation
+
+- Looks correct
+- Request changes
+
+[Answer]: Looks correct
