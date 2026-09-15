@@ -1,0 +1,13 @@
+{
+  "stage": "functional-design",
+  "unit": "audit-logging",
+  "upstream_ids": ["FR8.1", "FR8.2", "FR8.3", "FR8.4", "FR1.6"],
+  "coverage": [
+    { "id": "FR8.1", "status": "OK", "target": "BR7.1, BR7.2, BR7.3, BR7.4, BR7.7, BR7.8" },
+    { "id": "FR8.2", "status": "OK", "target": "BR7.5" },
+    { "id": "FR8.3", "status": "OK", "target": "BR7.6" },
+    { "id": "FR8.4", "status": "OK", "target": "BR7.9, BR7.10" },
+    { "id": "FR1.6", "status": "OK", "target": "BR7.11(本ユニットが担当する部分。他ユニット分は各ユニットの機能設計で別途カバー)" }
+  ],
+  "reverse": []
+}
