@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "audit-logging",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4, NFR2.5" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2, NFR4.3, NFR4.4, NFR4.5, NFR4.6" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2, NFR5.3, NFR5.4" },
+    { "id": "NFR6", "status": "N/A", "target": "audit-loggingはUIを持たないバックエンドサービスユニットであり、ユーザビリティ・アクセシビリティ要件の対象外(frontend-ui, U12の責務)" },
+    { "id": "NFR7", "status": "N/A", "target": "audit-loggingは表示文字列を持たないバックエンドサービスユニットであり、i18n要件の対象外(frontend-ui, U12の責務)" },
+    { "id": "NFR8", "status": "OK", "target": "functional-designのBR7.11(業務固有情報のハードコード禁止)で対応済み。テスト要件(80%行カバレッジ)はteam.mdの既定を適用し、Code Generationで実施する。監査ログ完全性の網羅的検証テストは本MVPスコープでは必須としない(team.md確定事項)" }
+  ]
+}

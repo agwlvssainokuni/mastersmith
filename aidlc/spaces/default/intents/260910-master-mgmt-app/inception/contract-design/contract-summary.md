@@ -465,9 +465,11 @@ paths:
                   items: { type: array, items: { $ref: "#/components/schemas/AuditLogEntry" } }
                   totalCount: { type: integer }
         "403": { $ref: "#/components/responses/Forbidden" }
+        "503": { $ref: "#/components/responses/ServiceUnavailable" }
 components:
   responses:
     Forbidden: { description: 権限不足(RFC 9457), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
+    ServiceUnavailable: { description: 内部設定DB利用不可時(RFC 9457、専用フォールバックなし。Contract Design追補、NFR Requirementsレビュー指摘R-01対応), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
   schemas:
     AuditLogEntry:
       type: object
@@ -488,6 +490,8 @@ components:
 ```
 
 **不変条件**: 本APIはGET(閲覧)のみを公開する。PUT/PATCH/DELETEエンドポイントは意図的に実装しない(FR8.2「アプリケーションからのUPDATE/DELETE経路を持たない追記専用」を契約レベルで強制する)。
+
+**503レスポンスの追加(Contract Design追補、NFR Requirementsレビュー指摘R-01対応)**: 内部設定DBが利用不可の場合、`503 Service Unavailable`(RFC 9457)を返す(`construction/audit-logging/nfr-requirements/reliability-requirements.md` NFR4.4)。専用のフォールバック(キャッシュ等)は設けない。既存コンシューマー(frontend-ui)は未知のレスポンスコードを一般的なエラー処理で扱う前提のため、加法的変更として本契約の所有者(audit-logging)の判断で追加する(Contract Ownership Rules参照)。
 
 ### C7: config-import-export REST API(FR11)
 
