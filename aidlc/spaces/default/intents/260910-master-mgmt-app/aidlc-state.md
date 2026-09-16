@@ -42,9 +42,11 @@
 
 
 
-- **Parked**: 2026-09-16T14:19:34Z
 
-- **Parked At Stage**: functional-design
+
+- **Active Unit**: menu-navigation
+
+- **Unit State**: in-progress
 
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
@@ -107,7 +109,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-16T14:19:34Z
+- **Last Updated**: 2026-09-16T14:25:23Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
