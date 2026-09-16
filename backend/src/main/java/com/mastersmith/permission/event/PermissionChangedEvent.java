@@ -20,14 +20,16 @@ import com.mastersmith.permission.entity.ScopeType;
 import java.time.Instant;
 
 /**
- * assignPermission(またはassignAuxiliaryPermission)による権限変更をAuditLogging(将来ユニット)へ通知するドメインイベント (rules.md
- * BR3.11)。config-engineの{@code ConfigChangedEvent}と同じパターンで、Springの{@code
- * ApplicationEventPublisher}経由でfire-and-forget発行する(security-design.md「監査ログとの連携」)。
+ * assignPermission(またはassignAuxiliaryPermission)による権限変更をAuditLogging(既存実装済みユニット)へ通知するための
+ * ドメインイベント (rules.md BR3.11)。config-engineの{@code ConfigChangedEvent}と同じパターンで、Springの{@code
+ * ApplicationEventPublisher}経由でfire-and-forget発行することを想定する(security-design.md「監査ログとの連携」)。
  *
- * <p><b>発行粒度(計画Step8で識別した設計判断)</b>: rules.md BR3.11はconfig-import-exportの1回のインポート実行単位のサマリイベントを
- * 求めるが、本ユニット単体はconfig-import-exportの実行単位(1回のインポートに複数のassignPermission呼び出しが含まれること)を知り得ない。
- * そのため本ユニットは各{@code assignPermission}/{@code assignAuxiliaryPermission}呼び出しの粒度でイベントを発行し、実行単位への集約
- * (件数の合算)はconfig-import-export側の責務とする(data-import-exportの{@code ImportExecutedEvent}集約パターンとは異なる設計)。
+ * <p><b>発行粒度(アーキテクチャレビュー iteration 1, NOT-READY, R-01対応で確定)</b>: rules.md BR3.11は「config-import-exportの1回の
+ * インポート実行につき1件のサマリイベント(実行者・変更件数・日時)、個々の変更前後の値は含めない」ことを求める。この粒度は
+ * config-import-export(1回のインポート実行に複数のassignPermission呼び出しが含まれることを知り得る唯一のユニット)自身の責務であり、
+ * permission-engine自身は{@code assignPermission}/{@code assignAuxiliaryPermission}の呼び出し単位ではこのイベントを発行しない
+ * (以前の実装は呼び出し単位で発行しておりBR3.11に反していたため是正した)。本レコードはconfig-import-export自身のCode
+ * Generation(未着手)がBR3.11の粒度で発行する際の契約として温存する。
  *
  * @param targetRoleId 権限が変更されたロール
  * @param scopeType 変更対象のスコープ種別

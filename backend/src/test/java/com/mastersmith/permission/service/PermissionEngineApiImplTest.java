@@ -17,6 +17,7 @@
 package com.mastersmith.permission.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -38,7 +39,6 @@ import com.mastersmith.permission.entity.PermissionLevel;
 import com.mastersmith.permission.entity.PrimaryPermission;
 import com.mastersmith.permission.entity.ScopeType;
 import com.mastersmith.permission.escalation.PermissionEscalationChecker;
-import com.mastersmith.permission.event.PermissionChangedEvent;
 import com.mastersmith.permission.exception.PermissionEscalationException;
 import com.mastersmith.permission.repository.AuxiliaryPermissionRepository;
 import com.mastersmith.permission.repository.GroupMembershipRepository;
@@ -54,7 +54,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * {@link PermissionEngineApiImpl}の単体テスト(依存をモック。キャッシュのみ実インスタンスのCaffeineキャッシュを用いる)。
@@ -79,7 +78,6 @@ class PermissionEngineApiImplTest {
   @Mock private PermissionResolver permissionResolver;
   @Mock private PermissionEscalationChecker escalationChecker;
   @Mock private BootstrapStateChecker bootstrapStateChecker;
-  @Mock private ApplicationEventPublisher eventPublisher;
 
   private Cache<PermissionCacheKey, EffectivePermission> permissionCache;
   private PermissionEngineApiImpl service;
@@ -98,7 +96,6 @@ class PermissionEngineApiImplTest {
             escalationChecker,
             bootstrapStateChecker,
             permissionCache,
-            eventPublisher,
             new SimpleMeterRegistry());
   }
 
@@ -207,13 +204,6 @@ class PermissionEngineApiImplTest {
         .checkPrimaryPermissionAssignment(
             "actor-role", ROLE_ID, SCOPE_TYPE, SCOPE_REF, PermissionLevel.FULL);
     verify(primaryPermissionRepository).save(any(PrimaryPermission.class));
-    org.mockito.ArgumentCaptor<PermissionChangedEvent> captor =
-        org.mockito.ArgumentCaptor.forClass(PermissionChangedEvent.class);
-    verify(eventPublisher).publishEvent(captor.capture());
-    assertThat(captor.getValue().targetRoleId()).isEqualTo(ROLE_ID);
-    assertThat(captor.getValue().scopeType()).isEqualTo(SCOPE_TYPE);
-    assertThat(captor.getValue().scopeRef()).isEqualTo(SCOPE_REF);
-    assertThat(captor.getValue().actor()).isEqualTo("actor-role");
   }
 
   @Test
@@ -246,7 +236,7 @@ class PermissionEngineApiImplTest {
 
   @Test
   void assignPermissionThrowsPermissionEscalationExceptionAndPersistsNothing() {
-    // negative-authorization: 権限昇格が試みられた割当は、永続化もキャッシュ無効化もイベント発行も一切行わない。
+    // negative-authorization: 権限昇格が試みられた割当は、永続化もキャッシュ無効化も一切行わない。
     org.mockito.Mockito.doThrow(new PermissionEscalationException(ROLE_ID, SCOPE_TYPE, SCOPE_REF))
         .when(escalationChecker)
         .checkPrimaryPermissionAssignment(
@@ -259,7 +249,6 @@ class PermissionEngineApiImplTest {
         .isInstanceOf(PermissionEscalationException.class);
 
     verify(primaryPermissionRepository, never()).save(any());
-    verify(eventPublisher, never()).publishEvent(any());
   }
 
   @Test
@@ -273,6 +262,23 @@ class PermissionEngineApiImplTest {
         .checkPrimaryPermissionAssignment(any(), any(), any(), any(), any());
   }
 
+  @Test
+  void assignPermissionDoesNotThrowDespiteNoAuditEventBeingPublished() {
+    // アーキテクチャレビュー iteration 1, NOT-READY, R-01是正の回帰テスト: rules.md BR3.11の
+    // PermissionChangedサマリイベントはconfig-import-exportの1回のインポート実行単位で発行される責務であり、
+    // permission-engine自身はassignPermission呼び出し単位ではいかなる監査イベントも発行しない。
+    // 発行元(ApplicationEventPublisher)を一切保持しない実装でも、呼び出しは正常に完了する。
+    when(primaryPermissionRepository.findByRoleIdAndScopeTypeAndScopeRef(
+            ROLE_ID, SCOPE_TYPE, SCOPE_REF))
+        .thenReturn(Optional.empty());
+
+    assertThatCode(
+            () ->
+                service.assignPermission(
+                    "actor-role", ROLE_ID, SCOPE_TYPE, SCOPE_REF, PermissionLevel.FULL))
+        .doesNotThrowAnyException();
+  }
+
   // ---- assignAuxiliaryPermission ----
 
   @Test
@@ -284,7 +290,6 @@ class PermissionEngineApiImplTest {
     service.assignAuxiliaryPermission("actor-role", ROLE_ID, SCOPE_TYPE, SCOPE_REF, true, false);
 
     verify(auxiliaryPermissionRepository).save(any(AuxiliaryPermission.class));
-    verify(eventPublisher).publishEvent(any(PermissionChangedEvent.class));
   }
 
   @Test
@@ -316,7 +321,21 @@ class PermissionEngineApiImplTest {
         .isInstanceOf(PermissionEscalationException.class);
 
     verify(auxiliaryPermissionRepository, never()).save(any());
-    verify(eventPublisher, never()).publishEvent(any());
+  }
+
+  @Test
+  void assignAuxiliaryPermissionRejectsColumnScopeType() {
+    // entities.md AuxiliaryPermission.scopeType.allowed_values: SCHEMA/TABLEのみが対象であり、
+    // COLUMNはfail fastで拒否する(アーキテクチャレビュー iteration 1, NOT-READY, R-05対応)。
+    assertThatThrownBy(
+            () ->
+                service.assignAuxiliaryPermission(
+                    "actor-role", ROLE_ID, ScopeType.COLUMN, SCOPE_REF, true, false))
+        .isInstanceOf(IllegalArgumentException.class);
+
+    verify(escalationChecker, never())
+        .checkAuxiliaryPermissionAssignment(any(), any(), any(), any(), any(), any());
+    verify(auxiliaryPermissionRepository, never()).save(any());
   }
 
   // ---- getGroupDerivedRoleIds ----

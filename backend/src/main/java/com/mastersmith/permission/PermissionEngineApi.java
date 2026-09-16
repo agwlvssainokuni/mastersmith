@@ -26,9 +26,8 @@ import java.util.List;
  * permission-engine(U3)が提供する内部Javaインタフェース契約 (inception/contract-design/contract-summary.md C10:
  * PermissionEngineApi)。
  *
- * <p>consumers: user-management, menu-navigation, audit-logging, list-engine, record-edit-engine,
- * config-import-export, schema-introspector(いずれも同一プロセス内、shared-schema。schema-introspectorの追加はNFR
- * Designレビュー指摘R-02対応、contract-summary.md C10のconsumers列挙が本来含むべきであった軽微な追補)。
+ * <p>consumers(contract-summary.md C10確定分): user-management, menu-navigation, audit-logging,
+ * list-engine, record-edit-engine, config-import-export(いずれも同一プロセス内、shared-schema)。
  *
  * <p><b>C10契約からの追補・差異(functional-spec.md「Domain Design/Contract Designへの追補」参照)</b>:
  *
@@ -98,11 +97,13 @@ public interface PermissionEngineApi {
    *
    * @param actorRoleId 割当操作を実行している操作者のactiveRoleId
    * @param targetRoleId 割当先のロール
-   * @param scopeType 割当対象のスコープ種別({@link ScopeType#COLUMN}は対象外、entities.md AuxiliaryPermission)
+   * @param scopeType 割当対象のスコープ種別({@link ScopeType#COLUMN}は対象外、entities.md
+   *     AuxiliaryPermission。指定された場合は{@link IllegalArgumentException}でfail fast拒否する)
    * @param scopeRef 割当対象のスコープ参照
    * @param createAllowed 割り当てるcreateAllowed(nullは「指定なし」を表し、既存設定を変更しない)
    * @param deleteAllowed 割り当てるdeleteAllowed(nullは「指定なし」を表し、既存設定を変更しない)
    * @throws PermissionEscalationException 操作者自身の実効権限を上回る割当が試みられた場合
+   * @throws IllegalArgumentException scopeTypeが{@link ScopeType#COLUMN}の場合、またはscopeRefが不正な場合
    */
   void assignAuxiliaryPermission(
       String actorRoleId,

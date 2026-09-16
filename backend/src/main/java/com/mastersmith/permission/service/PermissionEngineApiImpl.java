@@ -28,7 +28,6 @@ import com.mastersmith.permission.entity.PermissionLevel;
 import com.mastersmith.permission.entity.PrimaryPermission;
 import com.mastersmith.permission.entity.ScopeType;
 import com.mastersmith.permission.escalation.PermissionEscalationChecker;
-import com.mastersmith.permission.event.PermissionChangedEvent;
 import com.mastersmith.permission.repository.AuxiliaryPermissionRepository;
 import com.mastersmith.permission.repository.GroupMembershipRepository;
 import com.mastersmith.permission.repository.GroupRoleRepository;
@@ -42,7 +41,6 @@ import java.util.Map;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,7 +79,6 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
   private final PermissionEscalationChecker escalationChecker;
   private final BootstrapStateChecker bootstrapStateChecker;
   private final Cache<PermissionCacheKey, EffectivePermission> permissionCache;
-  private final ApplicationEventPublisher eventPublisher;
   private final Timer permissionCheckDurationTimer;
 
   public PermissionEngineApiImpl(
@@ -94,7 +91,6 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
       PermissionEscalationChecker escalationChecker,
       BootstrapStateChecker bootstrapStateChecker,
       Cache<PermissionCacheKey, EffectivePermission> permissionCache,
-      ApplicationEventPublisher eventPublisher,
       MeterRegistry meterRegistry) {
     this.roleRepository = roleRepository;
     this.primaryPermissionRepository = primaryPermissionRepository;
@@ -105,7 +101,6 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
     this.escalationChecker = escalationChecker;
     this.bootstrapStateChecker = bootstrapStateChecker;
     this.permissionCache = permissionCache;
-    this.eventPublisher = eventPublisher;
     this.permissionCheckDurationTimer =
         Timer.builder("permission_check_duration_seconds")
             .description(
@@ -184,7 +179,7 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
         previousLevel,
         level,
         actorRoleId);
-    afterAssignment(targetRoleId, scopeType, scopeRef, actorRoleId);
+    afterAssignment();
   }
 
   @Override
@@ -197,6 +192,7 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
       Boolean createAllowed,
       Boolean deleteAllowed) {
     validateScopeRef(scopeRef);
+    validateAuxiliaryScopeType(scopeType);
     escalationChecker.checkAuxiliaryPermissionAssignment(
         actorRoleId, targetRoleId, scopeType, scopeRef, createAllowed, deleteAllowed);
 
@@ -221,18 +217,21 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
         createAllowed,
         deleteAllowed,
         actorRoleId);
-    afterAssignment(targetRoleId, scopeType, scopeRef, actorRoleId);
+    afterAssignment();
   }
 
   /**
-   * 割当成功後の共通処理: キャッシュ無効化(performance-design.md「無効化」レビュー指摘R-01対応、部分無効化ではなく全体無効化)と
-   * PermissionChangedイベント発行(rules.md BR3.11、呼び出し粒度はPermissionChangedEventのJavadoc参照)。
+   * 割当成功後の共通処理: キャッシュ無効化(performance-design.md「無効化」レビュー指摘R-01対応、部分無効化ではなく全体無効化)のみを行う。
+   *
+   * <p>rules.md BR3.11の{@code PermissionChanged}サマリイベント(実行者・変更件数・日時、個々の変更値は含めない)は
+   * config-import-exportの1回のインポート実行単位で発行される責務であり、本メソッド(個々の{@code
+   * assignPermission}/{@code assignAuxiliaryPermission}呼び出し単位)では発行しない(アーキテクチャレビュー
+   * iteration 1, NOT-READY, R-01対応。以前の実装は本メソッド単位でイベントを発行しておりBR3.11の粒度に反していた)。
+   * イベント発行はconfig-import-export自身のCode Generation(未着手)で実装される(functional-spec.md「Assumptions &amp;
+   * Open Questions」参照)。
    */
-  private void afterAssignment(
-      String targetRoleId, ScopeType scopeType, String scopeRef, String actor) {
+  private void afterAssignment() {
     permissionCache.invalidateAll();
-    eventPublisher.publishEvent(
-        PermissionChangedEvent.of(targetRoleId, scopeType, scopeRef, actor));
   }
 
   @Override
@@ -257,6 +256,17 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
     if (scopeRef.length() > MAX_SCOPE_REF_LENGTH) {
       throw new IllegalArgumentException(
           "scopeRef exceeds max length of %d characters".formatted(MAX_SCOPE_REF_LENGTH));
+    }
+  }
+
+  /**
+   * entities.md AuxiliaryPermission.scopeType.allowed_values: 補助権限はSCHEMA/TABLEのみを対象とし、
+   * COLUMNは対象外である。fail fastで拒否する(アーキテクチャレビュー iteration 1, NOT-READY, R-05対応)。
+   */
+  private void validateAuxiliaryScopeType(ScopeType scopeType) {
+    if (scopeType == ScopeType.COLUMN) {
+      throw new IllegalArgumentException(
+          "AuxiliaryPermission does not support ScopeType.COLUMN (entities.md AuxiliaryPermission.scopeType.allowed_values: SCHEMA, TABLE only)");
     }
   }
 }

@@ -121,6 +121,7 @@ erDiagram
 - [Q2 Follow-up] Domain Design(`components.md`)のRole.parentRoleId属性は、本機能設計での確認の結果、本MVPでは実装しないことに変更された。Domain Designおよびteam.mdへの追補(注記修正)が望ましいが、本ユニットのCode Generation自体をブロックする事項ではない。
 - [解決済み] 内部予約スキーマの具体的な識別子名はBR3.15で確定した(`__system__:user-management`等)。RBACのブートストラップ・デッドロック(初期状態でRBAC設定を一切投入できない問題)およびconfig-engine非検証の予約スコープ投入経路は、BR3.13/BR3.14/BR3.15とW2/W4の改訂で解消した(アーキテクチャレビュー iteration 1, NOT-READY, R-01/R-02対応)。
 - assignPermissionの拒否(PermissionEscalationException)が発生した場合、config-import-export側がインポート処理全体を中止するか、当該エントリのみをスキップして続行するかは、config-import-exportユニット自身の機能設計(後続Bolt)で確定する。
+- [open question] BR3.11の`PermissionChanged`サマリイベント(実行者・変更件数・日時、個々の変更値は含めない、config-import-exportの1回のインポート実行単位で発行)は、発行元となるconfig-import-exportユニット自身がまだCode Generation未着手であるため、本Bolt(permission-engine)では実装しない。`assignPermission`/`assignAuxiliaryPermission`は現状、設計上いかなる監査イベントも発行しない(トリガーがインポート実行単位であり呼び出し単位ではないというBR3.11の粒度に整合する意図的な設計であり、見落としではない)。イベント発行の実装は、config-import-export自身のCode Generationで解決すべき事項として持ち越す。
 
 ## Consolidated Summary Confirmation
 

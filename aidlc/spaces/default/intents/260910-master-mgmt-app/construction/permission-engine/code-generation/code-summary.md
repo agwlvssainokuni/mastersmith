@@ -48,6 +48,12 @@
 
 いずれも本ユニット自身の契約(C10)への軽微な拡張、またはconfig-engineへの既に前例のある軽微な拡張であり、コンシューマー側の呼び出し方に対する破壊的変更ではない(C10は現時点でpermission-engine自身以外に実装を持たない)。
 
+## アーキテクチャレビュー iteration 1(NOT-READY)対応
+
+- **R-01(Critical、是正)**: 当初の実装は`afterAssignment`で`assignPermission`/`assignAuxiliaryPermission`の呼び出し1回ごとに`PermissionChangedEvent`(個々の変更前後の値を含む)を発行しており、rules.md BR3.11(「config-import-exportの1回のインポート実行につき1件のサマリイベント」「個々の変更前後の値は本イベントには含めない」)に反していた(未開示の設計逸脱)。是正として`afterAssignment`からイベント発行を削除し(キャッシュ全体無効化のみ残す)、`assignPermission`/`assignAuxiliaryPermission`はいかなる監査イベントも発行しない設計へ変更した。BR3.11のサマリイベント発行はconfig-import-export(未着手ユニット)自身のCode Generationへ明示的に持ち越す(`functional-spec.md`「Assumptions & Open Questions」に`[open question]`として追記済み)。`PermissionChangedEvent`レコード自体・そのテスト(`PermissionChangedEventTest`)は、audit-logging(既存実装済みユニット)の`AuditLogEventMapper.fromPermissionChangedEvent`/`PermissionChangedEventListener`が引き続きイベント型として参照しているため削除していない(将来config-import-exportが発行する際の契約として温存)。
+- **R-03(Major、是正)**: `PermissionEngineApi.java`のクラスJavadocが、schema-introspectorをC10コンシューマーとして「NFR Designレビュー指摘R-02対応」を根拠に追加記載していたが、この根拠は捏造であった(`security-design.md`の実際のR-02はキャッシュ複数インスタンス無効化の課題であり無関係、`contract-summary.md`のC10 consumers列挙にもschema-introspectorは含まれない)。Javadocのconsumers列挙をcontract-summary.md確定分(user-management, menu-navigation, audit-logging, list-engine, record-edit-engine, config-import-export)のみに是正した。**未解決の別事項として報告**: schema-introspector自身の`functional-design/rules.md`(BR2.8関連ルール)は、実際に`PermissionEngine.canAccessScreen(activeRoleId, "config-import-export")`を呼び出す設計になっており、これは`contract-summary.md`のC10 consumers列挙に未反映の、正当な(ただし文書化されていない)クロスユニット依存である。本Bolt(permission-engine)の範囲では契約書(contract-summary.md)を修正せず、次のいずれかの追補要否をオーケストレーターの判断に委ねる: (a) contract-summary.md C10のconsumersにschema-introspectorを正式追加する、または (b) 別途の記録に留める。
+- **R-05(Minor、是正)**: `assignAuxiliaryPermission`が`ScopeType.COLUMN`を拒否せず、`entities.md`のAuxiliaryPermission.scopeType許容値(SCHEMA/TABLEのみ)に反する行をサイレントに永続化しうる欠陥を是正した。`validateAuxiliaryScopeType`を新設し、`ScopeType.COLUMN`を`IllegalArgumentException`でfail fast拒否するようにし、対応するテストを追加した。
+
 ## 既知の未解決事項(計画通り踏襲、修正はスコープ外)
 
 - **R-07**: 複数エントリからなる初回RBACインポートで、1件目のコミット直後にブートストラップ状態が終了し2件目以降が再び昇格チェックにかかりうる問題。設計通り「upsert単位トランザクション」のまま実装した(次回Functional Design見直し時の課題)。

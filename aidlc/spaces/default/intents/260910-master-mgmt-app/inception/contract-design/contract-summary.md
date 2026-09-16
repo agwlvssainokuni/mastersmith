@@ -632,6 +632,21 @@ shared-schema:
     - name: getColumnConfigs
       params: { tableConfigId: string }
       returns: "List<ColumnConfig>"
+    - name: getTableConfigById
+      description: >
+        tableConfigIdからTableConfigを解決する(getTableConfigの逆方向解決)。data-import-export(U8)が
+        CSVエクスポート・インポート対象の物理テーブル名(schemaName/tableName)を解決するために必要とする
+        (Contract Design追補)。
+      params: { tableConfigId: string }
+      returns: TableConfig
+      throws: [TableConfigNotFoundException]
+    - name: findColumnConfigById
+      description: >
+        columnConfigIdからColumnConfigを解決する。permission-engine(U3)がscopeRef(columnConfigId)からの
+        階層解決に用いる。存在しない場合は例外ではなくOptional.emptyを返す(呼び出し元がBR3.6のデフォルト
+        フォールバックとして扱う通常の制御フロー、Contract Design追補)。
+      params: { columnConfigId: string }
+      returns: "Optional<ColumnConfig>"
     - name: getOptimisticLockColumn
       description: 対象テーブルの楽観ロック対象列(更新日時/バージョン列)の有無を返す
       params: { tableConfigId: string }
@@ -664,13 +679,17 @@ shared-schema:
 
 **`displayName`の廃止・`choiceOptions`/`fkReference`の追補(Contract Design追補、config-engine Code Generationレビュー指摘R-05対応)**: `TableConfig`/`ColumnConfig`の`displayName`フィールドは、config-engine Functional Design(Q5 Follow-up)で表示名テキストを保持しない設計(i18nキーの機械的導出、`entities.md`参照)に変更された際に廃止済みだったが、本契約(C9)への反映が漏れていた。本追補はその反映であり、新たな設計変更ではない。`choiceOptions`/`fkReference`(BR1.4、静的選択肢またはFK参照の排他設定)も同様にentities.md確定済みの属性で、本契約への反映が漏れていたため追加する。いずれのコンシューマーユニット(schema-introspector/permission-engine/data-import-export/list-engine/record-edit-engine/config-import-export)の実装コードも`displayName`を参照していないことを確認済みであり(実装済みユニットはentities.mdの現行定義に基づいて構築されている)、破壊的変更ではあるが実質的な影響はない。
 
+**`getTableConfigById`/`findColumnConfigById`の追補(Contract Design追補、permission-engine Code Generationレビュー指摘R-04対応)**: data-import-export(U8)・permission-engine(U3)の各Code Generation時に、それぞれ`getTableConfigById`・`findColumnConfigById`が実装コード上に追加されていたが、いずれも本契約(C9)への反映が漏れていた(データ取得専用の加法的メソッドであり、既存メソッドの変更を伴わない)。本追補はその反映である。
+
+**schema-introspectorのC10コンシューマー追補(Contract Design追補、permission-engine Code Generationレビュー指摘R-03対応)**: schema-introspector(U2、`rules.md` BR2.8)は、設定管理画面(config-import-exportと同一画面)からの`POST /api/config/schema-introspection`呼び出し時に`canAccessScreen(activeRoleId, "config-import-export")`でサーバー側再検証を行う設計であり、既に実装済みだが本契約(C10)のconsumers列挙への反映が漏れていた。本追補はその反映であり、新たな依存の追加ではない。
+
 ### C10: permission-engine 内部インタフェース契約
 
 ```yaml
 shared-schema:
   interface: PermissionEngineApi
   package: com.mastersmith.permission
-  consumers: [user-management, menu-navigation, audit-logging, list-engine, record-edit-engine, config-import-export]
+  consumers: [user-management, menu-navigation, audit-logging, list-engine, record-edit-engine, config-import-export, schema-introspector]
   methods:
     - name: resolveEffectivePermission
       description: >
@@ -683,9 +702,29 @@ shared-schema:
       params: { activeRoleId: string, screenKey: string }
       returns: boolean
     - name: assignPermission
-      description: 権限管理者による明示的操作でのみ呼び出し可能。権限昇格(自分自身への昇格含む)を防止する(project.md Forbidden)
-      params: { roleId: string, scopeType: string, scopeRef: string, level: string }
+      description: >
+        主権限を割り当てる。権限管理者による明示的操作でのみ呼び出し可能。権限昇格(自分自身への昇格含む)を
+        防止する(project.md Forbidden)。actorRoleId(割当操作を実行している操作者のactiveRoleId)は
+        BR3.8の昇格防止判定(操作者自身の実効権限との比較)に構造的に必須なため、C10当初のparamsに
+        追補する(Contract Design追補、permission-engine Code Generationレビュー指摘R-02対応)。
+      params: { actorRoleId: string, roleId: string, scopeType: string, scopeRef: string, level: string }
       throws: [PermissionEscalationException]
+    - name: assignAuxiliaryPermission
+      description: >
+        補助権限(createAllowed/deleteAllowed)を割り当てる。主権限と同じ昇格防止規則(BR3.8)を、
+        createAllowed/deleteAllowedそれぞれ独立に適用する。entities.mdがAuxiliaryPermissionを
+        独立したエンティティとして定義していることと整合させるため、assignPermission(主権限用)とは
+        別メソッドとして追加する(Contract Design追補、permission-engine Code Generationレビュー指摘
+        R-02対応)。scopeTypeはSCHEMA/TABLEのみを許容し、COLUMNは拒否する(entities.md AuxiliaryPermission)。
+      params: { actorRoleId: string, targetRoleId: string, scopeType: "schema|table", scopeRef: string, createAllowed: "boolean | null", deleteAllowed: "boolean | null" }
+      throws: [PermissionEscalationException]
+    - name: getGroupDerivedRoleIds
+      description: >
+        指定UserがGroup所属を通じて間接的に得るロールID一覧を返す。user-managementが自身の
+        User.roleIds(直接付与分)と本メソッドの戻り値(Group経由分)を合成し、選択可能ロール一覧を
+        構成する(W3、Contract Design追補、permission-engine Code Generationレビュー指摘R-02対応)。
+      params: { userId: string }
+      returns: "List<string>"
   types:
     EffectivePermission: { level: "FULL|READ|NONE", canCreate: boolean, canDelete: boolean }
   exceptions:
