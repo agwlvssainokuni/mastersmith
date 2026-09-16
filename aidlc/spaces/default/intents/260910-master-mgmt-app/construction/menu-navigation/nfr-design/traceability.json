@@ -1,0 +1,27 @@
+{
+  "stage": "nfr-design",
+  "unit": "menu-navigation",
+  "upstream_ids": [
+    "NFR1.1", "NFR1.2",
+    "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR2.5",
+    "NFR3.1",
+    "NFR4.1", "NFR4.2", "NFR4.3", "NFR4.4",
+    "NFR5.1", "NFR5.2"
+  ],
+  "coverage": [
+    { "id": "NFR1.1", "status": "OK", "target": "performance-design.md GET /api/menuの実装方式(全件一括取得+アプリケーション層での木構造組み立て、逐次permission問い合わせ)・応答時間予算の内訳" },
+    { "id": "NFR1.2", "status": "OK", "target": "performance-design.md /api/menu-itemsの応答時間予算(単発の認可・検証呼び出しのみ)" },
+    { "id": "NFR2.1", "status": "OK", "target": "security-design.md 認可アーキテクチャ(ActiveRoleResolver+canAccessScreen)" },
+    { "id": "NFR2.2", "status": "OK", "target": "security-design.md 認可アーキテクチャ(項目種別ごとのscreenKey判定)" },
+    { "id": "NFR2.3", "status": "OK", "target": "security-design.md 機微情報の非記録・非出力" },
+    { "id": "NFR2.4", "status": "OK", "target": "security-design.md Security Anti-Requirements(team.md既定のCIゲートをそのまま適用)" },
+    { "id": "NFR2.5", "status": "OK", "target": "security-design.md MenuItem CRUD APIの入力検証・エラーレスポンスの情報開示制御" },
+    { "id": "NFR3.1", "status": "OK", "target": "scalability-design.md 想定利用規模の継承・成長への対応" },
+    { "id": "NFR4.1", "status": "OK", "target": "reliability-design.md 参照整合性欠損時の挙動" },
+    { "id": "NFR4.2", "status": "OK", "target": "reliability-design.md /api/menu-itemsの失敗時挙動" },
+    { "id": "NFR4.3", "status": "OK", "target": "reliability-design.md /api/menu-itemsの失敗時挙動(fail fast)" },
+    { "id": "NFR4.4", "status": "OK", "target": "reliability-design.md DELETE時の子孫MenuItem整合性(409 Conflict、EXISTSクエリ相当)" },
+    { "id": "NFR5.1", "status": "OK", "target": "observability-design.md メトリクス実装・相関ID伝播" },
+    { "id": "NFR5.2", "status": "OK", "target": "observability-design.md 構造化ログ・アラート/ダッシュボード" }
+  ]
+}
