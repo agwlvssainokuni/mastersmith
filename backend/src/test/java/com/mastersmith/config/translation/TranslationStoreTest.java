@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import com.mastersmith.config.cache.ConfigCache;
 import com.mastersmith.config.entity.TranslationEntry;
 import com.mastersmith.config.entity.TranslationEntryId;
+import com.mastersmith.config.event.ConfigChangeOperation;
 import com.mastersmith.config.event.ConfigChangedEvent;
 import com.mastersmith.config.repository.TranslationEntryRepository;
 import java.util.Optional;
@@ -65,7 +66,20 @@ class TranslationStoreTest {
     assertThat(captor.getValue().getLocale()).isEqualTo("ja");
     assertThat(captor.getValue().getText()).isEqualTo("商品");
     verify(cache, times(1)).reload();
-    verify(eventPublisher, times(1)).publishEvent(any(ConfigChangedEvent.class));
+
+    ArgumentCaptor<ConfigChangedEvent> eventCaptor =
+        ArgumentCaptor.forClass(ConfigChangedEvent.class);
+    verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+    ConfigChangedEvent event = eventCaptor.getValue();
+    // BR1.13/entities.md: 新規作成のためbeforeValueはnull、targetType/targetIdはTranslationEntry用の
+    // 形状("{i18nKey}:{locale}")を持つ。
+    assertThat(event.operation()).isEqualTo(ConfigChangeOperation.TRANSLATION_UPSERTED);
+    assertThat(event.targetType()).isEqualTo(ConfigChangedEvent.TARGET_TYPE_TRANSLATION_ENTRY);
+    assertThat(event.targetId()).isEqualTo("table.public.products.label:ja");
+    assertThat(event.beforeValue()).isNull();
+    assertThat(event.afterValue()).isInstanceOf(java.util.Map.class);
+    assertThat(event.actor()).isEqualTo("system");
+    assertThat(event.occurredAt()).isNotNull();
   }
 
   @Test
@@ -81,6 +95,20 @@ class TranslationStoreTest {
     assertThat(captor.getValue()).isSameAs(existing);
     assertThat(captor.getValue().getText()).isEqualTo("新テキスト");
     verify(cache, times(1)).reload();
+
+    ArgumentCaptor<ConfigChangedEvent> eventCaptor =
+        ArgumentCaptor.forClass(ConfigChangedEvent.class);
+    verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
+    ConfigChangedEvent event = eventCaptor.getValue();
+    // beforeValueは上書き前("旧テキスト")のスナップショットを保持し、既にexisting.setText()で
+    // インプレース変更された後のオブジェクトに引きずられない(entity_constraints「スナップショット」)。
+    assertThat(event.beforeValue()).isInstanceOf(java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> beforeValue = (java.util.Map<String, Object>) event.beforeValue();
+    assertThat(beforeValue).containsEntry("text", "旧テキスト");
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> afterValue = (java.util.Map<String, Object>) event.afterValue();
+    assertThat(afterValue).containsEntry("text", "新テキスト");
   }
 
   @Test

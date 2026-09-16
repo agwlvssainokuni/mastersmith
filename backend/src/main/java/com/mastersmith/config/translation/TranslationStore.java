@@ -20,6 +20,7 @@ import com.mastersmith.config.cache.ConfigCache;
 import com.mastersmith.config.entity.TranslationEntry;
 import com.mastersmith.config.entity.TranslationEntryId;
 import com.mastersmith.config.event.ConfigChangeOperation;
+import com.mastersmith.config.event.ConfigChangeSnapshots;
 import com.mastersmith.config.event.ConfigChangedEvent;
 import com.mastersmith.config.repository.TranslationEntryRepository;
 import java.util.Optional;
@@ -48,9 +49,12 @@ public class TranslationStore {
   @Transactional
   public void upsert(String i18nKey, String locale, String text) {
     TranslationEntryId id = new TranslationEntryId(i18nKey, locale);
+    Optional<TranslationEntry> existingOpt = repository.findById(id);
+    // BR1.13: 上書き前の既存状態をbeforeValueとして確保する(新規作成の場合はnull、entities.md ConfigChangedEvent)。
+    // existing.setText(...)でインプレース変更する前にスナップショットを取得する必要がある。
+    Object beforeValue = existingOpt.map(ConfigChangeSnapshots::of).orElse(null);
     TranslationEntry entry =
-        repository
-            .findById(id)
+        existingOpt
             .map(
                 existing -> {
                   existing.setText(text);
@@ -62,7 +66,10 @@ public class TranslationStore {
     eventPublisher.publishEvent(
         ConfigChangedEvent.of(
             ConfigChangeOperation.TRANSLATION_UPSERTED,
-            "%s[%s]".formatted(i18nKey, locale),
+            ConfigChangedEvent.TARGET_TYPE_TRANSLATION_ENTRY,
+            "%s:%s".formatted(i18nKey, locale),
+            beforeValue,
+            ConfigChangeSnapshots.of(entry),
             "system"));
   }
 

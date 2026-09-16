@@ -649,8 +649,10 @@ shared-schema:
       params: { configSet: ConfigImportSet }
       throws: [ConfigValidationException]
   types:
-    TableConfig: { tableConfigId: string, schemaName: string, tableName: string, displayName: string, displayOrder: int, optimisticLockColumn: "string | null" }
-    ColumnConfig: { columnConfigId: string, tableConfigId: string, columnName: string, displayName: string, displayOrder: int, format: string, editorType: string, validationRule: string, visibility: string, isPrimaryKey: boolean }
+    TableConfig: { tableConfigId: string, schemaName: string, tableName: string, displayOrder: int, optimisticLockColumn: "string | null" }
+    ColumnConfig: { columnConfigId: string, tableConfigId: string, columnName: string, displayOrder: int, format: string, editorType: string, validationRule: string, visibility: string, isPrimaryKey: boolean, choiceOptions: "List<ChoiceOption> | null", fkReference: "FkReference | null" }
+    ChoiceOption: { value: string, i18nKey: string }
+    FkReference: { referencedSchemaName: string, referencedTableName: string, referencedValueColumnName: string, referencedLabelColumnName: string }
   exceptions:
     - name: TableConfigNotFoundException
       httpMapping: N/A(内部呼び出し、Java例外)
@@ -659,6 +661,8 @@ shared-schema:
 ```
 
 **主キー列情報の追加(Contract Design追補Q8=A、レビュー指摘R-05対応)**: `ColumnConfig.isPrimaryKey`は、data-import-export(U8)のCSVインポート時のupsert判定(INSERT/UPDATE、主キー列の値の有無で判定)に用いる。schema-introspector(U2)が対象RDBMSのメタデータ読み取り時に主キー制約を判定し、`writeTableConfigDraft`経由で設定する。単一主キー列を主な想定とし、複合主キーのテーブルへの詳細な対応(CSVに複数の主キー列を含める運用等)は本MVPスコープの主要な対象外とする。
+
+**`displayName`の廃止・`choiceOptions`/`fkReference`の追補(Contract Design追補、config-engine Code Generationレビュー指摘R-05対応)**: `TableConfig`/`ColumnConfig`の`displayName`フィールドは、config-engine Functional Design(Q5 Follow-up)で表示名テキストを保持しない設計(i18nキーの機械的導出、`entities.md`参照)に変更された際に廃止済みだったが、本契約(C9)への反映が漏れていた。本追補はその反映であり、新たな設計変更ではない。`choiceOptions`/`fkReference`(BR1.4、静的選択肢またはFK参照の排他設定)も同様にentities.md確定済みの属性で、本契約への反映が漏れていたため追加する。いずれのコンシューマーユニット(schema-introspector/permission-engine/data-import-export/list-engine/record-edit-engine/config-import-export)の実装コードも`displayName`を参照していないことを確認済みであり(実装済みユニットはentities.mdの現行定義に基づいて構築されている)、破壊的変更ではあるが実質的な影響はない。
 
 ### C10: permission-engine 内部インタフェース契約
 

@@ -113,8 +113,7 @@ class ColumnConfigJpaTest {
 
   @Test
   void savesAndReloadsIsPrimaryKeyFlag() {
-    ColumnConfig primaryKeyColumn =
-        new ColumnConfig("table-3", "id", EditorType.INTEGER, true);
+    ColumnConfig primaryKeyColumn = new ColumnConfig("table-3", "id", EditorType.INTEGER, true);
     ColumnConfig nonPrimaryKeyColumn = new ColumnConfig("table-3", "name", EditorType.TEXT);
 
     entityManager.persist(primaryKeyColumn);
@@ -122,7 +121,10 @@ class ColumnConfigJpaTest {
     entityManager.flush();
     entityManager.clear();
 
-    assertThat(entityManager.find(ColumnConfig.class, primaryKeyColumn.getColumnConfigId()).isPrimaryKey())
+    assertThat(
+            entityManager
+                .find(ColumnConfig.class, primaryKeyColumn.getColumnConfigId())
+                .isPrimaryKey())
         .isTrue();
     assertThat(
             entityManager

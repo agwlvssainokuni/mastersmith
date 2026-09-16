@@ -100,10 +100,9 @@ public class ColumnConfig {
 
   /**
    * 対象テーブルの主キー列かどうか(Contract Design追補C9、data-import-export/entities.md
-   * CsvColumnDefinition.isPrimaryKey)。schema-introspectorが対象RDBMSのメタデータ読み取り時に
-   * 判定した結果を{@link #ColumnConfig(String, String, EditorType, boolean)}経由でのみ設定でき、
-   * setterは公開しない(rules.md BR1.14: writeTableConfigDraft経由の構築時にのみ設定され、
-   * 手動編集・importConfigSet等の他経路からは変更不可能とする)。
+   * CsvColumnDefinition.isPrimaryKey)。schema-introspectorが対象RDBMSのメタデータ読み取り時に 判定した結果を{@link
+   * #ColumnConfig(String, String, EditorType, boolean)}経由でのみ設定でき、 setterは公開しない(rules.md BR1.14:
+   * writeTableConfigDraft経由の構築時にのみ設定され、 手動編集・importConfigSet等の他経路からは変更不可能とする)。
    */
   @Column(name = "is_primary_key", nullable = false)
   private boolean primaryKey;

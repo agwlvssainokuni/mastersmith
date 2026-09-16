@@ -22,9 +22,9 @@ package com.mastersmith.config.dto;
  * @param columnName カラム名
  * @param rawTypeName 対象RDBMSのメタデータ型名(例: "varchar(255)", "int unsigned")。 {@code
  *     RdbmsTypeNormalizer}が論理型へ正規化する
- * @param isPrimaryKey 対象RDBMSのメタデータ読み取り時にschema-introspectorが判定した主キー列か否か
- *     (Contract Design追補C9、data-import-export/rules.md BR1.14)。{@link
- *     #ColumnDraftEntry(String, String)}経由で構築した場合はfalse
+ * @param isPrimaryKey 対象RDBMSのメタデータ読み取り時にschema-introspectorが判定した主キー列か否か (Contract
+ *     Design追補C9、data-import-export/rules.md BR1.14)。{@link #ColumnDraftEntry(String,
+ *     String)}経由で構築した場合はfalse
  */
 public record ColumnDraftEntry(String columnName, String rawTypeName, boolean isPrimaryKey) {
 

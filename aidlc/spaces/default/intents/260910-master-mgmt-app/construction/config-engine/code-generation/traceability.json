@@ -3,7 +3,7 @@
   "unit": "config-engine",
   "upstream_ids": [
     "FR1.1", "FR1.2", "FR1.3", "FR1.5",
-    "BR1.1", "BR1.2", "BR1.3", "BR1.4", "BR1.5", "BR1.6", "BR1.7", "BR1.8", "BR1.9", "BR1.10", "BR1.11", "BR1.12",
+    "BR1.1", "BR1.2", "BR1.3", "BR1.4", "BR1.5", "BR1.6", "BR1.7", "BR1.8", "BR1.9", "BR1.10", "BR1.11", "BR1.12", "BR1.13", "BR1.14",
     "NFR1.1", "NFR1.2", "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.4", "NFR3.1", "NFR4.1", "NFR4.2", "NFR5.1"
   ],
   "coverage": [
@@ -23,6 +23,8 @@
     { "id": "BR1.10", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/translation/TranslationStore.java" },
     { "id": "BR1.11", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/exception/ConfigValidationException.java" },
     { "id": "BR1.12", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/rdbms/RdbmsTypeNormalizer.java" },
+    { "id": "BR1.13", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/event/ConfigChangedEvent.java, backend/src/main/java/com/mastersmith/config/event/ConfigChangeSnapshots.java, backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java(writeTableConfigDraft/importConfigSet), backend/src/main/java/com/mastersmith/config/translation/TranslationStore.java(upsert) -- レビュー指摘R-03是正: targetType/targetId/beforeValue/afterValueを追加し、1回の呼び出しで複数エンティティが変更される場合も変更されたエンティティごとに個別発行するよう修正。operationはentities.mdのCREATED/UPDATED区別ではなく既存のConfigChangeOperation(呼び出し種別)を維持する既知の逸脱あり(code-summary.md参照)" },
+    { "id": "BR1.14", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/entity/ColumnConfig.java(isPrimaryKeyは4引数コンストラクタ経由でのみ設定でき、setterは非公開), backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java(writeTableConfigDraftのbuildColumnConfigsのみがこのコンストラクタを呼び出す) -- importConfigSetはColumnConfigオブジェクトを呼び出し元(config-import-export)から受け取ってsaveAllするのみでisPrimaryKeyを操作するsetter/APIパラメータを持たないため、config-engine自身の経路からは変更不可能であることを確認済み(code-summary.md「BR1.14確認結果」参照)" },
     { "id": "NFR1.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java" },
     { "id": "NFR1.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java" },
     { "id": "NFR2.1", "status": "N/A", "target": "config-engine自身は認可判定を実装しない(PermissionEngineへの委譲設計、nfr-design/security-design.md)。呼び出し元となる管理用REST API・PermissionEngine統合はContract Design追補後の別Boltで実装するため、本Bolt時点でのコード実装対象は存在しない" },

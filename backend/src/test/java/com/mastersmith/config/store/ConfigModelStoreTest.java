@@ -160,8 +160,8 @@ class ConfigModelStoreTest {
 
   @Test
   void writeTableConfigDraftSkipsTablesThatAlreadyHaveATableConfig() {
-    when(cache.findTableConfig("public", "products"))
-        .thenReturn(Optional.of(new TableConfig("public", "products")));
+    when(tableConfigRepository.existsBySchemaNameAndTableName("public", "products"))
+        .thenReturn(true);
     TableConfigDraft draft =
         new TableConfigDraft(
             RdbmsDialect.POSTGRESQL, List.of(new TableDraftEntry("public", "products", List.of())));
@@ -177,7 +177,8 @@ class ConfigModelStoreTest {
 
   @Test
   void writeTableConfigDraftCreatesNewTableAndColumnsWhenAbsent() {
-    when(cache.findTableConfig("public", "new_table")).thenReturn(Optional.empty());
+    when(tableConfigRepository.existsBySchemaNameAndTableName("public", "new_table"))
+        .thenReturn(false);
     when(rdbmsTypeNormalizer.normalize(RdbmsDialect.POSTGRESQL, "varchar(255)"))
         .thenReturn(LogicalType.STRING);
     TableConfigDraft draft =
@@ -195,13 +196,103 @@ class ConfigModelStoreTest {
     verify(configValidator, times(1)).validate(any(TableConfig.class));
     verify(configValidator, times(1)).validate(any(ColumnConfig.class));
     verify(cache, times(1)).reload();
-    verify(eventPublisher, times(1))
+    // BR1.13: 変更されたエンティティ(TableConfig 1件 + ColumnConfig 1件)ごとに個別のイベントを発行する。
+    verify(eventPublisher, times(2))
         .publishEvent(any(com.mastersmith.config.event.ConfigChangedEvent.class));
   }
 
   @Test
+  void writeTableConfigDraftPublishesOneConfigChangedEventPerChangedEntityForMultipleTables() {
+    when(tableConfigRepository.existsBySchemaNameAndTableName(any(), any())).thenReturn(false);
+    when(rdbmsTypeNormalizer.normalize(any(), any())).thenReturn(LogicalType.STRING);
+    TableConfigDraft draft =
+        new TableConfigDraft(
+            RdbmsDialect.POSTGRESQL,
+            List.of(
+                new TableDraftEntry(
+                    "public",
+                    "table_a",
+                    List.of(
+                        new ColumnDraftEntry("col1", "varchar(255)"),
+                        new ColumnDraftEntry("col2", "varchar(255)"))),
+                new TableDraftEntry(
+                    "public", "table_b", List.of(new ColumnDraftEntry("col1", "varchar(255)")))));
+
+    List<String> generated = store.writeTableConfigDraft(draft);
+
+    assertThat(generated).hasSize(2);
+    // BR1.13: 呼び出し単位で1件にまとめてはならない。TableConfig 2件 + ColumnConfig 3件 = 5件を個別発行する。
+    org.mockito.ArgumentCaptor<com.mastersmith.config.event.ConfigChangedEvent> captor =
+        org.mockito.ArgumentCaptor.forClass(com.mastersmith.config.event.ConfigChangedEvent.class);
+    verify(eventPublisher, times(5)).publishEvent(captor.capture());
+    List<com.mastersmith.config.event.ConfigChangedEvent> events = captor.getAllValues();
+    assertThat(events)
+        .filteredOn(
+            e ->
+                com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_TABLE_CONFIG.equals(
+                    e.targetType()))
+        .hasSize(2);
+    assertThat(events)
+        .filteredOn(
+            e ->
+                com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_COLUMN_CONFIG.equals(
+                    e.targetType()))
+        .hasSize(3);
+    assertThat(events).allMatch(e -> e.beforeValue() == null, "新規作成のためbeforeValueは常にnull");
+    assertThat(events).allMatch(e -> e.afterValue() != null, "afterValueはスナップショットを保持する");
+    assertThat(events).allMatch(e -> e.targetId() != null && !e.targetId().isBlank());
+  }
+
+  @Test
+  void writeTableConfigDraftPopulatesConfigChangedEventFieldsCorrectly() {
+    when(tableConfigRepository.existsBySchemaNameAndTableName("public", "new_table"))
+        .thenReturn(false);
+    when(rdbmsTypeNormalizer.normalize(RdbmsDialect.POSTGRESQL, "varchar(255)"))
+        .thenReturn(LogicalType.STRING);
+    TableConfigDraft draft =
+        new TableConfigDraft(
+            RdbmsDialect.POSTGRESQL,
+            List.of(
+                new TableDraftEntry(
+                    "public", "new_table", List.of(new ColumnDraftEntry("name", "varchar(255)")))));
+
+    List<String> generated = store.writeTableConfigDraft(draft);
+    String tableConfigId = generated.get(0);
+
+    org.mockito.ArgumentCaptor<com.mastersmith.config.event.ConfigChangedEvent> captor =
+        org.mockito.ArgumentCaptor.forClass(com.mastersmith.config.event.ConfigChangedEvent.class);
+    verify(eventPublisher, times(2)).publishEvent(captor.capture());
+    com.mastersmith.config.event.ConfigChangedEvent tableConfigEvent =
+        captor.getAllValues().stream()
+            .filter(
+                e ->
+                    com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_TABLE_CONFIG.equals(
+                        e.targetType()))
+            .findFirst()
+            .orElseThrow();
+
+    assertThat(tableConfigEvent.operation())
+        .isEqualTo(com.mastersmith.config.event.ConfigChangeOperation.DRAFT_IMPORTED);
+    assertThat(tableConfigEvent.targetType())
+        .isEqualTo(com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_TABLE_CONFIG);
+    assertThat(tableConfigEvent.targetId()).isEqualTo(tableConfigId);
+    assertThat(tableConfigEvent.beforeValue()).isNull();
+    assertThat(tableConfigEvent.afterValue()).isInstanceOf(java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> afterValue =
+        (java.util.Map<String, Object>) tableConfigEvent.afterValue();
+    assertThat(afterValue)
+        .containsEntry("tableConfigId", tableConfigId)
+        .containsEntry("schemaName", "public")
+        .containsEntry("tableName", "new_table");
+    assertThat(tableConfigEvent.actor()).isEqualTo("system");
+    assertThat(tableConfigEvent.occurredAt()).isNotNull();
+  }
+
+  @Test
   void writeTableConfigDraftPropagatesIsPrimaryKeyFromColumnDraftEntryToColumnConfig() {
-    when(cache.findTableConfig("public", "new_table")).thenReturn(Optional.empty());
+    when(tableConfigRepository.existsBySchemaNameAndTableName("public", "new_table"))
+        .thenReturn(false);
     when(rdbmsTypeNormalizer.normalize(RdbmsDialect.POSTGRESQL, "int"))
         .thenReturn(LogicalType.INTEGER);
     TableConfigDraft draft =
@@ -263,5 +354,81 @@ class ConfigModelStoreTest {
     verify(cache, times(1)).reload();
     verify(eventPublisher, times(1))
         .publishEvent(any(com.mastersmith.config.event.ConfigChangedEvent.class));
+  }
+
+  @Test
+  void importConfigSetPublishesOneConfigChangedEventPerChangedEntityAcrossAllThreeCollections() {
+    TableConfig tableA = new TableConfig("public", "table_a");
+    TableConfig tableB = new TableConfig("public", "table_b");
+    ColumnConfig columnA1 = new ColumnConfig(tableA.getTableConfigId(), "col1", EditorType.TEXT);
+    ColumnConfig columnB1 = new ColumnConfig(tableB.getTableConfigId(), "col1", EditorType.TEXT);
+    com.mastersmith.config.entity.TranslationEntry translation =
+        new com.mastersmith.config.entity.TranslationEntry("table.public.table_a.label", "ja", "A");
+    ConfigImportSet importSet =
+        new ConfigImportSet(
+            List.of(tableA, tableB), List.of(columnA1, columnB1), List.of(translation));
+    when(tableConfigRepository.findById(any())).thenReturn(Optional.empty());
+    when(columnConfigRepository.findById(any())).thenReturn(Optional.empty());
+    when(translationEntryRepository.findById(any())).thenReturn(Optional.empty());
+
+    store.importConfigSet(importSet);
+
+    // BR1.13: 呼び出し単位で1件にまとめてはならない。TableConfig 2件 + ColumnConfig 2件 +
+    // TranslationEntry 1件 = 5件を個別発行する。
+    org.mockito.ArgumentCaptor<com.mastersmith.config.event.ConfigChangedEvent> captor =
+        org.mockito.ArgumentCaptor.forClass(com.mastersmith.config.event.ConfigChangedEvent.class);
+    verify(eventPublisher, times(5)).publishEvent(captor.capture());
+    List<com.mastersmith.config.event.ConfigChangedEvent> events = captor.getAllValues();
+    assertThat(events)
+        .allMatch(
+            e ->
+                e.operation()
+                    == com.mastersmith.config.event.ConfigChangeOperation.CONFIG_SET_IMPORTED);
+    assertThat(events)
+        .filteredOn(
+            e ->
+                com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_TABLE_CONFIG.equals(
+                    e.targetType()))
+        .hasSize(2);
+    assertThat(events)
+        .filteredOn(
+            e ->
+                com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_COLUMN_CONFIG.equals(
+                    e.targetType()))
+        .hasSize(2);
+    assertThat(events)
+        .filteredOn(
+            e ->
+                com.mastersmith.config.event.ConfigChangedEvent.TARGET_TYPE_TRANSLATION_ENTRY
+                    .equals(e.targetType()))
+        .hasSize(1)
+        .allMatch(e -> "table.public.table_a.label:ja".equals(e.targetId()));
+    // 既存エンティティが見つからない(全て新規)ため、beforeValueは常にnull。
+    assertThat(events).allMatch(e -> e.beforeValue() == null);
+    assertThat(events).allMatch(e -> e.afterValue() != null);
+  }
+
+  @Test
+  void importConfigSetPopulatesBeforeValueFromExistingEntityWhenOverwriting() {
+    TableConfig existingTable = new TableConfig("t1", "public", "products", 0, null);
+    TableConfig incomingTable = new TableConfig("t1", "public", "products", 1, "updated_at");
+    ConfigImportSet importSet = new ConfigImportSet(List.of(incomingTable), List.of(), List.of());
+    when(tableConfigRepository.findById("t1")).thenReturn(Optional.of(existingTable));
+
+    store.importConfigSet(importSet);
+
+    org.mockito.ArgumentCaptor<com.mastersmith.config.event.ConfigChangedEvent> captor =
+        org.mockito.ArgumentCaptor.forClass(com.mastersmith.config.event.ConfigChangedEvent.class);
+    verify(eventPublisher, times(1)).publishEvent(captor.capture());
+    com.mastersmith.config.event.ConfigChangedEvent event = captor.getValue();
+    assertThat(event.beforeValue()).isInstanceOf(java.util.Map.class);
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> beforeValue = (java.util.Map<String, Object>) event.beforeValue();
+    @SuppressWarnings("unchecked")
+    java.util.Map<String, Object> afterValue = (java.util.Map<String, Object>) event.afterValue();
+    assertThat(beforeValue).containsEntry("displayOrder", 0);
+    assertThat(afterValue)
+        .containsEntry("displayOrder", 1)
+        .containsEntry("optimisticLockColumn", "updated_at");
   }
 }
