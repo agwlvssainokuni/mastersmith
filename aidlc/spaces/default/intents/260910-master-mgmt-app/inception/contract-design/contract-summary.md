@@ -277,9 +277,51 @@ paths:
                   businessMenu: { type: array, items: { $ref: "#/components/schemas/MenuItem" } }
                   adminMenu: { type: array, items: { $ref: "#/components/schemas/MenuItem" } }
         "401": { $ref: "#/components/responses/Unauthorized" }
+  /api/menu-items:
+    post:
+      summary: 業務メニュー項目の新規作成(Contract Design追補、Functional Design Q2/Q10対応)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MenuItemInput" }
+      responses:
+        "201": { description: 作成成功, content: { application/json: { schema: { $ref: "#/components/schemas/MenuItem" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/menu-items/{menuItemId}:
+    put:
+      summary: 業務メニュー項目の更新(Contract Design追補)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: menuItemId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MenuItemInput" }
+      responses:
+        "200": { description: 更新成功, content: { application/json: { schema: { $ref: "#/components/schemas/MenuItem" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      summary: 業務メニュー項目の削除(Contract Design追補)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: menuItemId, in: path, required: true, schema: { type: string } }
+      responses:
+        "204": { description: 削除成功 }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
 components:
   responses:
     Unauthorized: { description: 認証エラー(RFC 9457), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
+    Forbidden: { description: 権限不足(RFC 9457、canAccessScreen(activeRoleId, "config-import-export")の拒否時。Contract Design追補), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
+    BadRequest: { description: 入力検証エラー(RFC 9457、targetTableConfigIdがconfig-engine側に存在しない場合を含む。Contract Design追補), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
+    NotFound: { description: 指定menuItemIdが存在しない(RFC 9457。Contract Design追補), content: { application/problem+json: { schema: { $ref: "#/components/schemas/ProblemDetails" } } } }
   schemas:
     MenuItem:
       type: object
@@ -288,12 +330,21 @@ components:
         label: { type: string }
         targetTableConfigId: { type: string, nullable: true }
         children: { type: array, items: { $ref: "#/components/schemas/MenuItem" } }
+    MenuItemInput:
+      type: object
+      properties:
+        parentMenuItemId: { type: string, nullable: true }
+        label: { type: string }
+        order: { type: integer }
+        targetTableConfigId: { type: string, nullable: true }
     ProblemDetails:
       type: object
       properties: { type: { type: string }, title: { type: string }, status: { type: integer }, detail: { type: string } }
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
 ```
+
+**`/api/menu-items` CRUD追加(Contract Design追補、Functional Design Q2/Q10対応)**: 業務メニュー(MenuItem階層)の作成・更新・削除を、業務メニュー設定画面から呼び出すCRUD APIとして本Boltで追加する。認可はscreenKey`"config-import-export"`で`canAccessScreen`をサーバー側で再検証する(Q1でschema-introspectorと共有する既存の予約screenKeyに統一)。`targetTableConfigId`を指定する場合はconfig-engine側の存在確認を行い、存在しなければ400を返す。管理メニュー4項目(業務メニュー設定/ユーザ管理/監査ログ管理/設定管理)はこのCRUD APIの対象外で、アプリケーションコードに固定でハードコードする(Q8)。既存コンシューマー(frontend-ui)への影響がない加法的変更のため、本契約の所有者(menu-navigation)の判断で追加する(Contract Ownership Rules参照)。
 
 ### C4: authentication-service REST API(FR2.7, FR3, FR4.2)
 

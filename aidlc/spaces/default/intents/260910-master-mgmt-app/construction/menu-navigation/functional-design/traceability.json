@@ -1,0 +1,15 @@
+{
+  "stage": "functional-design",
+  "unit": "menu-navigation",
+  "upstream_ids": ["FR7.1", "FR7.2", "FR7.3"],
+  "coverage": [
+    { "id": "FR7.1", "status": "OK", "target": "BR6.1, BR6.2" },
+    { "id": "FR7.2", "status": "OK", "target": "BR6.3, BR6.4, BR6.9" },
+    { "id": "FR7.3", "status": "OK", "target": "BR6.5" }
+  ],
+  "reverse": [
+    { "id": "BR6.6", "status": "N/A", "target": "表示順の技術的な決定規則(要件から直接導かれない実装レベルの取り決め)" },
+    { "id": "BR6.7", "status": "N/A", "target": "参照整合性欠損時の防御的挙動(要件から直接導かれない技術的な取り決め)" },
+    { "id": "BR6.8", "status": "N/A", "target": "Contract Design追補(C3)により新設したCRUD APIの認可・バリデーション規則。project.mdのMandated(実効権限のサーバー側再検証)に由来し、FR7.xには直接紐づかない" }
+  ]
+}
