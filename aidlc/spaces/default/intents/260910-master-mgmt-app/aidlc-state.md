@@ -40,6 +40,10 @@
 
 
 
+- **Active Unit**: menu-navigation
+
+- **Unit State**: in-progress
+
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -101,7 +105,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-16T14:07:22Z
+- **Last Updated**: 2026-09-16T14:08:38Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
