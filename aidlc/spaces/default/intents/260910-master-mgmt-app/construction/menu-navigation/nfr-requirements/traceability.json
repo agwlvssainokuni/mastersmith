@@ -1,0 +1,15 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "menu-navigation",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4, NFR2.5" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2, NFR4.3, NFR4.4" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2" },
+    { "id": "NFR6", "status": "N/A", "target": "menu-navigationはUIを持たないバックエンドサービスユニットであり、ユーザビリティ・アクセシビリティ要件の対象外(frontend-ui, U12の責務)" },
+    { "id": "NFR7", "status": "N/A", "target": "menu-navigationは表示文字列を持たないバックエンドサービスユニットであり、i18n要件の対象外(frontend-ui, U12の責務。MenuItem.labelは業務担当者が設定する任意の文字列であり、i18nキー化の対象ではない)" },
+    { "id": "NFR8", "status": "N/A", "target": "本ステージ(NFR Requirements)の6成果物にはNFR8(保守性)に対応する見出しを設けていない。ハードコード禁止方針への抵触有無はfunctional-design(rules.md)で判断済みの事項(管理メニュー4項目のハードコードはアプリ自身の管理機能でありproject.md Mandatedには抵触しない、Q8確定)であり、テストカバレッジ80%floorの検証はBuild and Testステージの対象であるため、本ステージのNFRカテゴリには該当しない(schema-introspectorのtraceability.jsonと同じ扱い)" }
+  ]
+}

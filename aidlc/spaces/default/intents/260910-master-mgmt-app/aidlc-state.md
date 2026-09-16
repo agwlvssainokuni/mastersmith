@@ -38,9 +38,7 @@
 - **Skeleton Stance**: on
 
 
-- **Active Unit**: menu-navigation
 
-- **Unit State**: in-progress
 
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
@@ -103,7 +101,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-16T13:46:05Z
+- **Last Updated**: 2026-09-16T14:07:22Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning

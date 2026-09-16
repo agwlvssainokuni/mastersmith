@@ -10,7 +10,7 @@ NFR1は「一覧・詳細画面とも応答時間3秒以内(95パーセンタイ
 - B. より厳しい目標(例: 1秒以内)を設定する(初期表示は特に体感速度が重要なため)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q2: `POST/PUT/DELETE /api/menu-items`の応答時間目標
 
@@ -20,7 +20,7 @@ Contract Design追補で新設した`/api/menu-items`のCRUD APIは、業務メ�
 - B. NFR1と同じ3秒以内(95パーセンタイル)をそのまま適用する(単純なCRUD操作でありschema-introspectorほどの緩和は不要)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q3: MenuItem件数・階層深さの想定規模
 
@@ -30,7 +30,7 @@ Contract Design追補で新設した`/api/menu-items`のCRUD APIは、業務メ�
 - B. 数千件規模のMenuItem・より深い階層(5階層以上)も想定し、明示的なキャッシュ・非再帰アルゴリズムの設計を必須とする
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q4: 可観測性(ログ・メトリクス)の最低要件
 
@@ -40,11 +40,11 @@ NFR5(可観測性)により構造化ログ・メトリクスのOTELエクスポ�
 - B. Aに加え、`/api/menu-items`のCRUD操作もAuditLogging(監査ログ)の購読対象イベントとして新規に発行する(現時点でAuditLoggingが購読する3イベントには含まれないため、新規イベントクラスの追加が必要になる)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Consolidated Summary Confirmation
 
 - Looks correct
 - Request changes
 
-[Answer]:
+[Answer]: Looks correct
