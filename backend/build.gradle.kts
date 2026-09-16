@@ -50,6 +50,16 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
     // permission-engine(U3): メトリクス計装(observability-design.md、MeterRegistry Beanの自動構成に必要)。
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    // audit-logging(U7)前提修正: スキーマ移行ツール(Flyway)の新規導入
+    // (code-generation-plan.md「前提修正: Flywayの導入」、performance-design.md Q2確定)。
+    // H2はFlyway Community Edition(flyway-core)が標準サポートするため、
+    // 別モジュール(flyway-database-h2、PostgreSQL/Oracle等で必要な形式)は不要
+    // (計画時点の想定との差異。Maven Centralに同artifactId自体が存在しないことを確認済み)。
+    // Spring Boot 4.xはオートコンフィグレーションをモジュール分割しており、
+    // FlywayAutoConfiguration等の自動構成本体はspring-boot-flywayが提供する
+    // (flyway-core単体ではSpring Bootが起動時にマイグレーションを自動実行しない)。
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.springframework.boot:spring-boot-flyway")
     runtimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")

@@ -1,0 +1,29 @@
+{
+  "stage": "code-generation",
+  "unit": "audit-logging",
+  "version": 1,
+  "writes": [
+    { "path": "backend/build.gradle.kts" },
+    { "path": "backend/src/main/resources/application.yml" },
+    { "path": "backend/src/test/resources/application.yml" },
+    { "path": "backend/src/main/resources/db/migration/V1__baseline_existing_schema.sql" },
+    { "path": "backend/src/main/resources/db/migration/V2__create_audit_log_entry.sql" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/entity/AuditLogEntry.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/repository/AuditLogEntryRepository.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/event/AuditLogEventMapper.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/event/ConfigChangedEventListener.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/event/PermissionChangedEventListener.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/event/ImportExecutedEventListener.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/exception/AuditLogQueryValidationException.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/exception/AuditLogForbiddenException.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/web/AuditLogController.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/web/AuditLogEntryView.java" },
+    { "path": "backend/src/main/java/com/mastersmith/audit/web/AuditLogPageResponse.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/entity/AuditLogEntryJpaTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/event/AuditLogEventMapperTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/event/ConfigChangedEventListenerTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/event/PermissionChangedEventListenerTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/event/ImportExecutedEventListenerTest.java" },
+    { "path": "backend/src/test/java/com/mastersmith/audit/web/AuditLogControllerTest.java" }
+  ]
+}

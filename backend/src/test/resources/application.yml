@@ -14,6 +14,9 @@
 
 # テスト実行時はインメモリH2に切り替える(本番のファイルモードH2とは分離)。
 # テストJVMごとに一意なDB名を用い、並行実行時の衝突を避ける。
+# audit-logging(U7)前提修正でFlywayを導入したため、ddl-autoはvalidateとし、
+# db/migration配下のマイグレーションを@SpringBootTest起動時にも適用させる
+# (spring.flyway.enabledの既定値trueをそのまま利用、追加設定不要)。
 spring:
   datasource:
     url: jdbc:h2:mem:mastersmith-config-test-${random.uuid};DB_CLOSE_DELAY=-1
@@ -23,6 +26,6 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     properties:
       jakarta.persistence.validation.mode: none

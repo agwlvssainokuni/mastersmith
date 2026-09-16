@@ -26,9 +26,11 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      # 現時点ではマイグレーションツール(Flyway/Liquibase等)を導入していないため、
-      # Hibernateのスキーマ自動更新を用いる。導入は今後のユニット/ステージで検討する。
-      ddl-auto: update
+      # audit-logging(U7)前提修正でFlywayを導入した(code-generation-plan.md「前提修正:
+      # Flywayの導入」)。スキーマの作成・変更はFlywayのバージョン管理された移行スクリプト
+      # (db/migration配下)が担い、Hibernateはvalidateでエンティティとのマッピング一致の
+      # 検証のみを行う(スキーマの自動生成・変更は行わない)。
+      ddl-auto: validate
     properties:
       # Bean Validationによる検証はConfigValidator(アプリケーション層)が明示的に実行する。
       # JPA永続化時の自動検証(Hibernate Validator連携)は無効化し、二重検証を避ける。
