@@ -1,0 +1,20 @@
+{
+  "stage": "functional-design",
+  "unit": "user-management",
+  "upstream_ids": ["FR2.1", "FR2.2", "FR2.3", "FR2.4", "FR2.5", "FR2.6", "FR2.8", "FR9.1", "FR10.1"],
+  "coverage": [
+    { "id": "FR2.1", "status": "OK", "target": "BR4.1, BR4.2" },
+    { "id": "FR2.2", "status": "OK", "target": "BR4.5" },
+    { "id": "FR2.3", "status": "OK", "target": "BR4.6" },
+    { "id": "FR2.4", "status": "OK", "target": "BR4.7" },
+    { "id": "FR2.5", "status": "OK", "target": "BR4.2" },
+    { "id": "FR2.6", "status": "OK", "target": "BR4.4" },
+    { "id": "FR2.8", "status": "OK", "target": "BR4.1（招待メール送信自体はW1の手順4に含まれ、専用のBR番号は割り当てていない）" },
+    { "id": "FR9.1", "status": "OK", "target": "BR4.3, BR4.8" },
+    { "id": "FR10.1", "status": "OK", "target": "BR4.3（ユーザー単位の言語切替手段としての側面のみ。i18nキー構造化自体は各ユニットの表示層の責務）" }
+  ],
+  "reverse": [
+    { "id": "BR4.9", "status": "N/A", "target": "AuditLoggingへのイベント発行粒度に関する横断的規約であり、特定のFRではなくproject.md Mandated（変更前後の値の記録）に対応する" },
+    { "id": "BR4.10", "status": "N/A", "target": "サーバー側実効権限の再検証というproject.md Mandatedに対応する技術的規約であり、特定のFRには対応しない" }
+  ]
+}
