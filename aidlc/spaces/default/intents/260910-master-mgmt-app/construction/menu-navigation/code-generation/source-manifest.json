@@ -1,0 +1,10 @@
+{
+  "stage": "code-generation",
+  "unit": "menu-navigation",
+  "version": 1,
+  "writes": [
+    { "path": "backend/src/main/resources/db/migration/V3__create_menu_item.sql" },
+    { "path": "backend/src/main/java/com/mastersmith/menu/" },
+    { "path": "backend/src/test/java/com/mastersmith/menu/" }
+  ]
+}

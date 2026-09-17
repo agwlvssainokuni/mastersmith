@@ -97,59 +97,59 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 1: プロジェクト構造(パッケージ作成)
 
-- [ ] `backend/src/main/java/com/mastersmith/menu/`配下にパッケージ構造を作成する(`entity`, `repository`, `dto`, `tree`, `service`, `web`, `exception`の各サブパッケージ)
+- [x] `backend/src/main/java/com/mastersmith/menu/`配下にパッケージ構造を作成する(`entity`, `repository`, `dto`, `tree`, `service`, `web`, `exception`の各サブパッケージ)
 
 ## Step 2: テストランナー確認
 
-- [ ] 既存のGradleテストタスク(`./gradlew :backend:test`)がmenu-navigation配下の新規テストクラスを実行できることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)
+- [x] 既存のGradleテストタスク(`./gradlew :backend:test`)がmenu-navigation配下の新規テストクラスを実行できることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)
 
 ## Step 3: データモデル層の実装(エンティティ・マイグレーション、entities.md準拠)
 
-- [ ] `backend/src/main/resources/db/migration/V3__create_menu_item.sql`を作成する。`menu_item`テーブル(`menu_item_id` PK VARCHAR(36)、`parent_menu_item_id` VARCHAR(36) nullable・物理FK制約なし、`label` VARCHAR NOT NULL、`item_order` INTEGER NOT NULL、`target_table_config_id` VARCHAR(36) nullable)と、DELETE時の子孫存在チェック(`existsByParentMenuItemId`、NFR4.4)を効率化する`idx_menu_item_parent_menu_item_id`(`parent_menu_item_id`)を定義する
-- [ ] `MenuItem`エンティティ(`com.mastersmith.menu.entity`)を実装する(entities.md準拠。`order`フィールドは物理カラム`item_order`にマッピング、前提事項3)
+- [x] `backend/src/main/resources/db/migration/V3__create_menu_item.sql`を作成する。`menu_item`テーブル(`menu_item_id` PK VARCHAR(36)、`parent_menu_item_id` VARCHAR(36) nullable・物理FK制約なし、`label` VARCHAR NOT NULL、`item_order` INTEGER NOT NULL、`target_table_config_id` VARCHAR(36) nullable)と、DELETE時の子孫存在チェック(`existsByParentMenuItemId`、NFR4.4)を効率化する`idx_menu_item_parent_menu_item_id`(`parent_menu_item_id`)を定義する
+- [x] `MenuItem`エンティティ(`com.mastersmith.menu.entity`)を実装する(entities.md準拠。`order`フィールドは物理カラム`item_order`にマッピング、前提事項3)
 
 ## Step 4: データモデル層のテスト(test-after)
 
-- [ ] `MenuItemJpaTest`: INSERT後の読み取り往復、`parentMenuItemId`/`targetTableConfigId`がnullで永続化されるケース(ルート直下・フォルダ項目)を確認する
+- [x] `MenuItemJpaTest`: INSERT後の読み取り往復、`parentMenuItemId`/`targetTableConfigId`がnullで永続化されるケース(ルート直下・フォルダ項目)を確認する
 
 ## Step 5: ビジネスロジック層の実装(メニュー構築・CRUD、BR6.2〜BR6.9・NFR1.1・NFR4.4)
 
-- [ ] `MenuItemRepository`(`com.mastersmith.menu.repository`)を実装する。Spring Data JPAの`Repository<MenuItem, String>`を継承し、`findAll()`(W1、1クエリ一括取得、performance-design.md)・`findById`・`existsByParentMenuItemId(String)`(W4、NFR4.4)・`save`・`deleteById`を宣言する
-- [ ] `AdminMenuDefinition`(`com.mastersmith.menu.tree`)を実装する。管理メニュー4項目(業務メニュー設定/ユーザ管理/監査ログ管理/設定管理)を固定`menuItemId`・`label`・`screenKey`のリストとしてハードコードする(BR6.2、Q8=A、前提事項1)。screenKeyは「業務メニュー設定」「設定管理」が`"config-import-export"`を共有、「ユーザ管理」が`"user-management"`、「監査ログ管理」が`"audit-log"`(BR6.3-(3)〜(5))
-- [ ] `MenuTreeBuilder`(`com.mastersmith.menu.tree`)を実装する。全`MenuItem`から`parentMenuItemId`により木構造を再構築し(W1手順3)、リーフ項目ごとに`ConfigEngineApi.getTableConfigById`存在確認(BR6.7、`TableConfigNotFoundException`時は除外)・`PermissionEngineApi.canAccessScreen(activeRoleId, targetTableConfigId)`(BR6.3-(1))を呼び出して除外フィルタを適用し、フォルダ項目の可視性を配下リーフから再帰的に導出し(BR6.4)、各階層を`order`昇順でソートする(BR6.6)。管理メニューは`AdminMenuDefinition`の4項目それぞれに対応するscreenKeyで`canAccessScreen`を呼び出しtrueの項目のみ返す(W1手順7)
-- [ ] `MenuQueryService`(`com.mastersmith.menu.service`)を実装する。`MenuItemRepository.findAll()`→`MenuTreeBuilder`呼び出しを束ね、`{businessMenu, adminMenu}`を返す(W1)
-- [ ] `MenuItemCommandService`(`com.mastersmith.menu.service`)を実装する。作成(W2: `parentMenuItemId`指定時は既存確認・`targetTableConfigId`指定時はConfigEngine存在確認、いずれも不整合なら`MenuItemValidationException`)・更新(W3: 対象存在確認は`MenuItemNotFoundException`、以降はW2と同様の検証)・削除(W4: 対象存在確認、`existsByParentMenuItemId`がtrueなら`MenuItemConflictException`)を実装する
-- [ ] `MenuStructureApi`(`com.mastersmith.menu`、C12契約インタフェース)と実装クラス`MenuStructureApiImpl`(`com.mastersmith.menu.service`)を実装する。`getExportableMenuStructure()`(`MenuItemRepository.findAll()`をC12の`MenuItem`型へ変換)・`importMenuStructure(List<MenuItem>)`(全件洗い替え、`ConfigValidationException`をfail fastで送出)を提供する。config-import-export(U9)は本Bolt時点で未実装のコンシューマーだが、契約所有者(menu-navigation)側の責務としてconfig-engineの`getExportableConfigSet`/`importConfigSet`と同様の先行実装パターンを踏襲する
+- [x] `MenuItemRepository`(`com.mastersmith.menu.repository`)を実装する。Spring Data JPAの`Repository<MenuItem, String>`を継承し、`findAll()`(W1、1クエリ一括取得、performance-design.md)・`findById`・`existsByParentMenuItemId(String)`(W4、NFR4.4)・`save`・`deleteById`を宣言する
+- [x] `AdminMenuDefinition`(`com.mastersmith.menu.tree`)を実装する。管理メニュー4項目(業務メニュー設定/ユーザ管理/監査ログ管理/設定管理)を固定`menuItemId`・`label`・`screenKey`のリストとしてハードコードする(BR6.2、Q8=A、前提事項1)。screenKeyは「業務メニュー設定」「設定管理」が`"config-import-export"`を共有、「ユーザ管理」が`"user-management"`、「監査ログ管理」が`"audit-log"`(BR6.3-(3)〜(5))
+- [x] `MenuTreeBuilder`(`com.mastersmith.menu.tree`)を実装する。全`MenuItem`から`parentMenuItemId`により木構造を再構築し(W1手順3)、リーフ項目ごとに`ConfigEngineApi.getTableConfigById`存在確認(BR6.7、`TableConfigNotFoundException`時は除外)・`PermissionEngineApi.canAccessScreen(activeRoleId, targetTableConfigId)`(BR6.3-(1))を呼び出して除外フィルタを適用し、フォルダ項目の可視性を配下リーフから再帰的に導出し(BR6.4)、各階層を`order`昇順でソートする(BR6.6)。管理メニューは`AdminMenuDefinition`の4項目それぞれに対応するscreenKeyで`canAccessScreen`を呼び出しtrueの項目のみ返す(W1手順7)
+- [x] `MenuQueryService`(`com.mastersmith.menu.service`)を実装する。`MenuItemRepository.findAll()`→`MenuTreeBuilder`呼び出しを束ね、`{businessMenu, adminMenu}`を返す(W1)
+- [x] `MenuItemCommandService`(`com.mastersmith.menu.service`)を実装する。作成(W2: `parentMenuItemId`指定時は既存確認・`targetTableConfigId`指定時はConfigEngine存在確認、いずれも不整合なら`MenuItemValidationException`)・更新(W3: 対象存在確認は`MenuItemNotFoundException`、以降はW2と同様の検証)・削除(W4: 対象存在確認、`existsByParentMenuItemId`がtrueなら`MenuItemConflictException`)を実装する
+- [x] `MenuStructureApi`(`com.mastersmith.menu`、C12契約インタフェース)と実装クラス`MenuStructureApiImpl`(`com.mastersmith.menu.service`)を実装する。`getExportableMenuStructure()`(`MenuItemRepository.findAll()`をC12の`MenuItem`型へ変換)・`importMenuStructure(List<MenuItem>)`(全件洗い替え、`ConfigValidationException`をfail fastで送出)を提供する。config-import-export(U9)は本Bolt時点で未実装のコンシューマーだが、契約所有者(menu-navigation)側の責務としてconfig-engineの`getExportableConfigSet`/`importConfigSet`と同様の先行実装パターンを踏襲する
 
 ## Step 6: ビジネスロジック層のテスト
 
-- [ ] `MenuTreeBuilderTest`(テーブル駆動): フォルダ/リーフ混在の木構造、リーフ権限フィルタ(許可/拒否)、フォルダの再帰的可視性導出(配下全て非表示→フォルダも非表示、1件でも表示可→フォルダも表示)、`order`昇順ソート(重複値を含む)、TableConfig欠損時の実行時除外、管理メニュー4項目の権限フィルタを網羅する(BR6.3〜BR6.7・BR6.9の主要な組み合わせケースを網羅するテーブル駆動テスト、`team.md`インタビューQ6の追加合格条件)
-- [ ] `MenuItemCommandServiceTest`: 作成・更新の正常系とバリデーションエラー(存在しない`parentMenuItemId`/`targetTableConfigId`)、削除の正常系と子孫存在時の`MenuItemConflictException`(NFR4.4)を確認する
+- [x] `MenuTreeBuilderTest`(テーブル駆動): フォルダ/リーフ混在の木構造、リーフ権限フィルタ(許可/拒否)、フォルダの再帰的可視性導出(配下全て非表示→フォルダも非表示、1件でも表示可→フォルダも表示)、`order`昇順ソート(重複値を含む)、TableConfig欠損時の実行時除外、管理メニュー4項目の権限フィルタを網羅する(BR6.3〜BR6.7・BR6.9の主要な組み合わせケースを網羅するテーブル駆動テスト、`team.md`インタビューQ6の追加合格条件)
+- [x] `MenuItemCommandServiceTest`: 作成・更新の正常系とバリデーションエラー(存在しない`parentMenuItemId`/`targetTableConfigId`)、削除の正常系と子孫存在時の`MenuItemConflictException`(NFR4.4)を確認する
 
 ## Step 7: API層の実装(C3契約・BR6.8・NFR1.1・NFR1.2・NFR2.1・NFR2.2・NFR2.5)
 
-- [ ] `MenuItemView`・`MenuItemInput`・`MenuResponse`(`com.mastersmith.menu.dto`)を実装する(C3契約のスキーマにそのまま対応)
-- [ ] `MenuController`(`com.mastersmith.menu.web`)を実装する。`GET /api/menu`は`ActiveRoleResolver`でactiveRoleIdを解決できない場合401(前提事項2、C3契約に403が宣言されていないため)、解決できれば`MenuQueryService`の結果をそのまま200で返す(空配列を含む、BR6.5)。`POST/PUT/DELETE /api/menu-items`はactiveRoleId未解決時401、`PermissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")`が`false`なら403(BR6.8)、`MenuItemCommandService`の各操作結果を201/200/204で返す
-- [ ] 例外ハンドラ(`MenuItemNotFoundException`→404、`MenuItemValidationException`→400、`MenuItemConflictException`→409、いずれもRFC 9457 `ProblemDetail`)を実装する
+- [x] `MenuItemView`・`MenuItemInput`・`MenuResponse`(`com.mastersmith.menu.dto`)を実装する(C3契約のスキーマにそのまま対応)
+- [x] `MenuController`(`com.mastersmith.menu.web`)を実装する。`GET /api/menu`は`ActiveRoleResolver`でactiveRoleIdを解決できない場合401(前提事項2、C3契約に403が宣言されていないため)、解決できれば`MenuQueryService`の結果をそのまま200で返す(空配列を含む、BR6.5)。`POST/PUT/DELETE /api/menu-items`はactiveRoleId未解決時401、`PermissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")`が`false`なら403(BR6.8)、`MenuItemCommandService`の各操作結果を201/200/204で返す
+- [x] 例外ハンドラ(`MenuItemNotFoundException`→404、`MenuItemValidationException`→400、`MenuItemConflictException`→409、いずれもRFC 9457 `ProblemDetail`)を実装する
 
 ## Step 8: API層のテスト(認可拒否専用テスト含む)
 
-- [ ] `MenuControllerTest`(`@WebMvcTest`または既存パターンに合わせた統合テスト): `GET /api/menu`の正常系(200、businessMenu/adminMenu)・未認証(401)、`/api/menu-items`のCRUD正常系(201/200/204)・バリデーションエラー(400)・**認可拒否専用テスト**(403、`canAccessScreen`がfalseを返すケース。`team.md`必須テスト種別(c))・対象不存在(404)・子孫存在時の削除拒否(409)をテーブル駆動で網羅する
+- [x] `MenuControllerTest`(`@WebMvcTest`または既存パターンに合わせた統合テスト): `GET /api/menu`の正常系(200、businessMenu/adminMenu)・未認証(401)、`/api/menu-items`のCRUD正常系(201/200/204)・バリデーションエラー(400)・**認可拒否専用テスト**(403、`canAccessScreen`がfalseを返すケース。`team.md`必須テスト種別(c))・対象不存在(404)・子孫存在時の削除拒否(409)をテーブル駆動で網羅する
 
 ## Step 9: 可観測性の実装(NFR5.1・NFR5.2)
 
-- [ ] `MenuController`にMicrometer計装(`menu_navigation.get_menu.duration`/`.error_count`、`menu_navigation.menu_items_crud.duration`/`.error_count`、observability-design.md)を追加する
-- [ ] `/api/menu-items`の作成・更新・削除実行をINFOレベル構造化ログ(activeRoleId・menuItemId・操作種別)、失敗(400/403/404/409)をERRORレベル構造化ログで記録する(`GET /api/menu`は高頻度パスのため個別ログを出力しない、observability-design.md)
+- [x] `MenuController`にMicrometer計装(`menu_navigation.get_menu.duration`/`.error_count`、`menu_navigation.menu_items_crud.duration`/`.error_count`、observability-design.md)を追加する
+- [x] `/api/menu-items`の作成・更新・削除実行をINFOレベル構造化ログ(activeRoleId・menuItemId・操作種別)、失敗(400/403/404/409)をERRORレベル構造化ログで記録する(`GET /api/menu`は高頻度パスのため個別ログを出力しない、observability-design.md)
 
 ## Step 10: 可観測性のテスト
 
-- [ ] メトリクス・ログ出力の直接テストは行わない(Micrometerの`Counter`/`Timer`登録自体はSpring Bootの自動構成に委ね、既存ユニットと同様、専用の単体テストは設けない方針を踏襲)
+- [x] メトリクス・ログ出力の直接テストは行わない(Micrometerの`Counter`/`Timer`登録自体はSpring Bootの自動構成に委ね、既存ユニットと同様、専用の単体テストは設けない方針を踏襲)
 
 ## Step 11: 環境・ビルド設定
 
-- [ ] 新規パッケージ・マイグレーションファイルが既存のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(spotlessCheck・checkstyleMain・checkstyleTestすべて本ユニットのファイルに関して合格)
+- [x] 新規パッケージ・マイグレーションファイルが既存のGradle/Spotless/Checkstyle設定下でビルド・整形されることを確認する(spotlessCheck・checkstyleMain・checkstyleTestすべて本ユニットのファイルに関して合格)
 
 ## Step 12: ドキュメント・トレーサビリティ
 
-- [ ] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する
-- [ ] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する
+- [x] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する
+- [x] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する

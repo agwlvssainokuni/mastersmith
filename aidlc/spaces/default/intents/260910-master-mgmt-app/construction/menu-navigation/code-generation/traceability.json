@@ -1,0 +1,35 @@
+{
+  "stage": "code-generation",
+  "unit": "menu-navigation",
+  "upstream_ids": [
+    "FR7.1", "FR7.2", "FR7.3",
+    "BR6.1", "BR6.2", "BR6.3", "BR6.4", "BR6.5", "BR6.6", "BR6.7", "BR6.8", "BR6.9",
+    "NFR1.1", "NFR1.2", "NFR2.1", "NFR2.2", "NFR2.3", "NFR2.5", "NFR3.1", "NFR4.1", "NFR4.3", "NFR4.4", "NFR5.1", "NFR5.2"
+  ],
+  "coverage": [
+    { "id": "FR7.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "FR7.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "FR7.3", "status": "N/A", "target": "空メニュー時の案内表示はフロントエンド側の責務(BR6.5)。backend/src/main/java/com/mastersmith/menu/service/MenuQueryService.javaは空配列をそのまま返すのみで、追加のコード対応は不要" },
+    { "id": "BR6.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/AdminMenuDefinition.java" },
+    { "id": "BR6.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/AdminMenuDefinition.java" },
+    { "id": "BR6.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "BR6.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "BR6.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/service/MenuQueryService.java" },
+    { "id": "BR6.6", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "BR6.7", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "BR6.8", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/service/MenuItemCommandService.java" },
+    { "id": "BR6.9", "status": "N/A", "target": "トップ画面カード表示(第1階層グループ単位)はfrontend-ui(U12)側の表示レイヤーの責務であり、GET /api/menuが返すbusinessMenu/adminMenuの階層構造以上の追加コード対応は不要(rules.md BR6.9)" },
+    { "id": "NFR1.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR1.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR2.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR2.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR2.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR2.5", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/service/MenuItemCommandService.java" },
+    { "id": "NFR3.1", "status": "N/A", "target": "menu-navigationはステートレスなCRUD/参照APIのみを持ち、nfr-requirements/nfr-designで確定済みの単一インスタンス前提をそのまま実装している。追加のコード対応は不要" },
+    { "id": "NFR4.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/tree/MenuTreeBuilder.java" },
+    { "id": "NFR4.3", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR4.4", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/service/MenuItemCommandService.java" },
+    { "id": "NFR5.1", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" },
+    { "id": "NFR5.2", "status": "OK", "target": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java" }
+  ]
+}
