@@ -1,0 +1,56 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "authentication-service",
+  "upstream_ids": [
+    "NFR1",
+    "NFR2",
+    "NFR3",
+    "NFR4",
+    "NFR5",
+    "NFR6",
+    "NFR7",
+    "NFR8"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1",
+      "status": "OK",
+      "target": "NFR1.1, NFR1.2, NFR1.3, NFR1.4"
+    },
+    {
+      "id": "NFR2",
+      "status": "OK",
+      "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4, NFR2.5, NFR2.6, NFR2.7, NFR2.8, NFR2.9, NFR2.10, NFR2.11, NFR2.12, NFR2.13"
+    },
+    {
+      "id": "NFR3",
+      "status": "OK",
+      "target": "NFR3.1, NFR3.2, NFR3.3, NFR3.4, NFR3.5"
+    },
+    {
+      "id": "NFR4",
+      "status": "OK",
+      "target": "NFR4.1, NFR4.2, NFR4.3, NFR4.4, NFR4.5, NFR4.6, NFR4.7, NFR4.8"
+    },
+    {
+      "id": "NFR5",
+      "status": "OK",
+      "target": "NFR5.1, NFR5.2, NFR5.3, NFR5.4, NFR5.5"
+    },
+    {
+      "id": "NFR6",
+      "status": "N/A",
+      "target": "authentication-serviceは画面を持たないバックエンドのユニットであり、ユーザビリティ・アクセシビリティ要件の対象外(ログイン画面などはfrontend-ui, U12の責務)"
+    },
+    {
+      "id": "NFR7",
+      "status": "OK",
+      "target": "NFR7.1(認証エラーの種別をi18nキーで表す方針。画面の表示名のi18nキー化はfrontend-ui, U12および各ユニットの表示層の責務)"
+    },
+    {
+      "id": "NFR8",
+      "status": "OK",
+      "target": "NFR8.1, NFR8.2"
+    }
+  ]
+}
