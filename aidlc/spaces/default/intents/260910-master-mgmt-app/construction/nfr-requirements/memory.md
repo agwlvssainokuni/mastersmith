@@ -5,6 +5,8 @@
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
 - 2026-09-20T00:40:00Z — [user-management] ユーザー指示: 招待メールはHTMLメールとし、件名(Subject)はレンダリング後のHTMLの`<title>`要素の値から抽出する。security-requirements.md NFR2.7(HTMLエスケープ、件名のCR/LF除去・ヘッダー符号化)とtech-stack-decisions.md(確認事項4〜6)へ反映した。テンプレートに`<title>`が無い/空の場合の起動時fail fast、テキスト版(multipart/alternative)の要否は未確認のため[assumption]/確認事項として残した。
 - 2026-09-20T00:40:00Z — [user-management] Q2・Q3は初回回答に幅・曖昧さ(「数秒」「10〜30秒」)があったため、Follow-upで具体値(ハッシュ計算の待機上限2秒、SMTPタイムアウト10秒)を確定した。
+- 2026-09-20T12:24:00Z — [authentication-service] Q1〜Q7はすべてAで確定し、曖昧・矛盾はなかった。Q4の「期限または失効から7日後」は、Sessionに失効日時の属性がないため、有効期限(`refreshExpiresAt`)から7日後の削除に統一して解釈した([assumption]、reliability-requirements.md NFR4.5。エンティティの変更を避けた)。Q7=Aには、認証フィルタの401に`reason`ラベル(expired・invalid・session_inactive)と、派生指標5つを加えた(有効期限切れの401は10分ごとに起こる通常の事象で、単一の数ではアラートに使えないため)。
+- 2026-09-20T12:24:00Z — [authentication-service] Q1=Aの「鍵を入れ替えてもSessionは失効せず、リフレッシュで復旧する」は、フロントエンドが401でリフレッシュする実装であることが前提のため、frontend-uiへの要求(NFR2.11・契約追補8番)として記録した。
 
 ## Deviations
 - 2026-09-20T00:58:00Z — [user-management] アーキテクチャレビュー(iteration 1, NOT-READY)でMajor所見3件(R-01: SMTP送信をトランザクション内で待つ設計の競合・保持時間が未規定、R-02: 招待トークンがOTELトレース・メトリクス・アクセスログへ漏れる経路の未規定、R-03: 初期管理者パスワードの供給方法の未規定)とMinor所見10件を受け、NFR2.10(トークンのURL露出抑止)・NFR2.11(初期管理者の資格情報の供給)・残余リスク表を追加し、NFR4.2(競合・保持時間・比較した代替)・NFR1.2(上限300msと計測条件)・NFR7.2(バリデーションメッセージのi18n)などを改訂した。要件に根拠のない判断は[assumption]として残した。
@@ -14,13 +16,19 @@
 - 2026-09-13T23:22:00Z — [data-import-export] アップロードファイルのサイズ・Content-Type検証を追加しない(NFR2.4)。BR8.1のCSV形式検証で不正ファイルは実質排除されるという判断(Q4確定)。
 - 2026-09-15T06:01:00Z — [schema-introspector] アーキテクチャレビュー(iteration 1, NOT-READY)でMajor所見3件: (R-01)reliability-requirements.mdの全行にNFR4.x形式のIDが欠落 → NFR4.1/NFR4.2見出しを追加。(R-02)observability-requirements.mdにNFR5.xのIDが無いのにtraceability.jsonが実在しない「NFR5.1相当」を参照 → NFR5.1見出しを追加し参照を修正。(R-03)traceability.jsonのNFR3行がstatus=N/Aとしつつtarget欄でNFR3.1(実在する定義済み要件)を根拠にする自己矛盾 → status=OKへ修正。
 - 2026-09-15T02:48:00Z — [audit-logging] アーキテクチャレビュー(iteration 1, NOT-READY)でMajor所見3件を修正: (R-01)reliability-requirements.md NFR4.4・security-requirements.md NFR2.5が導入した503レスポンスがContract Design(contract-summary.md C6)の`responses`(200/403のみ)と不整合 → C6契約へ503(ServiceUnavailable)を加法的変更として追補し、追補の経緯をC6スペック直下に明記。(R-02)NFR1の「1テーブル最大10万行程度」想定と、本ユニットの成長見積り(Q2: 年間数万〜数十万件、無期限保持)が1〜2年で矛盾しうるのに再検討トリガーが数値化されていなかった → scalability-requirements.md NFR3.3に「8万行(10万行の8割)到達で再検討開始」という定量的トリガーを追加。(R-03)BR7.7(サイレント失敗)・Q3(専用メトリクスなし)・Q4(内部処理時間計装なし)の組み合わせにより、記録パイプライン全断を自動検知する手段が皆無だが、これが受容リスクとして記録されていなかった → reliability-requirements.mdにNFR4.6として意図的な受容リスクであることを明記。
+- 2026-09-20T12:24:00Z — [authentication-service] 機能設計(BR5.11)が明記していない次の3点を、[assumption]として成果物に加え、契約追補の一覧(tech-stack-decisions.md 5・6番、4番)に記録した: (1)認証フィルタで、トークンの`sub`とSessionの`userId`の一致を確認する(鍵の漏えいだけではなりすませないようにする)、(2)ログイン成功時の`AccountLoginState`のリセットとSession作成を同一トランザクションにする、(3)C11の`dummyVerify`も129文字以上はハッシュ計算をしない。
+- 2026-09-20T12:24:00Z — [authentication-service] Q6=A(同時ログインの集中を目標に含めない案)を採ったため、ハッシュ計算の同時実行の上限(CPUコア数)と待機2秒から、同時ログインの受け付け可能数(4コアで約26件)を、既知の限界としてNFR1.4に記録した。
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+- 2026-09-20T12:24:00Z — [authentication-service] 認証フィルタは、リクエストごとにはアクティブロールの有効性を再確認しない(Sessionのキャッシュを読むだけ)。NFR1.2(キャッシュヒット時5ミリ秒以下)を守る代わりに、ロールを外された利用者が旧ロールで操作できる期間が最大10分残る(残余リスク7)。
+- 2026-09-20T12:24:00Z — [authentication-service] 内部設定DBの障害は、フロントエンドが再ログインを強いられないよう、401ではなく503とした(Q5=A)。代わりに、C4と認証フィルタの契約への503の追補と、フロントエンドが503を認証失敗と区別する要求(NFR2.11)が加わった。
 - 2026-09-13T23:22:00Z — [data-import-export] 一時バッファは常にメモリ上配列とし、一時テーブル方式は採用しない(NFR3.3/tech-stack-decisions.md)。NFR1想定規模(10万行)なら許容範囲という評価に基づく。
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+- 2026-09-20T12:24:00Z — [authentication-service] Code Generationの計画承認までに確認する事項(tech-stack-decisions.mdの確認事項1〜5): (1)パスワードの変更・再設定の手段が要件にも機能設計にもなく、MVPでは利用者が自分のパスワードを変更できない(スコープの判断)、(2)セキュリティヘッダー(Referrer-Policy・CSP等)の担い手(U4のNFR Designが共通基盤へ要求として記録)、(3)認証基盤のライブラリ(Spring Security OAuth2 Resource Server か自前フィルタか)、(4)内部設定DBの永続の設定(メモリのみか、ファイルか)、(5)環境側の前提(HTTPS・時刻同期・DB復元後のSession全削除・リバースプロキシのログ)。
+- 2026-09-20T12:24:00Z — [authentication-service] 契約追補の一覧(tech-stack-decisions.md 1〜9番)は、機能設計の追補一覧(1〜12番)とは別に、Code Generationの計画承認までに反映する。特に1番(C4と認証フィルタへの503の追補)は、他ユニットのREST契約C1〜C3・C5〜C8には個別に加えず、contract-summary.mdの共通の前提に1文を加える方針とした。
 - 2026-09-20T01:05:00Z — [user-management] アーキテクチャレビュー(iteration 2, READY)で残ったMinor所見5件(承認ゲートまたは後続ステージで人間が確認する): (R-11)後勝ちのPUTで行ロックなしにbeforeValueを読んでも不正確にならないとは言えないこと、要件NFR4の楽観ロック記述との関係が未記載。(R-14)再招待の進行中(最大約12秒、未コミット)に受諾・取消・PUTがロック待ちになる場合の応答(503)が未規定で、条件付き更新がstatus=invitedのみで招待トークンの一致を含まないため、再招待との競合で旧トークンの受諾が成立しうる。(R-15)件名の200文字超・改行が503(SMTP障害のアラートの誤報)になるが、BR4.15にnameの最大長がなく、契約追補7番は制御文字の検証のみ。(R-16)Referrer-Policyの担当(U12かサーバー設定か)が曖昧で、U5・環境側への引き渡し事項が成果物内に分散している。(R-17)NFR7.2の「config-engineが管理する翻訳リソース」を根拠なく事実として記述している。
 - 2026-09-20T00:40:00Z — [user-management] Code Generationの計画承認までに確認する事項: 自作mustacheエンジン(Gitサブモジュール等、Q7=C)の取り込み手順・構文範囲・エスケープ仕様・ライセンス、`<title>`からの件名抽出方法、テキスト版の要否、言語別テンプレートの配置(tech-stack-decisions.mdの確認事項1〜7)。
 - 2026-09-20T00:40:00Z — [user-management] Q8=Aにより招待API(C5 `POST /api/users`)へ任意項目`locale`(ja/en、省略時ja)の追加が必要。機能設計(functional-spec.md W1、rules.md BR4.1)は完了・承認済みのため、契約追補としてCode Generation前に反映する(機能設計の見直しか追補の扱いかは要判断)。
