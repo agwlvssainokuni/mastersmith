@@ -20,7 +20,14 @@ import com.mastersmith.usermanagement.mail.InvitationMailProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-/** user-managementの設定プロパティ({@code mastersmith.users.*}・{@code mastersmith.mail.*})の有効化。 */
+/**
+ * user-managementの設定プロパティ({@code mastersmith.users.*}・{@code
+ * mastersmith.users.initial-admin.*}・{@code mastersmith.mail.*})の有効化。
+ */
 @Configuration
-@EnableConfigurationProperties({UserManagementProperties.class, InvitationMailProperties.class})
+@EnableConfigurationProperties({
+  UserManagementProperties.class,
+  InvitationMailProperties.class,
+  InitialAdminProperties.class
+})
 public class UserManagementConfig {}
