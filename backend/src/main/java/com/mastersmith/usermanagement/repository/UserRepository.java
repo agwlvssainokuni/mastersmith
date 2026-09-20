@@ -17,6 +17,7 @@
 package com.mastersmith.usermanagement.repository;
 
 import com.mastersmith.usermanagement.entity.User;
+import com.mastersmith.usermanagement.entity.UserStatus;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,6 +40,13 @@ public interface UserRepository extends JpaRepository<User, String>, UserReposit
   Optional<User> findByEmail(String email);
 
   Optional<User> findByInvitationToken(String invitationToken);
+
+  /**
+   * 最新のstatusだけを読む(C11の{@code isDisabled}用)。エンティティではなく列の値を問い合わせるため、呼び出し元のトランザクションの永続化コンテキストに
+   * 残った古いエンティティではなく、常にDBの最新の値を返す(rules.md BR4.13)。
+   */
+  @Query("select u.status from User u where u.userId = :userId")
+  Optional<UserStatus> findStatusById(@Param("userId") String userId);
 
   /** ユーザー一覧の射影クエリ(機微項目を含まない)。ロールごとに1行。{@link #findAllSummariesOrderByEmail()}を使う。 */
   @Query(
