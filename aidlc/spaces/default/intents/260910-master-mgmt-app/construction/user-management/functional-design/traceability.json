@@ -1,20 +1,21 @@
 {
   "stage": "functional-design",
   "unit": "user-management",
-  "upstream_ids": ["FR2.1", "FR2.2", "FR2.3", "FR2.4", "FR2.5", "FR2.6", "FR2.8", "FR9.1", "FR10.1"],
+  "upstream_ids": ["FR1.6", "FR2.1", "FR2.2", "FR2.3", "FR2.4", "FR2.5", "FR2.6", "FR2.8", "FR9.1", "FR10.1"],
   "coverage": [
-    { "id": "FR2.1", "status": "OK", "target": "BR4.1, BR4.2" },
-    { "id": "FR2.2", "status": "OK", "target": "BR4.5" },
-    { "id": "FR2.3", "status": "OK", "target": "BR4.6" },
+    { "id": "FR1.6", "status": "OK", "target": "BR4.14(本ユニットが担当する部分。User/UserPreference/UserChangedEventのみを扱い、業務固有のテーブル名・カラム名を持たない。他ユニット分は各ユニットの機能設計で別途カバー)" },
+    { "id": "FR2.1", "status": "OK", "target": "BR4.1, BR4.2, BR4.11, BR4.15" },
+    { "id": "FR2.2", "status": "OK", "target": "BR4.5, BR4.12, BR4.14" },
+    { "id": "FR2.3", "status": "OK", "target": "BR4.6, BR4.13(無効化時の即時反映はisDisabledによる再認証拒否で担保する。リフレッシュトークンの即時失効機構そのもの(C11 revokeRefreshTokensOnDisable)はauthentication-service(U5)の機能設計で確定するopen question)" },
     { "id": "FR2.4", "status": "OK", "target": "BR4.7" },
     { "id": "FR2.5", "status": "OK", "target": "BR4.2" },
-    { "id": "FR2.6", "status": "OK", "target": "BR4.4" },
-    { "id": "FR2.8", "status": "OK", "target": "BR4.1（招待メール送信自体はW1の手順4に含まれ、専用のBR番号は割り当てていない）" },
+    { "id": "FR2.6", "status": "OK", "target": "BR4.4, BR4.13" },
+    { "id": "FR2.8", "status": "OK", "target": "BR4.16(SMTP設定と送信失敗時の扱い。開発用Mailpitの用意はビルド・実行環境側の関心事であり、本ユニットの機能設計対象外)" },
     { "id": "FR9.1", "status": "OK", "target": "BR4.3, BR4.8" },
-    { "id": "FR10.1", "status": "OK", "target": "BR4.3（ユーザー単位の言語切替手段としての側面のみ。i18nキー構造化自体は各ユニットの表示層の責務）" }
+    { "id": "FR10.1", "status": "OK", "target": "BR4.3(ユーザー単位の言語切替手段としての側面のみ。i18nキー構造化自体は各ユニットの表示層の責務)" }
   ],
   "reverse": [
-    { "id": "BR4.9", "status": "N/A", "target": "AuditLoggingへのイベント発行粒度に関する横断的規約であり、特定のFRではなくproject.md Mandated（変更前後の値の記録）に対応する" },
+    { "id": "BR4.9", "status": "N/A", "target": "AuditLoggingへのイベント発行粒度に関する横断的規約であり、特定のFRではなくproject.md Mandated(変更前後の値の記録)に対応する" },
     { "id": "BR4.10", "status": "N/A", "target": "サーバー側実効権限の再検証というproject.md Mandatedに対応する技術的規約であり、特定のFRには対応しない" }
   ]
 }
