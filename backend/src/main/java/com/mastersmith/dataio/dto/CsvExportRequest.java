@@ -31,12 +31,16 @@ import java.util.Map;
  * @param permittedColumnNames list-engineが事前にPermissionEngineへ問い合わせ済みの実効READ権限列名一覧(BR8.2, BR8.8)
  */
 public record CsvExportRequest(
-    String tableConfigId, Map<String, Object> filter, String sort, List<String> permittedColumnNames) {
+    String tableConfigId,
+    Map<String, Object> filter,
+    String sort,
+    List<String> permittedColumnNames) {
 
   public CsvExportRequest {
     if (tableConfigId == null || tableConfigId.isBlank()) {
       throw new IllegalArgumentException("tableConfigId must not be blank");
     }
-    permittedColumnNames = permittedColumnNames == null ? List.of() : List.copyOf(permittedColumnNames);
+    permittedColumnNames =
+        permittedColumnNames == null ? List.of() : List.copyOf(permittedColumnNames);
   }
 }

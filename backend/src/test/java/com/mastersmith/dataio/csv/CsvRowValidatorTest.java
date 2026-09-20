@@ -37,7 +37,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * {@link CsvRowValidator}の単体テスト(rules.md BR8.3, BR8.5, BR8.6)。 型変換エラー・validationRule違反・UPDATE対象行不在エラー・正常系のINSERT/UPDATE判定を
+ * {@link CsvRowValidator}の単体テスト(rules.md BR8.3, BR8.5, BR8.6)。
+ * 型変換エラー・validationRule違反・UPDATE対象行不在エラー・正常系のINSERT/UPDATE判定を
  * テーブル駆動で網羅する(team.md確定の安全失敗/バリデーションテスト)。
  */
 class CsvRowValidatorTest {

@@ -24,7 +24,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
- * {@code GET /api/menu}(W1)の中核処理。{@link MenuItemRepository#findAll()}(1クエリで一括取得、performance-design.md)から{@link
+ * {@code GET /api/menu}(W1)の中核処理。{@link
+ * MenuItemRepository#findAll()}(1クエリで一括取得、performance-design.md)から{@link
  * MenuTreeBuilder}を呼び出し、businessMenu・adminMenuを組み立てる。
  */
 @Service
@@ -42,6 +43,7 @@ public class MenuQueryService {
   public MenuResponse getMenu(String activeRoleId) {
     List<MenuItem> allItems = repository.findAll();
     return new MenuResponse(
-        treeBuilder.buildBusinessMenu(allItems, activeRoleId), treeBuilder.buildAdminMenu(activeRoleId));
+        treeBuilder.buildBusinessMenu(allItems, activeRoleId),
+        treeBuilder.buildAdminMenu(activeRoleId));
   }
 }

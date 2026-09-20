@@ -57,8 +57,9 @@ import org.springframework.transaction.support.TransactionTemplate;
  * 業務データCSVインポート(FR12.1、C13: importCsv)を実装する(rules.md BR8.3〜BR8.7, BR8.9, BR8.10)。
  *
  * <p>CSVファイルを1回のストリーミング走査で1行ずつ読み取りながら{@link CsvRowValidator}を適用し、検証済みの結果を一時バッファ(メモリ上のリスト)へ
- * 蓄積する(BR8.10)。全行の読み取り完了後、1件でも{@code outcome=INVALID}があれば何も反映せず{@link ImportResult}を返す(BR8.7)。全行が有効な場合のみ、
- * {@link TransactionTemplate}経由で単一のトランザクション内でINSERT/UPDATEを実行する。
+ * 蓄積する(BR8.10)。全行の読み取り完了後、1件でも{@code outcome=INVALID}があれば何も反映せず{@link
+ * ImportResult}を返す(BR8.7)。全行が有効な場合のみ、 {@link
+ * TransactionTemplate}経由で単一のトランザクション内でINSERT/UPDATEを実行する。
  *
  * <p><b>{@code @Transactional}ではなく{@link TransactionTemplate}を用いる理由</b>: 本メソッドは検証(トランザクション対象外)と
  * コミット(トランザクション対象)を同一クラスの1メソッド呼び出しの中で行き来する。{@code @Transactional}はSpring
@@ -70,13 +71,16 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <p>楽観ロック対象列の有無に関わらず競合検出は行わない(BR8.4、常に後勝ち)。処理完了時(コミット・全体ロールバック いずれも)、{@link
  * ImportExecutedEvent}をSpringの{@link ApplicationEventPublisher}でfire-and-forget発行する(BR8.9)。
  *
- * <p>{@link BusinessDataSourceConfig}と同一のプロパティで条件付き登録する。業務データ用RDBMSの接続先が未確定の開発環境
- * ({@code mastersmith.business-datasource.enabled=false}、既定)では、本サービスが依存する{@code
+ * <p>{@link BusinessDataSourceConfig}と同一のプロパティで条件付き登録する。業務データ用RDBMSの接続先が未確定の開発環境 ({@code
+ * mastersmith.business-datasource.enabled=false}、既定)では、本サービスが依存する{@code
  * businessJdbcTemplate}・{@code businessTransactionManager}が生成されないため、本サービス自体も生成しないことで、
  * アプリケーションコンテキスト全体の起動に影響を与えない(BusinessDataSourceConfigの設計意図と同一)。
  */
 @Service
-@ConditionalOnProperty(prefix = "mastersmith.business-datasource", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+    prefix = "mastersmith.business-datasource",
+    name = "enabled",
+    havingValue = "true")
 public class CsvImportService {
 
   private final ConfigEngineApi configEngineApi;
@@ -91,7 +95,8 @@ public class CsvImportService {
       CsvColumnDefinitionResolver columnDefinitionResolver,
       CsvRowValidator csvRowValidator,
       @Qualifier("businessJdbcTemplate") JdbcTemplate businessJdbcTemplate,
-      @Qualifier("businessTransactionManager") PlatformTransactionManager businessTransactionManager,
+      @Qualifier("businessTransactionManager")
+          PlatformTransactionManager businessTransactionManager,
       ApplicationEventPublisher eventPublisher) {
     this.configEngineApi = configEngineApi;
     this.columnDefinitionResolver = columnDefinitionResolver;
@@ -186,9 +191,8 @@ public class CsvImportService {
   }
 
   /**
-   * 主キー存在チェックのバインド変数を、対象RDBMSが列の実際の型と暗黙変換なしに比較できるよう、{@code editorType}に応じた型へ
-   * 変換する({@link CsvRowValidator}の型変換ロジックと同等。文字列のまま比較すると、対象RDBMSによっては型不一致で
-   * 比較が成立しない、またはエラーとなる場合があるため)。
+   * 主キー存在チェックのバインド変数を、対象RDBMSが列の実際の型と暗黙変換なしに比較できるよう、{@code editorType}に応じた型へ 変換する({@link
+   * CsvRowValidator}の型変換ロジックと同等。文字列のまま比較すると、対象RDBMSによっては型不一致で 比較が成立しない、またはエラーとなる場合があるため)。
    */
   private static Object convertForLookup(EditorType editorType, String raw) {
     return switch (editorType) {
@@ -223,8 +227,7 @@ public class CsvImportService {
   /**
    * INSERT対象列を組み立てる。主キー列がCSV上で空欄(convertedValue=null、BR8.3の新規行判定)の場合、その主キー列自体を
    * INSERT文の列リストから除外する。これにより、対象RDBMSの自動採番(IDENTITY/AUTO_INCREMENT/serial)列を主キーとする
-   * テーブルでも、CSV側で主キー値を明示しない新規行の追加が成立する(主キー値を明示したCSVでは、そのまま自然キーとして
-   * INSERT対象に含める)。
+   * テーブルでも、CSV側で主キー値を明示しない新規行の追加が成立する(主キー値を明示したCSVでは、そのまま自然キーとして INSERT対象に含める)。
    */
   private void executeInsert(
       String tableName, List<CsvColumnDefinition> columns, Map<String, Object> values) {
@@ -254,7 +257,12 @@ public class CsvImportService {
             .map(c -> c.columnName() + " = ?")
             .collect(Collectors.joining(", "));
     String sql =
-        "UPDATE " + tableName + " SET " + setClause + " WHERE " + primaryKeyColumn.columnName()
+        "UPDATE "
+            + tableName
+            + " SET "
+            + setClause
+            + " WHERE "
+            + primaryKeyColumn.columnName()
             + " = ?";
     Object[] args = new Object[nonPrimaryKeyColumns.size() + 1];
     for (int i = 0; i < nonPrimaryKeyColumns.size(); i++) {

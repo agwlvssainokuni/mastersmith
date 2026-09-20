@@ -19,8 +19,8 @@ package com.mastersmith.dataio.exception;
 import java.io.Serial;
 
 /**
- * CSVエクスポート処理中の予期しない失敗(業務データ用RDBMSへのアクセスエラー、出力ストリームへの書き込み
- * エラー等)を表す実行時例外(construction phase guardrails: エラーは呼び出し元へ確実に伝播させる)。
+ * CSVエクスポート処理中の予期しない失敗(業務データ用RDBMSへのアクセスエラー、出力ストリームへの書き込み エラー等)を表す実行時例外(construction phase
+ * guardrails: エラーは呼び出し元へ確実に伝播させる)。
  */
 public class CsvExportException extends RuntimeException {
 

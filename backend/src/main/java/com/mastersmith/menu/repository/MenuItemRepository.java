@@ -26,8 +26,8 @@ import org.springframework.data.repository.Repository;
  *
  * <p>{@link org.springframework.data.jpa.repository.JpaRepository}は継承せず、audit-loggingの{@code
  * AuditLogEntryRepository}と同様に{@link Repository}(メソッドを持たないマーカーインタフェース)を直接継承したうえで、本ユニットが
- * 実際に必要とするメソッドのみを宣言する({@code findAll}・{@code findById}・{@code
- * existsByParentMenuItemId}・{@code save}・{@code deleteById}、いずれもSimpleJpaRepositoryの実装へシグネチャ一致で委譲される)。
+ * 実際に必要とするメソッドのみを宣言する({@code findAll}・{@code findById}・{@code existsByParentMenuItemId}・{@code
+ * save}・{@code deleteById}、いずれもSimpleJpaRepositoryの実装へシグネチャ一致で委譲される)。
  */
 public interface MenuItemRepository extends Repository<MenuItem, String> {
 

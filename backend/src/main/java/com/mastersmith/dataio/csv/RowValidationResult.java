@@ -23,10 +23,10 @@ import java.util.Map;
 
 /**
  * {@link CsvRowValidator}の1行分の検証結果。{@link CsvImportRowResult}(entities.mdが定める公開的な
- * 行結果の形状)に加え、outcome=VALIDの場合のみ、コミット時にINSERT/UPDATEへ用いる型変換後の値
- * ({@code values: Map<String, Object>})を保持する。この{@code convertedValues}は
- * nfr-design/performance-design.mdが定める「検証済みの行データ(変換後の値)」の実装上の担い手であり
- * (同ドキュメントの{@code ValidatedRow}概念に相当)、CsvImportServiceの一時バッファ(BR8.10)が
+ * 行結果の形状)に加え、outcome=VALIDの場合のみ、コミット時にINSERT/UPDATEへ用いる型変換後の値 ({@code values: Map<String,
+ * Object>})を保持する。この{@code convertedValues}は
+ * nfr-design/performance-design.mdが定める「検証済みの行データ(変換後の値)」の実装上の担い手であり (同ドキュメントの{@code
+ * ValidatedRow}概念に相当)、CsvImportServiceの一時バッファ(BR8.10)が
  * outcome=VALIDの行についてのみ保持し、コミット時のINSERT/UPDATEに用いる。
  *
  * @param report 行単位のバリデーション結果(rowNumber/outcome/operation/errors)

@@ -114,12 +114,16 @@ class MenuControllerTest {
   @Test
   void returns201WhenMenuItemIsCreated() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
     when(menuItemCommandService.create(any()))
         .thenReturn(new MenuItem("item-1", null, "商品マスタ", 1, "table-config-1"));
 
     mockMvc
-        .perform(post(MENU_ITEMS_ENDPOINT).contentType(MediaType.APPLICATION_JSON).content(VALID_INPUT_BODY))
+        .perform(
+            post(MENU_ITEMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_INPUT_BODY))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.menuItemId").value("item-1"));
   }
@@ -129,7 +133,10 @@ class MenuControllerTest {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(null);
 
     mockMvc
-        .perform(post(MENU_ITEMS_ENDPOINT).contentType(MediaType.APPLICATION_JSON).content(VALID_INPUT_BODY))
+        .perform(
+            post(MENU_ITEMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_INPUT_BODY))
         .andExpect(status().isUnauthorized());
 
     verifyNoInteractions(menuItemCommandService);
@@ -140,10 +147,14 @@ class MenuControllerTest {
   void returns403WhenPermissionIsDeniedForMenuItemsCrud() throws Exception {
     // 認可拒否(negative-authorization)専用テスト(team.md Q8-c)。
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(false);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(false);
 
     mockMvc
-        .perform(post(MENU_ITEMS_ENDPOINT).contentType(MediaType.APPLICATION_JSON).content(VALID_INPUT_BODY))
+        .perform(
+            post(MENU_ITEMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_INPUT_BODY))
         .andExpect(status().isForbidden());
 
     verifyNoInteractions(menuItemCommandService);
@@ -152,7 +163,8 @@ class MenuControllerTest {
   @Test
   void returns4xxWhenLabelIsBlank() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
 
     mockMvc
         .perform(
@@ -167,12 +179,16 @@ class MenuControllerTest {
   @Test
   void returns400WhenTargetTableConfigIdDoesNotExist() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
     when(menuItemCommandService.create(any()))
         .thenThrow(new MenuItemValidationException("targetTableConfigId does not exist"));
 
     mockMvc
-        .perform(post(MENU_ITEMS_ENDPOINT).contentType(MediaType.APPLICATION_JSON).content(VALID_INPUT_BODY))
+        .perform(
+            post(MENU_ITEMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_INPUT_BODY))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(400));
   }
@@ -180,7 +196,8 @@ class MenuControllerTest {
   @Test
   void returns200WhenMenuItemIsUpdated() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
     when(menuItemCommandService.update(eq("item-1"), any()))
         .thenReturn(new MenuItem("item-1", null, "商品マスタ", 1, "table-config-1"));
 
@@ -196,7 +213,8 @@ class MenuControllerTest {
   @Test
   void returns404WhenUpdatingAMenuItemThatDoesNotExist() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
     when(menuItemCommandService.update(eq("does-not-exist"), any()))
         .thenThrow(new MenuItemNotFoundException("not found"));
 
@@ -211,7 +229,8 @@ class MenuControllerTest {
   @Test
   void returns204WhenMenuItemIsDeleted() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
 
     mockMvc.perform(delete(MENU_ITEMS_ENDPOINT + "/item-1")).andExpect(status().isNoContent());
   }
@@ -219,8 +238,11 @@ class MenuControllerTest {
   @Test
   void returns409WhenDeletingAMenuItemThatHasChildren() throws Exception {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
-    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export")).thenReturn(true);
-    doThrow(new MenuItemConflictException("has children")).when(menuItemCommandService).delete("item-1");
+    when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
+        .thenReturn(true);
+    doThrow(new MenuItemConflictException("has children"))
+        .when(menuItemCommandService)
+        .delete("item-1");
 
     mockMvc.perform(delete(MENU_ITEMS_ENDPOINT + "/item-1")).andExpect(status().isConflict());
   }

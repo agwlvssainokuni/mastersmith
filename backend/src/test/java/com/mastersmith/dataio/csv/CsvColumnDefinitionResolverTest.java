@@ -29,7 +29,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-/** {@link CsvColumnDefinitionResolver}の単体テスト(rules.md BR8.2: hidden列・permittedColumnNames対象外列の除外)。 */
+/**
+ * {@link CsvColumnDefinitionResolver}の単体テスト(rules.md BR8.2: hidden列・permittedColumnNames対象外列の除外)。
+ */
 class CsvColumnDefinitionResolverTest {
 
   private final CsvColumnDefinitionResolver resolver = new CsvColumnDefinitionResolver();
@@ -89,9 +91,7 @@ class CsvColumnDefinitionResolverTest {
   @Test
   void resolveForExportOrdersByDisplayOrder() {
     List<ColumnConfig> columnConfigs =
-        List.of(
-            column("second", Visibility.VISIBLE, 2),
-            column("first", Visibility.VISIBLE, 1));
+        List.of(column("second", Visibility.VISIBLE, 2), column("first", Visibility.VISIBLE, 1));
 
     List<CsvColumnDefinition> resolved =
         resolver.resolveForExport(columnConfigs, List.of("second", "first"));

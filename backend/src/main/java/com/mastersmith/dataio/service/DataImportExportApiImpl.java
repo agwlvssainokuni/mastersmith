@@ -37,13 +37,17 @@ import org.springframework.stereotype.Service;
  * <p>{@link CsvImportService}(ひいては{@link BusinessDataSourceConfig})と同一のプロパティで条件付き登録する。
  */
 @Service
-@ConditionalOnProperty(prefix = "mastersmith.business-datasource", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+    prefix = "mastersmith.business-datasource",
+    name = "enabled",
+    havingValue = "true")
 public class DataImportExportApiImpl implements DataImportExportApi {
 
   private final CsvExportService csvExportService;
   private final CsvImportService csvImportService;
 
-  public DataImportExportApiImpl(CsvExportService csvExportService, CsvImportService csvImportService) {
+  public DataImportExportApiImpl(
+      CsvExportService csvExportService, CsvImportService csvImportService) {
     this.csvExportService = csvExportService;
     this.csvImportService = csvImportService;
   }

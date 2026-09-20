@@ -19,9 +19,8 @@ package com.mastersmith.dataio.exception;
 import java.io.Serial;
 
 /**
- * アップロードされたCSVファイルがBR8.1の形式(UTF-8 BOM付き・カンマ区切り・ヘッダー行・CRLF)で
- * パースできない場合の実行時例外(rules.md BR8.1 violation_behaviour: 行単位エラーではなくファイル形式
- * エラーとしてファイル全体を扱う)。
+ * アップロードされたCSVファイルがBR8.1の形式(UTF-8 BOM付き・カンマ区切り・ヘッダー行・CRLF)で パースできない場合の実行時例外(rules.md BR8.1
+ * violation_behaviour: 行単位エラーではなくファイル形式 エラーとしてファイル全体を扱う)。
  */
 public class CsvFormatException extends RuntimeException {
 

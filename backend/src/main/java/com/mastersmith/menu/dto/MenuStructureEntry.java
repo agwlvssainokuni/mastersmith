@@ -22,8 +22,9 @@ package com.mastersmith.menu.dto;
  *
  * <p>C12契約は本型を{@code MenuItem}という名前で定義しているが、本ユニットには既に{@link
  * com.mastersmith.menu.entity.MenuItem}(永続化エンティティ)と{@link
- * MenuItemView}(REST用の木構造表現、C3契約)が存在するため、名前の衝突を避けて{@code MenuStructureEntry}と命名する(フィールド構成はC12契約と1:1、config-engineの{@code
- * ConfigExportSet}/{@code ConfigImportSet}が独自のJava型名を持つのと同種の軽微な命名上の逸脱)。
+ * MenuItemView}(REST用の木構造表現、C3契約)が存在するため、名前の衝突を避けて{@code
+ * MenuStructureEntry}と命名する(フィールド構成はC12契約と1:1、config-engineの{@code ConfigExportSet}/{@code
+ * ConfigImportSet}が独自のJava型名を持つのと同種の軽微な命名上の逸脱)。
  *
  * @param menuItemId メニュー項目のID
  * @param parentMenuItemId 親MenuItemのID。ルート直下の項目はnull

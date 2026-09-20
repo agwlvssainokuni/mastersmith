@@ -83,7 +83,9 @@ public class MenuStructureApiImpl implements MenuStructureApi {
     }
   }
 
-  /** 設定定義自体の誤り(project.md Mandated)をfail fastで検出する。違反はすべて集約したうえで単一の例外として送出する(ConfigValidatorと同種の方針)。 */
+  /**
+   * 設定定義自体の誤り(project.md Mandated)をfail fastで検出する。違反はすべて集約したうえで単一の例外として送出する(ConfigValidatorと同種の方針)。
+   */
   private void validate(List<MenuStructureEntry> items) {
     List<FieldError> errors = new ArrayList<>();
     Set<String> menuItemIds =

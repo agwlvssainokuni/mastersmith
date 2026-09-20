@@ -25,7 +25,8 @@ import java.util.List;
  * <p>各項目の{@code menuItemId}は固定値とする(code-generation-plan.md「前提事項1」)。フロントエンド側のルーティングは、この固定4項目を{@code
  * label}または位置で判別する前提(functional-design-questions.md Q9=A)。
  *
- * <p>{@code screenKey}はBR6.3-(3)〜(5)のとおり、「ユーザ管理」="user-management"、「監査ログ管理"="audit-log"、「業務メニュー設定」「設定管理」はいずれも
+ * <p>{@code
+ * screenKey}はBR6.3-(3)〜(5)のとおり、「ユーザ管理」="user-management"、「監査ログ管理"="audit-log"、「業務メニュー設定」「設定管理」はいずれも
  * schema-introspectorと共有する予約screenKey"config-import-export"を用いる(両画面は同一の権限スコープに属する)。
  */
 public final class AdminMenuDefinition {

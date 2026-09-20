@@ -23,9 +23,10 @@ import jakarta.validation.constraints.NotNull;
  * C3契約追補の{@code MenuItemInput}スキーマ(contract-summary.md)に対応する{@code POST/PUT
  * /api/menu-items}リクエストボディ(security-design.md「MenuItem CRUD APIの入力検証」)。
  *
- * <p>{@code label}の必須・空文字禁止、{@code order}の必須は本レコードのBean Validation注釈がコントローラ境界({@code
- * @Valid})で検証する。{@code parentMenuItemId}・{@code targetTableConfigId}の参照整合性検証(存在確認)はBean
- * Validationでは表現できないため、{@link com.mastersmith.menu.service.MenuItemCommandService}がアプリケーション層で行う。
+ * <p>{@code label}の必須・空文字禁止、{@code order}の必須は本レコードのBean
+ * Validation注釈がコントローラ境界({@code @Valid})で検証する。{@code parentMenuItemId}・{@code
+ * targetTableConfigId}の参照整合性検証(存在確認)はBean Validationでは表現できないため、{@link
+ * com.mastersmith.menu.service.MenuItemCommandService}がアプリケーション層で行う。
  *
  * @param parentMenuItemId 親MenuItemのID。ルート直下の項目はnull
  * @param label 表示名(必須、空文字不可)

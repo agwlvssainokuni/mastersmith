@@ -45,7 +45,8 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 /**
  * {@link CsvExportService}の単体テスト(rules.md BR8.1形式、対象テーブル不在時の例外伝播、空データ)。
  *
- * <p>{@link ConfigEngineApi}はMockitoでモックし、業務データ用RDBMSは実際のH2インメモリDBを用いる (JDBCカーソル経由の逐次読み取り自体を検証するため)。
+ * <p>{@link ConfigEngineApi}はMockitoでモックし、業務データ用RDBMSは実際のH2インメモリDBを用いる
+ * (JDBCカーソル経由の逐次読み取り自体を検証するため)。
  */
 @ExtendWith(MockitoExtension.class)
 class CsvExportServiceTest {
@@ -93,8 +94,7 @@ class CsvExportServiceTest {
     when(configEngineApi.getColumnConfigs("table-1"))
         .thenReturn(
             List.of(
-                column("SKU", EditorType.TEXT, 0),
-                column("UNIT_PRICE", EditorType.DECIMAL, 1)));
+                column("SKU", EditorType.TEXT, 0), column("UNIT_PRICE", EditorType.DECIMAL, 1)));
     try (Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement()) {
       statement.execute("INSERT INTO PUBLIC.ITEMS VALUES ('A-001', 19.99)");
@@ -132,7 +132,8 @@ class CsvExportServiceTest {
   @Test
   void propagatesTableConfigNotFoundExceptionFromConfigEngine() {
     when(configEngineApi.getTableConfigById("missing"))
-        .thenThrow(new TableConfigNotFoundException("TableConfig not found: tableConfigId=missing"));
+        .thenThrow(
+            new TableConfigNotFoundException("TableConfig not found: tableConfigId=missing"));
 
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     assertThatThrownBy(() -> service.exportCsv("missing", null, null, List.of(), out))

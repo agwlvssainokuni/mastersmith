@@ -28,21 +28,25 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
- * 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)への接続設定(team.md「内部設定DB(新規決定)」:
- * アプリ自身の設定を保持する内部設定DBとは別接続)。
+ * 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)への接続設定(team.md「内部設定DB(新規決定)」: アプリ自身の設定を保持する内部設定DBとは別接続)。
  *
- * <p>data-import-export(U8)がCSVエクスポート・インポート時にJDBCで直接アクセスするための{@link
- * DataSource}・{@link PlatformTransactionManager}を、{@code mastersmith.business-datasource.*}
- * プロパティから構築する。実際の接続先RDBMSが未確定の開発環境では
- * {@code mastersmith.business-datasource.enabled=false}(既定)のままとし、本設定クラスの
- * Bean群を一切生成しないことで、業務データ用RDBMSに依存しない他ユニットの起動に影響を与えない
- * (application.yml参照)。
+ * <p>data-import-export(U8)がCSVエクスポート・インポート時にJDBCで直接アクセスするための{@link DataSource}・{@link
+ * PlatformTransactionManager}を、{@code mastersmith.business-datasource.*}
+ * プロパティから構築する。実際の接続先RDBMSが未確定の開発環境では {@code
+ * mastersmith.business-datasource.enabled=false}(既定)のままとし、本設定クラスの
+ * Bean群を一切生成しないことで、業務データ用RDBMSに依存しない他ユニットの起動に影響を与えない (application.yml参照)。
  */
 @Configuration
-@ConditionalOnProperty(prefix = "mastersmith.business-datasource", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(
+    prefix = "mastersmith.business-datasource",
+    name = "enabled",
+    havingValue = "true")
 public class BusinessDataSourceConfig {
 
-  /** {@code mastersmith.business-datasource.*}(url/driver-class-name/username/password)から構築するDataSource。 */
+  /**
+   * {@code
+   * mastersmith.business-datasource.*}(url/driver-class-name/username/password)から構築するDataSource。
+   */
   @Bean(name = "businessDataSource")
   @ConfigurationProperties(prefix = "mastersmith.business-datasource")
   public DataSource businessDataSource() {
@@ -51,8 +55,7 @@ public class BusinessDataSourceConfig {
 
   /**
    * 業務データ用RDBMSに対する更新系操作(CsvImportServiceのINSERT/UPDATE一括コミット、BR8.7)専用の
-   * トランザクションマネージャ。内部設定DB用のJPA既定トランザクションマネージャとは別のDataSourceを
-   * 対象とするため、明示的に分離する。
+   * トランザクションマネージャ。内部設定DB用のJPA既定トランザクションマネージャとは別のDataSourceを 対象とするため、明示的に分離する。
    */
   @Bean(name = "businessTransactionManager")
   public PlatformTransactionManager businessTransactionManager(
@@ -62,11 +65,12 @@ public class BusinessDataSourceConfig {
 
   /**
    * 業務データ用RDBMSへのSQL実行に用いる{@link JdbcTemplate}。{@link
-   * org.springframework.jdbc.datasource.DataSourceUtils}経由でコネクションを取得するため、
-   * {@code businessTransactionManager}が開始したトランザクションへ自動的に参加する。
+   * org.springframework.jdbc.datasource.DataSourceUtils}経由でコネクションを取得するため、 {@code
+   * businessTransactionManager}が開始したトランザクションへ自動的に参加する。
    */
   @Bean(name = "businessJdbcTemplate")
-  public JdbcTemplate businessJdbcTemplate(@Qualifier("businessDataSource") DataSource businessDataSource) {
+  public JdbcTemplate businessJdbcTemplate(
+      @Qualifier("businessDataSource") DataSource businessDataSource) {
     return new JdbcTemplate(businessDataSource);
   }
 }

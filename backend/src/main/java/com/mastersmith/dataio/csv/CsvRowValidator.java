@@ -148,7 +148,8 @@ public class CsvRowValidator {
     throw new IllegalArgumentException("invalid boolean value: " + raw);
   }
 
-  private static List<String> applyValidationRule(ValidationRule rule, String raw, Object converted) {
+  private static List<String> applyValidationRule(
+      ValidationRule rule, String raw, Object converted) {
     List<String> violations = new ArrayList<>();
     if (rule.has("minLength") && raw.length() < toInt(rule.get("minLength"))) {
       violations.add("minLength");
@@ -156,11 +157,13 @@ public class CsvRowValidator {
     if (rule.has("maxLength") && raw.length() > toInt(rule.get("maxLength"))) {
       violations.add("maxLength");
     }
-    if (rule.has("min") && converted instanceof Number number
+    if (rule.has("min")
+        && converted instanceof Number number
         && toBigDecimal(number).compareTo(toBigDecimal(rule.get("min"))) < 0) {
       violations.add("min");
     }
-    if (rule.has("max") && converted instanceof Number number
+    if (rule.has("max")
+        && converted instanceof Number number
         && toBigDecimal(number).compareTo(toBigDecimal(rule.get("max"))) > 0) {
       violations.add("max");
     }

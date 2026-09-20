@@ -35,7 +35,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
- * {@link MenuTreeBuilder}の単体テスト(unit-test-instructions.md「対象テストファイル一覧」)。{@link ConfigEngineApi}・{@link
+ * {@link MenuTreeBuilder}の単体テスト(unit-test-instructions.md「対象テストファイル一覧」)。{@link
+ * ConfigEngineApi}・{@link
  * PermissionEngineApi}をモックし、BR6.3〜BR6.7・BR6.9の主要な組み合わせケースをテーブル駆動で網羅する(team.md
  * インタビューQ6の追加合格条件)。認可拒否(negative-authorization)専用ケース(team.md Q8-c)として{@link
  * #excludesALeafWhenPermissionDenied()}・{@link #excludesAnAdminMenuEntryWhenPermissionDenied()}を含む。
@@ -52,7 +53,8 @@ class MenuTreeBuilderTest {
     return new MenuTreeBuilder(configEngineApi, permissionEngineApi);
   }
 
-  private static MenuItem leaf(String menuItemId, String parentId, String label, int order, String tableConfigId) {
+  private static MenuItem leaf(
+      String menuItemId, String parentId, String label, int order, String tableConfigId) {
     return new MenuItem(menuItemId, parentId, label, order, tableConfigId);
   }
 
@@ -109,11 +111,14 @@ class MenuTreeBuilderTest {
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "table-config-2")).thenReturn(false);
 
     List<MenuItemView> result =
-        builder().buildBusinessMenu(List.of(visibleFolder, visibleLeaf, hiddenLeaf), ACTIVE_ROLE_ID);
+        builder()
+            .buildBusinessMenu(List.of(visibleFolder, visibleLeaf, hiddenLeaf), ACTIVE_ROLE_ID);
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).menuItemId()).isEqualTo("folder-1");
-    assertThat(result.get(0).children()).extracting(MenuItemView::menuItemId).containsExactly("leaf-1");
+    assertThat(result.get(0).children())
+        .extracting(MenuItemView::menuItemId)
+        .containsExactly("leaf-1");
   }
 
   @Test
@@ -124,7 +129,8 @@ class MenuTreeBuilderTest {
     when(configEngineApi.getTableConfigById("table-config-1")).thenReturn(null);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "table-config-1")).thenReturn(false);
 
-    List<MenuItemView> result = builder().buildBusinessMenu(List.of(hiddenFolder, hiddenLeaf), ACTIVE_ROLE_ID);
+    List<MenuItemView> result =
+        builder().buildBusinessMenu(List.of(hiddenFolder, hiddenLeaf), ACTIVE_ROLE_ID);
 
     assertThat(result).isEmpty();
   }

@@ -55,8 +55,8 @@ import org.springframework.transaction.PlatformTransactionManager;
  * {@link CsvImportService}の統合テスト(rules.md BR8.3〜BR8.7, BR8.9, BR8.10)。
  *
  * <p>{@link ConfigEngineApi}はMockitoでモックし、業務データ用RDBMSは実際のH2インメモリDBを用いて、実際のテーブルに対する
- * INSERT/UPDATE、全体ロールバック(BR8.7)、後勝ち上書き(BR8.4)、{@link ImportExecutedEvent}発行(BR8.9)を検証する。 イベント発行の検証はSpringの{@link
- * ApplicationEvents}アサーション機構を用いる。
+ * INSERT/UPDATE、全体ロールバック(BR8.7)、後勝ち上書き(BR8.4)、{@link ImportExecutedEvent}発行(BR8.9)を検証する。
+ * イベント発行の検証はSpringの{@link ApplicationEvents}アサーション機構を用いる。
  */
 @SpringJUnitConfig(classes = CsvImportServiceTest.TestConfig.class)
 @RecordApplicationEvents
@@ -84,7 +84,8 @@ class CsvImportServiceTest {
     }
 
     @Bean
-    JdbcTemplate businessJdbcTemplate(@Qualifier("businessDataSource") DataSource businessDataSource) {
+    JdbcTemplate businessJdbcTemplate(
+        @Qualifier("businessDataSource") DataSource businessDataSource) {
       return new JdbcTemplate(businessDataSource);
     }
 
@@ -104,7 +105,8 @@ class CsvImportServiceTest {
         CsvColumnDefinitionResolver csvColumnDefinitionResolver,
         CsvRowValidator csvRowValidator,
         @Qualifier("businessJdbcTemplate") JdbcTemplate businessJdbcTemplate,
-        @Qualifier("businessTransactionManager") PlatformTransactionManager businessTransactionManager,
+        @Qualifier("businessTransactionManager")
+            PlatformTransactionManager businessTransactionManager,
         ApplicationEventPublisher eventPublisher) {
       return new CsvImportService(
           configEngineApi,
@@ -138,11 +140,7 @@ class CsvImportServiceTest {
     TableConfig tableConfig = new TableConfig("PUBLIC", "WIDGETS");
     when(configEngineApi.getTableConfigById(TABLE_CONFIG_ID)).thenReturn(tableConfig);
     when(configEngineApi.getColumnConfigs(TABLE_CONFIG_ID))
-        .thenReturn(
-            List.of(
-                idColumn(),
-                nameColumn(),
-                qtyColumn()));
+        .thenReturn(List.of(idColumn(), nameColumn(), qtyColumn()));
   }
 
   private static ColumnConfig idColumn() {
@@ -173,11 +171,7 @@ class CsvImportServiceTest {
   void insertsAndUpdatesAllRowsWhenAllRowsAreValid() {
     businessJdbcTemplate.update("INSERT INTO PUBLIC.WIDGETS (NAME, QTY) VALUES ('old-item', 5)");
 
-    InputStream file =
-        csv(
-            "ID,NAME,QTY",
-            ",new-item,10",
-            "1,updated-item,20");
+    InputStream file = csv("ID,NAME,QTY", ",new-item,10", "1,updated-item,20");
 
     ImportResult result = csvImportService.importCsv(TABLE_CONFIG_ID, file, "user-1");
 
@@ -231,7 +225,8 @@ class CsvImportServiceTest {
 
   @Test
   void updateOverwritesExistingRowWithoutOptimisticLockConflictDetection() {
-    businessJdbcTemplate.update("INSERT INTO PUBLIC.WIDGETS (NAME, QTY) VALUES ('concurrently-edited', 5)");
+    businessJdbcTemplate.update(
+        "INSERT INTO PUBLIC.WIDGETS (NAME, QTY) VALUES ('concurrently-edited', 5)");
 
     InputStream file = csv("ID,NAME,QTY", "1,overwritten-by-import,999");
 
@@ -241,6 +236,8 @@ class CsvImportServiceTest {
     assertThat(result.successCount()).isEqualTo(1);
     List<Map<String, Object>> rows =
         businessJdbcTemplate.queryForList("SELECT NAME, QTY FROM PUBLIC.WIDGETS WHERE ID = 1");
-    assertThat(rows.get(0)).containsEntry("NAME", "overwritten-by-import").containsEntry("QTY", 999);
+    assertThat(rows.get(0))
+        .containsEntry("NAME", "overwritten-by-import")
+        .containsEntry("QTY", 999);
   }
 }

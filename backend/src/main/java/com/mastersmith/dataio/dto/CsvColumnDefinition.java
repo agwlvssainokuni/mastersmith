@@ -21,9 +21,8 @@ import com.mastersmith.config.entity.Visibility;
 import com.mastersmith.config.model.ValidationRule;
 
 /**
- * CSVの列とconfig-engineのColumnConfigを対応付ける、エクスポート/インポート処理内部で組み立てる
- * 一時的な列定義(entities.md CsvColumnDefinition)。config-engineの{@code ColumnConfig}
- * ({@code getColumnConfigs})から導出し、永続化しない。
+ * CSVの列とconfig-engineのColumnConfigを対応付ける、エクスポート/インポート処理内部で組み立てる 一時的な列定義(entities.md
+ * CsvColumnDefinition)。config-engineの{@code ColumnConfig} ({@code getColumnConfigs})から導出し、永続化しない。
  *
  * @param columnName CSVヘッダーおよびDB上のカラム名(ColumnConfig.columnNameと同一)
  * @param editorType 型変換・バリデーションの基準とするエディタ種別

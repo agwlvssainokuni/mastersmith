@@ -59,8 +59,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p><b>401/403の切り分け(code-generation-plan.md「前提事項2」)</b>: C3契約は{@code GET /api/menu}に401のみを宣言し
  * (403は宣言されていない。BR6.3の権限フィルタは「除外」であり「エラー」ではないため)、{@code
- * /api/menu-items}には401と403の両方を宣言している。activeRoleIdを解決できない場合は{@code GET
- * /api/menu}・{@code /api/menu-items}のいずれも401とし、{@code /api/menu-items}のみ、activeRoleIdは解決できたが{@code
+ * /api/menu-items}には401と403の両方を宣言している。activeRoleIdを解決できない場合は{@code GET /api/menu}・{@code
+ * /api/menu-items}のいずれも401とし、{@code /api/menu-items}のみ、activeRoleIdは解決できたが{@code
  * canAccessScreen}が{@code false}を返す場合を403とする。
  */
 @RestController
@@ -107,7 +107,8 @@ public class MenuController {
             .register(meterRegistry);
     this.menuItemsCrudErrorCounter =
         Counter.builder("menu_navigation.menu_items_crud.error_count")
-            .description("Number of failed /api/menu-items requests (400/401/403/404/409, cumulative)")
+            .description(
+                "Number of failed /api/menu-items requests (400/401/403/404/409, cumulative)")
             .register(meterRegistry);
   }
 
@@ -137,7 +138,9 @@ public class MenuController {
       String activeRoleId = authorizeMenuItemsRequest(httpRequest);
       MenuItem created = menuItemCommandService.create(input);
       LOG.info(
-          "MenuItem created: activeRoleId={}, menuItemId={}", activeRoleId, created.getMenuItemId());
+          "MenuItem created: activeRoleId={}, menuItemId={}",
+          activeRoleId,
+          created.getMenuItemId());
       return ResponseEntity.status(HttpStatus.CREATED).body(toView(created));
     } catch (RuntimeException e) {
       menuItemsCrudErrorCounter.increment();
@@ -191,7 +194,8 @@ public class MenuController {
     }
     if (!permissionEngineApi.canAccessScreen(activeRoleId, MENU_ITEMS_SCREEN_KEY)) {
       LOG.warn("MenuItem access denied: activeRoleId={}", activeRoleId);
-      throw new MenuItemForbiddenException("MenuItem access denied for activeRoleId=" + activeRoleId);
+      throw new MenuItemForbiddenException(
+          "MenuItem access denied for activeRoleId=" + activeRoleId);
     }
     return activeRoleId;
   }

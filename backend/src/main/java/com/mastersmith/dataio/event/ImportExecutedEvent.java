@@ -25,8 +25,8 @@ import java.time.Instant;
  *
  * <p><b>project.md Mandated(監査ログは変更前後の値を記録する)との関係</b>: 本イベントは行単位の変更前後値を
  * 含めない実行単位のサマリイベントとする。これはCSVインポートが業務データの一括投入・移行用途であり、
- * 個々の行の変更前後値までは監査ログの対象としないという、インタビューで明示的に確認済みの意図的な
- * スコープ判断である(functional-spec.md Assumptions & Open Questions、rules.md BR8.9のnotes参照)。
+ * 個々の行の変更前後値までは監査ログの対象としないという、インタビューで明示的に確認済みの意図的な スコープ判断である(functional-spec.md Assumptions & Open
+ * Questions、rules.md BR8.9のnotes参照)。
  *
  * @param tableConfigId インポート対象テーブル(config-engineのTableConfig)を指すID
  * @param actor インポートを実行した利用者のユーザーID

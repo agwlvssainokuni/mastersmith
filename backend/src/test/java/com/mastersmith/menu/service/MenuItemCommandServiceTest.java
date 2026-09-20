@@ -37,7 +37,8 @@ import org.springframework.test.context.TestPropertySource;
 
 /**
  * {@link MenuItemCommandService}の単体テスト(unit-test-instructions.md「モック/スタブ方針」: {@link
- * ConfigEngineApi}はモックし、{@link MenuItemRepository}は実際のH2に対して検証する)。作成・更新の正常系とバリデーションエラー、削除の正常系と子孫存在時の{@link
+ * ConfigEngineApi}はモックし、{@link
+ * MenuItemRepository}は実際のH2に対して検証する)。作成・更新の正常系とバリデーションエラー、削除の正常系と子孫存在時の{@link
  * MenuItemConflictException}(NFR4.4)を確認する(code-generation-plan.md Step 6)。
  */
 @DataJpaTest
@@ -63,7 +64,8 @@ class MenuItemCommandServiceTest {
 
   @Test
   void createsARootLevelLeafWhenInputIsValid() {
-    MenuItem created = service.create(new MenuItemInput(null, "商品マスタ", 1, EXISTING_TABLE_CONFIG_ID));
+    MenuItem created =
+        service.create(new MenuItemInput(null, "商品マスタ", 1, EXISTING_TABLE_CONFIG_ID));
 
     assertThat(created.getMenuItemId()).isNotBlank();
     assertThat(repository.findById(created.getMenuItemId())).isPresent();

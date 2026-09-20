@@ -26,8 +26,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * 業務メニュー(N階層)を構成する1項目(entities.md MenuItem)。フォルダ(中間階層、{@code
- * targetTableConfigId == null})とリーフ({@code targetTableConfigId != null})の両方を同じエンティティで表す。
+ * 業務メニュー(N階層)を構成する1項目(entities.md MenuItem)。フォルダ(中間階層、{@code targetTableConfigId ==
+ * null})とリーフ({@code targetTableConfigId != null})の両方を同じエンティティで表す。
  *
  * <p>管理メニュー4項目(業務メニュー設定/ユーザ管理/監査ログ管理/設定管理)は本エンティティとして永続化せず、{@link
  * com.mastersmith.menu.tree.AdminMenuDefinition}にハードコードする(BR6.2)。
@@ -42,7 +42,8 @@ import java.util.UUID;
 @Entity
 @Table(
     name = "menu_item",
-    indexes = @Index(name = "idx_menu_item_parent_menu_item_id", columnList = "parent_menu_item_id"))
+    indexes =
+        @Index(name = "idx_menu_item_parent_menu_item_id", columnList = "parent_menu_item_id"))
 public class MenuItem {
 
   @Id

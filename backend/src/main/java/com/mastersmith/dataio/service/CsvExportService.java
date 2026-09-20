@@ -46,17 +46,14 @@ import org.springframework.stereotype.Service;
 /**
  * 業務データCSVエクスポート(FR12.1、C13: exportCsv)を実装する(rules.md BR8.1, BR8.2, BR8.8, BR8.10)。
  *
- * <p>業務データ用RDBMSへJDBCカーソル経由(fetchSize指定によるドライバ一括先読みの抑止、
- * performance-design.md)で対象データを逐次読み取り、Apache Commons CSVの{@link CSVPrinter}で
- * 1行ずつ出力ストリームへ書き込む(全件を一括でメモリへ読み込まない、BR8.10)。列単位の実効READ権限は
- * 呼び出し元が事前に検証済みであることを前提とし、本サービス自身はPermissionEngineへの問い合わせを
- * 行わない(BR8.8)。
+ * <p>業務データ用RDBMSへJDBCカーソル経由(fetchSize指定によるドライバ一括先読みの抑止、 performance-design.md)で対象データを逐次読み取り、Apache
+ * Commons CSVの{@link CSVPrinter}で 1行ずつ出力ストリームへ書き込む(全件を一括でメモリへ読み込まない、BR8.10)。列単位の実効READ権限は
+ * 呼び出し元が事前に検証済みであることを前提とし、本サービス自身はPermissionEngineへの問い合わせを 行わない(BR8.8)。
  *
- * <p><b>filter/sortの解釈</b>: list-engineの検索条件・ソート順スキーマの詳細はFunctional
- * Design(list-engine Unit)で確定する未解決事項であるため(contract-summary.md Open Questions)、
- * 本サービスは安全側の最小実装として、{@code filter}を列名をキーとした等価条件のANDとして解釈し、
- * {@code sort}を{@code "columnName"}または{@code "columnName,asc|desc"}形式として解釈する。
- * いずれも、対象テーブルのエクスポート対象列に含まれない列名は無視する(SQLインジェクション防止。
+ * <p><b>filter/sortの解釈</b>: list-engineの検索条件・ソート順スキーマの詳細はFunctional Design(list-engine
+ * Unit)で確定する未解決事項であるため(contract-summary.md Open Questions)、 本サービスは安全側の最小実装として、{@code
+ * filter}を列名をキーとした等価条件のANDとして解釈し、 {@code sort}を{@code "columnName"}または{@code
+ * "columnName,asc|desc"}形式として解釈する。 いずれも、対象テーブルのエクスポート対象列に含まれない列名は無視する(SQLインジェクション防止。
  * filterの値自体はPreparedStatementのバインド変数として渡すため安全)。
  */
 @Service
@@ -106,7 +103,10 @@ public class CsvExportService {
       // 出力ストリームの先頭にBOM文字を明示的に書き込む(tech-stack-decisions.md)。
       writer.write('\uFEFF');
       CSVFormat format =
-          CSVFormat.Builder.create(CSVFormat.DEFAULT).setHeader(header).setRecordSeparator("\r\n").build();
+          CSVFormat.Builder.create(CSVFormat.DEFAULT)
+              .setHeader(header)
+              .setRecordSeparator("\r\n")
+              .build();
       try (CSVPrinter printer = new CSVPrinter(writer, format)) {
         if (header.length > 0) {
           writeRows(tableConfig, header, knownColumnNames, filter, sort, printer);
@@ -134,7 +134,8 @@ public class CsvExportService {
     String sql = buildSelectSql(tableConfig, header, effectiveFilter, sort, knownColumnNames);
     try (Connection connection = businessDataSource.getConnection();
         PreparedStatement statement =
-            connection.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
+            connection.prepareStatement(
+                sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
       // BR8.10: fetchSizeを小さい値に明示し、ドライバの一括先読みによるメモリ膨張を防ぐ。
       statement.setFetchSize(FETCH_SIZE);
       int index = 1;
@@ -175,7 +176,10 @@ public class CsvExportService {
       Set<String> knownColumnNames) {
     StringBuilder sql = new StringBuilder("SELECT ");
     sql.append(String.join(", ", header));
-    sql.append(" FROM ").append(tableConfig.getSchemaName()).append('.').append(tableConfig.getTableName());
+    sql.append(" FROM ")
+        .append(tableConfig.getSchemaName())
+        .append('.')
+        .append(tableConfig.getTableName());
     if (!effectiveFilter.isEmpty()) {
       sql.append(" WHERE ");
       boolean first = true;

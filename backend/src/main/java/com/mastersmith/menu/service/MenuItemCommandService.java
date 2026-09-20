@@ -45,7 +45,8 @@ public class MenuItemCommandService {
   public MenuItem create(MenuItemInput input) {
     validate(input, null);
     MenuItem entity =
-        new MenuItem(input.parentMenuItemId(), input.label(), input.order(), input.targetTableConfigId());
+        new MenuItem(
+            input.parentMenuItemId(), input.label(), input.order(), input.targetTableConfigId());
     return repository.save(entity);
   }
 
@@ -73,7 +74,8 @@ public class MenuItemCommandService {
   private MenuItem findExisting(String menuItemId) {
     return repository
         .findById(menuItemId)
-        .orElseThrow(() -> new MenuItemNotFoundException("MenuItem not found: menuItemId=" + menuItemId));
+        .orElseThrow(
+            () -> new MenuItemNotFoundException("MenuItem not found: menuItemId=" + menuItemId));
   }
 
   /**

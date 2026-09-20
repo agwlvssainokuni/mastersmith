@@ -42,7 +42,8 @@ public class CsvColumnDefinitionResolver {
    */
   public List<CsvColumnDefinition> resolveForExport(
       List<ColumnConfig> columnConfigs, List<String> permittedColumnNames) {
-    Set<String> permitted = Set.copyOf(permittedColumnNames == null ? List.of() : permittedColumnNames);
+    Set<String> permitted =
+        Set.copyOf(permittedColumnNames == null ? List.of() : permittedColumnNames);
     return columnConfigs.stream()
         .sorted(Comparator.comparingInt(ColumnConfig::getDisplayOrder))
         .filter(column -> column.getVisibility() != Visibility.HIDDEN)
