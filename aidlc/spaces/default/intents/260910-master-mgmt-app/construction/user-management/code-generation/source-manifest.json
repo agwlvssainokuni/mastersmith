@@ -1,0 +1,202 @@
+{
+  "stage": "code-generation",
+  "unit": "user-management",
+  "version": 1,
+  "writes": [
+    {
+      "path": ".gitmodules"
+    },
+    {
+      "path": "external/java-mustache-processor/"
+    },
+    {
+      "path": "settings.gradle.kts"
+    },
+    {
+      "path": "backend/build.gradle.kts"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml"
+    },
+    {
+      "path": "backend/src/test/resources/application.yml"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V4__create_user_management.sql"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/HashCapacityExceededException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/config/UserManagementConfig.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/config/UserManagementProperties.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/FontSize.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/Theme.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/UiLocale.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/User.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/UserPreference.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/UserStatus.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/event/UserChangeOperation.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/event/UserChangedEvent.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/event/UserChangedEventPublisher.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/event/UserSnapshot.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/EmailLockTimeoutException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/InvitationCapacityExceededException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/InvitationMailException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/SubjectRejectedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailExecutor.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailProperties.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/MailSettingsValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/MailTemplateRenderer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/MailTemplateValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/SubjectExtractor.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserListRow.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserPreferenceRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserRepositoryCustom.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserRepositoryCustomImpl.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserSummary.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/EmailLockRegistry.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/HashConcurrencyLimiter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/InvitationAdmission.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordHasher.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordPolicy.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/entity/UserJpaTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/entity/UserPreferenceJpaTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/event/UserChangedEventPublisherTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/InvitationMailerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/MailSettingsValidationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/MailTemplateRendererTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/MailTemplateValidatorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/SubjectExtractorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/repository/UserRepositoryLockTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/repository/UserRepositoryTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/EmailLockRegistryTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/HashConcurrencyLimiterTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/InvitationAdmissionTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/PasswordHasherBenchmarkTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/PasswordHasherTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/security/PasswordPolicyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/UserTestFactory.java"
+    },
+    {
+      "path": "backend/src/main/resources/mail/invitation_en.html"
+    },
+    {
+      "path": "backend/src/main/resources/mail/invitation_ja.html"
+    },
+    {
+      "path": "backend/src/test/resources/mail-notitle/invitation_en.html"
+    },
+    {
+      "path": "backend/src/test/resources/mail-notitle/invitation_ja.html"
+    },
+    {
+      "path": "backend/src/test/resources/mail-badtitle/invitation_en.html"
+    },
+    {
+      "path": "backend/src/test/resources/mail-badtitle/invitation_ja.html"
+    }
+  ]
+}

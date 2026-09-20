@@ -140,66 +140,66 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 2: プロジェクト構造・ビルド設定
 
-- [ ] `backend/src/main/java/com/mastersmith/usermanagement/`配下にパッケージ構造を作成する(`entity`, `repository`, `dto`, `service`, `security`(パスワード・排他・許可), `mail`, `event`, `web`, `config`, `exception`の各サブパッケージ。C11の`UserAccountLookupApi`は`com.mastersmith.usermanagement`直下に置く。C11契約のpackage)
-- [ ] `git submodule add https://github.com/agwlvssainokuni/java-mustache-processor external/java-mustache-processor`でサブモジュールを追加し、取得したコミットで固定する。座標・依存・ライセンス・APIを実物で再確認し、結果を`code-summary.md`へ記録する
-- [ ] `settings.gradle.kts`に`includeBuild("external/java-mustache-processor")`を追加する。`backend/build.gradle.kts`に、`implementation("cherry.mustache:cherry-mustache-core")`、`spring-boot-starter-mail`、Argon2idの`org.springframework.security:spring-security-crypto`(Spring Boot BOMで管理されるか確認する)と`org.bouncycastle:bcprov-jdk18on`(最新の安定版を確認して固定する)を追加する。既存のSpotless・Checkstyle・JaCoCoの設定は緩めない
-- [ ] `backend/src/main/resources/application.yml`に、`mastersmith.users.*`(Argon2idのパラメータ: メモリ19456KiB・反復2・並列度1、ハッシュの同時実行数(既定はCPUコア数)と待機2秒、招待の同時実行数5、排他の待機12秒、メール送信の打ち切り10秒、DBのロック待ち15秒、`initial-admin.email`・`password`・`role-ids`(環境変数から注入、既定値は置かない))、`mastersmith.mail.*`(招待リンクのベースURL・`allow-insecure-link`(既定false))、`spring.mail.*`(host・port・username・passwordを環境変数から注入、接続3秒・読み取り5秒・書き込み2秒)、`spring.datasource.hikari.maximum-pool-size: 60`を追加する。リポジトリに実値(初期管理者・SMTPの認証情報)を置かない(NFR2.8・NFR2.11)
-- [ ] `backend/src/test/resources/application.yml`に、テスト用のダミー値(初期管理者・SMTP・ベースURL)を追加し、既存の`@SpringBootTest`が、起動時のfail fast検証を通って動くようにする
+- [x] `backend/src/main/java/com/mastersmith/usermanagement/`配下にパッケージ構造を作成する(`entity`, `repository`, `dto`, `service`, `security`(パスワード・排他・許可), `mail`, `event`, `web`, `config`, `exception`の各サブパッケージ。C11の`UserAccountLookupApi`は`com.mastersmith.usermanagement`直下に置く。C11契約のpackage)
+- [x] `git submodule add https://github.com/agwlvssainokuni/java-mustache-processor external/java-mustache-processor`でサブモジュールを追加し、取得したコミットで固定する。座標・依存・ライセンス・APIを実物で再確認し、結果を`code-summary.md`へ記録する
+- [x] `settings.gradle.kts`に`includeBuild("external/java-mustache-processor")`を追加する。`backend/build.gradle.kts`に、`implementation("cherry.mustache:cherry-mustache-core")`、`spring-boot-starter-mail`、Argon2idの`org.springframework.security:spring-security-crypto`(Spring Boot BOMで管理されるか確認する)と`org.bouncycastle:bcprov-jdk18on`(最新の安定版を確認して固定する)を追加する。既存のSpotless・Checkstyle・JaCoCoの設定は緩めない
+- [x] `backend/src/main/resources/application.yml`に、`mastersmith.users.*`(Argon2idのパラメータ: メモリ19456KiB・反復2・並列度1、ハッシュの同時実行数(既定はCPUコア数)と待機2秒、招待の同時実行数5、排他の待機12秒、メール送信の打ち切り10秒、DBのロック待ち15秒、`initial-admin.email`・`password`・`role-ids`(環境変数から注入、既定値は置かない))、`mastersmith.mail.*`(招待リンクのベースURL・`allow-insecure-link`(既定false))、`spring.mail.*`(host・port・username・passwordを環境変数から注入、接続3秒・読み取り5秒・書き込み2秒)、`spring.datasource.hikari.maximum-pool-size: 60`を追加する。リポジトリに実値(初期管理者・SMTPの認証情報)を置かない(NFR2.8・NFR2.11)
+- [x] `backend/src/test/resources/application.yml`に、テスト用のダミー値(初期管理者・SMTP・ベースURL)を追加し、既存の`@SpringBootTest`が、起動時のfail fast検証を通って動くようにする
 
 ## Step 3: テストランナー確認
 
-- [ ] `./gradlew :backend:test --tests "com.mastersmith.usermanagement.*"`がU4配下のテストを実行できることと、サブモジュール(`includeBuild`)のビルドがこのプロジェクトのビルドから解決されることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)
+- [x] `./gradlew :backend:test --tests "com.mastersmith.usermanagement.*"`がU4配下のテストを実行できることと、サブモジュール(`includeBuild`)のビルドがこのプロジェクトのビルドから解決されることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)
 
 ## Step 4: データモデル層の実装(entities.md準拠、NFR3.1)
 
-- [ ] `V4__create_user_management.sql`を作成する。`users`(`user_id` PK VARCHAR(36)、`name`、`email`(一意)、`password_hash` nullable、`status`、`invitation_token` nullable(一意))、`user_role`(`user_id`・`role_id`、複合主キー)、`user_preference`(`user_id` PK・`theme`・`font_size`・`locale`)を定義する
-- [ ] `User`・`UserPreference`エンティティと`UserStatus`(`invited`/`active`/`disabled`)、`Theme`・`FontSize`・`Locale`(許容値の列挙)を実装する。`User`は`passwordHash`・`invitationToken`を持つが、応答型・イベントのスナップショット型には含めない(NFR2.2)
-- [ ] `UserRepository`(`findByEmail`・`findByInvitationToken`・email昇順の全件取得(`passwordHash`・`invitationToken`を含めない射影)・行ロック付きの読み取り(`findByIdForUpdate`、DBのロック待ちタイムアウトは設定値)・招待受諾の条件付き更新(`invitation_token`と`status=invited`が条件、更新件数を返す)・再招待の条件付き更新)、`UserPreferenceRepository`を実装する
+- [x] `V4__create_user_management.sql`を作成する。`users`(`user_id` PK VARCHAR(36)、`name`、`email`(一意)、`password_hash` nullable、`status`、`invitation_token` nullable(一意))、`user_role`(`user_id`・`role_id`、複合主キー)、`user_preference`(`user_id` PK・`theme`・`font_size`・`locale`)を定義する
+- [x] `User`・`UserPreference`エンティティと`UserStatus`(`invited`/`active`/`disabled`)、`Theme`・`FontSize`・`Locale`(許容値の列挙)を実装する。`User`は`passwordHash`・`invitationToken`を持つが、応答型・イベントのスナップショット型には含めない(NFR2.2)
+- [x] `UserRepository`(`findByEmail`・`findByInvitationToken`・email昇順の全件取得(`passwordHash`・`invitationToken`を含めない射影)・行ロック付きの読み取り(`findByIdForUpdate`、DBのロック待ちタイムアウトは設定値)・招待受諾の条件付き更新(`invitation_token`と`status=invited`が条件、更新件数を返す)・再招待の条件付き更新)、`UserPreferenceRepository`を実装する
 
 ## Step 5: データモデル層のテスト(test-after)
 
-- [ ] `UserJpaTest`・`UserPreferenceJpaTest`: 往復の永続化、`email`・`invitationToken`の一意制約、`invitationToken`がnullの複数行、`roleIds`の要素コレクション、`invited`のUserの`passwordHash`がnullで保存できることを確認する
-- [ ] `UserRepositoryTest`: email昇順の全件取得の射影(機微項目を含まない)、招待受諾の条件付き更新の更新件数(1件・0件)、再招待の条件付き更新、行ロック付き読み取りの動作を確認する
+- [x] `UserJpaTest`・`UserPreferenceJpaTest`: 往復の永続化、`email`・`invitationToken`の一意制約、`invitationToken`がnullの複数行、`roleIds`の要素コレクション、`invited`のUserの`passwordHash`がnullで保存できることを確認する
+- [x] `UserRepositoryTest`: email昇順の全件取得の射影(機微項目を含まない)、招待受諾の条件付き更新の更新件数(1件・0件)、再招待の条件付き更新、行ロック付き読み取りの動作を確認する
 
 ## Step 6: 基盤部品の実装(パスワード・ハッシュの同時計算の制御、NFR1.2・NFR1.3・NFR2.2・NFR2.3)
 
-- [ ] `PasswordPolicy`(長さ8〜128をUnicodeコードポイント数で検証。招待受諾・初期管理者の作成・`verifyPasswordHash`で共通に使う)を実装する
-- [ ] `HashConcurrencyLimiter`(公平な`Semaphore`、許可数の既定はCPUコア数、待機2秒、超過時は`HashCapacityExceededException`、許可は必ず返す)を実装する。超過の回数を`user.password.hash.rejected`へ記録する(NFR5.1)
-- [ ] `PasswordHasher`(`hash`・`verify`(129文字以上は計算せずfalse)・`needsUpgrade`(保存済みハッシュの`$argon2id$v=19$m=…,t=…,p=…$`を解析して現在の設定と比較。`Argon2PasswordEncoder`が比較を行うかを実装時に確認し、行わない場合は自前で解析))を実装する。他のクラスは`Argon2PasswordEncoder`を直接使わない。所要時間を`user.password.hash.duration`へ記録する。平文をフィールドに保持せず、ログにも出さない
+- [x] `PasswordPolicy`(長さ8〜128をUnicodeコードポイント数で検証。招待受諾・初期管理者の作成・`verifyPasswordHash`で共通に使う)を実装する
+- [x] `HashConcurrencyLimiter`(公平な`Semaphore`、許可数の既定はCPUコア数、待機2秒、超過時は`HashCapacityExceededException`、許可は必ず返す)を実装する。超過の回数を`user.password.hash.rejected`へ記録する(NFR5.1)
+- [x] `PasswordHasher`(`hash`・`verify`(129文字以上は計算せずfalse)・`needsUpgrade`(保存済みハッシュの`$argon2id$v=19$m=…,t=…,p=…$`を解析して現在の設定と比較。`Argon2PasswordEncoder`が比較を行うかを実装時に確認し、行わない場合は自前で解析))を実装する。他のクラスは`Argon2PasswordEncoder`を直接使わない。所要時間を`user.password.hash.duration`へ記録する。平文をフィールドに保持せず、ログにも出さない
 
 ## Step 7: 基盤部品のテスト
 
-- [ ] `PasswordPolicyTest`(テーブル駆動): 長さの境界値(7・8・128・129)、サロゲートペアを含む文字列でのコードポイント数の数え方を確認する
-- [ ] `HashConcurrencyLimiterTest`: 許可数の上限、待機2秒での`HashCapacityExceededException`、例外時にも許可が返ること、超過カウンタの増加を確認する
-- [ ] `PasswordHasherTest`: ハッシュの検証(正しいパスワード・誤ったパスワード)、129文字以上は計算せずfalse、`needsUpgrade`(現在の設定と同じ・古いパラメータ・不正な形式)、ハッシュ文字列に平文が含まれないことを確認する
-- [ ] `PasswordHasherBenchmarkTest`: 並列度1・同時実行なし・十分なウォームアップ後に反復計測し、p95が300ms以下であること(NFR1.2)を確認する。CPUコア数・メモリ・p95をテストの出力に含める
+- [x] `PasswordPolicyTest`(テーブル駆動): 長さの境界値(7・8・128・129)、サロゲートペアを含む文字列でのコードポイント数の数え方を確認する
+- [x] `HashConcurrencyLimiterTest`: 許可数の上限、待機2秒での`HashCapacityExceededException`、例外時にも許可が返ること、超過カウンタの増加を確認する
+- [x] `PasswordHasherTest`: ハッシュの検証(正しいパスワード・誤ったパスワード)、129文字以上は計算せずfalse、`needsUpgrade`(現在の設定と同じ・古いパラメータ・不正な形式)、ハッシュ文字列に平文が含まれないことを確認する
+- [x] `PasswordHasherBenchmarkTest`: 並列度1・同時実行なし・十分なウォームアップ後に反復計測し、p95が300ms以下であること(NFR1.2)を確認する。CPUコア数・メモリ・p95をテストの出力に含める
 
 ## Step 8: メール部品の実装(NFR1.4・NFR2.7・NFR7.1)
 
-- [ ] `MailTemplateRenderer`(自作mustacheエンジンへのアダプタ。言語(ja/en)ごとのHTMLテンプレートを`backend/src/main/resources/mail/`から読み、`Mustache.compile(...)`・`template.render(...)`でHTMLを得る。エンジンが既定でHTMLエスケープしない場合は、差し込む値を先にエスケープする)を実装する
-- [ ] `SubjectExtractor`(レンダリング後のHTMLの`<title>`要素の値を自前の簡易処理で取り出し、文字参照(数値参照・主要な名前つき参照)をデコードし、デコード後にCR/LFを含む場合と200文字を超える場合、`<title>`が無い・空の場合は拒否する。除去はしない)を実装する
-- [ ] `invitation_ja.html`・`invitation_en.html`(HTMLのみ。`<title>`に件名を持ち、氏名・招待リンクを差し込む)を作成する。招待リンクは`<ベースURL>/invitations/accept#token=<トークン>`の形式(NFR2.10)
-- [ ] `InvitationMailExecutor`(スレッド数5、待ち行列なし。投入時の満杯は`RejectedExecutionException`)、`InvitationMailer`(組み立てと送信。宛先は正規化後のemailのみ、件名以外のヘッダーに利用者の入力値を入れない、非ASCII文字はヘッダーとして符号化する。呼び出し側が10秒で打ち切る。MDCを送信タスクへ引き継ぐ)を実装する。失敗の分類ごとに`user.invitation.mail.failed`・`user.invitation.subject.rejected`を記録する
-- [ ] `MailTemplateValidator`(起動時に、全言語のテンプレートをサンプルの値でレンダリングし、`SubjectExtractor`で件名を取り出せることを確認する。取り出せなければ起動を失敗させる)と、起動時の設定検証(SMTPのhost未設定、ベースURLの`https`必須(`allow-insecure-link`がtrueのときだけ`http`を許可))を実装する
+- [x] `MailTemplateRenderer`(自作mustacheエンジンへのアダプタ。言語(ja/en)ごとのHTMLテンプレートを`backend/src/main/resources/mail/`から読み、`Mustache.compile(...)`・`template.render(...)`でHTMLを得る。エンジンが既定でHTMLエスケープしない場合は、差し込む値を先にエスケープする)を実装する
+- [x] `SubjectExtractor`(レンダリング後のHTMLの`<title>`要素の値を自前の簡易処理で取り出し、文字参照(数値参照・主要な名前つき参照)をデコードし、デコード後にCR/LFを含む場合と200文字を超える場合、`<title>`が無い・空の場合は拒否する。除去はしない)を実装する
+- [x] `invitation_ja.html`・`invitation_en.html`(HTMLのみ。`<title>`に件名を持ち、氏名・招待リンクを差し込む)を作成する。招待リンクは`<ベースURL>/invitations/accept#token=<トークン>`の形式(NFR2.10)
+- [x] `InvitationMailExecutor`(スレッド数5、待ち行列なし。投入時の満杯は`RejectedExecutionException`)、`InvitationMailer`(組み立てと送信。宛先は正規化後のemailのみ、件名以外のヘッダーに利用者の入力値を入れない、非ASCII文字はヘッダーとして符号化する。呼び出し側が10秒で打ち切る。MDCを送信タスクへ引き継ぐ)を実装する。失敗の分類ごとに`user.invitation.mail.failed`・`user.invitation.subject.rejected`を記録する
+- [x] `MailTemplateValidator`(起動時に、全言語のテンプレートをサンプルの値でレンダリングし、`SubjectExtractor`で件名を取り出せることを確認する。取り出せなければ起動を失敗させる)と、起動時の設定検証(SMTPのhost未設定、ベースURLの`https`必須(`allow-insecure-link`がtrueのときだけ`http`を許可))を実装する
 
 ## Step 9: メール部品のテスト
 
-- [ ] `MailTemplateRendererTest`: 言語ごとのテンプレートの選択(省略時ja)、氏名に含まれるHTML特殊文字がエスケープされること(エンジンの既定の挙動の確認を含む)、招待リンクの形式を確認する
-- [ ] `SubjectExtractorTest`(テーブル駆動): 通常の件名、文字参照のデコード(数値参照・名前つき参照・デコードの漏れ)、デコード後の改行(CR/LF)の拒否、200文字の上限(200・201)、`<title>`の欠落・空を確認する
-- [ ] `InvitationMailerTest`: 送信成功、送信失敗・10秒の打ち切りでの例外とカウンタ、プール満杯(`RejectedExecutionException`)、宛先・ヘッダーに入力値が入らないこと、MDCの引き継ぎを確認する(`JavaMailSender`はモック)
-- [ ] `MailTemplateValidatorTest`・設定検証のテスト(安全失敗、`ApplicationContextRunner`): テンプレートに`<title>`が無い場合、SMTPのhost未設定、ベースURLが`http`かつ`allow-insecure-link=false`の場合に、起動が失敗することを確認する
+- [x] `MailTemplateRendererTest`: 言語ごとのテンプレートの選択(省略時ja)、氏名に含まれるHTML特殊文字がエスケープされること(エンジンの既定の挙動の確認を含む)、招待リンクの形式を確認する
+- [x] `SubjectExtractorTest`(テーブル駆動): 通常の件名、文字参照のデコード(数値参照・名前つき参照・デコードの漏れ)、デコード後の改行(CR/LF)の拒否、200文字の上限(200・201)、`<title>`の欠落・空を確認する
+- [x] `InvitationMailerTest`: 送信成功、送信失敗・10秒の打ち切りでの例外とカウンタ、プール満杯(`RejectedExecutionException`)、宛先・ヘッダーに入力値が入らないこと、MDCの引き継ぎを確認する(`JavaMailSender`はモック)
+- [x] `MailTemplateValidatorTest`・設定検証のテスト(安全失敗、`ApplicationContextRunner`): テンプレートに`<title>`が無い場合、SMTPのhost未設定、ベースURLが`http`かつ`allow-insecure-link=false`の場合に、起動が失敗することを確認する
 
 ## Step 10: 排他・許可・イベント発行の実装(NFR4.2・NFR4.3・NFR3.4)
 
-- [ ] `EmailLockRegistry`(正規化後email単位の排他。参照数つきのロックの表、利用者がいなくなったエントリは取り除く、待機は最大12秒、ストライプ方式は採らない)を実装する
-- [ ] `InvitationAdmission`(上限5の`Semaphore`、待たない`tryAcquire`、満杯は`InvitationCapacityExceededException`)を実装する
-- [ ] `UserChangedEvent`・`UserSnapshot`(`name`・`email`・`status`・`roleIds`のみ)と`UserChangedEventPublisher`(コミット後に、`TransactionTemplate`の`REQUIRES_NEW`の中で同期の`ApplicationEventPublisher.publishEvent`を呼ぶ。全体をtry-catchで囲み、例外は警告ログ(userIdのみ)と`user.event.publish.failed`に記録してHTTPの結果に影響させない)を実装する
+- [x] `EmailLockRegistry`(正規化後email単位の排他。参照数つきのロックの表、利用者がいなくなったエントリは取り除く、待機は最大12秒、ストライプ方式は採らない)を実装する
+- [x] `InvitationAdmission`(上限5の`Semaphore`、待たない`tryAcquire`、満杯は`InvitationCapacityExceededException`)を実装する
+- [x] `UserChangedEvent`・`UserSnapshot`(`name`・`email`・`status`・`roleIds`のみ)と`UserChangedEventPublisher`(コミット後に、`TransactionTemplate`の`REQUIRES_NEW`の中で同期の`ApplicationEventPublisher.publishEvent`を呼ぶ。全体をtry-catchで囲み、例外は警告ログ(userIdのみ)と`user.event.publish.failed`に記録してHTTPの結果に影響させない)を実装する
 
 ## Step 11: 排他・許可・イベント発行のテスト
 
-- [ ] `EmailLockRegistryTest`: 同一emailの直列化、別emailの非干渉、参照数が0になったエントリの除去、待機12秒の超過で失敗すること(待機時間は設定で短縮して確認)を確認する
-- [ ] `InvitationAdmissionTest`: 上限5・待たずに拒否・許可の返却を確認する
-- [ ] `UserChangedEventPublisherTest`: 発行の例外がHTTPの結果に影響しないこと、`user.event.publish.failed`の増加、イベントのスナップショットに`passwordHash`・`invitationToken`が含まれないことを確認する
+- [x] `EmailLockRegistryTest`: 同一emailの直列化、別emailの非干渉、参照数が0になったエントリの除去、待機12秒の超過で失敗すること(待機時間は設定で短縮して確認)を確認する
+- [x] `InvitationAdmissionTest`: 上限5・待たずに拒否・許可の返却を確認する
+- [x] `UserChangedEventPublisherTest`: 発行の例外がHTTPの結果に影響しないこと、`user.event.publish.failed`の増加、イベントのスナップショットに`passwordHash`・`invitationToken`が含まれないことを確認する
 
 ## Step 12: ビジネスロジック層の実装(W1〜W8、BR4.1〜BR4.16)
 
