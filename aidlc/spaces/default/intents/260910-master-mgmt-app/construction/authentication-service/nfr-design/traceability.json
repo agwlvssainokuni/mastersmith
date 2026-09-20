@@ -1,0 +1,236 @@
+{
+  "stage": "nfr-design",
+  "unit": "authentication-service",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR2.3",
+    "NFR2.4",
+    "NFR2.5",
+    "NFR2.6",
+    "NFR2.7",
+    "NFR2.8",
+    "NFR2.9",
+    "NFR2.10",
+    "NFR2.11",
+    "NFR2.12",
+    "NFR2.13",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR3.5",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR4.6",
+    "NFR4.7",
+    "NFR4.8",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR5.5",
+    "NFR7.1",
+    "NFR8.1",
+    "NFR8.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "performance-design.md NFR1.1(DBの操作の数、計測の方法と合否、NFR1.4との関係)"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "performance-design.md NFR1.2(BearerAuthenticationFilterの手順、Caffeine、3秒のクエリのタイムアウト)"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "performance-design.md NFR1.3(資源の取得順序の不変条件、C11はトランザクションの外)"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "performance-design.md NFR1.4(追加の制御なし、503の観測、ダミー検証は残余リスク10)"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "security-design.md NFR2.1(SecurityFilterChainの規則、OperatorContext、deny by default)"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "security-design.md NFR2.2(自前のフィルタ+Nimbus、検証の8手順、時計のずれ0、鍵のBase64・伏せ字)"
+    },
+    {
+      "id": "NFR2.3",
+      "status": "OK",
+      "target": "security-design.md NFR2.3(SecureRandom+SHA-256、判定表、条件付きの更新)"
+    },
+    {
+      "id": "NFR2.4",
+      "status": "OK",
+      "target": "security-design.md NFR2.4(ログインの手順、同一の401、dummyVerify、長いパスワード)"
+    },
+    {
+      "id": "NFR2.5",
+      "status": "OK",
+      "target": "security-design.md NFR2.5(失効の契機とキャッシュの無効化、絶対期限なし、全Sessionの失効の手段)"
+    },
+    {
+      "id": "NFR2.6",
+      "status": "OK",
+      "target": "security-design.md NFR2.6(ロール選択の403、リフレッシュ時の再確認の判定表)"
+    },
+    {
+      "id": "NFR2.7",
+      "status": "OK",
+      "target": "security-design.md NFR2.7(専用の型、AuthEventLogger、HTTPログ・計装の設定)"
+    },
+    {
+      "id": "NFR2.8",
+      "status": "OK",
+      "target": "security-design.md NFR2.8(ProblemDetailsとcodeの一覧、ProblemDetailsWriter、AuthApiExceptionAdvice)"
+    },
+    {
+      "id": "NFR2.9",
+      "status": "OK",
+      "target": "security-design.md NFR2.9(セキュリティヘッダー、ステートレス・CSRF無効、CORSなし。Q2=A)"
+    },
+    {
+      "id": "NFR2.10",
+      "status": "OK",
+      "target": "security-design.md NFR2.10(AuthRequestSizeLimitFilter、64KiB、チャンク転送)"
+    },
+    {
+      "id": "NFR2.11",
+      "status": "OK",
+      "target": "security-design.md NFR2.11(frontend-uiへの要求、401・503の扱い)"
+    },
+    {
+      "id": "NFR2.12",
+      "status": "OK",
+      "target": "security-design.md NFR2.12(追加の対策なし、検知はメトリクス、ダミー検証の占有はQ3=Aで受容)"
+    },
+    {
+      "id": "NFR2.13",
+      "status": "OK",
+      "target": "security-design.md NFR2.13(CIゲート、鍵をリポジトリに置かない、テストの鍵はランダム生成)"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.1(想定規模、専用の仕組みなし)"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.2(SessionCache: Caffeine、1,000件、60秒のTTL。Q1=A)"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.3(ハッシュ計算のメモリはU4に従う)"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.4(auth_session・account_login_stateのテーブルとインデックス)"
+    },
+    {
+      "id": "NFR3.5",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.5(複数プロセス構成の制約、TTL60秒の遅れ)"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.1(トランザクションの境界、予約・補償・成功・リフレッシュ・失効の更新)"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.2(AuthStorageUnavailableExceptionで503、fail closed、キャッシュヒット時の扱い)"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.3(コミット後の無効化、契機にリフレッシュ成功を含む、読み込みとの競合)"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.4(AuthProperties、JwtKeyProviderの検証、値を出さないメッセージ)"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.5(SessionCleanupJob、1,000行ずつ、refresh_expires_atの基準)"
+    },
+    {
+      "id": "NFR4.6",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.6(Clock、UTC、SQLのパラメータで時刻を渡す)"
+    },
+    {
+      "id": "NFR4.7",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.7(永続性・再起動・復元、revoke-all-on-startup)"
+    },
+    {
+      "id": "NFR4.8",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.8(可用性・バックアップ)"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "observability-design.md NFR5.1(メーターの一覧とタグ、reasonの4分類、アラートの暫定値)"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "observability-design.md NFR5.2(構造化ログ、MDC、AuthEventLogger、出来事とレベル)"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "observability-design.md NFR5.3(Observationのスパン、属性に個人情報を含めない)"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "observability-design.md NFR5.4(内部設定DBのヘルスチェック、/actuator/healthは状態のみ)"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "OK",
+      "target": "observability-design.md NFR5.5(ダッシュボードの候補指標)"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "logical-components.md NFR7.1(ProblemDetailsのcode、i18nキー、frontend-uiが翻訳)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "logical-components.md NFR8.1(業務固有情報を持たない、設定は外部)"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "logical-components.md NFR8.2(部品ごとのテスト設計)"
+    }
+  ]
+}
