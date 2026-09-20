@@ -127,8 +127,41 @@ limitations under the License.
 - チャンク転送のMockMvc上の再現には、`Content-Length`を返さない`MockHttpServletRequest`の派生を返す`RequestPostProcessor`(`ChunkedRequests.chunked()`)を用いた。
 - U4のテストは合計442件(Step 12〜13までの358件に84件を追加)、全体は851件で失敗0。U4の行カバレッジは96.7%(`web`パッケージは114/120行)、全体91.4%。
 
-## Step 16以降への引き継ぎ
+## Step 16〜17(audit-loggingへの追加・可観測性・非露出の確認)で判明した事実・計画との差異
 
-- 未着手: audit-loggingへの`UserChangedEventListener`と`AuditLogEventMapper.fromUserChangedEvent`の追加、`UserChangedEventAuditIntegrationTest`(Step 16)、可観測性のスパン(`ObservationRegistry`)と`UserManagementNoLeakTest`(ログ・メトリクスのラベル・ProblemDetails・イベントのスナップショットに、パスワード・トークン・`passwordHash`・メールアドレス・氏名が現れないこと。ProblemDetailsとイベントのスナップショットは、Step 15までのテストで既に確認済み)(Step 17)、環境・ビルドの確認(Step 18)、ドキュメント(Step 19)。
-- Step 17で、コントローラ・サービス・メール送信・ハッシュ計算・C11に、`ObservationRegistry`による観測(スパン)を付ける。スパンの属性にメールアドレス・氏名・件名・トークンを含めない。招待受諾APIのスパン名・URL属性はルートのテンプレートにする(共通基盤への要求)。
-- U5(authentication-service)の実装時に、`HeaderCurrentOperatorProvider`を、検証済みトークンのクレームから読む実装へ差し替える(`CurrentOperatorProvider`を実装する)。共通基盤の汎用ハンドラ・認証フィルタチェーンの導入時に、`RequestSizeLimitFilter`が認証フィルタより前に置かれていること(`Ordered.HIGHEST_PRECEDENCE`)を、フィルタの順序として再確認する。
+### Step 16: audit-logging(U7)への追加
+
+- `com.mastersmith.audit.event.UserChangedEventListener`(新規): 既存3リスナーと同じ、同期の`@EventListener`と全体の`try-catch`。`repository.save`のみで、トランザクションは開かず、発行側(`UserChangedEventPublisher`)が開く`REQUIRES_NEW`のトランザクションに参加する。失敗のログ(ERROR)には、操作名・userId・操作者・発生日時と、**例外の型名だけ**を出す(既存3リスナーは例外そのものをログへ渡すが、DBの例外のメッセージはスナップショットの氏名・メールアドレスを含みうるため、この差異は意図的)。
+- `AuditLogEventMapper#fromUserChangedEvent`(既存メソッドは変更なし): `targetType`=`User`、`targetId`=userId、`operationType`=`operation`名、`beforeValue`/`afterValue`=スナップショットのMap(`name`・`email`・`status`・`roleIds`の4キーのみ)。`actor`は、`BOOTSTRAPPED`では`actorRaw`(`system`)、それ以外では`actorUserId`(userId)。
+- テスト: `AuditLogEventMapperTest`に、5種類の`operation`を網羅するテーブル駆動テスト(6ケース: INVITED(新規・再招待)・ACTIVATED・UPDATED・DISABLED・BOOTSTRAPPED)と、4キーのみ・認証情報なしの確認・網羅の確認を追加(team.md Q6)。`UserChangedEventListenerTest`(4件)。`UserChangedEventAuditIntegrationTest`(`@SpringBootTest`、5件): 発行したイベントが、**別のスレッド(別のトランザクション)から読める**形で永続化されること、招待のINVITED・受諾のACTIVATED・更新のUPDATED・無効化のDISABLEDの各1行、メール送信の失敗・検証エラー・冪等な再実行・自己の無効化ではロールバックされて行が作られないこと、起動時の初期管理者の作成が`BOOTSTRAPPED`(`actorUserId`がnull、`actorRaw`が`system`)で記録されること(NFR4.3)。
+- **他ユニットのファイルの変更(計画で許可された範囲を超えるもの)**: `backend/src/test/java/com/mastersmith/audit/web/AuditLogControllerTest.java`(audit-loggingの既存テスト)に、`@BeforeEach`を1つ追加した(11行)。**理由**: このテストは`@SpringBootTest`で、空の監査ログを前提に、`totalCount`と並び順(最新が先頭)を検証している。Step 16で`UserChangedEventListener`を追加した結果、アプリケーションの起動時に、U4の初期管理者の自動作成(BOOTSTRAPPED)が監査ログへ1行を確定するようになり、`totalCount`と`items[0]`の2つのテストが失敗した(全体テストで確認。本番の挙動としては正しい変更)。監査ログは追記専用でリポジトリに削除の経路がないため、テストのトランザクションの中で、`JdbcTemplate`で`delete from audit_log_entry`を実行して起動時の行を除外する(テスト終了時にロールバックされ、他のテストには影響しない)。テストの期待値・検証内容は変更していない。代替案(起動時の初期管理者の作成を止める設定の追加)は、設計にない機能のため採らなかった。
+
+### Step 17: 可観測性と非露出の確認
+
+- `observation/UserObservations`(新規、`@Component`): `ObservationRegistry`による観測の入口。`ObjectProvider<ObservationRegistry>`から取得し、構成されていなければNOOP。属性は固定の値だけ(`unit=user-management`と、ハッシュ計算の`operation`(`hash`・`verify`・`verify_and_upgrade`))。userId・メールアドレス・氏名・件名・トークンは属性に含めない。
+- 観測を付けた箇所(スパン名): `UserApplicationService`(`user.api.list`・`user.api.update`・`user.api.disable`)、`InvitationFacade`(`user.api.invite`)、`InvitationAcceptService`(`user.api.accept`)、`UserPreferenceService`(`user.preferences.get`・`user.preferences.update`)、`UserAccountLookupService`(C11: `user.account.find_by_email`・`user.account.verify_password`・`user.account.is_disabled`)、`InvitationMailer`(`user.mail.send`)、`PasswordHasher`(`user.password.compute`)。**設計の判断**: コントローラではなくサービス層に付けた(`@WebMvcTest`のスライスがコントローラを組み立てるため、コンストラクタの引数を増やすと、既存のテストが壊れるため)。HTTPリクエスト自体のスパンは、Spring Bootの標準の観測(`http.server.requests`)が担い、U4のスパンは、その子になる。
+- **注入方法**: 各サービスは、コンストラクタの引数を増やさず、`@Autowired`のセッター(`setObservations`)で`UserObservations`を受ける(既定はNOOPのため、コンストラクタで組み立てる既存のテストは変更不要)。`PasswordHasher`は、`@Autowired`を付けるコンストラクタを明示している。
+- Spring Bootの`DefaultMeterObservationHandler`により、上記の観測は、同名のタイマーとしてもMicrometerに記録される(タグは`unit`・`operation`・`error`(例外の型名)のみ)。NFR5.1の7つのメトリクスは、ラベルなしで、Step 6〜12で実装済み(`NoLeakTest`でラベルがないことを確認)。
+- `UserManagementNoLeakTest`(`@SpringBootTest`+MockMvc、5+1件): 実際の経路(招待・メール送信の失敗(SMTPの例外のメッセージが宛先・氏名を含む状況)・受諾の成功/404/422・入力の不備の422・権限なしの403・自己のroleIds変更の拒否・ログイン成功時のハッシュ更新・初期管理者の作成)を流し、**ログ(`com.mastersmith`はDEBUG。ルートのLogbackのアペンダで、全ロガーを対象)**・**メトリクスのラベル**・**U4のスパンの属性(テスト用の`ObservationHandler`で記録)**・**ProblemDetails(6件)**・**UserChangedEventのスナップショット**に、パスワード・招待トークン・passwordHash・メールアドレス・氏名の実値が現れないことを確認する。検査が空振りしないよう、期待する安全なログが出ていること・検出が実際に働くこと(秘密を含む文字列で失敗すること)も確認する。
+  - **計画の文言との差異(スナップショット)**: 計画のStep 17の文言は、イベントのスナップショットにも氏名・メールアドレスが現れないことを求めるが、設計(entities.md・rules.md BR4.9)は、スナップショットが`{name, email, status, roleIds}`を持つことを定めている(監査ログに記録するため、残余リスク5)。したがって、スナップショットについては、パスワード・招待トークン・passwordHash(と`$argon2`)が現れないことを確認した(氏名・メールアドレスは、設計どおり含まれる)。
+- `UserObservationsTest`(5件)、`RecordingObservationHandler`(テスト支援)。
+
+### `application.yml`(main・test)の変更(Step 17)
+
+- 追加した内容(両ファイルとも同じ): `management.health.mail.enabled: false`。**理由**: Spring Boot Actuatorの`MailHealthContributorAutoConfiguration`は、`JavaMailSenderImpl`があると、メールのヘルスインジケータ(SMTPへの接続確認)を既定で登録する。これは、nfr-design/observability-design.md NFR5.4「SMTPの疎通は、健全性の判定に含めない(SMTPの不調でアプリ全体をunhealthyにしないため)」に反するため、無効にした(SMTPの不調は`user.invitation.mail.failed`で検知する)。`UserManagementStartupTest`に、`mailHealthContributor`のBeanがないことの確認を追加した。副次的に、`JavaMailSender`をモックするテスト(`NoLeakTest`)が、起動できるようにもなる(モックは`JavaMailSenderImpl`でないため、Actuatorの登録処理が失敗していた)。
+- Step 2〜3で追加した内容(`spring.mail`・`mastersmith.users`・`mastersmith.mail`・接続プール等)は、変更していない。
+
+### 共通基盤への要求として判明した事実(本Boltの対象外、要対応)
+
+- **`http.server.requests`の観測が、生のリクエストURLを高カーディナリティの属性に持つ**: 招待受諾APIを呼ぶと、Spring MVC(Spring Bootの標準の観測の規約)が記録する観測に、`http.url=/api/users/invitations/<実際のトークン>/accept`が含まれることを、実際に確認した(`uri`のタグ・観測の名前は、ルートのテンプレートで問題ない)。トレーシングのブリッジを導入すると、この値がスパンの属性として書き出され、招待トークンが露出する。nfr-design/security-design.md NFR2.10と保留11番(共通基盤への要求: `ServerRequestObservationConvention`の差し替え)のとおり、共通基盤(CI Pipeline・packaging等)の対応が必要。U4のスパン・ログ・メトリクスのラベル・ProblemDetailsには、トークンは現れない(`NoLeakTest`)。
+- 汎用の`Exception`のハンドラ・リクエストログ・`Referrer-Policy`・認証フィルタチェーンも、引き続き共通基盤の担当(保留11・12番)。
+
+### テスト・品質の状況
+
+- U4のテストは454件(Step 14〜15までの442件から、`UserObservationsTest`・`NoLeakTest`・`StartupTest`の追加分)。他ユニットを含む全体は880件で失敗0。`checkstyleMain`・`checkstyleTest`は合格。行カバレッジは、U4が96.9%、`audit/event`パッケージが100%(97/97行)、全体が91.7%。
+
+## Step 18以降への引き継ぎ
+
+- Step 18(環境・ビルド設定): 新規パッケージ・マイグレーション・依存が、既存のGradle/Spotless/Checkstyle/JaCoCo設定下でビルド・整形されることの確認、リポジトリに初期管理者・SMTPの実値や認証情報が入っていないことの確認、`.gitmodules`とサブモジュールのコミットの固定の確認。他ユニットの既存ファイルが`spotlessCheck`で不合格のため、`spotlessCheck`の判定は、U4のファイル(と、今回変更した他ユニットのファイル)に限って行う必要がある。
+- Step 19(ドキュメント): `code-summary.md`・`traceability.json`はオーケストレーターが作成する。`source-manifest.json`は、Step 1〜17の分を記載済み。
+- U5(authentication-service)の実装時: `HeaderCurrentOperatorProvider`を、検証済みトークンのクレームから読む実装に差し替える。共通基盤に、`ServerRequestObservationConvention`の差し替え(`http.url`のトークンのマスク)・汎用のエラーハンドラ・認証フィルタチェーン(`RequestSizeLimitFilter`より後ろ)を導入する。

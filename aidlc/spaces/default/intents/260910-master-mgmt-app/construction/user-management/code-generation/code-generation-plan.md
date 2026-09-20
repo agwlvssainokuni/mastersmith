@@ -236,16 +236,16 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 16: audit-logging(U7)への追加と、コミット後の発行の統合テスト
 
-- [ ] `UserChangedEventListener`(`com.mastersmith.audit.event`)と`AuditLogEventMapper.fromUserChangedEvent`を追加する(前提事項3。既存のリスナー・マッパーは変更しない)
-- [ ] `UserChangedEventListenerTest`・`AuditLogEventMapperTest`への追加: 5種類の`operation`の対応付け(BOOTSTRAPPEDは`actorRaw`=`system`)、スナップショットのMap化、記録失敗が発行元へ伝わらないことを確認する
-- [ ] `UserChangedEventAuditIntegrationTest`(`@SpringBootTest`): コミット後の発行で、監査ログの行が実際に永続化される(発行後に別のトランザクションから読める)こと、ロールバック・メール送信失敗の場合は行が作られないことを確認する(NFR4.3)
+- [x] `UserChangedEventListener`(`com.mastersmith.audit.event`)と`AuditLogEventMapper.fromUserChangedEvent`を追加する(前提事項3。既存のリスナー・マッパーは変更しない)
+- [x] `UserChangedEventListenerTest`・`AuditLogEventMapperTest`への追加: 5種類の`operation`の対応付け(BOOTSTRAPPEDは`actorRaw`=`system`)、スナップショットのMap化、記録失敗が発行元へ伝わらないことを確認する
+- [x] `UserChangedEventAuditIntegrationTest`(`@SpringBootTest`): コミット後の発行で、監査ログの行が実際に永続化される(発行後に別のトランザクションから読める)こと、ロールバック・メール送信失敗の場合は行が作られないことを確認する(NFR4.3)
 
 ## Step 17: 可観測性の実装とトークン・個人情報の非露出の確認(NFR2.6・NFR2.10・NFR5.1〜NFR5.4)
 
-- [ ] NFR5.1の7つのメトリクス(`user.invitation.mail.failed`・`user.invitation.accept.not_found`・`user.role.escalation.denied`・`user.password.hash.duration`・`user.password.hash.rejected`・`user.invitation.subject.rejected`・`user.event.publish.failed`)を、ラベルなしで記録する
-- [ ] 招待メール送信・ハッシュ計算・C11の各メソッド・`/api/users`系に、`ObservationRegistry`による観測(スパン)を付ける。属性にメールアドレス・氏名・件名・トークンを含めない。ログは、パスワード・トークン・`passwordHash`・メールアドレス・氏名・件名の実値を出さず、userIdを用いる(初期管理者の作成は事実のみ)
-- [ ] `UserManagementNoLeakTest`: 招待・受諾(成功・404・422)・ログイン成功時のハッシュ更新・初期管理者の作成・メール送信失敗の各経路で、U4のログ出力(`ListAppender`で捕捉)・メトリクスのラベル・ProblemDetails・イベントのスナップショットに、パスワード・招待トークン・`passwordHash`・メールアドレス・氏名の実値が現れないことを確認する
-- [ ] 専用のヘルスチェック部品は設けない(NFR5.4。共通基盤のデータソースのヘルスチェックに含まれる)
+- [x] NFR5.1の7つのメトリクス(`user.invitation.mail.failed`・`user.invitation.accept.not_found`・`user.role.escalation.denied`・`user.password.hash.duration`・`user.password.hash.rejected`・`user.invitation.subject.rejected`・`user.event.publish.failed`)を、ラベルなしで記録する
+- [x] 招待メール送信・ハッシュ計算・C11の各メソッド・`/api/users`系に、`ObservationRegistry`による観測(スパン)を付ける。属性にメールアドレス・氏名・件名・トークンを含めない。ログは、パスワード・トークン・`passwordHash`・メールアドレス・氏名・件名の実値を出さず、userIdを用いる(初期管理者の作成は事実のみ)
+- [x] `UserManagementNoLeakTest`: 招待・受諾(成功・404・422)・ログイン成功時のハッシュ更新・初期管理者の作成・メール送信失敗の各経路で、U4のログ出力(`ListAppender`で捕捉)・メトリクスのラベル・ProblemDetails・イベントのスナップショットに、パスワード・招待トークン・`passwordHash`・メールアドレス・氏名の実値が現れないことを確認する
+- [x] 専用のヘルスチェック部品は設けない(NFR5.4。共通基盤のデータソースのヘルスチェックに含まれる)
 
 ## Step 18: 環境・ビルド設定
 

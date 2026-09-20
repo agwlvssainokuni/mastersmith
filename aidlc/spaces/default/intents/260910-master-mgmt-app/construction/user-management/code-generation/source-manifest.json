@@ -34,6 +34,24 @@
       "path": "backend/src/test/java/com/mastersmith/permission/service/PermissionEngineApiImplTest.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/audit/event/UserChangedEventListener.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/audit/event/AuditLogEventMapper.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/event/UserChangedEventListenerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/event/AuditLogEventMapperTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/event/UserChangedEventAuditIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/web/AuditLogControllerTest.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/HashCapacityExceededException.java"
     },
     {
@@ -151,6 +169,9 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/SubjectExtractor.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/observation/UserObservations.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserListRow.java"
     },
     {
@@ -235,6 +256,9 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/web/UserController.java"
     },
     {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementNoLeakTest.java"
+    },
+    {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementStartupTest.java"
     },
     {
@@ -263,6 +287,9 @@
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/mail/SubjectExtractorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/observation/UserObservationsTest.java"
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/repository/UserRepositoryLockTest.java"
@@ -326,6 +353,9 @@
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/JsonBodies.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/RecordingObservationHandler.java"
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/UserTestFactory.java"
