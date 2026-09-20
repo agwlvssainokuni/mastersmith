@@ -134,9 +134,9 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 1: 契約追補・機能設計への追補(最初の作業、ドキュメントのみ)
 
-- [ ] `inception/contract-design/contract-summary.md`のC5・C10・C11の各節へ、前提事項1の追補を追記する(既存記述は書き換えない。追補であることが分かる見出しまたは注記を付ける)
-- [ ] `construction/user-management/functional-design/functional-spec.md`・`rules.md`の末尾へ、「Code Generation着手時の追補」節を追加し、W1・BR4.1(`locale`)、BR4.5(`roleExists`)、BR4.15(`name`の最大長・制御文字)、および「NFR Design保留8〜15番の扱い」(実装するもの・共通基盤への要求として記録のみのもの・本Boltで実装しないもの)を記録する
-- [ ] NFR Designの保留9・13番を、前提事項7の内容で確定した旨を記録する(記録先は上記の「Code Generation着手時の追補」節)
+- [x] `inception/contract-design/contract-summary.md`のC5・C10・C11の各節へ、前提事項1の追補を追記する(既存記述は書き換えない。追補であることが分かる見出しまたは注記を付ける)
+- [x] `construction/user-management/functional-design/functional-spec.md`・`rules.md`の末尾へ、「Code Generation着手時の追補」節を追加し、W1・BR4.1(`locale`)、BR4.5(`roleExists`)、BR4.15(`name`の最大長・制御文字)、および「NFR Design保留8〜15番の扱い」(実装するもの・共通基盤への要求として記録のみのもの・本Boltで実装しないもの)を記録する
+- [x] NFR Designの保留9・13番を、前提事項7の内容で確定した旨を記録する(記録先は上記の「Code Generation着手時の追補」節)
 
 ## Step 2: プロジェクト構造・ビルド設定
 

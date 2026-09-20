@@ -270,3 +270,11 @@ rules:
 | BR4.14 | constraint | 一覧の出力項目(機微項目を除外)・PUTの更新可能項目 |
 | BR4.15 | validation | email・nameの検証と正規化 |
 | BR4.16 | policy | 招待メール送信とSMTP失敗時の扱い |
+
+## Code Generation着手時の追補
+
+Code Generationの計画(`construction/user-management/code-generation/code-generation-plan.md`)の承認に伴い、次のルールへ追補する(既存の記述は書き換えない)。W1・NFR Design保留8〜15番の扱いは`functional-spec.md`の同名の節に記録した。
+
+- **BR4.1(追補)**: 招待リクエストは、任意項目`locale`(`ja`/`en`、省略時`ja`)を受け付ける。`locale`は招待メールの言語(テンプレートの選択)にのみ用い、Userには保存しない。許容値外の場合は、フィールド単位の422とする。再招待(BR4.11)でも、その時点で指定された`locale`でメールを再送する。
+- **BR4.5(追補)**: roleIdの実在検証は、PermissionEngineApi(C10)の`roleExists(String roleId): boolean`で行う(RoleRepositoryの`existsById`による)。roleIdsの重複した指定は、重複を除いて扱う。
+- **BR4.15(追補)**: `name`は、前後の空白を除去した結果が空でないこと(必須)に加えて、最大100文字([assumption]、Unicodeコードポイント数)であること、および制御文字(CR/LFなど、`Character.isISOControl`が真となる文字)を含まないことを検証する。いずれもフィールド単位の422とする(招待メールの件名・本文への差し込みで、ヘッダーインジェクションや表示の崩れを避けるため)。このため、招待メールの件名の拒否(NFR2.7)は、入力起因ではなく、テンプレートの不備など、テンプレート起因の場合に限られる。

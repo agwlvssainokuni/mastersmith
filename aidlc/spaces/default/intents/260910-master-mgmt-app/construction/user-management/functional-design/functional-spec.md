@@ -174,3 +174,49 @@ erDiagram
 - [open question] 初期管理者のroleIds(FR2.4は`application.yml`のメールアドレス・パスワードのみを定める): 本設計では任意項目`initial-admin.role-ids`(未指定なら空)を追加する案とした。ロールが空のユーザーがどのようにログイン後にロールを選択して`config-import-export`(permission-engineのブートストラップ例外の対象)へ到達するかは、authentication-service(U5)の機能設計で確認が必要。disabledになった初期管理者の復旧は本ユニットの対象外。
 - [open question] authentication-service(U5)のトークンがuserIdとactiveRoleIdをクレームに含むこと、およびロール選択前のトークンで`/api/me/preferences`を呼べること(FR9.1のテーマをロール選択画面にも適用するため)。
 - [open question] 割り当て後にpermission-engine側でロールが削除された場合の`User.roleIds`の扱い(ダングリング参照)。permission-engineの設計で確認する。
+
+## Code Generation着手時の追補
+
+Code Generationの計画(`construction/user-management/code-generation/code-generation-plan.md`)の承認に伴い、機能設計へ次を追補する(既存の記述は書き換えない)。契約側の追補は`inception/contract-design/contract-summary.md`のC5・C10・C11の各節に記録した。
+
+### W1(ユーザー招待)への追補
+
+- 手順1のリクエストに、任意項目`locale`(`ja`/`en`、省略時`ja`)を追加する。招待メールの言語を選ぶ項目であり(NFR7.1)、再招待でも、その時点で指定された言語でメールを再送する。`locale`は招待メールの言語にのみ用い、Userには保存しない(表示設定のlocaleはUserPreferenceが保持する)。
+- 手順3の検証に、`name`の最大長(100文字、[assumption])と、制御文字(CR/LFなど)の禁止を加える(BR4.15の追補を参照)。
+- 手順5のroleIds実在検証は、PermissionEngineApi(C10)の`roleExists(String roleId): boolean`で行う(BR4.5の追補を参照)。
+- 実装上の順序(NFR Design、reliability-design.md NFR4.2)は、認可・emailの正規化・入力の検証を、排他・許可の取得より前に行い、その後に、排他(正規化後email)→許可(招待の同時実行数)→DB接続(トランザクション)の順に取得する。
+
+### W2(招待受諾)への追補
+
+- 手順1のリクエストの、任意項目`theme`/`fontSize`/`locale`は、C5への追補として宣言済み(BR4.3)。
+
+### NFR Design保留8〜15番の扱い
+
+NFR Design(`nfr-design/logical-components.md`「共通基盤・他ユニットへの要求と契約追補(保留)」)の保留8〜15番を、次のとおり扱う。
+
+| 番号 | 対象 | 扱い |
+|---|---|---|
+| 8 | U12(受諾画面)・招待メール | **本Boltで実装するもの**: 招待メールのリンク形式(`<ベースURL>/invitations/accept#token=<トークン>`)。**記録のみ**: U12への要求(C5の追補に記録済み)。 |
+| 9 | C11 | **確定**: 契約追補(C11の追補)として記録。呼び出し元(U5)はトランザクションの外でC11を呼ぶ。ログイン成功時のハッシュ更新は`REQUIRES_NEW`で行う。 |
+| 10 | audit-logging(U7) | **本Boltで実装する**: `UserChangedEventListener`(同期の`@EventListener`、全体try-catch、`repository.save`のみで呼び出し元のトランザクションに参加)と、`AuditLogEventMapper.fromUserChangedEvent`を、audit-loggingへ追加する。 |
+| 11 | 共通基盤 | **記録のみ**(本Boltでは実装しない): 観測の規約・リクエストログのルートのテンプレート化、フレームワークのロガーの制限。U4は、U4のコード・ログ・メトリクス・ProblemDetailsの`instance`に、招待トークンの実際の値を出さないことだけを担保する。 |
+| 12 | 共通基盤 | **記録のみ**(本Boltでは実装しない): `Referrer-Policy: no-referrer`の付与、認証フィルタチェーンの順序。U4は`RequestSizeLimitFilter`を、認証フィルタより前に置けるよう最高優先の順序で登録する。 |
+| 13 | 共通基盤(内部設定DB) | **確定・本Boltで最小限を設定**: 接続プールの最大サイズは、通常の同時処理数50・招待の上限5・入れ子の接続の余裕を見込んだ60とし、`application.yml`の`spring.datasource.hikari.maximum-pool-size`に置く。 |
+| 14 | 機能設計 BR4.15・C5 | **本Boltで実装する**: `name`の最大長100文字([assumption])と、制御文字の禁止(BR4.15の追補)。 |
+| 15 | 共通基盤(トレース・メトリクス) | **記録のみ**(本Boltでは実装しない): トレースの実装・メトリクスのエクスポート形式の確定。U4は、`ObservationRegistry`による観測とMicrometerのメトリクスの記録に限る。 |
+
+### NFR Designのレビュー残り(R-11〜R-15)の既定の解決(Code Generationの計画の前提)
+
+ユーザー決定(`construction/nfr-design/memory.md`の2026-09-20T02:10:00Zの項)により、次の既定の解決を、Code Generationの前提として確定する。
+
+- (a) C11の`verifyPasswordHash`は、U5がトランザクションの外で呼ぶ(保留9番、C11の追補)。
+- (b) コミット後のUserChangedEventの発行は、排他・許可の返却の後に行う。
+- (c) 内部設定DBの接続プールの最大サイズは、通常の同時処理数50、招待の上限5、入れ子の接続の余裕を見込んだ60とする(保留13番)。
+- (d) 永続化はSpring Data JPAとし、`spring.jpa.open-in-view=false`とする(設定済み)。
+- (e) 認可・emailの正規化は、排他・許可の取得より前に行う。
+- (f) DBのロック待ちタイムアウトは15秒とする(`mastersmith.users.db-lock-timeout`で変更可)。
+- (g) `traceability.json`のNFR2.9・NFR7.2が指す`ApiExceptionHandler`は、`UserApiExceptionAdvice`として扱う。起動時にハッシュの許可を取れない場合(初期管理者の作成)は、待機2秒を超えても503ではなく、起動失敗とする。
+
+### C11の`revokeRefreshTokensOnDisable`(本Boltでは実装しない)
+
+Open Questionsのとおり、呼び出し方向が未確定のため、本Boltでは実装しない。C11は3メソッド(`findByEmail`・`verifyPasswordHash`・`isDisabled`)で定義する(契約からの意図的な差異、C11の追補に記録)。

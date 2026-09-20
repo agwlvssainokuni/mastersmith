@@ -489,6 +489,17 @@ components:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
 ```
 
+**C5への追補(Contract Design追補、user-management Code Generation着手時、`construction/user-management/functional-design/functional-spec.md`のOpen Question 2〜4およびNFR Designの保留1〜7・14番を反映)**: 既存の記述は書き換えず、次を追補として加える。既存コンシューマー(frontend-ui)は未知の項目・レスポンスコードを一般的な処理で扱う前提のため、加法的変更として本契約の所有者(user-management)の判断で追加する(Contract Ownership Rules参照)。
+
+- **`POST /api/users`(招待)**: リクエストに任意項目`locale`(`ja`/`en`、省略時`ja`)を追加する(招待メールの言語、NFR7.1)。再招待でも、その時点で指定された言語で再送する。`name`は最大100文字([assumption])で制御文字(CR/LFなど)を含めない。レスポンスコードは、201に加えて、401(操作者を解決できない)、403、413(ボディが64KiBを超える)、422(フィールド単位の検証エラー、重複(status=active/disabled)、roleIdの実在検証の不合格、再招待の競合(招待中でなくなった))、503(招待メールの送信失敗・打ち切り・招待の同時実行数の上限超過・同一emailの排他の待機超過・DBのロック待ちタイムアウト)を宣言する。
+- **`GET /api/users`**: 401・403に加えて、内部設定DB利用不可時の応答は共通基盤に従う。
+- **`PUT /api/users/{userId}`**: リクエストボディ`{ name: string, roleIds: string[] }`を宣言する。更新可能な項目は`name`と`roleIds`のみで、それ以外の項目(`email`・`status`・`passwordHash`・`invitationToken`など)が指定された場合は422とする(無視しない)。レスポンスコードは、200に加えて、401・403・404(対象不存在)・413・422(自己のroleIds変更、roleIdの実在検証の不合格、nameの不備、更新不可項目の指定)・503(DBのロック待ちタイムアウト)。
+- **`DELETE /api/users/{userId}`**: レスポンスコードは、204に加えて、401・403・404(対象不存在)・422(自分自身の無効化)・503(DBのロック待ちタイムアウト)。すでにdisabledの場合は冪等に204。
+- **`POST /api/users/invitations/{token}/accept`**: リクエストに任意項目`theme`(`light`/`dark`)・`fontSize`(`large`/`medium`/`small`)・`locale`(`ja`/`en`)を追加する(省略時は`light`/`medium`/`ja`、BR4.3)。`password`は8文字以上128文字以下(Unicodeコードポイント数)とする。レスポンスコードは、200に加えて、404(未知・使用済み・取消済みのトークン。区別しない)、413、422(フィールド単位)、503(ハッシュ計算の待機超過)。ProblemDetailsの`instance`には、トークンを含む生のパスではなく、ルートのテンプレート(`/api/users/invitations/{token}/accept`)を入れる。
+- **`/api/me/preferences`**: 401(操作者を解決できない)、`PUT`の413・422を宣言する。
+- **`errors[].message`はi18nキー**とする(NFR7.2)。文言への変換(翻訳)はフロントエンド(U12)が行う([assumption])。メッセージにパラメータ(文字数の上限など)が必要な場合に限り、`errors[]`の要素に任意の`params`(例: `{"min":8,"max":128}`)を持たせる。入力値そのもの(パスワードなど)は、エラーに含めない。キーは`user.validation.<field>.<rule>`の形式とする(例: `user.validation.email.invalid`、`user.validation.name.tooLong`、`user.validation.password.length`、`user.validation.roleIds.unknown`)。
+- **招待リンクの形式(U12への要求、NFR Design保留8番)**: `<ベースURL>/invitations/accept#token=<トークン>`(トークンはフラグメントに入れる)。受諾画面(U12)は、フラグメントからトークンを読み取ったらただちに`history.replaceState`でURLから消し、トークンを画面の状態・ログ・エラー報告・外部への送信に含めない。認証なしで開けるルートであり、SPAの直接アクセスのフォールバックを備える。
+
 ### C6: audit-logging REST API(FR8.4)
 
 ```yaml
@@ -732,6 +743,16 @@ shared-schema:
       description: 権限管理者の明示的操作を経ない権限昇格の試行(project.md Forbidden)
 ```
 
+**`roleExists`の追補(Contract Design追補、user-management Code Generation着手時、functional-design-questions.md Q6・rules.md BR4.5対応)**: user-management(U4)が、招待・更新でroleIdsを指定・変更する際に、各roleIdの実在を検証するため、次のメソッドを追加する(加法的変更、既存メソッドは変更しない)。
+
+```yaml
+methods:
+  - name: roleExists
+    description: 指定されたroleIdがpermission-engine側に実在するかを判定する。user-managementが、招待・更新時のroleIds検証(BR4.5)に用いる。実在しない(削除済みを含む)場合はfalse。
+    params: { roleId: string }
+    returns: boolean
+```
+
 ### C11: user-management → authentication-service 内部インタフェース契約
 
 ```yaml
@@ -760,6 +781,14 @@ shared-schema:
   types:
     UserAccount: { userId: string, passwordHash: string, status: "active|invited|disabled", roleIds: "List<string>" }
 ```
+
+**C11への追補(Contract Design追補、user-management Code Generation着手時、functional-spec.md W8・rules.md BR4.13、NFR Designの保留3・9番を反映)**: 既存の記述は書き換えず、次を追補として加える。
+
+- **`UserAccount.roleIds`**: `User.roleIds`(直接付与分)と、`PermissionEngineApi.getGroupDerivedRoleIds(userId)`(Group経由分)の和集合とする。**`UserAccount.passwordHash`は、常にnullとする**(ハッシュ値を呼び出し元へ返さない。検証は`verifyPasswordHash`が行う)。`findByEmail`は、正規化後(trim・小文字)のemailで検索する。
+- **`verifyPasswordHash`**: 対象がstatus=activeで`passwordHash`が非nullの場合のみ検証し、それ以外(invited・disabled・不存在)、および129文字以上のパスワードは、ハッシュ計算をせずfalseを返す。**検証に成功し、保存済みのハッシュのパラメータが現在の設定より古い場合は、新しいパラメータのハッシュへ更新する(書き込みを伴う副作用)**。この更新は、呼び出し元のトランザクション属性(読み取り専用を含む)に依存しないよう、`REQUIRES_NEW`の独立したトランザクションで、検証時と同じ`passwordHash`の場合に限って行う。更新に失敗しても、検証結果(ログインの成否)には影響させない。この更新は、UserChangedEventの対象外。
+- **`HashCapacityExceededException`**: ハッシュ計算の同時実行数の許可を、待機の上限(既定2秒)内に取れなかった場合に、`verifyPasswordHash`が投げる非チェック例外(`com.mastersmith.usermanagement`パッケージ)。HTTPへの変換(503)は、呼び出し元(authentication-service)が行う。
+- **呼び出し元(authentication-service、U5)への要求**: C11の各メソッドを、**トランザクションの外で呼ぶ**こと(ハッシュ計算の許可を保持している間はDB接続を取らない、というuser-managementの資源の取得順序の不変条件を保つため。NFR Design保留9番、レビュー指摘R-11の既定の解決)。
+- **`revokeRefreshTokensOnDisable`の扱い(契約からの意図的な差異)**: 呼び出し方向が契約上曖昧で未確定であるため(functional-spec.md Open Questions)、user-management(U4)のCode Generationでは実装しない。`UserAccountLookupApi`は、`findByEmail`・`verifyPasswordHash`・`isDisabled`の3メソッドで定義する。FR2.3の「以後の再認証はできない」は、`isDisabled`が常に最新のstatusを返すこと(BR4.13)で担保する。authentication-service(U5)の機能設計で方向が確定した時点で、本メソッドを追加する。
 
 ### C12: menu-navigation → config-import-export 内部インタフェース契約
 
