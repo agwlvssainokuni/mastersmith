@@ -122,6 +122,10 @@
 
 
 
+- **Active Unit**: authentication-service
+
+- **Unit State**: in-progress
+
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -183,7 +187,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-20T12:30:10Z
+- **Last Updated**: 2026-09-20T12:41:15Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
