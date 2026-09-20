@@ -3,8 +3,11 @@
 
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
+- 2026-09-20T00:40:00Z — [user-management] ユーザー指示: 招待メールはHTMLメールとし、件名(Subject)はレンダリング後のHTMLの`<title>`要素の値から抽出する。security-requirements.md NFR2.7(HTMLエスケープ、件名のCR/LF除去・ヘッダー符号化)とtech-stack-decisions.md(確認事項4〜6)へ反映した。テンプレートに`<title>`が無い/空の場合の起動時fail fast、テキスト版(multipart/alternative)の要否は未確認のため[assumption]/確認事項として残した。
+- 2026-09-20T00:40:00Z — [user-management] Q2・Q3は初回回答に幅・曖昧さ(「数秒」「10〜30秒」)があったため、Follow-upで具体値(ハッシュ計算の待機上限2秒、SMTPタイムアウト10秒)を確定した。
 
 ## Deviations
+- 2026-09-20T00:58:00Z — [user-management] アーキテクチャレビュー(iteration 1, NOT-READY)でMajor所見3件(R-01: SMTP送信をトランザクション内で待つ設計の競合・保持時間が未規定、R-02: 招待トークンがOTELトレース・メトリクス・アクセスログへ漏れる経路の未規定、R-03: 初期管理者パスワードの供給方法の未規定)とMinor所見10件を受け、NFR2.10(トークンのURL露出抑止)・NFR2.11(初期管理者の資格情報の供給)・残余リスク表を追加し、NFR4.2(競合・保持時間・比較した代替)・NFR1.2(上限300msと計測条件)・NFR7.2(バリデーションメッセージのi18n)などを改訂した。要件に根拠のない判断は[assumption]として残した。
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
 - 2026-09-14T22:45:00Z — [permission-engine] アーキテクチャレビュー(iteration 1, NOT-READY, Major 3件)を受け、reliability-requirements.md(R-07とのトランザクション粒度の緊張関係を明記)・observability-requirements.md(ブートストラップ時のアラートバースト既知事項を明記)・security-requirements.md(TTLキャッシュのstale-authorization windowとassignPermission成功時のキャッシュ即時無効化要件をNFR2.8として追加)・performance-requirements.md(20列同時呼び出しのキャッシュ非依存予算計算を追記)を修正した。
 - 2026-09-13T23:22:00Z — [data-import-export] CSVインジェクション(数式インジェクション)対策を意図的に実装しない(NFR2.3)。社内限定利用・CSV外部配布なしという前提でのリスク受容であり、見落としではない(Q3確定)。
@@ -18,6 +21,10 @@
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+- 2026-09-20T01:05:00Z — [user-management] アーキテクチャレビュー(iteration 2, READY)で残ったMinor所見5件(承認ゲートまたは後続ステージで人間が確認する): (R-11)後勝ちのPUTで行ロックなしにbeforeValueを読んでも不正確にならないとは言えないこと、要件NFR4の楽観ロック記述との関係が未記載。(R-14)再招待の進行中(最大約12秒、未コミット)に受諾・取消・PUTがロック待ちになる場合の応答(503)が未規定で、条件付き更新がstatus=invitedのみで招待トークンの一致を含まないため、再招待との競合で旧トークンの受諾が成立しうる。(R-15)件名の200文字超・改行が503(SMTP障害のアラートの誤報)になるが、BR4.15にnameの最大長がなく、契約追補7番は制御文字の検証のみ。(R-16)Referrer-Policyの担当(U12かサーバー設定か)が曖昧で、U5・環境側への引き渡し事項が成果物内に分散している。(R-17)NFR7.2の「config-engineが管理する翻訳リソース」を根拠なく事実として記述している。
+- 2026-09-20T00:40:00Z — [user-management] Code Generationの計画承認までに確認する事項: 自作mustacheエンジン(Gitサブモジュール等、Q7=C)の取り込み手順・構文範囲・エスケープ仕様・ライセンス、`<title>`からの件名抽出方法、テキスト版の要否、言語別テンプレートの配置(tech-stack-decisions.mdの確認事項1〜7)。
+- 2026-09-20T00:40:00Z — [user-management] Q8=Aにより招待API(C5 `POST /api/users`)へ任意項目`locale`(ja/en、省略時ja)の追加が必要。機能設計(functional-spec.md W1、rules.md BR4.1)は完了・承認済みのため、契約追補としてCode Generation前に反映する(機能設計の見直しか追補の扱いかは要判断)。
+- 2026-09-20T00:40:00Z — [user-management] 要件に明示がなく本ステージで置いた[assumption]: 招待受諾APIへの専用レート制限なし(NFR2.4)、ログにメールアドレス・氏名を出さない(NFR2.6)、SMTPのTLSは環境ごとに切り替え(NFR2.7)、Userレコード数は数十〜数百件を上限目安(NFR3.1)、ハッシュ計算時間・拒否回数の派生メトリクス(NFR5.1)。
 - 2026-09-14T22:47:00Z — [permission-engine] アーキテクチャレビュー(iteration 2, READY)。iteration 1のR-01〜R-04は具体的な修正(disclaimerではなく実装可能な方向性)によりResolved確認。新規Major所見R-05(non-blocking suggestion): NFR2.8のキャッシュ無効化記述が「(scopeType, scopeRef)」のみを対象とし、NFR3.4のキャッシュキー3つ組「(activeRoleId, scopeType, scopeRef)」のroleId成分に触れていないため、Code Generation実装者が対象範囲(該当ロールのみか全ロール一括無効化か)を推測する必要がある。修正は行わず、承認ゲートで人間に提示する(review-protocolの「Do NOT apply suggestions, quote them at the gate」原則に従う)。
 - 2026-09-13T23:22:00Z — [data-import-export] 同一テーブルへの同時大量インポート(排他制御なし、NFR3.2)が、DB接続プール枯渇によりNFR1.1(5分以内)の目標を満たせない可能性を既知の限界として記録。将来必要になれば排他制御の追加を検討する。
 - 2026-09-13T23:28:56Z — [data-import-export] アーキテクチャレビュー(iteration 1, READY)。4件のMinor所見(riding suggestions、ゲートで人間に提示): (R-01)traceability.jsonのNFR6はN/AよりDeferredが適切ではないか、(R-02)tech-stack-decisions.mdの「常にメモリ配列」はrules.md BR8.10の条件付き記述(一時テーブル併記)との関係を明記すべき、(R-03)NFR2.4/NFR4.2に再評価トリガーの明記がなく他の3件と粒度が不揃い、(R-04)scalability-requirements.mdの「50ユーザー」の出典がNFR3ではなくNFR1本文である。いずれもブロッキングではなく、修正は行わずゲートで提示する。
