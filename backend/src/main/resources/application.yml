@@ -23,6 +23,10 @@ spring:
     driver-class-name: org.h2.Driver
     username: ${MASTERSMITH_CONFIG_DB_USERNAME:sa}
     password: ${MASTERSMITH_CONFIG_DB_PASSWORD:}
+    hikari:
+      # user-management(U4、code-generation-plan.md 前提事項7(c)): 通常の同時処理数50、招待の
+      # 上限5(SMTP応答待ちの間、接続を保持する)、入れ子の接続の余裕を見込んだ値。
+      maximum-pool-size: 60
   jpa:
     open-in-view: false
     hibernate:
@@ -40,6 +44,27 @@ spring:
   h2:
     console:
       enabled: false
+  # 招待メールの送信(user-management、FR2.8)。接続情報は環境変数から注入し、リポジトリには
+  # 実値も既定値も置かない(NFR2.7・NFR2.8)。hostとportが未設定なら、起動時に失敗する
+  # (プレースホルダが解決できない)。開発・動作確認ではMailpit(host=localhost、port=1025)を用いる。
+  # SMTP接続の暗号化(STARTTLS・SMTPS)の要否は環境の設定に任せ、アプリケーションでは強制しない
+  # (nfr-design/security-design.md NFR2.7、Q2=B)。
+  mail:
+    host: ${MASTERSMITH_SMTP_HOST}
+    port: ${MASTERSMITH_SMTP_PORT}
+    username: ${MASTERSMITH_SMTP_USERNAME:}
+    password: ${MASTERSMITH_SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MASTERSMITH_SMTP_AUTH:false}
+          starttls:
+            enable: ${MASTERSMITH_SMTP_STARTTLS:false}
+          # NFR1.4: 1回の操作ごとの上限(接続3秒・読み取り5秒・書き込み2秒)。送信全体の10秒の
+          # 上限は、呼び出し側が結果を待つ時間の打ち切り(mastersmith.users.invitation.mail-timeout)で実現する。
+          connectiontimeout: 3000
+          timeout: 5000
+          writetimeout: 2000
 
 # 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)接続。内部設定DBとは別のDataSourceとして
 # BusinessDataSourceConfig(com.mastersmith.dataio.config)がenabled=trueの場合にのみBeanを
@@ -47,6 +72,41 @@ spring:
 # enabled=falseのまま(既定)にしておくことで、data-import-export(U8)を含むCSV
 # エクスポート/インポート機能に依存しない他ユニットの起動に影響を与えない。
 mastersmith:
+  # user-management(U4)。Argon2idのパラメータ・同時実行数・タイムアウトはコードに埋め込まず、
+  # ここから与える(NFR8.1)。
+  users:
+    hash:
+      # Argon2id(OWASPの推奨の下限に沿った、メモリ19MiB・反復2・並列度1)。
+      memory-kib: 19456
+      iterations: 2
+      parallelism: 1
+      # 同時に実行できるハッシュ計算の数。0以下ならCPUコア数(NFR1.3)。
+      max-concurrent: 0
+      # ハッシュ計算の許可を待つ最大時間。超えたら503(NFR1.3)。
+      wait-timeout: 2s
+    invitation:
+      # 招待の同時実行数(SMTP応答待ちの間、内部設定DBの接続を保持する招待の上限、NFR4.2)。
+      max-concurrent: 5
+      # 同一emailの排他を待つ最大時間(NFR4.2)。
+      email-lock-wait: 12s
+      # 招待メール送信の専用プールのスレッド数と、呼び出し側が結果を待つ最大時間(NFR1.4)。
+      mail-pool-size: 5
+      mail-timeout: 10s
+    # User行のロック待ちの最大時間(NFR4.2)。
+    db-lock-timeout: 15s
+    # 初期管理者(FR2.4、NFR2.11)。実値も既定値もリポジトリに置かず、環境変数から注入する。
+    # 未設定の場合は、起動時に失敗する。
+    initial-admin:
+      email: ${MASTERSMITH_INITIAL_ADMIN_EMAIL}
+      password: ${MASTERSMITH_INITIAL_ADMIN_PASSWORD}
+      role-ids: ${MASTERSMITH_INITIAL_ADMIN_ROLE_IDS:}
+  # 招待メール(user-management、NFR2.7)。招待リンクのベースURLは設定値から作り、リクエストの
+  # Hostなどのヘッダーからは導出しない。httpは、allow-insecure-linkがtrueの場合(開発のMailpit
+  # 環境向け)に限って許可する。
+  mail:
+    base-url: ${MASTERSMITH_MAIL_BASE_URL}
+    from: ${MASTERSMITH_MAIL_FROM}
+    allow-insecure-link: ${MASTERSMITH_MAIL_ALLOW_INSECURE_LINK:false}
   business-datasource:
     enabled: ${MASTERSMITH_BUSINESS_DB_ENABLED:false}
     url: ${MASTERSMITH_BUSINESS_DB_URL:}

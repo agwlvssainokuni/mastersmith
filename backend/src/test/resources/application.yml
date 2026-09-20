@@ -29,3 +29,18 @@ spring:
       ddl-auto: validate
     properties:
       jakarta.persistence.validation.mode: none
+  # user-management(U4): 招待メール送信のためのJavaMailSenderを構成する。テストではSMTPへの
+  # 接続は行わない(JavaMailSenderはモックまたは未使用)。実在しない値(ダミー)。
+  mail:
+    host: localhost
+    port: 3025
+
+mastersmith:
+  users:
+    # 起動時のfail fast検証(InitialAdminProperties)を通すための、実在しないダミー値。
+    initial-admin:
+      email: initial-admin@example.test
+      password: dummy-initial-admin-passphrase
+  mail:
+    base-url: https://mastersmith.example.test
+    from: no-reply@example.test

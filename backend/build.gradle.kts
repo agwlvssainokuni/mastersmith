@@ -62,6 +62,18 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-flyway")
     runtimeOnly("com.h2database:h2")
 
+    // user-management(U4): 招待メールのHTML生成に用いる自作mustacheエンジン。Gitサブモジュール
+    // (external/java-mustache-processor)を、settings.gradle.ktsのincludeBuild(複合ビルド)で参照する
+    // (code-generation-plan.md 前提事項5)。
+    implementation("cherry.mustache:cherry-mustache-core")
+    // user-management(U4): 招待メールの送信(SMTP、FR2.8)。
+    implementation("org.springframework.boot:spring-boot-starter-mail")
+    // user-management(U4): Argon2idのパスワードハッシュ(Argon2PasswordEncoder)。バージョンは
+    // Spring Boot BOM(spring-security-bomを取り込み)で管理される。Argon2PasswordEncoderは内部で
+    // BouncyCastleを用いるため、bcprovを明示的に追加する(BOMの管理対象外のため最新の安定版を固定)。
+    implementation("org.springframework.security:spring-security-crypto")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.86")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Spring Boot 4.0でDataJpaTest等のテストスライスは個別モジュールへ分離された。
     testImplementation("org.springframework.boot:spring-boot-data-jpa-test")

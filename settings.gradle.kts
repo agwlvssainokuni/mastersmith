@@ -18,3 +18,11 @@ rootProject.name = "mastersmith"
 // フロントエンド成果物(TypeScript + Vite + React)は将来ここに同梱される
 // (backend/src/main/resources/static配下。packagingユニットで結線予定)。
 include("backend")
+
+// user-management(U4): 招待メールのHTML生成に用いる自作mustacheエンジン
+// (https://github.com/agwlvssainokuni/java-mustache-processor)。Gitサブモジュールとして
+// external/java-mustache-processorに取り込み(コミット固定)、複合ビルド(includeBuild)で
+// 参照する。backendからは implementation("cherry.mustache:cherry-mustache-core") で使う。
+// エンジン側のビルド設定(OWASP依存関係チェックのプラグインを含む)はエンジン側のまま用い、
+// このプロジェクトのビルド設定には混ぜない。
+includeBuild("external/java-mustache-processor")
