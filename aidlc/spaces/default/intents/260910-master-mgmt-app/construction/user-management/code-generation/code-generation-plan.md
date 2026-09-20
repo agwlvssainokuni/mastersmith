@@ -224,15 +224,15 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 14: API層の実装(C5・BR4.10・NFR2.1・NFR2.3・NFR2.9・NFR7.2)
 
-- [ ] DTO(`UserResponse`(`userId`・`name`・`email`・`status`・`roleIds`のみ)、`InviteUserRequest`(email・name・roleIds・locale)、`UpdateUserRequest`(name・roleIds)、`AcceptInvitationRequest`(password・name・theme・fontSize・locale)、`UserPreferenceDto`)を実装する。`passwordHash`・`invitationToken`を持たない型とする
-- [ ] `UserController`(`GET/POST /api/users`、`PUT/DELETE /api/users/{userId}`)、`InvitationAcceptController`(`POST /api/users/invitations/{token}/accept`、認証不要)、`MePreferencesController`(`GET/PUT /api/me/preferences`、activeRoleIdに依存しない)を実装する
-- [ ] `RequestSizeLimitFilter`(U4のURLパターン`/api/users/**`・`/api/me/preferences`に限る。`Content-Length`が64KiBを超える場合は内容を読まずに413、チャンク転送は読み込み量を数えるストリームで包み64KiB超で`RequestBodyTooLargeException`。認証フィルタより前に置く最高優先の順序で登録する)を実装する
-- [ ] `UserApiExceptionAdvice`(`@RestControllerAdvice`、U4のコントローラに限定、`@Order`を明記)を実装する。`HashCapacityExceededException`・`InvitationCapacityExceededException`・ロック待ちタイムアウト・メール送信失敗は503、`RequestBodyTooLargeException`(`HttpMessageNotReadableException`の原因の判別を含む)は413、招待トークンの不一致は404、フィールド単位の検証エラーは422(`errors[]`に`field`と`message`(i18nキー)、必要なら`params`)、401・403にも対応する。RFC 9457のProblemDetailsとし、`instance`は招待受諾APIではルートのテンプレート(`/api/users/invitations/{token}/accept`)にする。入力値(パスワードなど)・スタックトレース・内部の型名を含めない
+- [x] DTO(`UserResponse`(`userId`・`name`・`email`・`status`・`roleIds`のみ)、`InviteUserRequest`(email・name・roleIds・locale)、`UpdateUserRequest`(name・roleIds)、`AcceptInvitationRequest`(password・name・theme・fontSize・locale)、`UserPreferenceDto`)を実装する。`passwordHash`・`invitationToken`を持たない型とする
+- [x] `UserController`(`GET/POST /api/users`、`PUT/DELETE /api/users/{userId}`)、`InvitationAcceptController`(`POST /api/users/invitations/{token}/accept`、認証不要)、`MePreferencesController`(`GET/PUT /api/me/preferences`、activeRoleIdに依存しない)を実装する
+- [x] `RequestSizeLimitFilter`(U4のURLパターン`/api/users/**`・`/api/me/preferences`に限る。`Content-Length`が64KiBを超える場合は内容を読まずに413、チャンク転送は読み込み量を数えるストリームで包み64KiB超で`RequestBodyTooLargeException`。認証フィルタより前に置く最高優先の順序で登録する)を実装する
+- [x] `UserApiExceptionAdvice`(`@RestControllerAdvice`、U4のコントローラに限定、`@Order`を明記)を実装する。`HashCapacityExceededException`・`InvitationCapacityExceededException`・ロック待ちタイムアウト・メール送信失敗は503、`RequestBodyTooLargeException`(`HttpMessageNotReadableException`の原因の判別を含む)は413、招待トークンの不一致は404、フィールド単位の検証エラーは422(`errors[]`に`field`と`message`(i18nキー)、必要なら`params`)、401・403にも対応する。RFC 9457のProblemDetailsとし、`instance`は招待受諾APIではルートのテンプレート(`/api/users/invitations/{token}/accept`)にする。入力値(パスワードなど)・スタックトレース・内部の型名を含めない
 
 ## Step 15: API層のテスト(認可拒否専用テスト含む)
 
-- [ ] `UserControllerTest`(`@WebMvcTest`)・`InvitationAcceptControllerTest`・`MePreferencesControllerTest`: 正常系(200/201/204)、**認可拒否専用テスト**(未認証の401・権限なしの403を`/api/users`系の全エンドポイントで確認。`/api/me/preferences`が他人の設定を操作できないこと)、422(フィールド単位・i18nキー・入力値を含まない)、404(対象不存在・トークンの不一致)、503(ハッシュ・招待の同時実行数・メール送信失敗)、`GET /api/users`の応答に`passwordHash`・`invitationToken`が含まれないことを確認する
-- [ ] `RequestSizeLimitFilterTest`・`UserApiExceptionAdviceTest`: `Content-Length`のある場合・チャンク転送の場合の413、認証前(操作者が未解決でも)のボディの拒否、64KiBちょうどの通過、ProblemDetailsの`instance`にトークンを含む生のパスが入らないことを確認する
+- [x] `UserControllerTest`(`@WebMvcTest`)・`InvitationAcceptControllerTest`・`MePreferencesControllerTest`: 正常系(200/201/204)、**認可拒否専用テスト**(未認証の401・権限なしの403を`/api/users`系の全エンドポイントで確認。`/api/me/preferences`が他人の設定を操作できないこと)、422(フィールド単位・i18nキー・入力値を含まない)、404(対象不存在・トークンの不一致)、503(ハッシュ・招待の同時実行数・メール送信失敗)、`GET /api/users`の応答に`passwordHash`・`invitationToken`が含まれないことを確認する
+- [x] `RequestSizeLimitFilterTest`・`UserApiExceptionAdviceTest`: `Content-Length`のある場合・チャンク転送の場合の413、認証前(操作者が未解決でも)のボディの拒否、64KiBちょうどの通過、ProblemDetailsの`instance`にトークンを含む生のパスが入らないことを確認する
 
 ## Step 16: audit-logging(U7)への追加と、コミット後の発行の統合テスト
 

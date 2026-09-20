@@ -112,6 +112,9 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/OperatorUnresolvedException.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/RequestBodyTooLargeException.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/SubjectRejectedException.java"
     },
     {
@@ -214,6 +217,24 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/InvitationAcceptController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/MePreferencesController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/RequestSizeLimitFilter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/UpdateUserRequestFactory.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/UserApiExceptionAdvice.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/UserController.java"
+    },
+    {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementStartupTest.java"
     },
     {
@@ -298,10 +319,34 @@
       "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserPreferenceServiceTest.java"
     },
     {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/ChunkedRequests.java"
+    },
+    {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/EventRecorder.java"
     },
     {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/JsonBodies.java"
+    },
+    {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/UserTestFactory.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/InvitationAcceptControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/MePreferencesControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/RequestSizeLimitFilterTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserApiExceptionAdviceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserApiIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserControllerTest.java"
     },
     {
       "path": "backend/src/main/resources/mail/invitation_en.html"

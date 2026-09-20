@@ -99,8 +99,36 @@ limitations under the License.
 
 - `permission/PermissionEngineApi.java`(`roleExists`の追加)、`permission/service/PermissionEngineApiImpl.java`(実装)、`permission/service/PermissionEngineApiImplTest.java`(3ケース)。指示に従い、変更したこの3ファイルに、google-java-formatを直接適用した。`PermissionEngineApiImpl.java`は、HEADの時点で未整形だった箇所(長い文字列リテラル・Javadocの折り返しの約20行)も整形された(意味の変更はない)。
 
-## Step 14以降への引き継ぎ
+## Step 14〜15(API層の実装とテスト)で判明した事実・計画との差異
 
-- Step 14(API層)が使う部品: `CurrentOperatorProvider`(暫定実装`HeaderCurrentOperatorProvider`)でリクエストから`Operator`を解決し、`UserApplicationService`・`InvitationFacade`・`InvitationAcceptService`・`UserPreferenceService`へ渡す。応答のDTOは`dto/`。例外の型と、対応するHTTPステータスは、上の「例外」の項を参照。
-- 未着手: コントローラ(`UserController`・`InvitationAcceptController`・`MePreferencesController`)、`RequestSizeLimitFilter`、`UserApiExceptionAdvice`、audit-loggingへの`UserChangedEventListener`とマッパーの追加(Step 16)、可観測性のスパンと`UserManagementNoLeakTest`(Step 17)、環境・ビルドの確認(Step 18)、ドキュメント(Step 19)。
-- Step 18の注意: 他ユニットの既存ファイルが`spotlessCheck`で不合格のため(前項)、`spotlessCheck`の判定は、U4のファイルに限って行う必要がある。
+### 実装の構成(`com.mastersmith.usermanagement.web`)
+
+- `UserController`(`GET/POST /api/users`、`PUT/DELETE /api/users/{userId}`)、`InvitationAcceptController`(`POST /api/users/invitations/{token}/accept`、認証不要、操作者は解決しない)、`MePreferencesController`(`GET/PUT /api/me/preferences`)。コントローラは、`CurrentOperatorProvider`で`Operator`を解決してサービスへ渡すだけで、認可はサービスの入口で行う。応答は`UserResponse`・`UserPreferenceDto`のみ(`passwordHash`・`invitationToken`を持たない型)。POSTの成功は201(本文は`UserResponse`)、DELETEは204、それ以外は200。
+- `UpdateUserRequestFactory`(パッケージ内部): `PUT /api/users/{userId}`のボディを`Map<String,Object>`として受け、`name`・`roleIds`以外のキーを`UpdateUserRequest#unsupportedFields`へ集める(未知のプロパティの収集)。型が違う値(`name`が文字列でない、`roleIds`が配列でない、配列の要素が文字列でない)は、nullとして扱い、サービスの検証が`name.required`・`roleIds.required`・`roleIds.blank`の422にする(認可の401・403より前に、型の不備で422にならないようにするため)。
+- `RequestSizeLimitFilter`(`@Component`、`@Order(Ordered.HIGHEST_PRECEDENCE)`、`OncePerRequestFilter`): 対象は`/api/users`・`/api/users/**`・`/api/me/preferences`のみ。パスの照合は、Spring MVCと同じ`PathPattern`(`ServletRequestPathUtils.parse`)で行い、セミコロン・符号化された文字の扱いを揃えた(`UrlPathHelper`はSpring 7で非推奨のため使わない)。`Content-Length`が64KiB(65536バイト)を超えれば、内容を読まずにフィルタ内で413(`application/problem+json`を手で書く。リクエストのパスは含めない)。それ以外は、`HttpServletRequestWrapper`で入力ストリーム・リーダーを、読み込み量を数えるストリームで包み、65536バイトを超えた時点で`RequestBodyTooLargeException`(`IOException`)を投げる(ちょうど65536バイトは通す)。`Content-Length`の宣言より多く送られた場合も同じ。
+- `RequestBodyTooLargeException`(`exception/`、`IOException`): JSONの読み取りの中で`HttpMessageNotReadableException`に包まれる。
+- `UserApiExceptionAdvice`(`@RestControllerAdvice(assignableTypes = {UserController, InvitationAcceptController, MePreferencesController})`、`@Order(Ordered.HIGHEST_PRECEDENCE)`)。対応: `OperatorUnresolvedException`→401、`UserAccessDeniedException`→403、`UserNotFoundException`・`InvitationTokenNotFoundException`→404(後者は、トークンによらず同一の応答)、`UserValidationException`→422(`errors[]`に`field`・`message`(i18nキー)、`params`は空でなければ)、`HashCapacityExceededException`・`InvitationCapacityExceededException`・`EmailLockTimeoutException`・`InvitationMailException`(`SubjectRejectedException`を含む)・`PessimisticLockingFailureException`(`CannotAcquireLockException`を含む)・`CannotCreateTransactionException`→503、`RequestBodyTooLargeException`と、原因の連鎖に`RequestBodyTooLargeException`を含む`HttpMessageNotReadableException`→413、その他の`HttpMessageNotReadableException`→400(読み取れないJSON。詳細は含めない)。ステータス・タイトル・詳細は固定の文言で、入力値・例外のメッセージ・型名・スタックトレースを含めない(型名だけを、503のときに警告ログへ出す)。汎用の`Exception`のハンドラは置いていない(他のエラーは、共通基盤の担当)。
+- `CannotCreateTransactionException`(接続プールの枯渇など)を503にするのは、C5の追補には明記していない、実装上の追加。
+
+### `instance`(ProblemDetails)
+
+- `instance`は、リクエストの生のパスではなく、マッチしたルートのテンプレート(`HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE`)を用いる。ハンドラに到達する前の失敗などで得られない場合は、招待受諾のパスならテンプレート、それ以外はパス。Spring MVCは、`instance`がnullだと生のパスを入れるため、必ず設定している。
+- **URIとして`{}`は符号化されるため、招待受諾APIの`instance`は`/api/users/invitations/%7Btoken%7D/accept`(テンプレートの符号化された形)になる**(設計・C5追補の`/api/users/invitations/{token}/accept`の、JSON上の表現)。`PUT /api/users/{userId}`なら`/api/users/%7BuserId%7D`。フィルタが手で書く413には、`instance`を含めない。
+
+### 他ユニットへの影響の確認
+
+- `RequestSizeLimitFilter`は`Filter`の`@Component`、`UserApiExceptionAdvice`は`@RestControllerAdvice`のため、他ユニットの`@WebMvcTest`のスライスにも読み込まれるが、フィルタは対象外のURLを素通しし(`shouldNotFilter`)、アドバイスは`assignableTypes`でU4のコントローラに限られ、依存する部品もない。他ユニットの`@WebMvcTest`・`@SpringBootTest`を含む全体テスト(851件)が緑であることを確認した。テストで、U4以外のコントローラの例外がアドバイスに変換されないこと、他ユニットのURLが64KiBを超えても413にならないことも確認している。
+- `@WebMvcTest`のスライスは`@Component`(`HeaderCurrentOperatorProvider`)を読み込まないため、U4のコントローラのテストは`@Import(HeaderCurrentOperatorProvider.class)`で読み込む。
+
+### テスト(Step 15)
+
+- 追加したテスト(`web/`の84件と、テスト支援2クラス`ChunkedRequests`・`JsonBodies`): `UserControllerTest`(22件: 200/201/204、**全エンドポイントの401・403**、404、422(フィールド単位・i18nキー・入力値を含まない)、503(6種)、413(`Content-Length`超過・チャンク転送・ちょうど64KiB)、400、`instance`のテンプレート化、応答に`passwordHash`・`invitationToken`が含まれないこと、未知のプロパティの収集)、`InvitationAcceptControllerTest`(8件)、`MePreferencesControllerTest`(6件: 他人の設定を操作できないこと(ボディ・クエリの`userId`は無視)、activeRoleIdに依存しないこと)、`RequestSizeLimitFilterTest`(22件)、`UserApiExceptionAdviceTest`(20件: 例外とステータスの対応のテーブル駆動、原因の連鎖の判別、`instance`のフォールバック、対象の限定、`@Order`)。
+- 追加(計画外): `UserApiIntegrationTest`(6件、`@SpringBootTest`+`@AutoConfigureMockMvc`): 実際のフィルタチェーン・例外変換・サービス・H2で、未認証の401・権限なしの403を全エンドポイントで確認し、招待→受諾(認証不要)→表示設定→更新(更新不可項目は422)→無効化の流れで、応答・ProblemDetailsに`passwordHash`・招待トークンが現れないこと、認証前のボディが413になること(フィルタの順序)を確認する。`PermissionEngineApi`と`InvitationMailer`はモック。
+- チャンク転送のMockMvc上の再現には、`Content-Length`を返さない`MockHttpServletRequest`の派生を返す`RequestPostProcessor`(`ChunkedRequests.chunked()`)を用いた。
+- U4のテストは合計442件(Step 12〜13までの358件に84件を追加)、全体は851件で失敗0。U4の行カバレッジは96.7%(`web`パッケージは114/120行)、全体91.4%。
+
+## Step 16以降への引き継ぎ
+
+- 未着手: audit-loggingへの`UserChangedEventListener`と`AuditLogEventMapper.fromUserChangedEvent`の追加、`UserChangedEventAuditIntegrationTest`(Step 16)、可観測性のスパン(`ObservationRegistry`)と`UserManagementNoLeakTest`(ログ・メトリクスのラベル・ProblemDetails・イベントのスナップショットに、パスワード・トークン・`passwordHash`・メールアドレス・氏名が現れないこと。ProblemDetailsとイベントのスナップショットは、Step 15までのテストで既に確認済み)(Step 17)、環境・ビルドの確認(Step 18)、ドキュメント(Step 19)。
+- Step 17で、コントローラ・サービス・メール送信・ハッシュ計算・C11に、`ObservationRegistry`による観測(スパン)を付ける。スパンの属性にメールアドレス・氏名・件名・トークンを含めない。招待受諾APIのスパン名・URL属性はルートのテンプレートにする(共通基盤への要求)。
+- U5(authentication-service)の実装時に、`HeaderCurrentOperatorProvider`を、検証済みトークンのクレームから読む実装へ差し替える(`CurrentOperatorProvider`を実装する)。共通基盤の汎用ハンドラ・認証フィルタチェーンの導入時に、`RequestSizeLimitFilter`が認証フィルタより前に置かれていること(`Ordered.HIGHEST_PRECEDENCE`)を、フィルタの順序として再確認する。
