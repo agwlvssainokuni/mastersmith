@@ -14,7 +14,7 @@
 - B. 要件定義書の文言を優先し、閾値・ロック時間を管理画面から編集できるようにする(内部設定DBに保持。管理画面・API・権限の追加が必要になり、MVPのスコープが広がる)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q2: アカウントロックの方針(閾値・期間・数え方)
 
@@ -25,7 +25,7 @@
 - C. 閾値・期間の数値をA以外にする(数値は、Otherで指定してください)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q3: 招待受諾のあとの自動ログイン
 
@@ -35,7 +35,7 @@
 - B. authentication-serviceに、「有効化されたばかりのユーザーのトークンを発行する」内部のインタフェースを追加し、招待受諾APIがそれを呼んで、レスポンスにトークンを含める(C5・C11の追補が必要。user-managementからauthentication-serviceへの依存が増え、既存のauthentication-service→user-managementの依存と循環する)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q4: アクセストークンに含める値と、アクティブロールの保持場所
 
@@ -45,7 +45,7 @@
 - B. アクセストークンに、アクティブロールIDも入れる。ロールを切り替えたときは、新しいアクセストークンを発行して返す(C4の`PUT /api/auth/active-role`のレスポンスに`accessToken`を追加する追補が必要)。リクエストごとにセッションを引かずに済むが、切り替え後の古いトークンが、最大10分間、旧ロールのまま使える
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q5: リフレッシュトークンの有効期間と更新の方式
 
@@ -55,7 +55,7 @@ FR3.1は、リフレッシュトークンの有効期限を30分としていま�
 - B. **ログインから30分の固定**とし、更新してもリフレッシュトークンは延長しない。30分たつと、必ず再ログインが必要になる(実装は単純だが、作業の途中で再ログインになる)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q6: ユーザーの無効化とリフレッシュトークンの失効の方向
 
@@ -65,7 +65,7 @@ FR2.3は、ユーザーを無効化したとき、そのユーザーのリフレ
 - B. user-managementが無効化の時点で、authentication-serviceの失効用のインタフェースを呼ぶ(押し出し型。即時に失効するが、user-managementからauthentication-serviceへの依存が増え、循環する。ユニットの依存関係の見直しが必要になる)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q7: ロールを持たないユーザーのログイン(初期管理者を含む)
 
@@ -75,7 +75,7 @@ user-managementは、初期管理者を、設定`initial-admin.role-ids`(未指�
 - B. ロールが空のユーザーは、ログインを拒否する(401)。初期管理者を使えるようにするため、`initial-admin.role-ids`を必須にし、user-managementの設計(BR4.7)を変更する(空の場合は起動時にfail fastする)。RBAC設定が空の間の例外は、初期管理者が持つロールで通る
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q8: ログイン失敗の応答の統一と、応答時間の均一化
 
@@ -85,7 +85,7 @@ user-managementは、初期管理者を、設定`initial-admin.role-ids`(未指�
 - B. ロック中と同様に、同一の401の応答にするが、ダミーのハッシュ検証は行わない(実装は単純だが、応答時間の差で、メールアドレスの存在を推測される余地が残る)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q9: 暫定の操作者取得(ヘッダー方式)の差し替え
 
@@ -95,7 +95,7 @@ schema-introspector(U2)・menu-navigation(U6)・audit-logging(U7)・user-managem
 - B. ヘッダー方式は残すが、開発用のプロファイル(たとえば`dev`)でだけ有効にする。本番の起動では、認証フィルタだけを使う。他ユニットの変更は、最小限で済む
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
 
 ## Q10: ユーザー管理画面の「ロック中」の表示と「有効化」の操作
 
@@ -106,4 +106,24 @@ schema-introspector(U2)・menu-navigation(U6)・audit-logging(U7)・user-managem
 - C. 「有効化」の操作だけを設ける(user-managementの設計・契約の追補が必要。disabledからactiveへの遷移と、招待の扱いを決める必要がある)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A
+
+## Consolidated Summary Confirmation
+
+回答の要約(Q1〜Q10はすべてA)。
+
+- FR2.7の文言: 要件定義書を「`application.yml`で設定可能(管理画面での編集UIは設けない)」に修正する(追補として記録)。
+- ロック方針: 同一アカウントへの連続失敗5回でロック、15分で自動解除。成功で失敗回数を0に戻す。ロック中の試行は数えず、期間も延長しない。未登録のメールアドレスへの試行は記録しない。既定値は`application.yml`で変更可能。
+- 招待受諾のあと: サーバー側の連携は追加せず、フロントエンドが続けて`POST /api/auth/login`を呼ぶ。
+- アクセストークン: JWTにはユーザーIDとセッションIDだけを入れる。アクティブロールIDは、サーバー側のセッションに持ち、リクエストごとに解決する(キャッシュ、変更時に無効化)。C14の`getActiveRoleId(sessionId)`はこの仕組みで実装する。
+- リフレッシュトークン: 更新ごとに新しいトークンを発行して延長する(ローテーション)。有効期限は最後の更新から30分。無効なトークンの再利用で、そのセッションを失効させる。ランダムな値で、DBにはハッシュだけを保存する。
+- 無効化時の失効: 更新のたびに、user-managementの`isDisabled`を確認し、無効化済みなら更新を拒否してセッションを失効させる(引き込み型)。C11から`revokeRefreshTokensOnDisable`を削除する追補を行う。
+- ロールを持たないユーザー: ログインできる。`activeRoleId`は未選択のまま、セッションを発行する。認可はpermission-engineに委ね、`activeRoleId`が無いことは401ではなく403として扱う(各ユニットの操作者取得を差し替える)。ロール選択画面は出さない。
+- ログイン失敗の応答: すべての失敗の原因で、同一の401にする。未登録・招待中・無効化済みでも、ダミーのハッシュ検証で応答時間を近づける。ハッシュ計算の同時実行数の上限超過は、原因を隠さず503にする。
+- 暫定の操作者取得: 認証フィルタの実装と同時に、ヘッダー方式の暫定実装(U2・U4・U6・U7)をすべて削除し、認証フィルタが決めた操作者を読む実装に置き換える。他ユニットの変更は、このユニットのCode Generationの範囲に含める。
+- ユーザー管理画面: MVPでは「ロック中」の表示も「有効化」の操作も設けない。リファインドモックアップの該当の記述を、修正が必要な事項として記録する。
+
+- Looks correct
+- Request changes
+
+[Answer]: Looks correct

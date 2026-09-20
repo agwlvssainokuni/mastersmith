@@ -49518,3 +49518,170 @@
 **Unit**: authentication-service
 
 ---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T10:48:45Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T10:48:46Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Batch 1 of 3: Q1-Q4 (FR2.7 wording, lock policy, post-accept login, token claims)
+**Options**: A,B,C,X
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T10:50:54Z
+**Event**: HUMAN_TURN
+**Session**: 862b7ba1-c2b2-4978-be79-222555d8474c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T10:51:06Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-20T10:51:07Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Batch 1: Q1=A, Q2=A, Q3=A, Q4=A
+**Unit**: authentication-service
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T10:51:08Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Batch 2 of 3: Q5-Q7 (refresh token, disable revocation direction, users without roles)
+**Options**: A,B,X
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T10:58:59Z
+**Event**: HUMAN_TURN
+**Session**: 862b7ba1-c2b2-4978-be79-222555d8474c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T10:59:07Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-20T10:59:08Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Batch 2: Q5=A, Q6=A, Q7=A
+**Unit**: authentication-service
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T10:59:08Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Batch 3 of 3: Q8-Q10 (failure uniformity, interim operator providers, lock display and re-enable)
+**Options**: A,B,C,X
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T11:01:32Z
+**Event**: HUMAN_TURN
+**Session**: 862b7ba1-c2b2-4978-be79-222555d8474c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T11:01:54Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-20T11:01:56Z
+**Event**: QUESTION_ANSWERED
+**Stage**: functional-design
+**Details**: Batch 3: Q8=A, Q9=A, Q10=A
+**Unit**: authentication-service
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T11:02:03Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T11:02:03Z
+**Event**: DECISION_RECORDED
+**Stage**: functional-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/functional-design/functional-design-questions.md
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T11:02:55Z
+**Event**: HUMAN_TURN
+**Session**: 862b7ba1-c2b2-4978-be79-222555d8474c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T11:03:12Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-20T11:03:13Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: functional-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/functional-design/functional-design-questions.md
+**Questions SHA-256**: 414770435ff0769b09033adf7f027af15f681de585d47fffe617a94c0f80123b
+**Hash Scope**: confirmed-content-v1
+**Unit**: authentication-service
+**Summary Authorization Id**: 7c6a3e212e7a9badc890d07e66aed24a01449dc937b17f7c7922992d7f514707
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T11:03:20Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
