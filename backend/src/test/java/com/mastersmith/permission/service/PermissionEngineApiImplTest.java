@@ -366,4 +366,28 @@ class PermissionEngineApiImplTest {
     assertThat(service.getGroupDerivedRoleIds("lone-user")).isEmpty();
     verify(groupRoleRepository, never()).findByIdGroupIdIn(any());
   }
+
+  // ---- roleExists(user-management(U4)のBR4.5・C10追補) ----
+
+  @Test
+  void roleExistsReturnsTrueWhenTheRoleIsPersisted() {
+    when(roleRepository.existsById("role-a")).thenReturn(true);
+
+    assertThat(service.roleExists("role-a")).isTrue();
+  }
+
+  @Test
+  void roleExistsReturnsFalseWhenTheRoleDoesNotExist() {
+    when(roleRepository.existsById("no-such-role")).thenReturn(false);
+
+    assertThat(service.roleExists("no-such-role")).isFalse();
+  }
+
+  @Test
+  void roleExistsReturnsFalseForNullOrBlankRoleIdsWithoutQueryingTheRepository() {
+    assertThat(service.roleExists(null)).isFalse();
+    assertThat(service.roleExists("")).isFalse();
+    assertThat(service.roleExists("   ")).isFalse();
+    verify(roleRepository, never()).existsById(any());
+  }
 }

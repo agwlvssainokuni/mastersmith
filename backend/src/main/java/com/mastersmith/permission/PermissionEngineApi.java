@@ -119,4 +119,12 @@ public interface PermissionEngineApi {
    * User.roleIds}(直接付与分)と本メソッドの戻り値(Group経由分)を合成し、選択可能ロール一覧(rules.md BR3.3)を構成する。
    */
   List<String> getGroupDerivedRoleIds(String userId);
+
+  /**
+   * 指定されたroleIdが、permission-engine側に実在するかを判定する(Contract Design追補、user-management(U4)のrules.md
+   * BR4.5・Q6)。 user-managementが、招待・更新でroleIdsを指定・変更する際の実在検証に用いる。実在しない(削除済みを含む)場合はfalse。
+   *
+   * @param roleId 判定対象のroleId
+   */
+  boolean roleExists(String roleId);
 }

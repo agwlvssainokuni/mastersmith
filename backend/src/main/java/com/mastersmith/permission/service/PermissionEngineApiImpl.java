@@ -104,7 +104,8 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
     this.permissionCheckDurationTimer =
         Timer.builder("permission_check_duration_seconds")
             .description(
-                "resolveEffectivePermission call duration (observability-design.md, NFR1.1 50ms budget)")
+                "resolveEffectivePermission call duration (observability-design.md, NFR1.1 50ms"
+                    + " budget)")
             .register(meterRegistry);
   }
 
@@ -172,7 +173,8 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
     // observability-design.md「ログ実装」: assignPermission成功時、変更内容(ロールID・スコープ種別・
     // スコープ参照・変更前後のレベル)を記録する。
     LOG.info(
-        "Primary permission assigned: targetRoleId={}, scopeType={}, scopeRef={}, previousLevel={}, newLevel={}, actor={}",
+        "Primary permission assigned: targetRoleId={}, scopeType={}, scopeRef={}, previousLevel={},"
+            + " newLevel={}, actor={}",
         targetRoleId,
         scopeType,
         scopeRef,
@@ -210,7 +212,8 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
                         targetRoleId, scopeType, scopeRef, createAllowed, deleteAllowed)));
 
     LOG.info(
-        "Auxiliary permission assigned: targetRoleId={}, scopeType={}, scopeRef={}, createAllowed={}, deleteAllowed={}, actor={}",
+        "Auxiliary permission assigned: targetRoleId={}, scopeType={}, scopeRef={},"
+            + " createAllowed={}, deleteAllowed={}, actor={}",
         targetRoleId,
         scopeType,
         scopeRef,
@@ -224,11 +227,10 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
    * 割当成功後の共通処理: キャッシュ無効化(performance-design.md「無効化」レビュー指摘R-01対応、部分無効化ではなく全体無効化)のみを行う。
    *
    * <p>rules.md BR3.11の{@code PermissionChanged}サマリイベント(実行者・変更件数・日時、個々の変更値は含めない)は
-   * config-import-exportの1回のインポート実行単位で発行される責務であり、本メソッド(個々の{@code
-   * assignPermission}/{@code assignAuxiliaryPermission}呼び出し単位)では発行しない(アーキテクチャレビュー
-   * iteration 1, NOT-READY, R-01対応。以前の実装は本メソッド単位でイベントを発行しておりBR3.11の粒度に反していた)。
-   * イベント発行はconfig-import-export自身のCode Generation(未着手)で実装される(functional-spec.md「Assumptions &amp;
-   * Open Questions」参照)。
+   * config-import-exportの1回のインポート実行単位で発行される責務であり、本メソッド(個々の{@code assignPermission}/{@code
+   * assignAuxiliaryPermission}呼び出し単位)では発行しない(アーキテクチャレビュー iteration 1, NOT-READY,
+   * R-01対応。以前の実装は本メソッド単位でイベントを発行しておりBR3.11の粒度に反していた)。 イベント発行はconfig-import-export自身のCode
+   * Generation(未着手)で実装される(functional-spec.md「Assumptions &amp; Open Questions」参照)。
    */
   private void afterAssignment() {
     permissionCache.invalidateAll();
@@ -249,6 +251,11 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
         .toList();
   }
 
+  @Override
+  public boolean roleExists(String roleId) {
+    return roleId != null && !roleId.isBlank() && roleRepository.existsById(roleId);
+  }
+
   private void validateScopeRef(String scopeRef) {
     if (scopeRef == null || scopeRef.isBlank()) {
       throw new IllegalArgumentException("scopeRef must not be blank");
@@ -266,7 +273,8 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
   private void validateAuxiliaryScopeType(ScopeType scopeType) {
     if (scopeType == ScopeType.COLUMN) {
       throw new IllegalArgumentException(
-          "AuxiliaryPermission does not support ScopeType.COLUMN (entities.md AuxiliaryPermission.scopeType.allowed_values: SCHEMA, TABLE only)");
+          "AuxiliaryPermission does not support ScopeType.COLUMN (entities.md"
+              + " AuxiliaryPermission.scopeType.allowed_values: SCHEMA, TABLE only)");
     }
   }
 }
