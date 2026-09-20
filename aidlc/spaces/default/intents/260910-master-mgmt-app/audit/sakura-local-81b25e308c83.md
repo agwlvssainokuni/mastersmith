@@ -51134,3 +51134,168 @@
 **Unit**: authentication-service
 
 ---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T12:42:52Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-design
+**Decision**: Q1 session cache safety TTL, Q2 owner of security headers and filter chain, Q3 dummy verification occupying hash permits
+**Options**: Q1 A/B/C,Q2 A/B/C,Q3 A/B/C
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T12:44:52Z
+**Event**: HUMAN_TURN
+**Session**: 06bd7ff0-f2fe-40b6-951a-1d0a30bae66c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:02Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-20T12:45:02Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Context**: construction > authentication-service > nfr-design > nfr-design-questions.md
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:04Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-20T12:45:04Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Context**: construction > authentication-service > nfr-design > nfr-design-questions.md
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:15Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-20T12:45:15Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Context**: construction > authentication-service > nfr-design > nfr-design-questions.md
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:22Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Question Answered
+**Timestamp**: 2026-09-20T12:45:22Z
+**Event**: QUESTION_ANSWERED
+**Stage**: nfr-design
+**Details**: Q1 A. 60秒のTTLを付ける / Q2 A. U5が3つとも実装 / Q3 A. 受容+メトリクス検知
+**Unit**: authentication-service
+
+---
+
+## Decision Recorded
+**Timestamp**: 2026-09-20T12:45:23Z
+**Event**: DECISION_RECORDED
+**Stage**: nfr-design
+**Decision**: Does this all look correct before I generate the artifact?
+**Options**: Looks correct,Request changes
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Unit**: authentication-service
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T12:45:41Z
+**Event**: HUMAN_TURN
+**Session**: 06bd7ff0-f2fe-40b6-951a-1d0a30bae66c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:48Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Edit
+
+---
+
+## Artifact Updated
+**Timestamp**: 2026-09-20T12:45:48Z
+**Event**: ARTIFACT_UPDATED
+**Tool**: Edit
+**File**: <project-dir>/aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Context**: construction > authentication-service > nfr-design > nfr-design-questions.md
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T12:45:54Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---
+
+## Summary Confirmation Recorded
+**Timestamp**: 2026-09-20T12:45:54Z
+**Event**: SUMMARY_CONFIRMATION_RECORDED
+**Stage**: nfr-design
+**Details**: Looks correct
+**Checkpoint**: Consolidated Summary Confirmation
+**Questions File**: aidlc/spaces/default/intents/260910-master-mgmt-app/construction/authentication-service/nfr-design/nfr-design-questions.md
+**Questions SHA-256**: 464d3d5231d684a0901ea7b0076c857506f73d5a69ccf7729ffc34efc2049875
+**Hash Scope**: confirmed-content-v1
+**Unit**: authentication-service
+**Summary Authorization Id**: 93c48cfa4cc346f862b486acd5734c93f94fcd8ce890fd5a0e821064250220e0
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T12:46:04Z
+**Event**: HUMAN_TURN
+**Session**: 06bd7ff0-f2fe-40b6-951a-1d0a30bae66c
+
+---
+
+## Human Turn
+**Timestamp**: 2026-09-20T15:01:53Z
+**Event**: HUMAN_TURN
+**Session**: 06bd7ff0-f2fe-40b6-951a-1d0a30bae66c
+
+---
+
+## Guard Disabled
+**Timestamp**: 2026-09-20T15:02:03Z
+**Event**: GUARD_DISABLED
+**Guard**: plan-approval-guard
+**Tool**: Bash
+
+---

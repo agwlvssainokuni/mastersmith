@@ -21,7 +21,7 @@ NFR Requirementsで確定済みの事項(HS256の署名と256ビット以上の�
 - C. 10秒の短いTTLを付ける。将来、複数プロセス構成にした場合の、反映の遅れを、最大10秒に抑えられる。DBを引く回数は、Aの6倍(Sessionあたり最大で10秒に1回)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. 60秒のTTL(キャッシュへ入れてからの経過時間)を、安全網として付ける。通常は、明示的な無効化で、直ちに反映される。無効化に漏れがあっても、最大で60秒で解消する。DBを引く回数は、Sessionあたり最大で1分に1回
 
 ## Q2: セキュリティヘッダーとフィルタチェーンの設定の担い手
 
@@ -32,7 +32,7 @@ NFR Requirementsで確定済みの事項(HS256の署名と256ビット以上の�
 - C. `Referrer-Policy`と`nosniff`だけをU5で実装する。`Content-Security-Policy`は、フロントエンドのビルド成果物の構成(Viteの出力、インラインのスクリプトの有無)が確定してから、frontend-ui(U12)が担当する。U12の実装まで、CSPは付かない
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. authentication-service(U5)が、フィルタチェーンの設定と合わせて、セキュリティヘッダー(`Referrer-Policy`・`nosniff`・`Content-Security-Policy`)も実装し、アプリケーション全体の`SecurityFilterChain`の所有者になる。`Content-Security-Policy`の初期値は、同じオリジンのスクリプトとスタイルだけを許可する厳しい設定とし、フロントエンド(U12)の実装で必要になれば、緩める
 
 ## Q3: 未認証のダミー検証による、ハッシュ計算の許可枠の占有
 
@@ -43,4 +43,19 @@ NFR Requirementsで確定済みの事項(HS256の署名と256ビット以上の�
 - C. ダミー検証では、ハッシュ計算をせず、実際の検証の典型的な所要時間(約300ms)だけ待つ。許可枠を使わないため、占有は起きない。ただし、許可枠が満杯のとき、実際の検証は503になるが、ダミーは503にならないため、503の有無から、登録されているメールアドレスかどうかを推測できてしまう(BR5.2の、503の均一化が崩れる)
 - X. Other (please specify)
 
-[Answer]:
+[Answer]: A. 受容する。残余リスクとして記録し、ハッシュ計算の待機超過の503のカウンタ(`auth_login_hash_capacity_exceeded_total`)で検知する。Q3=A(IP単位のレート制限を設けない)と整合し、実装は増えない
+
+## Consolidated Summary Confirmation
+
+以下の内容で成果物(performance-design.md・security-design.md・scalability-design.md・reliability-design.md・observability-design.md・logical-components.md・traceability.json)を生成します。
+
+- **Sessionのキャッシュ**: Caffeineによるプロセス内のキャッシュに、書き込みから60秒のTTLを、安全網として付ける。通常は、内部設定DBの更新がコミットされてから明示的に無効化し、直ちに反映する。無効化に漏れがあっても、最大60秒で解消する。DBを引く回数は、Sessionあたり最大で1分に1回(Q1)
+- **セキュリティヘッダーとフィルタチェーン**: authentication-service(U5)が、アプリケーション全体の`SecurityFilterChain`の所有者になり、`Referrer-Policy: no-referrer`・`X-Content-Type-Options: nosniff`・`Content-Security-Policy`を実装する。CSPの初期値は、同じオリジンのスクリプトとスタイルだけを許可する厳しい設定とし、U12の実装で必要になれば緩める。user-managementのNFR Designが「共通基盤が所有」として記録した要求は、U5が担うことで解消する(Q2)
+- **ダミー検証による許可枠の占有**: 受容し、残余リスクとして記録する。ハッシュ計算の待機超過の503のカウンタで検知する。IP単位のレート制限を設けない方針(NFR RequirementsのQ3=A)と整合する(Q3)
+- **設計として決める項目(承認ゲートで確認)**: 認証フィルタはSpring Securityのフィルタチェーンに置き、検証済みの`Operator`をリクエストのセキュリティコンテキストに設定する(`OperatorContext`(C15)は読み取り専用の窓口)。認証を必要とするのは`/api/**`のうちログイン・リフレッシュ・招待受諾を除くもので、フロントエンドの静的ファイルとヘルスチェックの応答(状態だけ)は認証なし。Sessionのキャッシュの無効化は、DBのコミット後に行い、読み込みとの競合でも古い内容が残らないようにする。JWTの検証は時計のずれの許容を0とし、鍵の外部表現はBase64。`/api/auth/*`のボディ上限(64KiB)は、U5が所有するフィルタで、認証フィルタより前に置く
+- **NFR Requirementsで確定済みの設計をそのまま落とし込む項目**: HS256と256ビット以上の鍵、リフレッシュトークンの256ビット乱数とSHA-256、予約型のロックと条件付きの補償、リフレッシュのローテーションと再送の猶予、内部設定DBの障害は503、Sessionの定期削除、5つのカウンタと派生指標、アラートの暫定値、性能目標
+
+- Looks correct
+- Request changes
+
+[Answer]: Looks correct
