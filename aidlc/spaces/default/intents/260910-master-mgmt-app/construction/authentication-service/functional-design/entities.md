@@ -115,10 +115,19 @@ entities:
       - name: lockedUntil
         type: string
         required: false
-        description: ロックの解除予定日時(ISO 8601)。ロックされていなければnull。現在時刻がこの日時より前ならロック中
+        description: ロックの解除予定日時(ISO 8601)。ロックされていなければnull。現在時刻がこの日時より前ならロック中。回数がしきい値に達する予約の更新と、原子的に設定される(BR5.3)
+      - name: generation
+        type: integer
+        required: true
+        defaults: 0
+        min: 0
+        description: >
+          失敗回数のリセット(ログイン成功・ロックの自動解除後の最初の予約)のたびに1増える世代番号。予約した試行が、
+          補償の更新(枠を返す)を行うとき、リセットをまたいで、別の世代の回数を誤って戻さないための条件に用いる(BR5.3)
     entity_constraints:
       - "レコードは、activeなユーザーへの最初のログイン試行の、試行の枠の確保(予約)で作る(登録されていないメールアドレス・招待中・無効化済みへの試行では作らない、BR5.3)"
       - "consecutiveFailuresの更新は、予約型の原子的な更新(なければ作成する場合を含む)で行い、同時に行われる複数の試行でも回数が失われず、しきい値を超えて検証されない(BR5.3)"
+      - "consecutiveFailuresがしきい値以上になる予約の更新は、同じ更新の中で、lockedUntilを設定する。したがって、consecutiveFailuresがしきい値以上でlockedUntilが空の状態は、通常は存在しない(存在した場合は、次の予約で自己修復する。BR5.3)"
       - "lockedUntilが非nullで、現在時刻がその日時以降の場合は、ロックは解除済みとして扱う(明示的な解除処理を要しない)"
     relationships:
       - target: User
