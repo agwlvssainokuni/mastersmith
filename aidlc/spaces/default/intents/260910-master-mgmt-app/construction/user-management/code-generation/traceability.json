@@ -1,0 +1,362 @@
+{
+  "stage": "code-generation",
+  "unit": "user-management",
+  "upstream_ids": [
+    "FR1.6",
+    "FR2.1",
+    "FR2.2",
+    "FR2.3",
+    "FR2.4",
+    "FR2.5",
+    "FR2.6",
+    "FR2.8",
+    "FR9.1",
+    "FR10.1",
+    "BR4.1",
+    "BR4.2",
+    "BR4.3",
+    "BR4.4",
+    "BR4.5",
+    "BR4.6",
+    "BR4.7",
+    "BR4.8",
+    "BR4.9",
+    "BR4.10",
+    "BR4.11",
+    "BR4.12",
+    "BR4.13",
+    "BR4.14",
+    "BR4.15",
+    "BR4.16",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR2.3",
+    "NFR2.4",
+    "NFR2.5",
+    "NFR2.6",
+    "NFR2.7",
+    "NFR2.8",
+    "NFR2.9",
+    "NFR2.10",
+    "NFR2.11",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR8.1",
+    "NFR8.2",
+    "NFR5.5"
+  ],
+  "coverage": [
+    {
+      "id": "FR1.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "id": "FR2.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "id": "FR2.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "id": "FR2.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserAccountLookupService.java"
+    },
+    {
+      "id": "FR2.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InitialAdminBootstrap.java"
+    },
+    {
+      "id": "FR2.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordPolicy.java"
+    },
+    {
+      "id": "FR2.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordHasher.java"
+    },
+    {
+      "id": "FR2.8",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailer.java"
+    },
+    {
+      "id": "FR9.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
+    },
+    {
+      "id": "FR10.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
+    },
+    {
+      "id": "BR4.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "id": "BR4.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationAcceptService.java"
+    },
+    {
+      "id": "BR4.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationAcceptService.java"
+    },
+    {
+      "id": "BR4.4",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementNoLeakTest.java"
+    },
+    {
+      "id": "BR4.5",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/service/UserApplicationServiceTest.java"
+    },
+    {
+      "id": "BR4.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "id": "BR4.7",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InitialAdminBootstrap.java"
+    },
+    {
+      "id": "BR4.8",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
+    },
+    {
+      "id": "BR4.9",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/event/UserChangedEventPublisher.java"
+    },
+    {
+      "id": "BR4.10",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/UserAuthorizer.java"
+    },
+    {
+      "id": "BR4.11",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "id": "BR4.12",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "id": "BR4.13",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserAccountLookupService.java"
+    },
+    {
+      "id": "BR4.14",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/dto/UserResponse.java"
+    },
+    {
+      "id": "BR4.15",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserInputValidator.java"
+    },
+    {
+      "id": "BR4.16",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserRepositoryCustomImpl.java"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/security/PasswordHasherBenchmarkTest.java"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/HashConcurrencyLimiter.java"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailExecutor.java"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/UserAuthorizer.java"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/dto/UserResponse.java"
+    },
+    {
+      "id": "NFR2.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/web/RequestSizeLimitFilter.java"
+    },
+    {
+      "id": "NFR2.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationAcceptService.java"
+    },
+    {
+      "id": "NFR2.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "id": "NFR2.6",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementNoLeakTest.java"
+    },
+    {
+      "id": "NFR2.7",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/mail/SubjectExtractor.java"
+    },
+    {
+      "id": "NFR2.8",
+      "status": "OK",
+      "target": "backend/src/main/resources/application.yml"
+    },
+    {
+      "id": "NFR2.9",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/web/UserApiExceptionAdvice.java"
+    },
+    {
+      "id": "NFR2.10",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/mail/MailTemplateRenderer.java"
+    },
+    {
+      "id": "NFR2.11",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/config/InitialAdminProperties.java"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "backend/src/main/resources/db/migration/V4__create_user_management.sql"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserRepository.java"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/HashConcurrencyLimiter.java"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/security/EmailLockRegistry.java"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationAcceptService.java"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/event/UserChangedEventPublisherTest.java"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/service/InitialAdminBootstrap.java"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/service/InvitationFacadeTest.java"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/observation/UserObservations.java"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementNoLeakTest.java"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/observation/UserObservations.java"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "backend/src/main/resources/application.yml"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/mail/MailTemplateRenderer.java"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/exception/UserFieldError.java"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/usermanagement/config/UserManagementProperties.java"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/usermanagement/web/UserApiIntegrationTest.java"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "N/A",
+      "target": "ダッシュボードは運用フェーズ(本MVPスコープ外)で構築される。NFR5.1のメトリクスを候補指標として記録するのみで、本Boltの実装対象ではない"
+    }
+  ]
+}

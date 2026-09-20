@@ -249,10 +249,10 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 18: 環境・ビルド設定
 
-- [ ] 新規パッケージ・マイグレーション・依存が、既存のGradle/Spotless/Checkstyle/JaCoCo設定下でビルド・整形されることを確認する(`spotlessCheck`・`checkstyleMain`・`checkstyleTest`が本ユニットのファイルに関して合格、既存の全テストがグリーン、行カバレッジ80%以上)。カバレッジの基準・閾値は緩めない
-- [ ] リポジトリに、初期管理者・SMTPの実値や認証情報が入っていないことを確認する(NFR2.8。シークレットスキャンの観点)。`.gitmodules`とサブモジュールのコミットの固定を確認する
+- [x] 新規パッケージ・マイグレーション・依存が、既存のGradle/Spotless/Checkstyle/JaCoCo設定下でビルド・整形されることを確認する(`spotlessCheck`・`checkstyleMain`・`checkstyleTest`が本ユニットのファイルに関して合格、既存の全テストがグリーン、行カバレッジ80%以上)。カバレッジの基準・閾値は緩めない
+- [x] リポジトリに、初期管理者・SMTPの実値や認証情報が入っていないことを確認する(NFR2.8。シークレットスキャンの観点)。`.gitmodules`とサブモジュールのコミットの固定を確認する
 
 ## Step 19: ドキュメント・トレーサビリティ
 
-- [ ] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する。生成する全ソースファイルの先頭に、Apache License 2.0の標準ヘッダー(年`2026`、著作権者`agwlvssainokuni`)を入れる
-- [ ] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する(U4が作成・変更したアプリケーションのソースのパス。サブモジュール・`.gitmodules`・permission-engine・audit-loggingへの追加分を含む)
+- [x] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する。生成する全ソースファイルの先頭に、Apache License 2.0の標準ヘッダー(年`2026`、著作権者`agwlvssainokuni`)を入れる
+- [x] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する(U4が作成・変更したアプリケーションのソースのパス。サブモジュール・`.gitmodules`・permission-engine・audit-loggingへの追加分を含む)
