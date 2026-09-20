@@ -11,12 +11,12 @@
     {
       "id": "FR2.7",
       "status": "OK",
-      "target": "BR5.2, BR5.3, BR5.4(ロックの閾値・時間は application.yml。要件定義書の文言は修正する追補として記録)"
+      "target": "BR5.2, BR5.3, BR5.4(ロックの閾値・時間は application.yml。要件定義書の文言は、requirements.md の末尾の追補として反映済み)"
     },
     {
       "id": "FR3.1",
       "status": "OK",
-      "target": "BR5.1, BR5.5, BR5.6, BR5.7, BR5.11, BR5.16(トークンの有効期限は application.yml で設定。無効化の即時反映は更新時の isDisabled の確認で担保する)"
+      "target": "BR5.1, BR5.5, BR5.6, BR5.7, BR5.11, BR5.16(トークンの有効期限は application.yml で設定。FR2.3(story-map では user-management に割り当て)の「以後の再認証はできない」の、authentication-service 側の分担として、リフレッシュ時とログイン時の無効化の確認(BR5.7・BR5.16)を担う)"
     },
     {
       "id": "FR3.2",
@@ -26,7 +26,7 @@
     {
       "id": "FR4.2",
       "status": "OK",
-      "target": "BR5.9, BR5.10, BR5.12, BR5.13(単一ロールの自動選択・ロール選択の保持・ロール未選択の扱い。ロール選択UIの表示はフロントエンドの責務)"
+      "target": "BR5.9, BR5.10, BR5.12, BR5.13(単一ロールの自動選択・ロール選択の保持・未選択の扱い。ページの再読み込みのあとも、リフレッシュとログインのレスポンスの roles・activeRoleId でロールを表示できる(C4の追補、追補一覧の2・3番)。ロール選択UIの表示はフロントエンドの責務(追補一覧の7番))"
     }
   ],
   "reverse": [

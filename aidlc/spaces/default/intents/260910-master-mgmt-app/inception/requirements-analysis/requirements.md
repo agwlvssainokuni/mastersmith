@@ -148,3 +148,9 @@ MasterSmithは、この気づきに基づき、MasterMeisterの後継・置き�
 - パスワードハッシュ化アルゴリズムの具体的選定は未定。
 - ログイン失敗ロックアウトの閾値・ロック時間、ページサイズ選択肢の初期値など、設定可能項目のデフォルト値は未定。
 - SAST/シークレットスキャンの具体的ツール選定は未定(候補: SpotBugs/Semgrep、gitleaks等)。
+
+## 追補(Construction: authentication-service Functional Design での確定)
+
+既存の記述は書き換えず、追補として記録する。
+
+- **FR2.7 の設定方法(追補)**: 連続ログイン失敗によるアカウントの一時ロックの、失敗回数の閾値・ロック時間は、`application.yml`で設定可能でなければならない(FR3.1のトークン有効期限と同じ方式)。管理画面で閾値・ロック時間を編集するUIは設けない。この追補は、FR2.7の元の文言(「管理画面から設定可能」)を置き換える(`construction/authentication-service/functional-design/functional-design-questions.md` Q1=A、`inception/refined-mockups`のレビュー指摘R-01、`inception/domain-design/decisions.md`のADR-004に整合)。

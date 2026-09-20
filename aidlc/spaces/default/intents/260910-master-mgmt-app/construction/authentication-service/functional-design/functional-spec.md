@@ -42,42 +42,40 @@ limitations under the License.
 
 1. 利用者が`POST /api/auth/login`を呼び出す(email・password)。認証は不要。
 2. emailをtrimし、小文字へ正規化する。
-3. C11の`findByEmail`(トランザクションの外)でUserを検索する。
-   - 存在しない、または、statusがactive以外(invited・disabled)の場合は、失敗回数を記録せず、手順7(ダミーのハッシュを検証してから、失敗の応答)へ進む。
-4. activeなUserの`AccountLoginState`を参照し、ロック中(現在時刻が`lockedUntil`より前)なら、失敗回数を数えず、ロック期間も延長せず、手順7へ進む。ロックが解除済み(`lockedUntil`が経過)なら、`consecutiveFailures`を0として扱う。
-5. C11の`verifyPasswordHash(userId, password)`(トランザクションの外)で、パスワードを検証する。`HashCapacityExceededException`が投げられた場合は、失敗回数を数えず、503を返して終了する(BR5.15)。
+3. C11の`findByEmail`(トランザクションの外)でUserを検索する。存在しない、または、statusがactive以外(invited・disabled)の場合は、失敗回数を記録せず、手順8(ダミーの検証をしてから、失敗の応答)へ進む。
+4. activeなUserについて、`AccountLoginState`に対する1つの原子的な更新で、試行の枠を確保する(予約、短いトランザクション)。ロック中、または、しきい値に達した試行の検証の途中で、確保できなかった場合は、検証せず、失敗回数も数えず、ロック期間も延長せず、手順8へ進む。ロックの解除済みなら、回数を0に戻してから数える(BR5.3)。
+5. C11の`verifyPasswordHash(userId, password)`(トランザクションの外)で、パスワードを検証する。`HashCapacityExceededException`が投げられた場合は、確保した枠を返し、503を返して終了する(BR5.15)。
 6. 検証が成功した場合:
-   - `AccountLoginState`の`consecutiveFailures`を0に戻し、`lockedUntil`を消す(BR5.3)。
+   - `AccountLoginState`の`consecutiveFailures`を0に戻し、`lockedUntil`を空にする(短いトランザクション、BR5.3)。
    - 選択可能なロール(C11の`UserAccount.roleIds`)から、アクティブロールを決める。ロールがちょうど1つなら、そのロール。それ以外は、未選択(null)(BR5.9)。
    - 新しい`Session`を作り、リフレッシュトークン(ランダム)のハッシュと有効期限を保存する。アクセストークン(JWT)を発行する(BR5.5)。
-   - 200を返す(アクセストークン・リフレッシュトークン・選択可能なロール)。
-7. 検証が失敗した場合(パスワードの誤りを含む):
-   - activeなUserの、ロック中でない試行なら、`consecutiveFailures`を原子的に1増やし、しきい値に達したら`lockedUntil`を設定する(BR5.3)。
-   - 手順3〜4で検証を行わなかった場合は、ダミーのハッシュを検証して、応答時間を近づける(BR5.2)。
-   - 原因を区別しない、同一の401を返す(BR5.2)。
+   - 200を返す(アクセストークン・リフレッシュトークン・選択可能なロール・アクティブロール(未選択ならnull))。
+7. 検証が失敗した場合(パスワードの誤り): 確保した枠を失敗として確定し、`consecutiveFailures`がしきい値に達していれば、`lockedUntil`を設定する(条件付きの更新、BR5.3)。手順9へ進む。
+8. 検証を行わなかった場合(登録されていない・招待中・無効化済み・ロック中): C11の`dummyVerify(password)`で、ユーザーを指定しないダミーの検証を行う(実際の検証と同じコストで、同じ同時実行数の上限を共有する)。`HashCapacityExceededException`なら、503を返して終了する(BR5.2・BR5.15)。
+9. 原因を区別しない、同一の401を返す(BR5.2)。
 
-### W2: リフレッシュ(FR2.3, FR3.1、BR5.6, BR5.7, BR5.10)
+### W2: リフレッシュ(FR2.3, FR3.1, FR4.2、BR5.6, BR5.7, BR5.10)
 
 1. 利用者(フロントエンド)が`POST /api/auth/refresh`を呼び出す(refreshToken)。認証は不要(リフレッシュトークンが根拠)。
 2. 提出されたリフレッシュトークンのハッシュで、`Session`を検索する。
-   - `refreshTokenHash`と一致し、statusがactiveで、`refreshExpiresAt`が未経過なら、手順3へ。
-   - `previousRefreshTokenHash`と一致する(無効になったトークンの再使用)なら、Sessionをrevokedにして401を返す(BR5.6)。
+   - `refreshTokenHash`と一致し、Sessionが有効(statusがactiveで`refreshExpiresAt`が未経過、BR5.11)なら、手順3へ。
+   - `previousRefreshTokenHash`と一致する(すでに更新で無効にしたトークン)なら、`lastRefreshedAt`から猶予(既定10秒)以内かで分ける。猶予内は、正当な再送・複数タブ・同時実行による競合とみなし、401を返す(Sessionは失効させない)。猶予を超えていたら、無効なトークンの再使用(盗用の疑い)とみなし、Sessionをrevokedにして401を返す(BR5.6)。
    - それ以外(未知・期限切れ・失効済み)は、同一の401を返す。
 3. C11の`isDisabled(userId)`(トランザクションの外)で、ユーザーの無効化を確認する。無効化されている(disabledまたは不存在)なら、Sessionをrevokedにして401を返す(BR5.7)。
-4. C11から、選択可能なロールを取得し、Sessionのアクティブロールが、なお含まれることを確認する。含まれなくなっていたら、アクティブロールをnullに戻す(残りのロールがちょうど1つなら、そのロールを自動選択する)(BR5.10)。
-5. 条件付きの更新で、`previousRefreshTokenHash`に現在の`refreshTokenHash`を移し、新しい`refreshTokenHash`・`lastRefreshedAt`・`refreshExpiresAt`を設定する(同一のリフレッシュトークンの同時の更新では、1件だけが成功する)。更新の件数が0件なら401を返す。
-6. 新しいアクセストークンと、新しいリフレッシュトークンを、200で返す(契約の追補: レスポンスに`refreshToken`を追加する)。
+4. C11の`findByUserId(userId)`から、選択可能なロールを取得し、Sessionのアクティブロールを再確認する(BR5.10): 選択済みで含まれなくなっていたら、nullに戻す(残りがちょうど1つならそのロールを自動選択)。未選択で、ロールがちょうど1つになっていたら、そのロールを自動選択する。
+5. 1つの条件付きの更新で、`previousRefreshTokenHash`に現在の`refreshTokenHash`を移し、新しい`refreshTokenHash`・`lastRefreshedAt`・`refreshExpiresAt`・(手順4で変わった)`activeRoleId`を設定する。同一のリフレッシュトークンの同時の更新では、1件だけが成功する。更新の件数が0件(負けた側)なら、401を返す(Sessionは失効させない。到着の順序によらず、手順2の猶予内の再使用と同じ結果になる)。
+6. 新しいアクセストークンと、新しいリフレッシュトークン、選択可能なロール、アクティブロール(未選択ならnull)を、200で返す(契約の追補、追補一覧)。フロントエンドは、ページの再読み込みのあとも、この応答で、ロール選択・ヘッダーの表示ができる(FR4.2)。
 
 ### W3: ログアウト(FR3.2、BR5.8)
 
-1. 認証済みの利用者が`POST /api/auth/logout`を呼び出す。認証フィルタ(BR5.11)を通る。
-2. リクエストのアクセストークンの`sid`に対応するSessionを、revokedにする(すでにrevokedなら、何もしない)。同一ユーザーの他のSession(他の端末)には影響しない。
+1. 認証済みの利用者が`POST /api/auth/logout`を呼び出す。認証フィルタ(BR5.11)を通る。アクセストークンの有効期限が切れている場合は、認証フィルタで401になるため、フロントエンドは、先にリフレッシュしてからログアウトする(frontend-uiへの要求)。
+2. リクエストのアクセストークンの`sid`に対応するSessionを、revokedにする。同一ユーザーの他のSession(他の端末)には影響しない。
 3. 204を返す。以降、そのSessionのアクセストークンは、Sessionがrevokedのため、有効期限の前でも401になる。
 
 ### W4: アクティブロールの選択(FR4.2、BR5.9)
 
 1. 認証済みの利用者が`PUT /api/auth/active-role`を呼び出す(roleId)。
-2. C11から、選択可能なロール(直接付与分とGroup経由分の和集合)を取得する。
+2. C11の`findByUserId(userId)`から、選択可能なロール(直接付与分とGroup経由分の和集合)を取得する。
 3. 指定されたroleIdが含まれない場合は、403を返す(Sessionは変更しない)。
 4. 含まれる場合は、Sessionのアクティブロールを更新し、キャッシュを無効化して、200を返す。以降のリクエストは、新しいアクティブロールで処理される(別のSession(端末)には影響しない)。
 
@@ -85,24 +83,28 @@ limitations under the License.
 
 1. 認証を必要とするAPIへのリクエストに対し、認証フィルタが、`Authorization: Bearer`のアクセストークンを取り出す。
 2. 署名と有効期限を検証する。不正または期限切れなら、401を返す。
-3. `sid`のSessionを検索する(インメモリのキャッシュ経由)。存在しない、または、revokedなら、401を返す。
-4. `Operator`(userId = `sub`、sessionId = `sid`、アクティブロール = Sessionの値(nullを含む))を決め、リクエストの処理へ渡す。
-5. 各ユニットは、`Operator`を読み、コントローラ・サービスの入口で、`canAccessScreen`などによる認可の再検証を行う(従来どおり)。アクティブロールがnullの場合は、認証エラーではなく、権限なし(403)として判定する(BR5.12)。
+3. `sid`のSessionを検索する(インメモリのキャッシュ経由)。存在しない、または、有効でない(revoked、またはリフレッシュの有効期限の経過、BR5.11の定義)なら、401を返す。
+4. `Operator`(userId = `sub`、sessionId = `sid`、アクティブロール = Sessionの値(nullを含む))を決め、中立の共有契約(C15、`OperatorContext`)を通して、リクエストの処理へ渡す。認証フィルタ(authentication-service)が値を設定する側で、他ユニットはこの共有契約だけを読む(authentication-serviceのコンポーネントを呼ばない)。
+5. 各ユニットは、`OperatorContext`から`Operator`を読み、コントローラ・サービスの入口で、`canAccessScreen`などによる認可の再検証を行う(従来どおり)。アクティブロールがnullの場合は、認証エラーではなく、そのままC10へ渡し、権限なし(403)として判定させる(BR5.12。RBAC設定が空の間の例外である`config-import-export`は、C10が許可する)。
 
 ### W6: C14 `getActiveRoleId`の提供(FR4.2、BR5.13)
 
 1. list-engine・record-edit-engineが、`getActiveRoleId(sessionId)`を呼ぶ。
-2. Sessionが存在しなければ`SessionNotFoundException`、revokedまたは期限切れなら`SessionExpiredException`を投げる。
+2. Sessionが存在しなければ`SessionNotFoundException`、Sessionが有効でない(revoked、またはリフレッシュの有効期限の経過、BR5.11の定義)なら`SessionExpiredException`を投げる。
 3. それ以外は、Sessionのアクティブロール(未選択ならnull)を返す。
 
 ### W7: 他ユニットの暫定の操作者取得の置き換え(BR5.12)
 
-認証フィルタの導入と同時に、次の暫定の実装を削除し、`Operator`を読む実装に置き換える。コントローラ・サービスの入口は変えない。
+認証フィルタの導入と同時に、次の暫定の実装を削除し、`OperatorContext`を読む実装に置き換える。コントローラ・サービスの入口は変えない。
 
 - schema-introspector(U2): `ActiveRoleResolver`・`HeaderActiveRoleResolver`(menu-navigation(U6)・audit-logging(U7)も、これらを共有して利用している)。
 - user-management(U4): `CurrentOperatorProvider`・`HeaderCurrentOperatorProvider`。
+- permission-engine(U3): C10の`canAccessScreen`・`resolveEffectivePermission`が、`activeRoleId`のnull・空を、権限なし(NONE)として扱うよう変更する(RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する)。テストの追加を含む。
+- 上記の呼び出し元は、`activeRoleId`がnullでも、自前で401にせず、そのままC10へ渡す(操作者そのものが解決できない場合だけ401)。
 
 ヘッダー(`X-Active-Role-Id`・`X-User-Id`)を信頼する経路は、どのプロファイルにも残さない(Q9=A)。
+
+**ユニットの依存関係との整合(確認)**: 上記の置き換えが生む依存は、U2・U4・U6・U7から、中立の共有契約(C15の`Operator`・`OperatorContext`、共通基盤の所有、authentication-serviceの業務ロジックに依存しない型と読み取りインタフェース)への、読み取りだけである。authentication-serviceは、その契約の値を設定する側で、user-managementへは、C11(`unit-of-work-dependency.md`の「authentication-service→user-management」、確定済み)だけで依存する。user-managementは、authentication-serviceのコンポーネントを呼ばないため、U4→U5→U4の循環は生じない。permission-engine(U3)への変更は、C10の意味(nullの扱い)の追補で、新しいユニット間の依存を作らない。`unit-of-work-dependency.md`のDAG(Layer 0〜6)は変わらない(C15の共有契約は、DAGの葉として、どのユニットからも、依存できる位置に置く。追補一覧の9番)。
 
 ## 状態遷移
 
@@ -124,14 +126,14 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
-    [*] --> normal: 最初のログイン失敗(記録の開始)
-    normal --> normal: 失敗(しきい値に未達) / 成功(回数を0に戻す)
-    normal --> locked: 失敗の回数がしきい値に達する
-    locked --> locked: ロック中の試行(数えず、延長しない)
+    [*] --> normal: 最初の試行の枠の確保(記録の開始)
+    normal --> normal: 枠の確保(しきい値に未達) / 成功(回数を0に戻す)
+    normal --> locked: 失敗の確定で回数がしきい値に達する
+    locked --> locked: ロック中の試行(確保できず、数えず、延長しない)
     locked --> normal: lockedUntilの経過(自動解除)
 ```
 
-テキストフォールバック: ロックの状態は、通常(normal)とロック中(locked)の2つである。通常のとき、失敗が重なって回数がしきい値(既定5回)に達すると、ロック中になり、解除予定日時(既定15分後)が決まる。ロック中の試行は、数えず、ロックの期間も延長しない。解除予定日時が経過すると、自動的に通常に戻り、その後の最初の試行は、失敗回数を0として扱う。ログインに成功すると、回数は0に戻る。
+テキストフォールバック: ロックの状態は、通常(normal)とロック中(locked)の2つである。ログイン試行は、検証の前に、試行の枠を確保する(予約)。通常のとき、枠を確保して検証に失敗し、失敗の回数がしきい値(既定5回)に達すると、ロック中になり、解除予定日時(既定15分後)が決まる。ロック中の試行は、枠を確保できず、数えず、ロックの期間も延長しない。解除予定日時が経過すると、自動的に通常に戻り、その後の最初の試行の予約では、失敗回数を0に戻してから数える。ログインに成功すると、回数は0に戻る。同時の試行が何件あっても、1回のロック期間までに検証できる試行は、しきい値の回数を超えない。
 
 ## エンティティ関連図(entities.mdより導出)
 
@@ -149,47 +151,64 @@ erDiagram
 | ID | 概要 |
 |---|---|
 | BR5.1 | ログイン(C11で認証、成功条件、トークンとSessionの発行) |
-| BR5.2 | 失敗の応答の統一と、応答時間の均一化 |
-| BR5.3 | アカウントロック(5回・15分・自動解除) |
-| BR5.4 | ロックの閾値・時間・トークンの有効期限は`application.yml`、FR2.7の文言の修正 |
+| BR5.2 | 失敗の応答の統一と、C11のdummyVerifyによる応答時間・503の均一化 |
+| BR5.3 | アカウントロック(予約型の原子的な更新、5回・15分・自動解除) |
+| BR5.4 | ロックの閾値・時間・トークンの有効期限・再送の猶予は`application.yml`、設定値の検証、FR2.7の文言の追補(反映済み) |
 | BR5.5 | トークンの発行(JWT・不透明なリフレッシュトークン・鍵) |
-| BR5.6 | リフレッシュのローテーションと再使用の検知 |
+| BR5.6 | リフレッシュのローテーション、再送の猶予、再使用の検知、ロール情報の返却 |
 | BR5.7 | リフレッシュ時のisDisabledの確認 |
 | BR5.8 | ログインごとのSession、ログアウトは該当のSessionだけ |
 | BR5.9 | アクティブロール(単一は自動選択、複数は選択、403) |
-| BR5.10 | リフレッシュ時のアクティブロールの再確認 |
-| BR5.11 | 認証フィルタ |
-| BR5.12 | アクティブロール未選択は403、暫定の操作者取得の置き換え |
+| BR5.10 | リフレッシュ時のアクティブロールの再確認(外された・1つになった場合を含む) |
+| BR5.11 | 認証フィルタ(Sessionの有効の定義を含む) |
+| BR5.12 | Operatorの共有契約(C15)、アクティブロール未選択は403、C10のnullの扱い、暫定の操作者取得の置き換え |
 | BR5.13 | C14のgetActiveRoleId |
 | BR5.14 | 認証情報・トークン・鍵の非出力 |
-| BR5.15 | ハッシュ計算の上限超過は503、C11はトランザクションの外 |
+| BR5.15 | ハッシュ計算の上限超過は、実際・ダミーの検証のどちらでも同じ503、C11はトランザクションの外 |
 | BR5.16 | 無効化されたユーザーの扱いの分担 |
 
 ## 契約・他ユニットへの追補(Code Generation着手時に反映する)
 
-このステージで確定した内容のうち、確定済みの契約(C4・C11・C14)・要件・他ユニットの実装に影響するものを、次のとおり、追補として記録する。いずれも、Code Generationの計画承認までに、対象の設計(契約書・要件定義書・モックアップ)へ反映するか、ユーザーへ確認する。
+このステージで確定した内容のうち、確定済みの契約(C4・C10・C11・C14)・要件・他ユニットの実装に影響するものを、次のとおり、追補として記録する。1番は、上流の契約の要請(機能設計での解消)に従い、このステージで、要件定義書へ反映済みである。それ以外は、Code Generationの計画承認までに、対象の設計(契約書・モックアップ)へ反映するか、ユーザーへ確認する。
 
 | 番号 | 対象 | 内容 | 出典 |
 |---|---|---|---|
-| 1 | 要件定義書 FR2.7 | 文言を「`application.yml`で設定可能でなければならない(管理画面での編集UIは設けない)」に修正(追補として記録し、元の記述は残す) | Q1=A |
-| 2 | C4 リフレッシュ | レスポンスに`refreshToken`を追加(ローテーション)。レスポンスコード(401の同一応答)の整理 | Q5=A |
-| 3 | C4 ログイン | 503(ハッシュ計算の待機超過)のレスポンスの追加。`roles`は、直接付与分とGroup経由分の和集合 | Q8=A, BR5.15 |
-| 4 | C11 | `revokeRefreshTokensOnDisable`を削除する(引き込み型のため不要)。`findByUserId(userId)`の追加(下記の[assumption]) | Q6=A |
-| 5 | C14 | `getActiveRoleId`が、未選択の場合にnullを返すこと | Q7=A |
-| 6 | リファインドモックアップ | ユーザー管理画面の「ロック中」の表示・「有効化」の操作の記述は、MVPでは実装しない。frontend-uiの実装時に、実装に合わせて更新する | Q10=A |
-| 7 | frontend-ui(U12)への要求 | 招待受諾の成功後、フロントエンドが、設定したemail・passwordで`POST /api/auth/login`を続けて呼ぶ(モックアップの「自動的にログイン済みの状態で遷移」を実現する)。ロールが0個・複数個・単一のユーザーの、それぞれの画面の扱い | Q3=A, BR5.9 |
-| 8 | 他ユニット(U2・U4・U6・U7) | 暫定の操作者取得(ヘッダー方式)を削除し、`Operator`を読む実装に置き換える(本ユニットのCode Generationの範囲に含める) | Q9=A, BR5.12 |
+| 1 | 要件定義書 FR2.7 | 文言を「`application.yml`で設定可能でなければならない(管理画面での編集UIは設けない)」に修正する追補を、要件定義書(`inception/requirements-analysis/requirements.md`)の末尾に、**反映済み**(元の記述は残す) | Q1=A, レビュー指摘R-08 |
+| 2 | C4 リフレッシュ | レスポンスを`{accessToken, refreshToken, roles, activeRoleId}`にする(ローテーション、ロール情報の返却)。401は、同一の応答(未知・期限切れ・失効済み・再送の競合・盗用の疑いのいずれも区別しない) | Q5=A, BR5.6, レビュー指摘R-05 |
+| 3 | C4 ログイン | レスポンスに`activeRoleId`(未選択ならnull)を追加。503(ハッシュ計算の待機超過)のレスポンスの追加。`roles`は、直接付与分とGroup経由分の和集合 | Q8=A, BR5.15, BR5.9 |
+| 4 | C11 | `revokeRefreshTokensOnDisable`を削除する(引き込み型のため不要)。`findByUserId(userId): Optional<UserAccount>`を追加する(トークンがuserIdしか運ばないため、リフレッシュ・ロール選択で最新のロールを得る)。`dummyVerify(rawPassword): void`を追加する(ユーザーを指定しないダミーの検証。実際の検証と同じコスト・同じハッシュ計算の同時実行数の上限を共有し、上限超過は`HashCapacityExceededException`)。いずれも、user-managementが実装する加法的な追補 | Q6=A, BR5.2, BR5.15, レビュー指摘R-03 |
+| 5 | C14 | `getActiveRoleId`が、未選択の場合にnullを返すこと。Sessionの有効の定義(BR5.11)に基づく`SessionExpiredException` | Q7=A, BR5.13 |
+| 6 | C10(permission-engine) | `canAccessScreen(activeRoleId, screenKey)`・`resolveEffectivePermission`が、`activeRoleId`がnullまたは空のときは、「ロールを持たない」として、fail closed(権限なし=NONE)で判定すること。RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する。permission-engineの実装とテストの変更を含む | Q7=A, BR5.12, レビュー指摘R-06 |
+| 7 | frontend-ui(U12)への要求 | (a)招待受諾の成功後、設定したemail・passwordで`POST /api/auth/login`を続けて呼ぶ(Q3=A)。(b)リフレッシュは、単一の呼び出し(single-flight)にまとめ、リフレッシュトークンを、複数のタブで共有する。リフレッシュが401のときは、共有された最新のトークンで、1回だけ再試行し、それでも401ならセッションの終了として扱う(BR5.6の猶予)。(c)アクセストークンの期限切れの場合は、先にリフレッシュしてからログアウトする(BR5.8)。(d)ページの再読み込みのあとは、リフレッシュの応答のロール情報で、ロール選択・ヘッダーの表示を行う。(e)ロールが0個・1個・複数個のユーザーの、それぞれの画面の扱い(BR5.9・BR5.12) | Q3=A, BR5.6, BR5.8, BR5.9 |
+| 8 | 他ユニット(U2・U4・U6・U7・U3) | 暫定の操作者取得(ヘッダー方式)を削除し、`OperatorContext`を読む実装に置き換える。permission-engine(U3)は、C10のnullの扱いの変更(6番)。いずれも、本ユニットのCode Generationの範囲に含める | Q9=A, BR5.12 |
+| 9 | 新しい共有契約 C15 | `Operator`(userId・sessionId・activeRoleId)と、リクエストの処理中の操作者を返す読み取り専用の`OperatorContext`を、authentication-serviceの業務ロジックに依存しない中立の共有契約として追加する(共通基盤の所有)。`contract-summary.md`の契約表と`unit-of-work-dependency.md`の統合ポイント表への追補を含む | BR5.12, レビュー指摘R-01 |
+| 10 | リファインドモックアップ | ユーザー管理画面の「ロック中」の表示・「有効化」の操作の記述は、MVPでは実装しない。frontend-uiの実装時に、実装に合わせて更新する | Q10=A |
 
 ## Assumptions & Open Questions
 
-確定済みの質問回答(Q1〜Q10)に含まれず、本設計で置いた判断は、次のとおり`[assumption]`として残す。人間が確認するまで確定事項として扱わない。
+確定済みの質問回答(Q1〜Q10)に含まれず、本設計で置いた判断は、次のとおり`[assumption]`として残す。人間が確認するまで確定事項として扱わない。レビュー(iteration 1)の指摘への対応として追加・変更したものには、指摘の番号を付ける。
 
-- [assumption] 選択可能なロールの再取得のための`findByUserId`: アクセストークンは`sub`(userId)しか運ばないため、`PUT /api/auth/active-role`(W4)とリフレッシュ時(W2)に、userIdから最新のロールを得る手段が要る。C11は`findByEmail(email)`しか持たない。`UserAccountLookupApi`に`findByUserId(userId): Optional<UserAccount>`を追加する(加法的な追補で、user-managementが実装する)ことを案とする。代替案は、Sessionにemail(不変。user-managementはemailの更新を許さない)を保持して`findByEmail`を使う方法だが、個人情報をSessionに複製することになる。
+- [assumption] 選択可能なロールの再取得のための`findByUserId`: アクセストークンは`sub`(userId)しか運ばないため、`PUT /api/auth/active-role`(W4)とリフレッシュ時(W2)に、userIdから最新のロールを得る手段が要る。C11に`findByUserId(userId): Optional<UserAccount>`を追加する(加法的な追補で、user-managementが実装する)。代替案は、Sessionにemail(不変)を保持して`findByEmail`を使う方法だが、個人情報をSessionに複製することになるため採らない。
+- [assumption] ダミーの検証の実装場所(R-03): ユーザーを指定しないダミーの検証を、C11に`dummyVerify(rawPassword)`として追加する。実際の検証と同じコスト・同じ同時実行数の上限を共有させることで、上限超過の503が、存在・ロックの状態を漏らさないようにする。代替案(authentication-serviceが自前でハッシュを計算する)は、user-managementの上限を回避して、認証なしにメモリの多い計算を無制限に起動できるため採らない。
+- [assumption] リフレッシュの再送の猶予(R-02): 更新済みのリフレッシュトークンの再送を、`lastRefreshedAt`から10秒(`application.yml`で設定)以内は、401だけで、Sessionを失効させない。再送・複数タブによる誤失効を避ける。トレードオフとして、猶予内に到着した再送は、新しいトークンを返さないため、最初の応答を失ったクライアントは、リフレッシュトークンの有効期限(最大30分)まで更新できず、再ログインになる。猶予の長さと、この挙動を許すかは、人間の確認が要る。
+- [assumption] ロックの予約型の更新(R-04): 検証の前に、試行の枠を確保する原子的な更新を行う。検証の途中で中断した場合は、確保した枠を失敗として数えたままにする(安全側)。この方式の利点は、同時の試行でも、しきい値を超えて検証されないこと。欠点は、ハッシュ計算の上限超過(503)の場合に、枠を返す処理(補償)が要ること。
+- [assumption] リフレッシュとログインの応答へのロール情報の追加(R-05): FR4.2の「選択したロールを、ヘッダーに常時表示する」を、ページの再読み込みのあとも満たすため、C4のリフレッシュのレスポンスに`roles`と`activeRoleId`を、ログインのレスポンスに`activeRoleId`を追加する。契約の所有者はU5であり、このステージで確定する(新しいAPIの追加は、不要と判断した)。
+- [assumption] `Operator`の共有契約(C15)と共通基盤の所有(R-01): `Operator`と`OperatorContext`を、authentication-serviceの業務ロジックに依存しない、中立の共有契約として置く。パッケージ・所有の具体は、Code Generationの計画で確定する(共通基盤の所有とする案)。`unit-of-work-dependency.md`のDAGは、変わらない(共有契約は葉)。
+- [assumption] C10のnullの扱い(R-06): `canAccessScreen(null|空, screenKey)`は、fail closedでNONE(権限なし)、ただし、RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する(permission-engineの変更を要する。追補一覧の6番)。
 - [assumption] `AccountLoginState`への具体化: Domain Designの`LoginAttempt`(試行ごとの履歴)を、ユーザーごとに1件のカウンタ(連続失敗の回数・ロックの解除予定日時)に具体化した。試行ごとの履歴を永続化・参照する要件(監査・画面表示)が無く、同時実行でも回数を正しく数えるには、カウンタのほうが単純なためである。履歴が必要になった場合は、追補で`LoginAttempt`を追加する。
 - [assumption] ログイン・ログアウト・ロックを、監査ログ(AuditLogging)のイベントとして発行しない。これらを監査対象とする要件がなく、ロックの発生の検知は、メトリクス(NFR Design)で行う想定である。
 - [assumption] ログアウト後のアクセストークンの扱い: FR2.3の「既発行のアクセストークンは有効期限まで有効」は、ユーザーの無効化に関する記述である。ログアウトでは、Sessionがrevokedになるため、認証フィルタ(BR5.11)が、有効期限の前でも401を返す。これは、FR2.3と矛盾しないと解釈した(ログアウトは、利用者自身の意図的な操作のため)。
 - [assumption] アクティブロールのキャッシュ: 認証フィルタが、リクエストごとにSessionを引くため、インメモリのキャッシュ(ロールの選択・更新・失効で無効化)を置く。キャッシュの有効期間・容量・複数プロセス構成での扱いは、NFR Design(3.3)で確定する。
 - [assumption] JWTの署名アルゴリズムと鍵の管理(単一プロセスのため共通鍵方式を想定)、Sessionの有効期限切れの行の削除(定期的な削除)、リフレッシュトークンの生成方式(長さ・乱数)、`/api/auth/login`等に対するレート制限の要否は、NFR Requirements・NFR Designで確定する。
-- [open question] リフレッシュのレスポンスに、ロールの一覧と現在のアクティブロールを含めるか、または、ページの再読み込みのあとに、フロントエンドが選択可能なロールと現在のアクティブロールを知るためのAPI(例: `GET /api/auth/session`)を追加するか。C4は、リフレッシュがアクセストークンだけを返す契約であり、再読み込みのあとのロール選択画面・ヘッダーの表示のために、追補が必要になる可能性がある。frontend-ui(U12)の機能設計で確認し、C4の追補として反映する。
+- [assumption] FR2.7の文言の追補(R-08): 上流の契約は、FR2.7の文言の修正を、機能設計の着手前(または機能設計での解消)としている。本ステージで、要件定義書(`inception/requirements-analysis/requirements.md`)の末尾に、追補として反映した(元の記述は残す)。この追補の内容の確認は、本ステージの承認ゲートで得る。
 - [open question] 初期管理者(ロールが空)が、RBAC設定の最初のインポートのあと、ロールを得るまでの手順: 初期管理者は、`initial-admin.role-ids`が空のままだと、ロールを持たないため、RBAC設定のインポート後に、user-managementの画面でロールを付与してもらう必要がある(自分自身のroleIdsの変更は禁止されているため、別の権限管理者が必要)。運用の手順として、初期管理者の`initial-admin.role-ids`に、インポートするRBAC設定の管理者ロールのIDをあらかじめ指定しておく方法が現実的である。運用の手順の記述は、Build and Test・packagingの範囲で確認する。
 - [open question] 複数プロセス構成でのSessionとアクティブロールのキャッシュの整合(あるプロセスでロールを切り替えても、別のプロセスのキャッシュが古いままになる): 内部設定DBが組込みDBであることによる複数プロセス構成の制約は、他ユニットと共通の事項として、全体設計(Infrastructure Design・運用設計)に委ねる。
+
+### 残余リスク(R-10・R-08・R-09)
+
+| 番号 | リスク | 内容 | 判断・引き継ぎ |
+|---|---|---|---|
+| 1 | ロックを悪用した締め出し | 第三者が、同一アカウントへ、5回の誤ったパスワードを、15分ごとに送り続けることで、初期管理者を含む任意のアカウントを、継続的にロックできる。Q10=Aにより、管理者がロックを解除する手段は無い | 受容(MVP)。NFR Designへの引き継ぎ: `/api/auth/login`のレート制限(IPなど)の要否、初期管理者の保護(ロックの対象外・別の経路など)の検討 |
+| 2 | パスワードスプレー | 1つのパスワードを、多数のアカウントに試す方式には、アカウント単位のロックが有効でない | 受容(MVP)。NFR Designで、レート制限と検知(メトリクス)の要否を検討 |
+| 3 | 期限切れのままのログアウト | アクセストークンの期限切れで、ログアウトできなかった場合、リフレッシュトークンが、有効期限(最大30分)まで有効なままになる(共用端末) | 受容。frontend-uiの要求(追補7の(c))で、ログアウト前のリフレッシュにより、軽減する |
+| 4 | 再送の猶予とトークンの損失 | 猶予内の再送は、新しいトークンを返さない。最初の応答を失ったクライアントは、再ログインになる | 受容(誤失効による、全端末の再ログインよりも、影響が小さいため)。猶予の長さは、人間の確認を得る |

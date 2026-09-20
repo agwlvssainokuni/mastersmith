@@ -55,7 +55,8 @@ entities:
         required: false
         description: >
           1つ前(更新で無効にした)リフレッシュトークンのハッシュ。無効になったトークンの再使用を検知するために、
-          直前の1世代だけを保持する(BR5.6)
+          直前の1世代だけを保持する。`lastRefreshedAt`から猶予(既定10秒)以内の提出は、再送・同時実行による競合とみなして
+          Sessionを失効させず、猶予を超えた提出は、盗用の疑いとしてSessionを失効させる(BR5.6)
       - name: issuedAt
         type: string
         required: true
@@ -109,15 +110,15 @@ entities:
         defaults: 0
         min: 0
         description: >
-          連続したログイン失敗の回数。ログイン成功で0に戻す。ロック中の試行は数えない。ロックが自動解除された後の
-          最初の試行では、0として扱う(BR5.3)
+          連続したログイン失敗の回数(検証の前に確保した試行の枠の数を含む。予約型、BR5.3)。ログイン成功で0に戻す。
+          ロック中の試行は数えない。ロックが自動解除された後の最初の試行の予約では、0に戻してから数える(BR5.3)
       - name: lockedUntil
         type: string
         required: false
         description: ロックの解除予定日時(ISO 8601)。ロックされていなければnull。現在時刻がこの日時より前ならロック中
     entity_constraints:
-      - "レコードは、そのユーザーが最初にログインに失敗したときに作る(登録されていないメールアドレスへの試行では作らない、BR5.3)"
-      - "consecutiveFailuresの更新は、同時に行われる複数の試行でも回数が失われない(原子的な更新)"
+      - "レコードは、activeなユーザーへの最初のログイン試行の、試行の枠の確保(予約)で作る(登録されていないメールアドレス・招待中・無効化済みへの試行では作らない、BR5.3)"
+      - "consecutiveFailuresの更新は、予約型の原子的な更新(なければ作成する場合を含む)で行い、同時に行われる複数の試行でも回数が失われず、しきい値を超えて検証されない(BR5.3)"
       - "lockedUntilが非nullで、現在時刻がその日時以降の場合は、ロックは解除済みとして扱う(明示的な解除処理を要しない)"
     relationships:
       - target: User
@@ -153,8 +154,11 @@ entities:
   - name: Operator
     description: >
       認証済みのリクエストの操作者(値オブジェクト。永続化しない)。認証フィルタが、アクセストークンのuserIdと
-      sessionIdと、Sessionのアクティブロールから決め、各ユニットが読む。他ユニット(U2・U4・U6・U7)の暫定の
-      操作者取得(ヘッダー方式)に置き換わる(BR5.11・BR5.12、Q9=A)。
+      sessionIdと、Sessionのアクティブロールから決め、各ユニットが読む。`Operator`と、それを読む読み取り専用の
+      インタフェース(`OperatorContext`)は、authentication-serviceの業務ロジックに依存しない、中立の共有契約
+      (新しい契約C15、共通基盤の所有)として置く。認証フィルタ(authentication-service)が値を設定し、他ユニット
+      (U2・U4・U6・U7)は読むだけである。他ユニット(U2・U4・U6・U7)の暫定の操作者取得(ヘッダー方式)に置き換わる
+      (BR5.11・BR5.12、Q9=A)。
     attributes:
       - name: userId
         type: string
@@ -168,7 +172,8 @@ entities:
         type: string
         required: false
         description: Sessionのアクティブロール。未選択ならnull
-    entity_constraints: []
+    entity_constraints:
+      - "操作者が解決できる(認証済み)なら、activeRoleIdがnullでも、Operatorは存在する。activeRoleIdがnullであることは、認証エラー(401)ではなく権限なし(403)を意味する(BR5.12)"
     relationships: []
 ```
 
