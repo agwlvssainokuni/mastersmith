@@ -24,9 +24,14 @@ import com.mastersmith.config.event.ConfigChangedEvent;
 import com.mastersmith.dataio.event.ImportExecutedEvent;
 import com.mastersmith.permission.entity.ScopeType;
 import com.mastersmith.permission.event.PermissionChangedEvent;
+import com.mastersmith.usermanagement.event.UserChangeOperation;
+import com.mastersmith.usermanagement.event.UserChangedEvent;
+import com.mastersmith.usermanagement.event.UserSnapshot;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -119,5 +124,140 @@ class AuditLogEventMapperTest {
     // Q5=A: 現行3イベントはいずれもbeforeValue/afterValueを常にnullとする。
     assertThat(entry.getBeforeValue()).isNull();
     assertThat(entry.getAfterValue()).isNull();
+  }
+
+  // ---- user-managementのUserChangedEvent(5種類のoperation、rules.md BR4.9、team.md Q6) ----
+
+  private record UserCase(
+      String name,
+      UserChangedEvent event,
+      String expectedOperationType,
+      String expectedActorUserId,
+      String expectedActorRaw,
+      Map<String, Object> expectedBefore,
+      Map<String, Object> expectedAfter) {}
+
+  private static UserSnapshot snapshot(String name, String email, String status, String... roles) {
+    return new UserSnapshot(name, email, status, List.of(roles));
+  }
+
+  private static Map<String, Object> asMap(UserSnapshot snapshot) {
+    return Map.of(
+        "name", snapshot.name(),
+        "email", snapshot.email(),
+        "status", snapshot.status(),
+        "roleIds", snapshot.roleIds());
+  }
+
+  private static UserChangedEvent userEvent(
+      UserChangeOperation operation,
+      String userId,
+      UserSnapshot before,
+      UserSnapshot after,
+      String actor,
+      Instant occurredAt) {
+    return new UserChangedEvent(
+        operation, UserChangedEvent.TARGET_TYPE_USER, userId, before, after, actor, occurredAt);
+  }
+
+  private static List<UserCase> userCases() {
+    Instant at = Instant.parse("2026-09-20T05:00:00Z");
+    UserSnapshot invited = snapshot("招待 太郎", "taro@example.test", "invited", "r1");
+    UserSnapshot reinvited = snapshot("再招待 太郎", "taro@example.test", "invited", "r1", "r2");
+    UserSnapshot active = snapshot("有効 太郎", "taro@example.test", "active", "r1", "r2");
+    UserSnapshot updated = snapshot("更新 太郎", "taro@example.test", "active", "r3");
+    UserSnapshot disabled = snapshot("更新 太郎", "taro@example.test", "disabled", "r3");
+    UserSnapshot admin = snapshot("Administrator", "admin@example.test", "active");
+
+    return List.of(
+        new UserCase(
+            "INVITED(新規招待): beforeはnull、actorは管理者のuserId",
+            userEvent(UserChangeOperation.INVITED, "user-1", null, invited, "admin-1", at),
+            "INVITED",
+            "admin-1",
+            null,
+            null,
+            asMap(invited)),
+        new UserCase(
+            "INVITED(再招待): beforeは非null",
+            userEvent(UserChangeOperation.INVITED, "user-1", invited, reinvited, "admin-1", at),
+            "INVITED",
+            "admin-1",
+            null,
+            asMap(invited),
+            asMap(reinvited)),
+        new UserCase(
+            "ACTIVATED(招待受諾): actorは受諾したUser自身のuserId",
+            userEvent(UserChangeOperation.ACTIVATED, "user-1", reinvited, active, "user-1", at),
+            "ACTIVATED",
+            "user-1",
+            null,
+            asMap(reinvited),
+            asMap(active)),
+        new UserCase(
+            "UPDATED(管理者による更新)",
+            userEvent(UserChangeOperation.UPDATED, "user-1", active, updated, "admin-2", at),
+            "UPDATED",
+            "admin-2",
+            null,
+            asMap(active),
+            asMap(updated)),
+        new UserCase(
+            "DISABLED(無効化・招待取消)",
+            userEvent(UserChangeOperation.DISABLED, "user-1", updated, disabled, "admin-2", at),
+            "DISABLED",
+            "admin-2",
+            null,
+            asMap(updated),
+            asMap(disabled)),
+        new UserCase(
+            "BOOTSTRAPPED(初期管理者の自動作成): actorはシステム識別子でactorRawへ、actorUserIdはnull",
+            userEvent(UserChangeOperation.BOOTSTRAPPED, "admin-user", null, admin, "system", at),
+            "BOOTSTRAPPED",
+            null,
+            "system",
+            null,
+            asMap(admin)));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("userCases")
+  void mapsAUserChangedEventAccordingToBr49(UserCase testCase) {
+    AuditLogEntry entry = mapper.fromUserChangedEvent(testCase.event());
+
+    assertThat(entry.getTargetType()).isEqualTo("User");
+    assertThat(entry.getTargetId()).isEqualTo(testCase.event().targetId());
+    assertThat(entry.getOperationType()).isEqualTo(testCase.expectedOperationType());
+    assertThat(entry.getActorUserId()).isEqualTo(testCase.expectedActorUserId());
+    assertThat(entry.getActorRaw()).isEqualTo(testCase.expectedActorRaw());
+    assertThat(entry.getOccurredAt()).isEqualTo(testCase.event().occurredAt());
+    assertThat(entry.getBeforeValue()).isEqualTo(testCase.expectedBefore());
+    assertThat(entry.getAfterValue()).isEqualTo(testCase.expectedAfter());
+  }
+
+  @Test
+  void theSnapshotMapsHaveExactlyTheFourAuditedFieldsAndNoCredentials() {
+    AuditLogEntry entry =
+        mapper.fromUserChangedEvent(
+            userEvent(
+                UserChangeOperation.UPDATED,
+                "user-1",
+                snapshot("a", "a@example.test", "active", "r1"),
+                snapshot("b", "a@example.test", "active", "r2"),
+                "admin-1",
+                Instant.parse("2026-09-20T05:00:00Z")));
+
+    assertThat(entry.getBeforeValue()).containsOnlyKeys("name", "email", "status", "roleIds");
+    assertThat(entry.getAfterValue()).containsOnlyKeys("name", "email", "status", "roleIds");
+    assertThat(entry.getAfterValue().toString())
+        .doesNotContain("passwordHash")
+        .doesNotContain("invitationToken");
+  }
+
+  @Test
+  void everyOperationOfTheEventIsCoveredByTheTable() {
+    assertThat(userCases())
+        .extracting(c -> c.event().operation())
+        .containsAll(List.of(UserChangeOperation.values()));
   }
 }

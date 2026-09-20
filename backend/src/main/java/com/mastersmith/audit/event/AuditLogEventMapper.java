@@ -20,6 +20,11 @@ import com.mastersmith.audit.entity.AuditLogEntry;
 import com.mastersmith.config.event.ConfigChangedEvent;
 import com.mastersmith.dataio.event.ImportExecutedEvent;
 import com.mastersmith.permission.event.PermissionChangedEvent;
+import com.mastersmith.usermanagement.event.UserChangeOperation;
+import com.mastersmith.usermanagement.event.UserChangedEvent;
+import com.mastersmith.usermanagement.event.UserSnapshot;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.springframework.stereotype.Component;
 
 /**
@@ -73,5 +78,44 @@ public class AuditLogEventMapper {
         event.occurredAt(),
         null,
         null);
+  }
+
+  /**
+   * user-managementのUserChangedEvent → AuditLogEntry(user-management rules.md
+   * BR4.9、code-generation-plan.md 前提事項3)。
+   *
+   * <p>{@code targetType}はUserChangedEventの固定値({@code User})、{@code targetId}はuserId、{@code
+   * operationType}は{@code operation}名(INVITED・ACTIVATED・UPDATED・DISABLED・BOOTSTRAPPED)。{@code
+   * beforeValue}/{@code afterValue}は、スナップショット({@code name}・ {@code email}・{@code status}・{@code
+   * roleIds}のみ。{@code passwordHash}・{@code invitationToken}は、イベントの型が持たない)のMap表現(初回の
+   * INVITED・BOOTSTRAPPEDの{@code beforeValue}はnull)。
+   *
+   * <p>{@code actor}は、INVITED・ACTIVATED・UPDATED・DISABLEDでは操作した利用者のuserIdとして{@code
+   * actorUserId}へ、BOOTSTRAPPED(初期管理者の 自動作成)ではシステム識別子{@code system}を、userIdを偽装せず{@code
+   * actorRaw}へ入れる。
+   */
+  public AuditLogEntry fromUserChangedEvent(UserChangedEvent event) {
+    boolean systemActor = event.operation() == UserChangeOperation.BOOTSTRAPPED;
+    return new AuditLogEntry(
+        systemActor ? null : event.actor(),
+        systemActor ? event.actor() : null,
+        event.targetType(),
+        event.targetId(),
+        event.operation().name(),
+        event.occurredAt(),
+        toMap(event.beforeValue()),
+        toMap(event.afterValue()));
+  }
+
+  private static Map<String, Object> toMap(UserSnapshot snapshot) {
+    if (snapshot == null) {
+      return null;
+    }
+    Map<String, Object> map = new LinkedHashMap<>();
+    map.put("name", snapshot.name());
+    map.put("email", snapshot.email());
+    map.put("status", snapshot.status());
+    map.put("roleIds", snapshot.roleIds());
+    return map;
   }
 }

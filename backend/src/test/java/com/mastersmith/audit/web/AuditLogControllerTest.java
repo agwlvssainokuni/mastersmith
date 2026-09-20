@@ -45,6 +45,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -67,6 +68,7 @@ class AuditLogControllerTest {
   private static final String ACTIVE_ROLE_ID = "role-1";
 
   @Autowired private MockMvc mockMvc;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @MockitoBean private PermissionEngineApi permissionEngineApi;
   @MockitoBean private ActiveRoleResolver activeRoleResolver;
@@ -79,6 +81,15 @@ class AuditLogControllerTest {
   void grantAccessByDefault() {
     when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(eq(ACTIVE_ROLE_ID), eq("audit-log"))).thenReturn(true);
+  }
+
+  /**
+   * user-management(U4)の初期管理者の自動作成(BOOTSTRAPPED)は、アプリケーションの起動時に、監査ログへ1行を確定する。このテストは、空の監査ログを前提とするため、
+   * テストのトランザクションの中でだけ、その行を除外する(テスト終了時にロールバックされ、他のテストには影響しない)。
+   */
+  @BeforeEach
+  void excludeTheRowRecordedAtStartup() {
+    jdbcTemplate.update("delete from audit_log_entry");
   }
 
   @AfterEach
