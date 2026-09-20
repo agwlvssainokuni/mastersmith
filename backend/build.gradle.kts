@@ -74,12 +74,23 @@ dependencies {
     implementation("org.springframework.security:spring-security-crypto")
     implementation("org.bouncycastle:bcprov-jdk18on:1.86")
 
+    // authentication-service(U5): SecurityFilterChain(認証の要否の規則・セキュリティヘッダー・ステートレス・CSRF無効)と、
+    // 自前の認証フィルタ(BearerAuthenticationFilter)の土台(code-generation-plan.md 前提事項2)。
+    // OAuth2 Resource Serverは用いない(署名方式のHS256限定・時計のずれ0・subとSessionのuserIdの照合を自前で制御するため)。
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    // authentication-service(U5): JWT(HS256)の署名・検証。Spring Boot BOM・Spring Security BOMの管理対象外のため、
+    // 最新の安定版を固定する(Spring Security 7.1.1のoauth2-joseが取り込む10.9.1より新しい安定版)。
+    implementation("com.nimbusds:nimbus-jose-jwt:10.10")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Spring Boot 4.0でDataJpaTest等のテストスライスは個別モジュールへ分離された。
     testImplementation("org.springframework.boot:spring-boot-data-jpa-test")
     // schema-introspector(U2): @WebMvcTest(SchemaIntrospectionControllerTest)用
     // (Jacksonのテスト自動構成を含むstarterでなければObjectMapperがテストスライスへ自動構成されない)。
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    // authentication-service(U5): Spring Securityを導入したことによる@WebMvcTest・@SpringBootTestの認証・CSRFの扱い
+    // (SecurityMockMvcRequestPostProcessors等)のテスト支援。
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<JavaCompile> {

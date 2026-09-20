@@ -24,9 +24,9 @@ import java.util.Optional;
  *
  * <p>呼び出し元(U5)は、各メソッドを、<b>トランザクションの外で</b>呼ぶこと(ハッシュ計算の許可を保持している間はDB接続を取らない、という資源の取得順序の 不変条件を保つため)。
  *
- * <p><b>契約からの意図的な差異</b>: {@code revokeRefreshTokensOnDisable}は、呼び出し方向が未確定のため、本Boltでは定義しない
- * (functional-spec.md Open Questions、C11の追補)。FR2.3の「以後の再認証はできない」は、{@link
- * #isDisabled(String)}が常に最新のstatusを返す ことで担保する。
+ * <p><b>{@code revokeRefreshTokensOnDisable}は、契約から削除した</b>(authentication-service(U5)の機能設計 追補4番。引き込み型のため不要)。FR2.3の
+ * 「以後の再認証はできない」は、{@link #isDisabled(String)}が常に最新のstatusを返すことと、authentication-serviceが、ログイン・リフレッシュで
+ * 無効化されたユーザーを拒否することで担保する。{@link #findByUserId(String)}・{@link #dummyVerify(String)}は、U5の追補として加えた。
  */
 public interface UserAccountLookupApi {
 
@@ -50,4 +50,21 @@ public interface UserAccountLookupApi {
 
   /** 最新のstatusがdisabled、または不存在の場合にtrue(キャッシュしない、fail closed。rules.md BR4.13)。 */
   boolean isDisabled(String userId);
+
+  /**
+   * userIdでUserを検索する(C11への追補、authentication-service(U5)の機能設計 追補4番)。アクセストークンが{@code sub}(userId)しか運ばないため、
+   * リフレッシュ・ロール選択で、最新の選択可能なロールを得るために用いる。{@link UserAccount#roleIds()}は、直接付与分とGroup経由分の和集合、{@link
+   * UserAccount#passwordHash()}はnull。statusは問わない(不存在の場合だけ空)。
+   */
+  Optional<UserAccount> findByUserId(String userId);
+
+  /**
+   * ユーザーを指定しないダミーの検証(C11への追補、BR5.2・BR5.15)。実際の検証({@link #verifyPasswordHash})と同じコストのハッシュ計算を、同じ
+   * ハッシュ計算の同時実行数の上限を共有して行い、結果は返さない。129文字以上のパスワードは、ハッシュ計算をしない({@link #verifyPasswordHash}と同じ
+   * 扱い)。呼び出し元(authentication-service)が、実際の検証を行わない場合(未登録・招待中・無効化済み・ロック中)に、応答時間と503の有無を、実際の
+   * 検証と揃えるために用いる。平文をログ・エラーメッセージに出力しない。
+   *
+   * @throws HashCapacityExceededException ハッシュ計算の許可を、待機の上限内に取れなかった場合(HTTPへの変換は呼び出し元)
+   */
+  void dummyVerify(String rawPassword);
 }

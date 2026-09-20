@@ -48,9 +48,15 @@ public class PasswordHasher {
    */
   public record VerifyResult(boolean matches, String upgradedHash) {}
 
+  /** ダミーの検証で用いる、ダミーのパスワード(認証情報ではない。実際のパスワードと、ハッシュ計算の負荷を揃えるための固定の値)。 */
+  private static final String DUMMY_PASSWORD = "dummy-password-for-constant-cost-verification";
+
   private final Argon2PasswordEncoder encoder;
   private final HashConcurrencyLimiter limiter;
   private final Timer durationTimer;
+
+  /** ダミーの検証に用いる、現在のパラメータのハッシュ。最初のダミーの検証で、許可の中で作る(起動時の負荷を避ける)。 */
+  private volatile String dummyHash;
 
   /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
   private UserObservations observations = UserObservations.NOOP;
@@ -145,6 +151,40 @@ public class PasswordHasher {
                   }
                   String upgraded = needsUpgrade(storedHash) ? encoder.encode(rawPassword) : null;
                   return new VerifyResult(true, upgraded);
+                }));
+  }
+
+  /**
+   * ユーザーを指定しないダミーの検証(C11の{@code dummyVerify}、BR5.2・BR5.15)。実際の検証({@link #verify})と同じコストのハッシュ計算を、同じ
+   * {@link HashConcurrencyLimiter}の許可の中で行う。結果は返さない。129文字以上(と、null・空)は、許可を取らず、計算もしない({@link
+   * #verify}と同じ扱い)。
+   *
+   * @throws com.mastersmith.usermanagement.HashCapacityExceededException 許可を待機の上限内に取れなかった場合
+   */
+  public void dummyVerify(String rawPassword) {
+    observations.observe(
+        "user.password.compute",
+        "dummy_verify",
+        () -> {
+          doDummyVerify(rawPassword);
+          return null;
+        });
+  }
+
+  private void doDummyVerify(String rawPassword) {
+    if (rawPassword == null || rawPassword.isEmpty() || PasswordPolicy.exceedsMaxLength(rawPassword)) {
+      return;
+    }
+    limiter.runWithPermit(
+        () ->
+            timed(
+                () -> {
+                  String hash = dummyHash;
+                  if (hash == null) {
+                    hash = encoder.encode(DUMMY_PASSWORD);
+                    dummyHash = hash;
+                  }
+                  return encoder.matches(rawPassword, hash);
                 }));
   }
 

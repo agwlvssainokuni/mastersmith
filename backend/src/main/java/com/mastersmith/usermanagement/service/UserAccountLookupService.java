@@ -126,6 +126,23 @@ public class UserAccountLookupService implements UserAccountLookupApi {
         .orElse(true);
   }
 
+  @Override
+  public Optional<UserAccount> findByUserId(String userId) {
+    return observations.observe("user.account.find_by_user_id", () -> doFindByUserId(userId));
+  }
+
+  private Optional<UserAccount> doFindByUserId(String userId) {
+    if (userId == null || userId.isBlank()) {
+      return Optional.empty();
+    }
+    return userRepository.findById(userId).map(this::toAccount);
+  }
+
+  @Override
+  public void dummyVerify(String rawPassword) {
+    observations.run("user.account.dummy_verify", () -> passwordHasher.dummyVerify(rawPassword));
+  }
+
   private UserAccount toAccount(User user) {
     // 直接付与分とGroup経由分の和集合(ソート済み)。passwordHashは返さない(null)。
     TreeSet<String> roleIds = new TreeSet<>(user.getRoleIds());
