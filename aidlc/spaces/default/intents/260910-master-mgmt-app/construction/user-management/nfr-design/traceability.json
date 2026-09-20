@@ -1,0 +1,206 @@
+{
+  "stage": "nfr-design",
+  "unit": "user-management",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR1.4",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR2.3",
+    "NFR2.4",
+    "NFR2.5",
+    "NFR2.6",
+    "NFR2.7",
+    "NFR2.8",
+    "NFR2.9",
+    "NFR2.10",
+    "NFR2.11",
+    "NFR3.1",
+    "NFR3.2",
+    "NFR3.3",
+    "NFR3.4",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR5.5",
+    "NFR7.1",
+    "NFR7.2",
+    "NFR8.1",
+    "NFR8.2"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "performance-design.md NFR1.1(キャッシュなし、認可判定は1回、email昇順の全件取得)"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "performance-design.md NFR1.2(PasswordHasher、Argon2id、単体ベンチマーク)"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "performance-design.md NFR1.3(HashConcurrencyLimiter、待機2秒で503)"
+    },
+    {
+      "id": "NFR1.4",
+      "status": "OK",
+      "target": "performance-design.md NFR1.4(InvitationMailExecutor、SMTPタイムアウト10秒)"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "security-design.md NFR2.1(CurrentOperatorProviderと入口での認可再検証)"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "security-design.md NFR2.2(専用の応答型、ハッシュ更新はQ3=A)"
+    },
+    {
+      "id": "NFR2.3",
+      "status": "OK",
+      "target": "security-design.md NFR2.3(PasswordPolicy、RequestSizeLimitFilter)"
+    },
+    {
+      "id": "NFR2.4",
+      "status": "OK",
+      "target": "security-design.md NFR2.4(UUIDv4、null化、404一本化)"
+    },
+    {
+      "id": "NFR2.5",
+      "status": "OK",
+      "target": "security-design.md NFR2.5(自己のroleIds変更の拒否、roleIdの実在検証)"
+    },
+    {
+      "id": "NFR2.6",
+      "status": "OK",
+      "target": "security-design.md NFR2.6(個人情報の出力経路の限定、無期限保持)"
+    },
+    {
+      "id": "NFR2.7",
+      "status": "OK",
+      "target": "security-design.md NFR2.7(SMTP設定、暗号化は環境任せ(Q2=B)、SubjectExtractor、ベースURL)"
+    },
+    {
+      "id": "NFR2.8",
+      "status": "OK",
+      "target": "security-design.md NFR2.8(SAST・シークレットスキャン)"
+    },
+    {
+      "id": "NFR2.9",
+      "status": "OK",
+      "target": "security-design.md NFR2.9(ApiExceptionHandlerによるProblemDetails)"
+    },
+    {
+      "id": "NFR2.10",
+      "status": "OK",
+      "target": "security-design.md NFR2.10(フラグメントのリンク(Q1=A)、ルートのテンプレート、Referrer-Policy)"
+    },
+    {
+      "id": "NFR2.11",
+      "status": "OK",
+      "target": "security-design.md NFR2.11(InitialAdminProperties、InitialAdminBootstrap)"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.1(インデックス付きテーブル、専用の仕組みなし)"
+    },
+    {
+      "id": "NFR3.2",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.2(ページングなし、見直しの条件)"
+    },
+    {
+      "id": "NFR3.3",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.3(許可数×約19MiB、JVMヒープの見込み)"
+    },
+    {
+      "id": "NFR3.4",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.4(プロセス内の状態、複数プロセス構成の制約)"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.1(条件付き更新、後勝ち)"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.2(処理の流れ、EmailLockRegistry、同時実行数5、競合時の応答)"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.3(UserChangedEventPublisher、コミット後、fire-and-forget)"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.4(InitialAdminBootstrapの冪等性)"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.5(障害時の影響の範囲)"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "observability-design.md NFR5.1(カウンタ・タイマー、アラートの暫定値)"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "observability-design.md NFR5.2(構造化ログ、MDC)"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "observability-design.md NFR5.3(スパン、ルートのテンプレート)"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "observability-design.md NFR5.4(内部設定DBのヘルスチェック)"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "OK",
+      "target": "observability-design.md NFR5.5(ダッシュボードの候補指標)"
+    },
+    {
+      "id": "NFR7.1",
+      "status": "OK",
+      "target": "logical-components.md NFR7.1(言語ごとのテンプレート、MailTemplateRenderer)"
+    },
+    {
+      "id": "NFR7.2",
+      "status": "OK",
+      "target": "logical-components.md NFR7.2(ApiExceptionHandlerのi18nキー)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "logical-components.md NFR8.1(業務固有情報を持たない、外部テンプレート・設定)"
+    },
+    {
+      "id": "NFR8.2",
+      "status": "OK",
+      "target": "logical-components.md NFR8.2(部品ごとのテスト設計)"
+    }
+  ]
+}
