@@ -8,7 +8,7 @@
 リクエスト
   → AuthRequestSizeLimitFilter(/api/auth/**、413)
   → セキュリティヘッダー(Referrer-Policy・nosniff・CSP・Cache-Control)
-  → BearerAuthenticationFilter(署名・有効期限・Session・sub一致 → Operatorを設定、401・503)
+  → BearerAuthenticationFilter(認証を要するパス(NFR2.1の順2)にだけ適用。署名・有効期限・Session・sub一致 → Operatorを設定、401・503)
   → 認可の規則(SecurityFilterChainのmatcher。認証の要否だけ。権限判定は各ユニットが行う)
   → 各ユニットのController → 入口でcanAccessScreen(C10)の再検証
 
@@ -28,11 +28,13 @@
 |---|---|---|
 | 1 | `POST /api/auth/login`・`POST /api/auth/refresh`・`POST /api/users/invitations/*/accept` | 認証を要しない(BR5.11の3つだけ) |
 | 2 | `/api/**` の残りすべて | 認証を要する(Bearerトークン、`BearerAuthenticationFilter`を通す) |
-| 3 | `/actuator/health` | 認証を要しない。応答は状態(UP・DOWN)だけで、詳細を含めない |
-| 4 | `/actuator/**` の残り | 拒否する(公開しない。ヘルスチェック以外のactuatorのエンドポイントは、公開設定にも含めない) |
-| 5 | 上記以外のパス(フロントエンドの静的ファイル、SPAのルートのフォールバック) | 認証を要しない(業務データ・個人情報を含まない静的な成果物のため) |
+| 3 | `GET /actuator/health`(完全一致のみ) | 認証を要しない。応答は状態(UP・DOWN)だけで、詳細を含めない。ヘルスのグループ(`/actuator/health/**`、livenessなど)は設けない。DBのチェックの結果は、5秒間キャッシュする(`management.endpoint.health.cache.time-to-live`。認証なしの呼び出しが、内部設定DBの接続を、5秒に1回を超えて使わないようにする) |
+| 4 | `/actuator/**` の残り(すべてのメソッド) | 拒否する(公開しない。ヘルスチェック以外のactuatorのエンドポイントは、公開設定にも含めない。プル型のメトリクスのエンドポイントを採用する場合は、この規則より前に、認証を要する規則として、明示的に追加する) |
+| 5 | `/api/**`・`/actuator/**`以外のパスへの、`GET`・`HEAD`(フロントエンドの静的ファイル、SPAのルートのフォールバック) | 認証を要しない(業務データ・個人情報を含まない静的な成果物のため) |
+| 6 | 上記のいずれにも一致しないすべてのリクエスト(`/api/**`・`/actuator/**`以外への、`GET`・`HEAD`以外のメソッドなど) | 拒否する |
 
-- 順2により、`/api/**`のうち、順1に列挙した3つ以外の、新しく追加されるAPIは、既定で認証を要する(認証を経ない経路を作らない、deny by default)。
+- 順2と順6により、`/api/**`のうち、順1に列挙した3つ以外の、新しく追加されるAPIは、既定で認証を要し、`/api`の外にマップされる、意図しないコントローラや、H2コンソールなどの開発用の管理機能も、認証なしでは公開されない(deny by default)。H2コンソールなどは、本番相当のプロファイルで無効にする(既定で無効。共通基盤への要求)。
+- **フィルタの適用範囲**: `BearerAuthenticationFilter`は、順2に該当するパス(`/api/**`から、順1の3つを除いたもの)にだけ適用する(`shouldNotFilter`で、順1・3・4・5・6のパスでは、フィルタを実行しない)。順1・3・5のパスでは、`Authorization`ヘッダーの有無・内容(期限切れ・不正なトークンを含む)にかかわらず、フィルタは何も検証せず、素通しにする。これにより、期限切れのアクセストークンを付けたまま、`POST /api/auth/refresh`・`POST /api/auth/login`・招待受諾を呼んでも、フィルタでは401にならず、NFR2.2・NFR2.11が前提とする「リフレッシュで復旧する」経路が保たれる。
 - **操作者の受け渡し**: `BearerAuthenticationFilter`が、`Operator`(userId・sessionId・activeRoleId)を、リクエストのセキュリティコンテキストに設定する。他ユニットは、`OperatorContext`(C15、読み取り専用)だけを読む。`OperatorContext`の実装(`SecurityContextOperatorContext`)は、セキュリティコンテキストから読む。ヘッダー(`X-User-Id`・`X-Active-Role-Id`)を読む実装は、どのプロファイルにも残さない(機能設計W7・Q9=A)。
 - **アクティブロールが未選択(null)**: 認証は成功し、`Operator.activeRoleId`はnullのまま、各ユニットへ渡る。各ユニットは、nullを、自前で拒否せず(401にせず)、C10へそのまま渡し、権限なし(403)として判定させる(BR5.12)。
 - 認証フィルタの結果が、認可の根拠にならないことの担保として、各ユニットのコントローラ・サービスの入口の、`canAccessScreen`の呼び出しは、変更しない。
@@ -40,8 +42,8 @@
 ## NFR2.2: アクセストークン(JWT)の署名と検証
 
 - **実装**: Nimbus JOSE + JWTを、自前の`BearerAuthenticationFilter`から直接使う(Spring SecurityのOAuth2 Resource Serverの`JwtDecoder`は使わない)。理由は、(1)トークンの検証と、Sessionの確認(`sid`)と、`sub`の一致の確認を、1つのフィルタの中で、一貫した順序で行うため、(2)内部設定DBの障害を、401ではなく503にするため(NFR4.2)、である。NFR Requirementsの確認事項3への、設計としての回答である([assumption]。Code Generationの計画承認で確認する)。
-- **検証の手順**(いずれかに失敗した時点で、401。応答は、原因を区別しない、NFR2.8):
-  1. `Authorization`が、`Bearer `で始まる。なければ`missing`。
+- **検証の手順**(認証を要するパス(NFR2.1の順2)にだけ適用する。いずれかに失敗した時点で、401。応答は、原因を区別しない、NFR2.8):
+  1. `Authorization`が、`Bearer `で始まる(スキーム名は、大文字小文字を区別しない、RFC 7235)。なければ`missing`。`Authorization`ヘッダーが複数ある場合も、`missing`とする。
   2. トークンを解析できる(JWSのコンパクト形式)。できなければ`invalid`。
   3. ヘッダーの`alg`が`HS256`である。`none`・`HS384`・`HS512`・`RS256`などは、署名の検証に進まず、`invalid`とする。
   4. HMAC-SHA256の署名が、注入された鍵で検証できる。できなければ`invalid`。
@@ -51,20 +53,21 @@
   8. トークンの`sub`が、Sessionの`userId`と一致する。一致しなければ`invalid`(NFR Requirementsで追加した確認。鍵が漏えいしても、攻撃者は、有効な`sid`を知らなければ、他のユーザーになりすませない)。
 - `reason`(`missing`・`invalid`・`expired`・`session_inactive`)は、メトリクスのタグと、DEBUGログの分類にだけ用い、応答には出さない(observability-design.md NFR5.1)。NFR Requirementsの3分類に、`missing`(ヘッダーなし・Bearerでない)を加えた。走査や、認証なしの呼び出しと、トークン自体の不備(`invalid`)を、アラートで区別するためである([assumption])。
 - **鍵の外部表現**: `auth.jwt.secret`(設定のキーの名称はCode Generationで確定)は、**標準のBase64**で表した文字列とし、デコード後が**32バイト(256ビット)以上**であること。デコードできない、または32バイト未満の場合は、起動時に失敗させる(reliability-design.md NFR4.4)。Nimbusの`MACSigner`・`MACVerifier`に、デコード後のバイト列を渡す。
-- **鍵を漏らさない**: 鍵は、専用の型(`SecretKeyMaterial`。`toString`が固定の伏せ字を返し、`equals`・`hashCode`にも値を使わない)に保持する。設定のバインドで、検証のエラーが起きたときに、Springの起動失敗のメッセージが、拒否された値(`Rejected value`)として鍵を出力しないよう、鍵は、Bean Validationの制約ではなく、`JwtKeyProvider`の初期化処理で検証する(例外のメッセージに、値を含めない)。
+- **鍵を漏らさない**: 鍵は、専用の型(`SecretKeyMaterial`。`toString`が固定の伏せ字を返し、`equals`・`hashCode`にも値を使わない)に保持する。鍵は、`AuthProperties`(`@ConfigurationProperties`の束縛)には**含めない**。Spring Bootの束縛の失敗の診断は、`Value:`として、元の値を表示する(Bean Validationの`Rejected value`も同様)ため、鍵を束縛の対象にしない。`JwtKeyProvider`が、`Environment`から、キー`auth.jwt.secret`の値を直接読み、Base64のデコードと長さの検証を、自前で行う。失敗の例外(`IllegalStateException`)のメッセージには、設定のキーの名前と理由(未設定・形式不正・長さ不足)だけを含め、値の断片・デコードの例外のメッセージ(値を含みうる)を含めない(例外の原因として連鎖させない)。
 - **鍵の入れ替え**: 鍵を差し替えて再起動する。Sessionは失効しないため、発行済みのアクセストークンが1回使えなくなるだけで、フロントエンドが、リフレッシュ(または再ログイン)で復旧する。無停止の入れ替え(`kid`による旧鍵・新鍵の併存)は行わない(Q1=A)。
 - 発行: ログイン成功時とリフレッシュ成功時に、`sub`・`sid`・`iat`・`exp`だけを持つトークンを、HS256で署名する。`exp`は、発行時刻に、設定のアクセストークンの有効期限を加えた値とする。
 
 ## NFR2.3: リフレッシュトークンの生成・保存・ローテーション
 
 - **生成**: `RefreshTokenGenerator`が、`SecureRandom`で32バイトを生成し、Base64URL(パディングなし、43文字)にする。
+- **sessionId(`sid`)の生成**: `SessionIdGenerator`が、`SecureRandom`で16バイト(128ビット)を生成し、Base64URL(パディングなし、22文字)にする。`sid`の推測不能性は、NFR2.2の手順8(`sub`とSessionの`userId`の照合)と、NFR Requirementsの残余リスク9(有効な`sid`を知らない攻撃者は、鍵が漏えいしても、なりすませない)の根拠であり、`refresh_token_hash`と同様に、暗号論的乱数から作る。
 - **保存**: `RefreshTokenHasher`が、トークンの文字列(UTF-8)の、SHA-256を求め、Base64URL(43文字)で保存する。列は、`refresh_token_hash`と`previous_refresh_token_hash`(いずれも、一意なインデックスを持つ)。平文は、応答にだけ含め、保存・ログ・トレースに出さない。
 - **検索**: 提出された値を、同じ方法でハッシュ化し、`refresh_token_hash`で検索する。見つからなければ、`previous_refresh_token_hash`で検索する。
 - **判定表**(リフレッシュの入口、functional-spec.md W2、rules.md BR5.6):
 
 | 検索の結果 | Sessionの状態 | 結果 |
 |---|---|---|
-| `refresh_token_hash`に一致 | 有効(activeかつ`refreshExpiresAt`が未経過) | ユーザーの無効化の確認(C11)→ ロールの再確認 → 条件付きの更新。成功なら200、更新の件数が0件なら401(Sessionは失効させない) |
+| `refresh_token_hash`に一致 | 有効(activeかつ`refreshExpiresAt`が未経過) | ユーザーの無効化の確認(C11)→ ロールの再確認(読み取った`active_role_id`をaとする)→ 条件付きの更新(下記)。成功なら200。更新の件数が0件なら、Sessionを読み直す: `refresh_token_hash`が変わっている(同時の更新に負けた)なら401(Sessionは失効させない)。`refresh_token_hash`は同じで、`active_role_id`だけが変わっている(並行するロール選択に負けた)なら、C11から得たロール集合Rは変えずに、読み直した`active_role_id`に、NFR2.6の判定表を適用して新しいロールを決め、条件付きの更新を**1回だけ**やり直す。やり直しも0件なら、401(Sessionは失効させない) |
 | `refresh_token_hash`に一致 | 有効でない(revokedまたは期限切れ) | 401(Sessionは変更しない) |
 | `previous_refresh_token_hash`に一致 | active | `lastRefreshedAt`から猶予(既定10秒)以内なら401(Sessionは失効させない、`auth_refresh_reuse_within_grace_total`を数える)。猶予を超えていれば、Sessionをrevokedにして401(`auth_refresh_token_reuse_detected_total`を数える) |
 | `previous_refresh_token_hash`に一致 | revoked・期限切れ | 401(Sessionは変更しない。すでに有効でないため) |
@@ -76,12 +79,13 @@
 UPDATE auth_session
    SET previous_refresh_token_hash = refresh_token_hash,
        refresh_token_hash = :newHash, last_refreshed_at = :now,
-       refresh_expires_at = :now + :refreshTtl, active_role_id = :roleId
+       refresh_expires_at = :newRefreshExpiresAt, active_role_id = :newRoleId
  WHERE session_id = :sid AND refresh_token_hash = :oldHash
    AND status = 'active' AND refresh_expires_at > :now
+   AND (active_role_id = :readRoleId OR (active_role_id IS NULL AND :readRoleId IS NULL))
 ```
 
-  更新の件数が1なら成功、0なら負けた側(401、Sessionは失効させない)。コミットの後に、Sessionのキャッシュを無効化する(reliability-design.md NFR4.3)。
+  `:newRefreshExpiresAt`は、Java側で、`:now`に設定の有効期限を加えて計算した値をパラメータとして渡す(SQLの中で日時に加算しない、reliability-design.md NFR4.1)。`:readRoleId`は、更新の前に読み取った`active_role_id`である(NULLを含めて、等しいことを条件にする)。これにより、読み取りと更新の間に、`PUT /api/auth/active-role`がコミットされても、その選択を、古いロールで上書きしない(失われた更新の防止)。更新の件数が1なら成功、0なら、判定表のとおりに扱う。コミットの後に、Sessionのキャッシュを無効化する(reliability-design.md NFR4.3)。ロール選択(`PUT /api/auth/active-role`)の更新は、`session_id`と`status = 'active'`だけを条件とし、リフレッシュの更新が先にコミットされていれば、その後に、選択が反映される。
 - 401の応答は、いずれの場合も、同じ内容(`auth.refresh.rejected`)とする(NFR2.8)。
 
 ## NFR2.4: ログインの保護
@@ -91,11 +95,12 @@ UPDATE auth_session
 1. **入力の確認**: `email`または`password`が、空(null・空白のみ)の場合は、C11を呼ばずに、失敗の応答(401、`auth.login.failed`)を返す。JSONの形式が不正な場合は、400(`auth.request.malformed`)を返す。
 2. **正規化**: `email`を、trimして小文字にする(BR5.1)。
 3. **C11の`findByEmail`**(トランザクションの外)。登録がない・statusがactiveでない場合は、6へ。
-4. **予約**(`LoginAttemptGate.reserve`、短いトランザクション): 枠を確保できなければ、6へ。確保できたら、予約(`generation`と、この予約が設定した`lockedUntil`)を保持する。
+4. **予約**(`LoginAttemptGate.reserve`、短いトランザクション): 枠を確保できなければ、6へ。確保できたら、予約(`generation`と、この予約が設定した`lockedUntil`。設定しなかった場合はnull)を保持する。`account_login_state`の行の初回作成で、同時の試行により、主キーの一意制約に違反した場合は、`AuthenticationApplicationService`が、トランザクションの外で捕捉し、新しいトランザクションで、最大3回まで、やり直す(reliability-design.md NFR4.1)。この違反は、500にも401にもならず、利用者からは観測されない(存在の推測を防ぐ)。
 5. **検証**(C11の`verifyPasswordHash`、トランザクションの外)。
    - 成功: `LoginAttemptGate.succeed`と`SessionService.create`を、同一の短いトランザクションで行い、トークンを発行して200(reliability-design.md NFR4.1)。
    - 失敗: 追加の更新は行わず、失敗の応答(401)を返す。
-   - `HashCapacityExceededException`: `LoginAttemptGate.compensate`(条件付きの補償の更新)のあと、503(`auth.service.unavailable`)を返す。
+   - `HashCapacityExceededException`、またはC11の内部設定DBの障害(`AuthStorageUnavailableException`に変換されたもの): `LoginAttemptGate.compensate`(条件付きの補償の更新)を試みたあと、503(`auth.service.unavailable`)を返す。
+   - 上記以外の想定外の例外: 補償はせず(枠は失敗として数えたまま。安全側)、500を返す(NFR2.8)。
 6. **実際の検証を行わない場合**(登録がない・activeでない・ロック中): C11の`dummyVerify(password)`を行い、失敗の応答を返す。`HashCapacityExceededException`なら、503を返す(BR5.15)。
 - **応答の同一性**: 失敗の応答(401)は、原因(未登録・パスワードの誤り・ロック中・無効化済み・招待中)にかかわらず、同じステータス・タイトル・詳細・`code`(`auth.login.failed`)とし、ヘッダーも同じにする。テストで、原因ごとの応答の全体(ステータス・ヘッダー・本文)が一致することを確認する。
 - **長いパスワード**: `verifyPasswordHash`と`dummyVerify`は、129文字以上の入力を、ハッシュ計算をせずに拒否する(C11の追補、契約追補の一覧)。実際の検証・ダミーの検証で、長い入力の扱いが揃うため、未登録のメールアドレスにだけ応答時間の差が出ない。
@@ -117,7 +122,7 @@ UPDATE auth_session
 | 定期削除 | 行の削除(有効でないもののみ) | 不要(有効でない行は、認証フィルタが、時刻の判定でも拒否する) |
 
 - **Sessionの絶対期限を設けない**: リフレッシュは、成功のたびに有効期限を延長する(最後の更新から30分)。利用が続く限り、Sessionは、継続して有効になる。要件のFR3.1・機能設計に、Sessionの最大の存続期間の定めがないため、設けない([assumption]。残余リスク11)。
-- **全Sessionの失効の手段**(バックアップからの復元後や、鍵の漏えいの疑いのときの運用の手順の前提、NFR4.7): 設定`auth.session.revoke-all-on-startup`(既定はfalse)を、trueにして起動すると、起動時に、`auth_session`のすべての行を削除する([assumption]。運用フェーズが本MVPスコープ外のため、この設定の存在を、運用の手順の前提として記録する。設定を戻さないまま起動を繰り返すと、そのたびに削除されるため、手順に、設定を戻すことを含める)。鍵の入れ替えだけでは、Sessionは失効しない点に注意する。
+- **全Sessionの失効の手段**(バックアップからの復元後や、鍵の漏えいの疑いのときの運用の手順の前提、NFR4.7): 設定`auth.session.revoke-all-on-startup`(既定はfalse)を、trueにして起動すると、起動時に、`auth_session`のすべての行を削除する。削除は、Flywayの移行の後、Webサーバーがリクエストを受け付ける前に実行する(`SmartInitializingSingleton`で実行し、Flywayの初期化に`@DependsOn`を付ける。`ApplicationRunner`は、Webサーバーの起動の後に実行され、その間に作られたSessionを削除しうるため使わない)([assumption]。運用フェーズが本MVPスコープ外のため、この設定の存在を、運用の手順の前提として記録する。設定を戻さないまま起動を繰り返すと、そのたびに削除されるため、手順に、設定を戻すことを含める)。鍵の入れ替えだけでは、Sessionは失効しない点に注意する。
 - ログアウトは、認証フィルタ(BR5.11)を通るため、期限切れのアクセストークンでは401になる。frontend-ui(U12)は、先にリフレッシュしてからログアウトする(NFR2.11)。
 
 ## NFR2.6: アクティブロールと権限昇格の防止
@@ -156,9 +161,12 @@ UPDATE auth_session
 | 一時的に処理できない | 503 | `auth.service.unavailable` | ハッシュ計算の待機超過(BR5.15)と、内部設定DBの障害(NFR4.2)。原因を区別しない |
 | リクエストボディが大きすぎる | 413 | `auth.request.too-large` | NFR2.10 |
 | JSONの形式が不正 | 400 | `auth.request.malformed` | |
+| 他ユニットのリクエスト処理の中で、C14(`getActiveRoleId`)が投げる`SessionNotFoundException`・`SessionExpiredException` | 401 | `auth.token.invalid` | C14の契約(frontend-ui向けには401)。`WWW-Authenticate: Bearer`を付ける |
+| 他ユニットのリクエスト処理の中で、C14・C11が投げる`AuthStorageUnavailableException` | 503 | `auth.service.unavailable` | NFR4.2 |
 
-- **フィルタでの応答**: 認証フィルタは、コントローラの手前で応答を返すため、`@RestControllerAdvice`が使えない。`ProblemDetailsWriter`(専用の部品)が、フィルタでの401・413・503を、上の表の形式で書き出す。
+- **フィルタでの応答**: 認証フィルタは、コントローラの手前で応答を返すため、`@RestControllerAdvice`が使えない。`ProblemDetailsWriter`(専用の部品)が、フィルタでの401・413・503を、上の表の形式で書き出す。`ProblemDetailsWriter`は、NFR2.9のセキュリティヘッダーも、自前で付ける(後述)。ProblemDetailsの`instance`は、含めない(生のパスを入れない、user-managementのC5の追補と同じ)。
 - **コントローラでの応答**: `AuthApiExceptionAdvice`(`@RestControllerAdvice`。対象を`AuthController`に限定し、`@Order`を明記する)が、認証系のコントローラの例外を、上の表に変換する。共通基盤の汎用の例外ハンドラ(基底)と衝突しないよう、対象を限定する(user-managementの`UserApiExceptionAdvice`と同じ方式)。
+- **他ユニットのコントローラの中で投げられる、U5の例外**: `AuthCrossCuttingExceptionAdvice`(`@RestControllerAdvice`。対象のコントローラは限定せず、対象の**例外の型**を、`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`の3つに限定する。`@Order`を明記し、共通基盤の基底のハンドラより優先する)が、上の表の最後の2行に変換する。U5自身の例外の型だけを扱うため、他ユニットの例外の型に依存せず、他ユニットの例外の変換とも衝突しない。list-engine(U10)・record-edit-engine(U11)は、C14の例外を、握りつぶさず、そのまま伝播させる(logical-components.mdの追補20番)。
 - 分類できない例外は、500(詳細なし、`code`は共通基盤の既定)とし、ERRORログに、例外の種類と、リクエストIDを記録する(メッセージ全文は出さない)。
 
 ## NFR2.9: 通信路・レスポンスヘッダー・CSRF・CORS
@@ -174,6 +182,8 @@ Q2=Aにより、authentication-serviceが、アプリケーション全体の`Se
 | `X-Frame-Options` | `DENY` | すべてのレスポンス(Spring Securityの既定) |
 | `Strict-Transport-Security` | Spring Securityの既定(HTTPSのリクエストにのみ付く) | HTTPSの環境 |
 
+- **サイズ制限のフィルタが返す413**: `AuthRequestSizeLimitFilter`は、Spring Securityのチェーンより前に置かれ、`Content-Length`超過の413を直接書くため、チェーンの`HeaderWriterFilter`が付けるヘッダーが付かない。`ProblemDetailsWriter`が、上の表のヘッダー(`Referrer-Policy`・`X-Content-Type-Options`・`Content-Security-Policy`・`X-Frame-Options`・`/api/**`の`Cache-Control: no-store`)を、自前で付ける。ヘッダーの値は、`SecurityHeaderValues`(専用の部品。設定の1か所)から取り、`SecurityFilterChain`の設定と`ProblemDetailsWriter`が、同じ値を使う(チャンク転送の413と、値がそろう)。テストで、両方の経路の413のヘッダーが同じであることを確認する。
+- **`Strict-Transport-Security`**: アプリケーションがTLSを終端しない場合、Spring Securityは、HTTPSのリクエストと判定できず、ヘッダーを付けない。HTTPSの環境で付けるには、フォワードヘッダーの設定(`server.forward-headers-strategy`)を前提とするか、リバースプロキシが付ける。どちらも環境側の前提とする(共通基盤への要求)。
 - **Spring Securityの既定のキャッシュ抑止**は、静的ファイルのキャッシュを妨げるため、無効にし、`/api/**`にだけ`no-store`を付ける([assumption]。要件が求めるのは、ログイン・リフレッシュの応答だけであり、`/api/**`全体への適用は、本設計の判断)。
 - **CSRF**: 認証は`Authorization: Bearer`ヘッダーで行い、Cookieを使わない。CSRFの保護は、無効にする。`SessionCreationPolicy.STATELESS`とし、HTTPセッションを作らず、`Set-Cookie`を返さない。認証のためのCookieを、今後追加しないことを、不変条件とし、テストで、全応答に`Set-Cookie`がないことを確認する。
 - **CORS**: 設定しない(単一の実行可能WARからフロントエンドを配信するため)。
@@ -183,7 +193,7 @@ Q2=Aにより、authentication-serviceが、アプリケーション全体の`Se
 
 - `AuthRequestSizeLimitFilter`(U5が所有するサーブレットフィルタ)が、`/api/auth/**`を対象に、リクエストボディを64KiBに制限する。フィルタチェーンで、認証フィルタより前に置く(認証前の大きなボディを読み込ませないため)。
   - `Content-Length`が64KiBを超える場合は、内容を読まずに、フィルタの中で、413(`auth.request.too-large`)を返す。
-  - `Content-Length`がない場合(チャンク転送)は、リクエストの入力ストリームを、読み込み量を数えるストリームで包み、64KiBを超えた時点で、専用の例外(`RequestBodyTooLargeException`)を投げる。この例外は、JSONの読み取りの中で、`HttpMessageNotReadableException`(400)に包まれるため、`AuthApiExceptionAdvice`が、原因の例外を判別して、413に変換する。
+  - `Content-Length`がない場合(チャンク転送)は、リクエストの入力ストリームを、読み込み量を数えるストリームで包み、64KiBを超えた時点で、専用の例外(`RequestBodyTooLargeException`、`java.io.IOException`のサブクラス)を投げる。この例外は、JSONの読み取りの中で、`HttpMessageNotReadableException`(400)に包まれる場合と、包まれずに直接伝わる場合の、両方がありうるため、`AuthApiExceptionAdvice`は、例外の原因の連鎖をたどって、`RequestBodyTooLargeException`があれば、いずれの場合も413に変換する。
 - パスワードの長さの上限(128文字)は、C11が、ハッシュ計算の前に判定する(NFR2.4)。
 - 64KiBの上限を、`/api/auth/**`以外のAPIへ広げない(他のユニットの上限は、各ユニットが所有する)。
 

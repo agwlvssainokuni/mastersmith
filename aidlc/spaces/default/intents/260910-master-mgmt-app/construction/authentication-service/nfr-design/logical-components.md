@@ -7,21 +7,25 @@ authentication-serviceを構成する、論理的な部品の一覧と、非機�
 | 部品 | 役割 | 適用するNFRの設計 |
 |---|---|---|
 | `AuthController` | `/api/auth/login`・`/api/auth/refresh`・`/api/auth/logout`・`/api/auth/active-role`のREST(C4) | NFR2.4・NFR2.8 |
-| `AuthenticationApplicationService` | ログイン・リフレッシュ・ログアウト・ロール選択の流れ。外側のトランザクションを作らず、C11をトランザクションの外で呼び、内側の短いトランザクションを`TransactionTemplate`で区切る | NFR1.3・NFR4.1 |
-| `LoginAttemptGate` | 予約・補償・成功の更新(`AccountLoginState`)。時刻は`Clock`から | NFR2.4・NFR4.1・NFR4.6 |
-| `SessionService` | Sessionの作成・ローテーション・失効・ロール選択。コミット後の`SessionCache`の無効化 | NFR2.3・NFR2.5・NFR4.1・NFR4.3 |
+| `AuthenticationApplicationService` | ログイン・リフレッシュ・ログアウト・ロール選択の流れ。**トランザクションの境界を、この部品だけが所有する**: 外側のトランザクションを作らず、C11をトランザクションの外で呼び、内側の短いトランザクションを`TransactionTemplate`で区切る。予約の一意制約違反のやり直し(新しいトランザクションで最大3回)と、コミット後の`SessionCache`の無効化の呼び出しも、この部品が行う | NFR1.3・NFR4.1・NFR4.3 |
+| `LoginAttemptGate` | 予約・補償・成功の更新(`AccountLoginState`)。時刻は`Clock`から。トランザクションには参加するだけ(`MANDATORY`) | NFR2.4・NFR4.1・NFR4.6 |
+| `SessionService` | Sessionの作成・ローテーション・失効・ロール選択の更新。トランザクションには参加するだけ(`MANDATORY`)。無効化の契機を、`AuthenticationApplicationService`へ返す | NFR2.3・NFR2.5・NFR4.1・NFR4.3 |
 | `SessionRepository` / `AccountLoginStateRepository` | 内部設定DBへの永続化(インデックス付きテーブル)。障害を`AuthStorageUnavailableException`に変換 | NFR3.4・NFR4.2 |
 | `SessionCache` | Caffeine(最大1,000件、書き込みから60秒のTTL、統計)。キーごとの原子的な読み込みと、コミット後の無効化 | NFR1.2・NFR3.2・NFR4.3 |
 | `AccessTokenIssuer` / `AccessTokenVerifier` | JWT(HS256)の署名と検証(Nimbus JOSE + JWT)。`alg`の固定、時計のずれの許容0 | NFR2.2 |
-| `JwtKeyProvider` / `SecretKeyMaterial` | 鍵のBase64のデコードと検証(起動時)。`toString`が伏せ字 | NFR2.2・NFR4.4 |
+| `JwtKeyProvider` / `SecretKeyMaterial` | 鍵を`Environment`から直接読み(`AuthProperties`の束縛の対象にしない)、Base64のデコードと長さの検証を、起動時に、値を出力しない例外で行う。`toString`が伏せ字 | NFR2.2・NFR4.4 |
 | `RefreshTokenGenerator` / `RefreshTokenHasher` | 256ビットの乱数(`SecureRandom`、Base64URL)の生成と、SHA-256のハッシュ(Base64URL) | NFR2.3 |
-| `BearerAuthenticationFilter` | 認証フィルタ。署名・有効期限・Session・`sub`の一致を確認し、`Operator`をセキュリティコンテキストに設定。401・503 | NFR1.2・NFR2.1・NFR2.2 |
+| `BearerAuthenticationFilter` | 認証フィルタ。**認証を要するパス(NFR2.1の順2)にだけ適用し、認証不要のパスでは実行しない**(`shouldNotFilter`)。署名・有効期限・Session・`sub`の一致を確認し、`Operator`をセキュリティコンテキストに設定。401・503 | NFR1.2・NFR2.1・NFR2.2 |
 | `SecurityContextOperatorContext` | C15の`OperatorContext`の実装(セキュリティコンテキストから読む、読み取り専用) | NFR2.1 |
 | `SessionContextService` | C14の`SessionContextApi.getActiveRoleId`の実装(例外・nullの扱いは、BR5.13) | NFR2.5 |
 | `AuthSecurityConfig` | アプリケーション全体の`SecurityFilterChain`(認証の要否の規則、セキュリティヘッダー、CSRF無効・ステートレス、CORSなし)。Q2=A | NFR2.1・NFR2.9 |
 | `AuthRequestSizeLimitFilter` | `/api/auth/**`のリクエストボディの64KiB上限(413)。認証フィルタより前 | NFR2.10 |
 | `ProblemDetailsWriter` / `AuthApiExceptionAdvice` | フィルタでの応答と、コントローラの例外を、RFC 9457のProblemDetails(401・403・413・503・400)に変換。`code`はi18nキー | NFR2.8・NFR4.2・NFR7.1 |
-| `AuthProperties` | `application.yml`の設定の束縛と検証(起動時のfail fast) | NFR4.4 |
+| `SessionIdGenerator` | `sid`の生成(`SecureRandom`の16バイト、Base64URLで22文字)。推測不能であること | NFR2.3 |
+| `UserAccountClient` | C11(`UserAccountLookupApi`)の呼び出しを包むアダプタ。U4の内部設定DBの障害を、`AuthStorageUnavailableException`に変換する(`HashCapacityExceededException`はそのまま伝える) | NFR4.2 |
+| `AuthCrossCuttingExceptionAdvice` | `@RestControllerAdvice`。対象のコントローラは限定せず、対象の例外の型を、U5自身の3つ(`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`)に限定し、他ユニットのリクエスト処理の中のC14・C11の例外を、401・503に変換する。`@Order`を明記し、共通基盤の基底のハンドラより優先する | NFR2.8・NFR4.2 |
+| `SecurityHeaderValues` | セキュリティヘッダーの値を、1か所に持つ。`SecurityFilterChain`の設定と、`ProblemDetailsWriter`(サイズ制限の413など、チェーンの手前で書く応答)が、同じ値を使う | NFR2.9 |
+| `AuthProperties` | `application.yml`の設定の束縛と検証(起動時のfail fast)。JWTの鍵は含めない(`JwtKeyProvider`が直接読む)。キャッシュの最大件数・TTL・`revoke-all-on-startup`を含む | NFR4.4 |
 | `SessionCleanupJob` | 期限切れ・失効したSessionの定期削除(`@Scheduled`、1,000行ずつ) | NFR4.5 |
 | `AuthMetrics` / `AuthEventLogger` | メトリクス(Micrometer)と、認証の出来事のログの窓口 | NFR2.7・NFR5.1・NFR5.2 |
 | `Clock`(UTC) | 時刻の唯一の供給元。テストで差し替える | NFR4.6 |
@@ -63,6 +67,7 @@ user-managementのNFR Designは、次の部品を「共通基盤が所有」と�
 | `Operator`・`OperatorContext`(C15) | 共通基盤の契約(shared kernel) | 型と読み取りインタフェースだけ。authentication-serviceの業務ロジックに依存しない。変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する(機能設計の追補9番) |
 | `AuthRequestSizeLimitFilter` | authentication-service(U5、`/api/auth/**`に限定) | user-managementの`RequestSizeLimitFilter`と同じ方式。認証フィルタより前に置く |
 | `AuthApiExceptionAdvice` | authentication-service(U5、`AuthController`に限定、`@Order`を明記) | 共通基盤の基底のハンドラと衝突しないよう、対象を限定する |
+| `AuthCrossCuttingExceptionAdvice` | authentication-service(U5、対象の例外の型をU5の3つに限定、`@Order`を明記) | 他ユニットのコントローラの中で投げられる、C14・C11のU5の例外を変換する。他ユニットの例外の型に依存しない |
 | 汎用の例外ハンドラの基底・観測の規約・リクエストログ | 共通基盤 | U5は、これらに依存する。`/api/auth/*`は、パスに認証情報を含まない |
 
 **フィルタの順序**: サイズ制限のフィルタ(`AuthRequestSizeLimitFilter`と、user-managementの`RequestSizeLimitFilter`)は、サーブレットフィルタとして、Spring Securityのフィルタチェーンより前の順序で登録する(`FilterRegistrationBean`。順序の値は、Spring Bootの`SecurityProperties.DEFAULT_FILTER_ORDER`より小さい値)。これにより、認証前の大きなボディを読み込まず、U5の設定が、U4のフィルタの型に依存しない。
@@ -77,11 +82,12 @@ NFR Designで判明した、共通基盤・他ユニット・契約への要求�
 | 11 | schema-introspector(U2)・user-management(U4)・menu-navigation(U6)・audit-logging(U7) | 暫定の操作者取得(ヘッダー方式)を削除し、`OperatorContext`を読む実装に置き換える。コントローラ・サービスの入口は変えない。既存のテストを、`OperatorContext`を差し替える形に更新する | 機能設計W7・追補8番 |
 | 12 | permission-engine(U3)のC10 | `canAccessScreen`・`resolveEffectivePermission`が、`activeRoleId`がnullまたは空のとき、fail closed(NONE)で判定し、RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する | 機能設計の追補6番、tech-stack-decisions.md NFR8.2 |
 | 13 | user-management(U4)のC11 | `findByUserId`・`dummyVerify`の追加(`dummyVerify`は129文字以上を計算しない)、`revokeRefreshTokensOnDisable`の削除、`HashCapacityExceededException`の型の公開 | 機能設計の追補4番・11番、tech-stack-decisions.md 追補4番 |
-| 14 | 共通基盤(内部設定DBの接続プール) | 接続の取得のタイムアウトを3秒以内とすること(認証は、内部設定DBの障害を、3秒以内に503にする)。最大サイズは、user-managementの要求(通常の同時処理数50に、招待の上限5を加えた値以上)に、認証フィルタのミス時の読み込みの分を、余裕として見込むこと | reliability-design.md NFR4.2、user-managementの追補13番 |
-| 15 | 共通基盤(観測) | メトリクスのエクスポートの形式(PrometheusかOTLPか)とトレースの実装の確定。リクエストヘッダー・ボディを、ログ・トレースの属性に収集しない設定にすること。プル型のメトリクスのエンドポイント(Prometheus形式など)を採用する場合は、認証を要するか、ネットワークで制限すること。actuatorは`/actuator/health`だけを公開すること | observability-design.md NFR5.1・NFR5.3、security-design.md NFR2.1・NFR2.7 |
+| 14 | 共通基盤(内部設定DBの接続プール) | 接続の取得のタイムアウトを3秒以内とすること(認証は、内部設定DBの障害を、3秒以内に503にする)。最大サイズは、user-managementの要求(通常の同時処理数50に、招待の上限5を加えた値以上)に、認証フィルタのミス時の読み込みの分を、余裕として見込むこと。JPAを使う場合は、`spring.jpa.open-in-view=false`とすること(ハッシュ計算の順番待ちの間に接続を保持しない不変条件の前提) | reliability-design.md NFR4.1・NFR4.2、user-managementの追補13番 |
+| 15 | 共通基盤(観測) | メトリクスのエクスポートの形式(PrometheusかOTLPか)とトレースの実装の確定。リクエストヘッダー・ボディを、ログ・トレースの属性に収集しない設定にすること。プル型のメトリクスのエンドポイント(Prometheus形式など)を採用する場合は、authentication-service(U5)の`AuthSecurityConfig`に、認証を要する規則を、明示的に追加すること(既定は、`/actuator/**`の拒否)。actuatorは`GET /actuator/health`だけを公開し、ヘルスのグループは設けず、ヘルスの結果を5秒間キャッシュすること(`management.endpoint.health.cache.time-to-live`)。H2コンソールなどの開発用の管理機能を、本番相当のプロファイルで無効にすること。HTTPSの環境で`Strict-Transport-Security`を付けるには、フォワードヘッダーの設定(`server.forward-headers-strategy`)か、リバースプロキシでの付与を、環境の前提とすること | observability-design.md NFR5.1・NFR5.3・NFR5.4、security-design.md NFR2.1・NFR2.7・NFR2.9 |
 | 16 | 共通基盤・他ユニット(Flyway) | 内部設定DBの移行スクリプトの、名前・版番号の採番規則の共有。U5は`auth_session`・`account_login_state`のテーブルを所有する | scalability-design.md NFR3.4 |
 | 17 | frontend-ui(U12) | (a)401でリフレッシュして元のリクエストを再試行する。(b)503を認証の失敗と区別し、セッションを終了せず再試行を促す。(c)`code`(i18nキー)から表示する文言を選ぶ(`auth.login.failed`・`auth.token.invalid`・`auth.refresh.rejected`・`auth.role.not-held`・`auth.service.unavailable`・`auth.request.too-large`・`auth.request.malformed`)。(d)初期の`Content-Security-Policy`(同じオリジンのみ)で動くこと。必要な緩和は、U5へ申し出る。(e)SPAのルート(`/login`・`/invitations/accept`など)は、静的ファイルとして、認証なしで返される | security-design.md NFR2.8・NFR2.9・NFR2.11 |
-| 18 | 契約 C4・認証フィルタ | 503・413・400の追加、`Cache-Control: no-store`、`WWW-Authenticate: Bearer`(401)、ProblemDetailsの拡張メンバー`code`(i18nキー)。`nfr-requirements/tech-stack-decisions.md`の追補1〜3・7に統合して反映する | security-design.md NFR2.8・NFR2.9 |
+| 18 | 契約 C4・認証フィルタ | 503・413・400の追加、`Cache-Control: no-store`、`WWW-Authenticate: Bearer`(401)、ProblemDetailsの拡張メンバー`code`(i18nキー)。`nfr-requirements/tech-stack-decisions.md`の追補1〜3・7に統合して反映する。**user-managementの規約との関係**: U4は、フィールド単位の検証エラーの`errors[].message`にi18nキーを入れ、`code`を持たない(C5の追補)。U5は、フィールド単位のエラーを持たず、リクエスト全体の状態を、トップレベルの`code`だけで表す。用途の分担として、frontend-ui(U12)は、`errors`があればフィールド単位のキー、なければ`code`から、文言を選ぶ。2つの規約を統一するかは、U12・共通基盤で確認する。ProblemDetailsの`instance`には、生のパスを入れない(C5の追補と同じ。`ProblemDetailsWriter`にも適用する) | security-design.md NFR2.8・NFR2.9 |
+| 20 | list-engine(U10)・record-edit-engine(U11) | C14(`getActiveRoleId`)が投げる`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`を、握りつぶさず、そのまま伝播させること(401・503への変換は、U5の`AuthCrossCuttingExceptionAdvice`が担う)。共通基盤の基底の例外ハンドラは、この3つの型を、別の応答に変換しないこと(`@Order`で、U5のハンドラを優先する) | security-design.md NFR2.8、reliability-design.md NFR4.2 |
 | 19 | 運用の手順(環境側の前提) | `auth.session.revoke-all-on-startup`による全Sessionの削除の手順(バックアップからの復元後・鍵の漏えいの疑いのとき)。設定を戻すことを含める。運用フェーズが本MVPスコープ外のため、担当が定まるまで、環境側の前提として記録する | security-design.md NFR2.5、reliability-design.md NFR4.7 |
 
 ## NFR7.1: 認証エラーの文言のi18n
@@ -103,14 +109,15 @@ NFR Designで判明した、共通基盤・他ユニット・契約への要求�
 
 | 部品 | 主なテスト |
 |---|---|
-| `LoginAttemptGate` | 同時の誤った試行が何件あっても、検証できる試行がしきい値を超えないこと。しきい値に達する予約と同時にロックが有効になること。ロックの自動解除のあとの最初の予約で回数が0に戻ること。成功でしきい値に達した試行でもロックが解けること。補償の更新(世代が同じ場合だけ枠を返す)。自己修復(しきい値以上で`locked_until`が空)。時計を差し替えて境界を確認する(NFR4.6) |
-| `AuthenticationApplicationService` | 失敗の応答が、原因(未登録・パスワードの誤り・ロック中・無効化済み・招待中)にかかわらず同一であること。実際の検証を行わない場合に`dummyVerify`が呼ばれること。C11をトランザクションの外で呼ぶこと。ハッシュ計算の上限超過が実際・ダミーのどちらでも503になること。成功の更新とSessionの作成が一体で反映されること。DB障害で503になり、補償が試みられること |
-| `SessionService`・`SessionRepository` | ローテーションの条件付きの更新(同時の更新で1件のみ成功、負けた側はSessionを失効させない)。猶予内・猶予を超えた再使用。ログアウトが該当のSessionだけを失効させること。ロール選択(保持しないロールは403)。リフレッシュ時のロールの再確認(判定表の全ケース)。失効の冪等 |
+| `LoginAttemptGate` | 同時の誤った試行が何件あっても、検証できる試行がしきい値を超えないこと。しきい値に達する予約と同時にロックが有効になること。ロックの自動解除のあとの最初の予約で回数が0に戻ること。成功でしきい値に達した試行でもロックが解けること。補償の更新(世代が同じ場合だけ枠を返す)。自己修復(しきい値以上で`locked_until`が空)。行がない状態での同時の初回の試行(一意制約の違反が、500にならず、新しいトランザクションで、やり直されること)。予約がロックを設定しなかった場合の補償(`:myLockedUntil`がnull)。時計を差し替えて境界を確認する(NFR4.6)。**同時の予約・補償・リフレッシュの並行実行のテストは、実際のH2に対して実行し、CIの必須の合格条件とする**(reliability-design.md NFR4.1) |
+| `AuthenticationApplicationService` | 失敗の応答が、原因(未登録・パスワードの誤り・ロック中・無効化済み・招待中)にかかわらず同一であること。実際の検証を行わない場合に`dummyVerify`が呼ばれること。C11をトランザクションの外で呼ぶこと。ハッシュ計算の上限超過が実際・ダミーのどちらでも503になること。成功の更新とSessionの作成が一体で反映されること。DB障害(C11の呼び出しでの障害を含む)で503になり、補償が試みられること。予約のあとの想定外の例外では、補償されず、500になること。`dummyVerify`の順番待ちの間に、接続プールの使用中の接続が0であること(open-in-viewが無効であることの確認) |
+| `SessionService`・`SessionRepository` | ローテーションの条件付きの更新(同時の更新で1件のみ成功、負けた側はSessionを失効させない)。猶予内・猶予を超えた再使用。ログアウトが該当のSessionだけを失効させること。ロール選択(保持しないロールは403)。リフレッシュ時のロールの再確認(判定表の全ケース)。リフレッシュとロール選択の並行実行(選択が古いロールで上書きされないこと、1回だけやり直すこと、やり直しも失敗した場合に401でSessionが失効しないこと)。失効の冪等 |
 | `SessionCache` | 更新のコミット後に無効化されること。読み込みと無効化の競合(ストレステスト)で古い値が残らないこと。TTL(60秒)で解消すること。存在しないSessionを保持しないこと。ヒット・ミスの統計 |
-| `BearerAuthenticationFilter`・`AccessTokenVerifier` | トークンなし・`alg: none`・`alg`がHS256以外・署名の不正・必須の値の欠落・期限切れ(時計のずれの許容が0であること)・`sub`とSessionの`userId`の不一致・失効・期限切れのSessionが、いずれも同一の401になること。キャッシュミスでDB障害のとき503、キャッシュヒットのとき通ること。リクエストヘッダー(`X-User-Id`・`X-Active-Role-Id`)が無視されること |
-| `JwtKeyProvider`・`AuthProperties` | 鍵の未設定・Base64として不正・32バイト未満、有効期限・しきい値・ロック時間・削除の設定の不正で、起動が失敗すること。エラーのメッセージに鍵の値が含まれないこと(安全失敗のテスト) |
-| `AuthSecurityConfig` | 認証の要否の規則(3つの認証不要のAPI・静的ファイル・`/actuator/health`・その他のactuatorの拒否・`/api/**`の残りは認証必須)。セキュリティヘッダーの値。`Cache-Control: no-store`が`/api/**`にだけ付くこと。すべての応答に`Set-Cookie`がないこと(ステートレス) |
-| `AuthRequestSizeLimitFilter`・`AuthApiExceptionAdvice` | `Content-Length`がある場合・チャンク転送の場合の413。認証前のボディの拒否。ProblemDetailsの形式と`code` |
+| `BearerAuthenticationFilter`・`AccessTokenVerifier` | トークンなし・`alg: none`・`alg`がHS256以外・署名の不正・必須の値の欠落・期限切れ(時計のずれの許容が0であること)・`sub`とSessionの`userId`の不一致・失効・期限切れのSessionが、いずれも同一の401になること。キャッシュミスでDB障害のとき503、キャッシュヒットのとき通ること。リクエストヘッダー(`X-User-Id`・`X-Active-Role-Id`)が無視されること。**認証不要のパス(ログイン・リフレッシュ・招待受諾・静的ファイル・ヘルス)で、期限切れ・不正な`Authorization`ヘッダーを付けても、フィルタで401にならないこと**。`Bearer`のスキーム名の大文字小文字を区別しないこと |
+| `JwtKeyProvider`・`AuthProperties` | 鍵の未設定・Base64として不正・32バイト未満、有効期限・しきい値・ロック時間・削除の設定の不正で、起動が失敗すること。エラーのメッセージに鍵の値が含まれないこと(安全失敗のテスト。起動失敗の出力全体に、鍵の値・その断片が現れないこと、`SecretKeyMaterial`の`toString`が伏せ字であること)。キャッシュの最大件数・TTLの不正、`revoke-all-on-startup`の不正な値で、起動が失敗すること。`revoke-all-on-startup`が、Webサーバーがリクエストを受け付ける前に実行されること |
+| `AuthSecurityConfig` | 認証の要否の規則(3つの認証不要のAPI・静的ファイル・`/actuator/health`・その他のactuatorの拒否・`/api/**`の残りは認証必須)。セキュリティヘッダーの値。`Cache-Control: no-store`が`/api/**`にだけ付くこと。すべての応答に`Set-Cookie`がないこと(ステートレス)。`/api/**`・`/actuator/**`以外のパスへの`GET`・`HEAD`以外のメソッドが拒否されること、`/actuator/health/**`(グループ)と`/actuator/**`の残りが拒否されること、ヘルスの結果が5秒間キャッシュされること |
+| `AuthRequestSizeLimitFilter`・`AuthApiExceptionAdvice` | `Content-Length`がある場合・チャンク転送の場合(`RequestBodyTooLargeException`が、包まれる場合と直接伝わる場合の両方)の413。**両方の経路で、413のセキュリティヘッダーが同じであること**。認証前のボディの拒否。ProblemDetailsの形式と`code`(`instance`を含まないこと) |
+| `UserAccountClient`・`AuthCrossCuttingExceptionAdvice` | C11の呼び出しでの内部設定DBの障害が`AuthStorageUnavailableException`(503)に変換されること。他ユニット(U10・U11を想定した検証用のコントローラ)の中で、C14の`SessionNotFoundException`・`SessionExpiredException`が401、`AuthStorageUnavailableException`が503になること |
 | `SessionCleanupJob` | 有効期限から保持日数を過ぎたSession(revokedを含む)だけが削除され、有効なSessionは削除されないこと。1,000行ずつ複数回に分けて削除されること。失敗が認証に影響しないこと。`revoke-all-on-startup` |
 | `SessionContextService`(C14) | Sessionの不存在・有効でない場合の例外、未選択のnullの返却(契約テスト) |
 | `SecurityContextOperatorContext`(C15) | 認証済みのリクエストで`Operator`を返すこと。`activeRoleId`がnullでも`Operator`が存在すること(契約テスト) |

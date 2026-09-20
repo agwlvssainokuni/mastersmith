@@ -16,7 +16,7 @@
 | 実装 | Caffeine(プロセス内)。追加のミドルウェア(Redis等)は導入しない |
 | キー | `sessionId` |
 | 値 | `SessionState`(`userId`・`activeRoleId`・`status`・`refreshExpiresAt`)。パスワード・トークン・ハッシュを含めない(security-design.md NFR2.7) |
-| 最大件数 | **1,000件**(既定。設定で変更できる)。NFR3.1の、同時に有効なSessionの上限の目安(数百件)を、すべて保持できる大きさとする |
+| 最大件数 | **1,000件**(既定。設定で変更できる。0以下は起動時に失敗、reliability-design.md NFR4.4)。NFR3.1の、同時に有効なSessionの上限の目安(数百件)を、すべて保持できる大きさとする |
 | 有効期間(TTL) | 書き込みから**60秒**(Q1=A、安全網。設定で変更できる)。通常は、明示的な無効化で、直ちに反映される |
 | 読み込み | `cache.get(sessionId, loader)`(キーごとの原子的な読み込み)。`loader`は、`SessionRepository`から、主キーで1行を読む(3秒のクエリのタイムアウト、performance-design.md NFR1.2)。Sessionが存在しない場合は、キャッシュに入れない(否定的な結果を保持しない) |
 | 無効化 | Sessionを書き換える更新が**コミットされた後**に、`cache.invalidate(sessionId)`(reliability-design.md NFR4.3) |
@@ -39,7 +39,7 @@
 
 | 列 | 型 | 制約 |
 |---|---|---|
-| `session_id` | 可変長文字列(43文字、Base64URLの128ビット乱数) | 主キー |
+| `session_id` | 可変長文字列(22文字、Base64URL(パディングなし)の128ビット乱数。`SessionIdGenerator`が`SecureRandom`で生成、security-design.md NFR2.3) | 主キー |
 | `user_id` | 可変長文字列 | NOT NULL |
 | `active_role_id` | 可変長文字列 | NULL可 |
 | `refresh_token_hash` | 固定長文字列(43文字) | NOT NULL、一意 |

@@ -6,7 +6,7 @@
 
 ### トランザクションの境界
 
-`AuthenticationApplicationService`の各メソッドは、外側のトランザクションを作らない(`@Transactional`を付けない)。内側の短いトランザクションを、`TransactionTemplate`で、明示的に区切る。トランザクションのタイムアウトは、**3秒**とする(内部設定DBが応答しない場合に、長く保持しない、NFR4.2)。C11の呼び出しは、トランザクションの外で行う(BR5.15、performance-design.md NFR1.3)。
+**トランザクションの境界は、`AuthenticationApplicationService`だけが所有する。** 各メソッドは、外側のトランザクションを作らず(`@Transactional`を付けない)、内側の短いトランザクションを、`TransactionTemplate`で、明示的に区切る。`LoginAttemptGate`・`SessionService`・各リポジトリの書き込みのメソッドは、**トランザクションに参加するだけ**とし、自分ではトランザクションを開かない(`@Transactional(propagation = MANDATORY)`を付け、トランザクションの外から呼ぶと、例外になるようにして、誤用を防ぐ)。コミット後のキャッシュの無効化(NFR4.3)も、`AuthenticationApplicationService`が、`TransactionTemplate.execute`が返った後に呼ぶ。ログイン成功の「同一のトランザクション」は、`AuthenticationApplicationService`が開く1つのトランザクションの中で、`LoginAttemptGate.succeed`と`SessionService.create`を続けて呼ぶ形で実現する。トランザクションのタイムアウトは、**3秒**とする(内部設定DBが応答しない場合に、長く保持しない、NFR4.2)。C11の呼び出しは、トランザクションの外で行う(BR5.15、performance-design.md NFR1.3)。**永続化の設定**として、`spring.jpa.open-in-view=false`を必須とする(JPAを使う場合。`true`のままだと、リクエストの間、EntityManagerが束縛されて、接続が保持され、ハッシュ計算の順番待ちの間に接続を保持しない、という不変条件が崩れる。共通基盤への要求、logical-components.mdの追補14番)。この不変条件は、テスト(NFR8.2)で確認する。
 
 | 処理 | トランザクション | 内容 |
 |---|---|---|
@@ -19,7 +19,7 @@
 
 ### 予約型のロック(`LoginAttemptGate.reserve`)
 
-1つの短いトランザクションの中で、次を順に行う。時刻は、DBの時計ではなく、注入された`Clock`の値を、パラメータとして渡す(NFR4.6)。
+`AuthenticationApplicationService`が開く1つの短いトランザクションの中で、次を順に行う。時刻は、DBの時計ではなく、注入された`Clock`の値を、パラメータとして渡す(NFR4.6)。ロック時間の加算も、SQLの中では行わず、Java側で`:now`にロック時間を加えた値(`:newLockedUntil`)を計算して、パラメータとして渡す。
 
 1. 枠の確保の更新(ロック中でない、かつ、しきい値未満、またはロックの解除済みの場合だけ、1行を更新する):
 
@@ -28,7 +28,7 @@ UPDATE account_login_state SET
   consecutive_failures = CASE WHEN locked_until IS NOT NULL THEN 1 ELSE consecutive_failures + 1 END,
   generation  = CASE WHEN locked_until IS NOT NULL THEN generation + 1 ELSE generation END,
   locked_until = CASE WHEN (CASE WHEN locked_until IS NOT NULL THEN 1 ELSE consecutive_failures + 1 END) >= :threshold
-                      THEN :now + :lockDuration ELSE NULL END
+                      THEN :newLockedUntil ELSE NULL END
 WHERE user_id = :u
   AND (locked_until <= :now OR (locked_until IS NULL AND consecutive_failures < :threshold))
 ```
@@ -36,11 +36,12 @@ WHERE user_id = :u
    上のSET句の各式は、更新前の値で評価される(標準のSQLの動作。内部設定DBのH2はこの動作で、ロックの回数と解除の判定は、これに依存する。Code Generationのテストで確認する)。
 2. 更新の件数が1: 確保できた。同じトランザクションで、行を読み直し、`generation`と、しきい値に達してロックを設定した場合の`locked_until`の値を、予約(reservation)として保持する。
 3. 更新の件数が0: 行が存在しない、または、ロック中(`locked_until`が未来)、または、想定外の状態(`consecutive_failures`がしきい値以上で`locked_until`が空)のいずれかである。行を読む。
-   - 行がなければ: 行を作る(`consecutive_failures`=1。しきい値が1なら、`locked_until`も設定)。同時の作成で、主キーの一意制約に違反した場合は、1回だけ、手順1からやり直す。
+   - 行がなければ: 行を作る(`consecutive_failures`=1。しきい値が1なら、`locked_until`に`:newLockedUntil`も設定)。同時の作成で、主キーの一意制約に違反した場合の扱いは、次のとおり。一意制約の違反は、Spring Dataのリポジトリを通ると、参加中のトランザクションを、rollback-onlyにしうるため、同じトランザクションの中では、やり直さない。`AuthenticationApplicationService`が、トランザクションの外で、違反(`DuplicateKeyException`・`DataIntegrityViolationException`のうち、`account_login_state`の主キーの違反)を捕捉し、**新しいトランザクション**で、手順1からやり直す(最大3回まで)。3回とも違反した場合は、`AuthStorageUnavailableException`(503)とする。この違反は、NFR4.2の`DataIntegrityViolationException`→500の対象にしない(捕捉が先で、利用者から観測される500にならない。500と401の違いから、登録済みのメールアドレスかどうかを、推測されることを防ぐ)。
    - ロック中: 確保できない(ロック期間を延長しない、失敗も数えない)。
    - 想定外の状態(しきい値以上で`locked_until`が空): `locked_until`を、現在時刻に、ロック時間を加えた値に設定して(自己修復)、確保できない。
 
 - 更新の対象の行は、更新のトランザクションが終わるまで、他のトランザクションの更新を待たせる(行のロック)。そのため、同時の試行が何件あっても、確保できる枠は、しきい値を超えない。
+- **SQLの前提**(固定する): 内部設定DBは、組込みのH2とし、トランザクションの分離レベルは、READ COMMITTEDとする(H2の既定。行のロックの待機のあと、WHERE条件を、最新の値で再評価する)。SET句の各式は、更新前の値で評価される(標準のSQL・H2の動作)。**MySQL・MariaDBは、SET句を左から順に、更新後の値で評価する**ため、内部設定DBを、これらに変更する場合は、このSQLの書き直しが必要になる。同時の予約・補償・リフレッシュを含む並行実行のテスト(NFR8.2)を、CIでの**必須の合格条件**とする(Code Generationで、実際のH2に対して実行する)。
 
 ### 補償の更新(`LoginAttemptGate.compensate`)
 
@@ -49,11 +50,12 @@ WHERE user_id = :u
 ```
 UPDATE account_login_state SET
   consecutive_failures = consecutive_failures - 1,
-  locked_until = CASE WHEN locked_until = :myLockedUntil THEN NULL ELSE locked_until END
+  locked_until = CASE WHEN :myLockedUntil IS NOT NULL AND locked_until = :myLockedUntil
+                      THEN NULL ELSE locked_until END
 WHERE user_id = :u AND generation = :g AND consecutive_failures > 0
 ```
 
-更新の件数が0でも、エラーにしない(別の試行の成功によるリセット、ロックの解除後の新しい世代の予約など)。補償の更新が失敗した場合(内部設定DBの障害を含む)は、枠を失敗として数えたままにする(安全側)。ロックは、`locked_until`の経過で、必ず自動的に解除される。
+更新の件数が0でも、エラーにしない(別の試行の成功によるリセット、ロックの解除後の新しい世代の予約など)。`:myLockedUntil`は、この予約が、しきい値に達してロックを設定した場合の値で、ロックを設定しなかった予約では、null(NULLとの比較は、常に偽になるため、上のとおり、明示的にNULLでない場合だけ比較する)。**予約がロックを設定しなかった場合**は、回数だけを1戻し、ロックは変更しない。その間に、別の試行の予約が、しきい値に達してロックを設定していた場合は、回数だけが戻り、ロックは残る(しきい値未満の回数で、ロックが有効な状態になるが、`locked_until`の経過で、必ず自動的に解除される。安全側)。**補償の対象**は、`HashCapacityExceededException`と、C11の内部設定DBの障害(`AuthStorageUnavailableException`に変換されたもの)である。それ以外の想定外の例外は、補償せず、枠を失敗として数えたままにする(安全側)。補償の更新が失敗した場合(内部設定DBの障害を含む)は、枠を失敗として数えたままにする(安全側)。ロックは、`locked_until`の経過で、必ず自動的に解除される。
 
 ### ログイン成功の更新
 
@@ -65,7 +67,7 @@ WHERE user_id = :u AND generation = :g AND consecutive_failures > 0
 
 ### リフレッシュの更新
 
-security-design.md NFR2.3の、条件付きの更新。更新の件数が1なら成功、0なら負けた側(401、Sessionは失効させない)。
+security-design.md NFR2.3の、条件付きの更新(読み取り時点の`active_role_id`との一致を条件に含む)。更新の件数が1なら成功。0なら、Sessionを読み直し、同時のリフレッシュに負けた場合は401(Sessionは失効させない)、並行するロール選択に負けた場合は、1回だけやり直す(security-design.md NFR2.3の判定表)。
 
 ### 失効の更新
 
@@ -79,10 +81,12 @@ UPDATE auth_session SET status = 'revoked' WHERE session_id = :sid AND status = 
 
 - **例外の変換**: `SessionRepository`・`AccountLoginStateRepository`の呼び出しの周りで、内部設定DBの障害を表す例外(接続の取得の失敗、クエリ・トランザクションのタイムアウト、ロックの待機の超過など、Springのデータアクセス例外のうち、一時的・接続の障害を表すもの)を、専用の非チェック例外`AuthStorageUnavailableException`に変換する。
   - 変換の対象: `DataAccessResourceFailureException`・`CannotCreateTransactionException`・`QueryTimeoutException`・`TransientDataAccessException`・`PessimisticLockingFailureException`(およびそれらの原因になるHikariCPの接続取得の例外)。
-  - 対象外(バグや制約違反): `DataIntegrityViolationException`など。これらは、500として扱い、ERRORログに、例外の種類とリクエストIDを記録する。
+  - 対象外(バグや制約違反): `DataIntegrityViolationException`など。これらは、500として扱い、ERRORログに、例外の種類とリクエストIDを記録する。ただし、`account_login_state`の初回作成での主キーの一意制約の違反は、この対象外ではなく、NFR4.1のとおり、捕捉して、やり直す。
+- **C11の呼び出しでの障害**: ログイン・リフレッシュが呼ぶC11の`findByEmail`・`findByUserId`・`isDisabled`・`verifyPasswordHash`・`dummyVerify`は、user-managementのリポジトリを通して、同じ内部設定DBを読む。U4の生のデータアクセス例外が、そのまま伝わると、500になるため、`UserAccountClient`(C11の呼び出しを包む、authentication-service側のアダプタ)が、上の対象の例外を、`AuthStorageUnavailableException`に変換する(`HashCapacityExceededException`は、変換せず、そのまま伝える)。
+- **他ユニットのリクエスト処理の中でのC14の例外**: list-engine(U10)・record-edit-engine(U11)が、C14(`getActiveRoleId`)を呼ぶとき、`SessionContextService`は、認証フィルタと同じ`SessionCache`(同じ読み込み)から、Sessionを引く。キャッシュミスで、内部設定DBが使えない場合は、`AuthStorageUnavailableException`を投げる。`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`を、401・401・503に変換する担い手は、`AuthCrossCuttingExceptionAdvice`である(security-design.md NFR2.8)。
 - **503の返し方**: `AuthStorageUnavailableException`は、フィルタでは`ProblemDetailsWriter`が、コントローラでは`AuthApiExceptionAdvice`が、503(`auth.service.unavailable`)にする(security-design.md NFR2.8)。件数は、`auth_db_unavailable_total`に記録する。
 - **fail closed**: Sessionを確認できないまま、リクエストを通さない。
-- **キャッシュに有効なSessionがある場合**: 認証フィルタは、内部設定DBの障害の間も、キャッシュの内容で判定する(キャッシュは、失効・ロール選択・リフレッシュのたびに無効化されるため、DBの障害が、判定を古くすることはない)。キャッシュの内容は、`SessionState`の`refreshExpiresAt`と現在時刻の比較で、期限切れを判定する。後続の処理がDBを必要とするなら、そちらが503または500になる。
+- **キャッシュに有効なSessionがある場合**: 認証フィルタは、内部設定DBの障害の間も、キャッシュの内容で判定する(キャッシュは、失効・ロール選択・リフレッシュのたびに無効化されるため、DBの障害が、判定を古くすることはない)。キャッシュの内容は、`SessionState`の`refreshExpiresAt`と現在時刻の比較で、期限切れを判定する。後続の処理がDBを必要とするなら、そちらが503または500になる。**この障害耐性の上限は、最大60秒**(キャッシュのTTL、Q1=A)である。60秒を過ぎたエントリは、期限で失効し、再読み込みがDBの障害で失敗して、503になる。テストの期待値は、この上限にそろえる(経過時間を、`Clock`とキャッシュのタイマーの差し替えで、確認する)。
 - **リフレッシュ**: 内部設定DBの障害で、更新のトランザクションが完了しなかった場合は、リフレッシュトークンを更新しない(ローテーションしない)。クライアントは、同じトークンで、再試行できる。ただし、コミットは成功したのに、応答が失われた場合(まれ)は、クライアントが古いトークンで再試行することになり、猶予内は401、猶予を超えれば盗用の疑いとして扱われる(NFR Requirementsの残余リスク4・5)。
 - **クエリのタイムアウト**: 認証の読み取り・書き込みは、3秒のタイムアウトを設定する。内部設定DBの応答がない場合に、長く待たず、503になる。接続プール(HikariCP、共通基盤)の接続取得のタイムアウトも、3秒以内とすることを、共通基盤への要求とする(logical-components.md)。
 - `Sessionのキャッシュの読み込み(loader)`が、DBの障害で失敗した場合、Caffeineは例外を保持せず、次のリクエストで、再び読み込みを試みる。
@@ -92,13 +96,14 @@ UPDATE auth_session SET status = 'revoked' WHERE session_id = :sid AND status = 
 - **無効化の順序**: 内部設定DBの更新のトランザクションが**コミットされた後**に、`SessionCache.invalidate(sessionId)`を呼ぶ(`TransactionTemplate.execute`が返った後)。コミットより前に無効化すると、その間に別のリクエストが古い内容を読み込んで、キャッシュに入れる可能性があるため、行わない。更新が失敗(ロールバック)した場合は、キャッシュを変更しない。
 - **無効化の契機**: Sessionを書き換えるすべての更新(security-design.md NFR2.5の表): リフレッシュ成功(`refreshExpiresAt`の延長・ハッシュ・`activeRoleId`の変更を含む)・ログアウト・盗用の検知による失効・ユーザーの無効化の検知による失効・ロール選択。NFR Requirementsの本文は、無効化の契機として、失効・ロール選択・アクティブロールの再確認を挙げているが、リフレッシュ成功による`refreshExpiresAt`の延長も、キャッシュの内容(`SessionState.refreshExpiresAt`)を変えるため、無効化の対象に含める(これを含めないと、DBでは有効なSessionを、認証フィルタが古い期限で、401にし続けるおそれがある)。
 - **読み込みと無効化の競合**: キャッシュの読み込みは、`cache.get(sessionId, loader)`で、キーごとに原子的に行う。読み込みの途中(DBを読んでいる間)に、別のスレッドが更新をコミットして、無効化を呼んだ場合、無効化は、進行中の読み込みが終わるのを待ってから、その結果を取り除く(Caffeineの、キーごとの原子性による)。そのため、読み込みが、更新の前の古い値を読んでいても、コミット後の無効化により、古い値が残らない。この性質を、並行実行のテストで確認する([assumption]。Caffeineの実装の性質に依存するため、Code Generationで、ストレステストにより確認する)。
+- **読み込みのブロックの副作用**: 読み込み(`loader`)は、CaffeineのConcurrentHashMapの計算の中で行われるため、読み込みの間、同じビン(ハッシュの区画)のキーの操作(別のSessionの読み込み・無効化)が待たされる。読み込みは、通常は、主キーの1行の読み取りで、ミリ秒で終わる。内部設定DBの障害時は、クエリのタイムアウト(3秒)まで待たされうる。この間に、書き込み側のスレッドが、コミット後の`invalidate`を呼ぶと、その呼び出しも、同じビンの読み込みが終わるまで待たされる。影響は、内部設定DBの障害の間の、同じビンのキーに限られ、クエリのタイムアウト(3秒)で上限が決まるため、許容範囲と判断する([assumption])。
 - **TTLによる安全網**(Q1=A): 上記の無効化に、万一、漏れや競合があっても、書き込みから60秒で、古い内容は解消する。
 - 複数プロセス構成でのキャッシュの整合は、scalability-design.md NFR3.5のとおり、全体設計に委ねる。
 
 ## NFR4.4: 起動時の設定検証(fail fast)
 
 - `AuthProperties`(`@ConfigurationProperties`)が、設定を束縛し、Bean Validationと、追加の整合の確認で、検証する。不備があれば、アプリケーションを起動させない(project.md Mandated)。
-- 検証の内容(NFR Requirementsの表): JWTの鍵(未設定・Base64として不正・デコード後が32バイト未満)、アクセストークンの有効期限(0以下)、リフレッシュトークンの有効期限(0以下、または、アクセストークンの有効期限より短い)、再送の猶予(負の値)、ロックのしきい値(0以下)、ロック時間(0以下)、Sessionの削除の保持日数(負の値)、実行間隔(0以下)。
+- 検証の内容(NFR Requirementsの表): JWTの鍵(未設定・Base64として不正・デコード後が32バイト未満)、アクセストークンの有効期限(0以下)、リフレッシュトークンの有効期限(0以下、または、アクセストークンの有効期限より短い)、再送の猶予(負の値)、ロックのしきい値(0以下)、ロック時間(0以下)、Sessionの削除の保持日数(負の値)、実行間隔(0以下)。加えて、設計で追加した設定も検証する: Sessionのキャッシュの最大件数(0以下)、キャッシュのTTL(0以下。TTLが0以下だと、キャッシュが働かず、NFR1.2のヒット時の目標が意味を失う)、`auth.session.revoke-all-on-startup`(真偽値として解釈できない)。JWTの鍵だけは、束縛の対象にせず、`JwtKeyProvider`が`Environment`から直接読んで検証する(値を出力しないため、security-design.md NFR2.2)。
 - **エラーのメッセージに、値を出さない**: 鍵は、Bean Validationの制約(拒否された値がメッセージに出る)ではなく、`JwtKeyProvider`の初期化処理で検証し、例外のメッセージには、設定のキーの名前と理由(未設定・形式不正・長さ不足)だけを含める(security-design.md NFR2.2)。
 - 検証の失敗のテスト(安全失敗のテスト、team.mdの必須テスト種別(a))を用意する(tech-stack-decisions.md NFR8.2)。
 
@@ -118,7 +123,7 @@ DELETE FROM auth_session WHERE session_id IN (:ids) AND refresh_expires_at < :cu
   1,000行未満になるまで、トランザクションを分けて繰り返す。1回の実行での上限は、100バッチ(10万行)とし、残りは、次の実行で削除する(実行が長く続くことを避ける)。
 - **失敗の扱い**: 例外は捕捉し、ERRORログ(例外の種類と、それまでに削除した行数)に記録して、その回の実行を終える。次の実行で再試行する。認証のリクエストの処理には影響させない。ヘルスチェックには含めない(observability-design.md NFR5.4)。
 - 削除の対象は、すでに有効でないSessionだけのため、認証の処理(ログイン・リフレッシュ・認証フィルタ)と、同じ行を書き換える競合は起きない。削除で、キャッシュの無効化は不要である(security-design.md NFR2.5)。
-- **起動時の全削除**: `auth.session.revoke-all-on-startup`がtrueの場合は、起動時に、`auth_session`の全行を削除する(security-design.md NFR2.5)。
+- **起動時の全削除**: `auth.session.revoke-all-on-startup`がtrueの場合は、起動時に、`auth_session`の全行を削除する。実行のタイミングは、Flywayの移行の後、Webサーバーがリクエストを受け付ける前である(security-design.md NFR2.5)。
 
 ## NFR4.6: 時刻の扱い
 

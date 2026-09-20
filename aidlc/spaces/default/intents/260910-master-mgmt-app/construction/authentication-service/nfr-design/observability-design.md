@@ -18,10 +18,10 @@ Micrometer(Spring Boot標準)の`MeterRegistry`(アプリ全体で共有)に、`
 | `auth.refresh.reuse.within.grace` | カウンタ | `auth_refresh_reuse_within_grace_total`(派生指標) | なし | 猶予内の再使用を、401だけで、Sessionを失効させずに返したとき |
 | `auth.db.unavailable` | カウンタ | `auth_db_unavailable_total`(派生指標) | なし | 内部設定DBの障害で、503を返したとき(`AuthStorageUnavailableException`) |
 | `auth.login.duration` | タイマー(ヒストグラム) | `auth_login_duration_seconds`(派生指標) | なし | ログインの所要時間(NFR1.1の確認用) |
-| `auth.filter.duration` | タイマー(ヒストグラム) | `auth_filter_duration_seconds`(派生指標) | `cache`(`hit`・`miss`) | 認証フィルタの処理時間(NFR1.2の確認用) |
+| `auth.filter.duration` | タイマー(ヒストグラム) | `auth_filter_duration_seconds`(派生指標) | `result`(`hit`・`miss`。要件の`result`ラベルにそろえた) | 認証フィルタの処理時間(NFR1.2の確認用) |
 | `cache.gets`(Micrometerの標準のキャッシュのメトリクス) | カウンタ | `auth_session_cache_requests_total`(派生指標) | `cache=auth-session`、`result`(`hit`・`miss`) | Caffeineの統計を、`CaffeineCacheMetrics`で登録する |
 
-- **要件との差**(いずれも[assumption]): (1)`reason`に、`missing`(`Authorization`ヘッダーがない、またはBearerでない)を加えた。走査・認証なしの呼び出しと、トークン自体の不備を、区別するためである(security-design.md NFR2.2)。(2)キャッシュのヒット・ミスは、独自のカウンタではなく、Micrometerの標準のキャッシュのメトリクスを使う。内容は、要件の`auth_session_cache_requests_total`と同じである。
+- **要件との差**(いずれも[assumption]): (1)`reason`に、`missing`(`Authorization`ヘッダーがない、またはBearerでない)を加えた。走査・認証なしの呼び出しと、トークン自体の不備を、区別するためである(security-design.md NFR2.2)。(2)キャッシュのヒット・ミスは、独自のカウンタではなく、Micrometerの標準のキャッシュのメトリクス(`cache.gets`)を使う。内容は、要件の`auth_session_cache_requests_total`と同じである。標準のメトリクスのタグ`cache`は、キャッシュの名前(`auth-session`)を表し、ヒット・ミスは、タグ`result`で区別する(独自の`auth.filter.duration`のタグは、`result`に統一し、`cache`という名前を、別の意味で使わない)。(3)アラートの対象は、変更しない。
 - `reason`は、値が4つに固定された列挙型(`UnauthorizedReason`)で、任意の文字列を、タグに使えない。
 - 計装の場所: `BearerAuthenticationFilter`(`auth.filter.*`)、`LoginAttemptGate`(`auth.account.locked`)、`AuthenticationApplicationService`(`auth.login.*`・`auth.refresh.*`)、`AuthExceptionTranslator`(`auth.db.unavailable`)。
 
@@ -74,7 +74,7 @@ NFR Requirementsの暫定値を、そのまま置く([assumption]。運用フェ
 - authentication-serviceは、内部設定DBへの読み取り専用ヘルスチェックに参加する(アプリケーション全体のヘルスチェックの一部。ユニット単体の独立したヘルスチェックのエンドポイントは設けない)。
 - JWTの鍵の妥当性は、起動時に検証する(reliability-design.md NFR4.4)。ヘルスチェックには含めない。
 - Sessionの定期削除の失敗は、アプリケーション全体をunhealthyにしない。ERRORログで検知する(NFR5.2)。
-- `/actuator/health`は、認証なしで、状態(UP・DOWN)だけを返す(security-design.md NFR2.1)。
+- `/actuator/health`は、認証なしで、状態(UP・DOWN)だけを返す(security-design.md NFR2.1)。認証なしの呼び出しが、内部設定DBの接続を、繰り返し使うことを避けるため、ヘルスチェックの結果を、5秒間キャッシュする(`management.endpoint.health.cache.time-to-live`)。ヘルスのグループ(livenessなど)は設けない。
 
 ## NFR5.5: ダッシュボード
 
