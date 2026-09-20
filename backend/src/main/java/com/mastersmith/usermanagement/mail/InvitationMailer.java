@@ -21,6 +21,7 @@ import com.mastersmith.usermanagement.entity.UiLocale;
 import com.mastersmith.usermanagement.exception.InvitationMailException;
 import com.mastersmith.usermanagement.exception.InvitationMailException.Failure;
 import com.mastersmith.usermanagement.exception.SubjectRejectedException;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.mail.MessagingException;
@@ -35,6 +36,7 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -67,6 +69,14 @@ public class InvitationMailer {
   private final Duration sendTimeout;
   private final Counter mailFailedCounter;
   private final Counter subjectRejectedCounter;
+
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
 
   public InvitationMailer(
       JavaMailSender mailSender,
@@ -107,6 +117,12 @@ public class InvitationMailer {
    * @throws InvitationMailException 生成・送信に失敗した場合(件名の拒否は{@link SubjectRejectedException})
    */
   public void send(
+      String recipientEmail, String recipientName, UiLocale locale, String invitationToken) {
+    observations.run(
+        "user.mail.send", () -> doSend(recipientEmail, recipientName, locale, invitationToken));
+  }
+
+  private void doSend(
       String recipientEmail, String recipientName, UiLocale locale, String invitationToken) {
     String subject;
     String html;

@@ -17,6 +17,7 @@
 package com.mastersmith.usermanagement.security;
 
 import com.mastersmith.usermanagement.config.UserManagementProperties;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,14 @@ public class PasswordHasher {
   private final Argon2PasswordEncoder encoder;
   private final HashConcurrencyLimiter limiter;
   private final Timer durationTimer;
+
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
 
   @Autowired
   public PasswordHasher(
@@ -85,6 +94,10 @@ public class PasswordHasher {
    * @throws com.mastersmith.usermanagement.HashCapacityExceededException 許可を待機の上限内に取れなかった場合
    */
   public String hash(String rawPassword) {
+    return observations.observe("user.password.compute", "hash", () -> doHash(rawPassword));
+  }
+
+  private String doHash(String rawPassword) {
     requireValidLength(rawPassword);
     return limiter.runWithPermit(() -> timed(() -> encoder.encode(rawPassword)));
   }
@@ -95,6 +108,11 @@ public class PasswordHasher {
    * @throws com.mastersmith.usermanagement.HashCapacityExceededException 許可を待機の上限内に取れなかった場合
    */
   public boolean verify(String rawPassword, String storedHash) {
+    return observations.observe(
+        "user.password.compute", "verify", () -> doVerify(rawPassword, storedHash));
+  }
+
+  private boolean doVerify(String rawPassword, String storedHash) {
     if (!canVerify(rawPassword, storedHash)) {
       return false;
     }
@@ -108,6 +126,13 @@ public class PasswordHasher {
    * @throws com.mastersmith.usermanagement.HashCapacityExceededException 許可を待機の上限内に取れなかった場合
    */
   public VerifyResult verifyAndUpgrade(String rawPassword, String storedHash) {
+    return observations.observe(
+        "user.password.compute",
+        "verify_and_upgrade",
+        () -> doVerifyAndUpgrade(rawPassword, storedHash));
+  }
+
+  private VerifyResult doVerifyAndUpgrade(String rawPassword, String storedHash) {
     if (!canVerify(rawPassword, storedHash)) {
       return new VerifyResult(false, null);
     }

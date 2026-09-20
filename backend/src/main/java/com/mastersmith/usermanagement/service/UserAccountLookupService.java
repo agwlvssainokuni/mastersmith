@@ -21,6 +21,7 @@ import com.mastersmith.usermanagement.UserAccount;
 import com.mastersmith.usermanagement.UserAccountLookupApi;
 import com.mastersmith.usermanagement.entity.User;
 import com.mastersmith.usermanagement.entity.UserStatus;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.PasswordHasher;
 import java.util.Locale;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -52,6 +54,14 @@ public class UserAccountLookupService implements UserAccountLookupApi {
   private final PasswordHasher passwordHasher;
   private final TransactionTemplate newTransaction;
 
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
+
   public UserAccountLookupService(
       UserRepository userRepository,
       PermissionEngineApi permissionEngineApi,
@@ -66,6 +76,10 @@ public class UserAccountLookupService implements UserAccountLookupApi {
 
   @Override
   public Optional<UserAccount> findByEmail(String email) {
+    return observations.observe("user.account.find_by_email", () -> doFindByEmail(email));
+  }
+
+  private Optional<UserAccount> doFindByEmail(String email) {
     if (email == null || email.isBlank()) {
       return Optional.empty();
     }
@@ -74,6 +88,11 @@ public class UserAccountLookupService implements UserAccountLookupApi {
 
   @Override
   public boolean verifyPasswordHash(String userId, String rawPassword) {
+    return observations.observe(
+        "user.account.verify_password", () -> doVerifyPasswordHash(userId, rawPassword));
+  }
+
+  private boolean doVerifyPasswordHash(String userId, String rawPassword) {
     Optional<User> found = userId == null ? Optional.empty() : userRepository.findById(userId);
     if (found.isEmpty()
         || found.get().getStatus() != UserStatus.ACTIVE
@@ -93,6 +112,10 @@ public class UserAccountLookupService implements UserAccountLookupApi {
 
   @Override
   public boolean isDisabled(String userId) {
+    return observations.observe("user.account.is_disabled", () -> doIsDisabled(userId));
+  }
+
+  private boolean doIsDisabled(String userId) {
     if (userId == null) {
       return true;
     }

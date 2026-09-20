@@ -44,3 +44,9 @@ mastersmith:
   mail:
     base-url: https://mastersmith.example.test
     from: no-reply@example.test
+
+# SMTPの疎通は、健全性の判定に含めない(main/resources/application.ymlと同じ、NFR5.4)。
+management:
+  health:
+    mail:
+      enabled: false

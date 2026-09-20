@@ -27,6 +27,7 @@ import com.mastersmith.usermanagement.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 /**
  * user-managementの、アプリケーション全体の起動時の結線の確認(統合テスト):
@@ -40,6 +41,7 @@ class UserManagementStartupTest {
   @Autowired private UserPreferenceRepository preferenceRepository;
   @Autowired private UserAccountLookupApi userAccountLookupApi;
   @Autowired private PermissionEngineApi permissionEngineApi;
+  @Autowired private ApplicationContext applicationContext;
 
   @Test
   void theInitialAdministratorIsCreatedAtStartupFromTheConfiguration() {
@@ -69,5 +71,11 @@ class UserManagementStartupTest {
   @Test
   void theRealPermissionEngineAnswersRoleExists() {
     assertThat(permissionEngineApi.roleExists("no-such-role")).isFalse();
+  }
+
+  @Test
+  void theSmtpIsNotPartOfTheHealthCheck() {
+    // nfr-design observability-design.md NFR5.4: SMTPの不調で、アプリケーション全体をunhealthyにしない。
+    assertThat(applicationContext.containsBean("mailHealthContributor")).isFalse();
   }
 }

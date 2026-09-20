@@ -28,6 +28,7 @@ import com.mastersmith.usermanagement.event.UserSnapshot;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserNotFoundException;
 import com.mastersmith.usermanagement.exception.UserValidationException;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -68,6 +70,14 @@ public class UserApplicationService {
   private final UserChangedEventPublisher eventPublisher;
   private final Counter escalationDeniedCounter;
 
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
+
   public UserApplicationService(
       UserRepository userRepository,
       @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
@@ -88,6 +98,10 @@ public class UserApplicationService {
 
   /** ユーザー一覧(W7)。email昇順の全件。{@code passwordHash}・{@code invitationToken}は含めない。 */
   public List<UserResponse> list(Operator operator) {
+    return observations.observe("user.api.list", () -> doList(operator));
+  }
+
+  private List<UserResponse> doList(Operator operator) {
     authorizer.requireUserAdmin(operator);
     return userRepository.findAllSummariesOrderByEmail().stream().map(UserResponse::from).toList();
   }
@@ -99,6 +113,10 @@ public class UserApplicationService {
    * @throws UserValidationException nameの不備・更新不可項目の指定・自己のroleIds変更・実在しないroleId(フィールド単位)
    */
   public UserResponse update(Operator operator, String userId, UpdateUserRequest request) {
+    return observations.observe("user.api.update", () -> doUpdate(operator, userId, request));
+  }
+
+  private UserResponse doUpdate(Operator operator, String userId, UpdateUserRequest request) {
     authorizer.requireUserAdmin(operator);
     Change change = transaction.execute(status -> applyUpdate(operator, userId, request));
     eventPublisher.publish(change.event());
@@ -112,6 +130,10 @@ public class UserApplicationService {
    * @throws UserValidationException 自分自身の無効化
    */
   public void disable(Operator operator, String userId) {
+    observations.run("user.api.disable", () -> doDisable(operator, userId));
+  }
+
+  private void doDisable(Operator operator, String userId) {
     authorizer.requireUserAdmin(operator);
     Change change = transaction.execute(status -> applyDisable(operator, userId));
     if (change.event() != null) {

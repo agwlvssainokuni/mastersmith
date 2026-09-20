@@ -66,6 +66,15 @@ spring:
           timeout: 5000
           writetimeout: 2000
 
+# ヘルスチェック(Spring Boot Actuator)。招待メールのSMTPの疎通は、健全性の判定に含めない
+# (SMTPの不調でアプリケーション全体をunhealthyにしないため。user-management nfr-design
+# observability-design.md NFR5.4)。SMTPの不調は、メトリクス(user.invitation.mail.failed)で検知する。
+# SpringBootのメールのヘルスインジケータは、JavaMailSenderImplがあると既定で登録されるため、無効にする。
+management:
+  health:
+    mail:
+      enabled: false
+
 # 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)接続。内部設定DBとは別のDataSourceとして
 # BusinessDataSourceConfig(com.mastersmith.dataio.config)がenabled=trueの場合にのみBeanを
 # 生成する(team.md「内部設定DB(新規決定)」を参照)。実際の接続先が未確定な開発環境では

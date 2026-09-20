@@ -31,6 +31,7 @@ import com.mastersmith.usermanagement.event.UserSnapshot;
 import com.mastersmith.usermanagement.exception.InvitationTokenNotFoundException;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserValidationException;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.PasswordHasher;
@@ -39,6 +40,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -64,6 +66,14 @@ public class InvitationAcceptService {
   private final PasswordHasher passwordHasher;
   private final UserChangedEventPublisher eventPublisher;
   private final Counter notFoundCounter;
+
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
 
   public InvitationAcceptService(
       UserRepository userRepository,
@@ -91,6 +101,10 @@ public class InvitationAcceptService {
    * @throws com.mastersmith.usermanagement.HashCapacityExceededException ハッシュ計算の許可を待機の上限内に取れなかった場合
    */
   public UserResponse accept(String token, AcceptInvitationRequest request) {
+    return observations.observe("user.api.accept", () -> doAccept(token, request));
+  }
+
+  private UserResponse doAccept(String token, AcceptInvitationRequest request) {
     User invited = findInvitedUser(token);
     UserSnapshot before = UserSnapshot.from(invited);
 

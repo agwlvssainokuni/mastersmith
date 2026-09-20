@@ -29,6 +29,7 @@ import com.mastersmith.usermanagement.event.UserSnapshot;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.mail.InvitationMailer;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.EmailLockRegistry;
 import com.mastersmith.usermanagement.security.InvitationAdmission;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -75,6 +77,14 @@ public class InvitationFacade {
   private final InvitationMailer mailer;
   private final UserChangedEventPublisher eventPublisher;
 
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
+
   public InvitationFacade(
       UserRepository userRepository,
       @Qualifier("transactionManager") PlatformTransactionManager transactionManager,
@@ -105,6 +115,10 @@ public class InvitationFacade {
    *     メール送信の失敗・打ち切り・件名の拒否(ロールバック済み)
    */
   public UserResponse invite(Operator operator, InviteUserRequest request) {
+    return observations.observe("user.api.invite", () -> doInvite(operator, request));
+  }
+
+  private UserResponse doInvite(Operator operator, InviteUserRequest request) {
     authorizer.requireUserAdmin(operator);
 
     List<UserFieldError> errors = new ArrayList<>();

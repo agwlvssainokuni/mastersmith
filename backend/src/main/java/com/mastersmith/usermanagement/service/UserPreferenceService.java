@@ -24,12 +24,14 @@ import com.mastersmith.usermanagement.entity.UserPreference;
 import com.mastersmith.usermanagement.exception.OperatorUnresolvedException;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserValidationException;
+import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -47,6 +49,14 @@ public class UserPreferenceService {
   private final TransactionTemplate transaction;
   private final UserAuthorizer authorizer;
 
+  /** 観測(スパン)。既定は何もしない。アプリケーションでは、{@link UserObservations}のBeanが注入される(NFR5.3)。 */
+  private UserObservations observations = UserObservations.NOOP;
+
+  @Autowired
+  public void setObservations(UserObservations observations) {
+    this.observations = observations;
+  }
+
   public UserPreferenceService(
       UserPreferenceRepository preferenceRepository,
       UserRepository userRepository,
@@ -60,6 +70,10 @@ public class UserPreferenceService {
 
   /** 自分自身の設定を返す。存在しなければ、既定値(light/medium/ja)を返す(作成はしない)。 */
   public UserPreferenceDto get(Operator operator) {
+    return observations.observe("user.preferences.get", () -> doGet(operator));
+  }
+
+  private UserPreferenceDto doGet(Operator operator) {
     String userId = authorizer.requireOperatorUserId(operator);
     return preferenceRepository
         .findById(userId)
@@ -74,6 +88,10 @@ public class UserPreferenceService {
    * @throws OperatorUnresolvedException 操作者のuserIdに対応するUserが存在しない場合(401)
    */
   public UserPreferenceDto update(Operator operator, UserPreferenceDto request) {
+    return observations.observe("user.preferences.update", () -> doUpdate(operator, request));
+  }
+
+  private UserPreferenceDto doUpdate(Operator operator, UserPreferenceDto request) {
     String userId = authorizer.requireOperatorUserId(operator);
     List<UserFieldError> errors = new ArrayList<>();
     Theme theme = UserInputValidator.parseTheme(request.theme(), true, errors);
