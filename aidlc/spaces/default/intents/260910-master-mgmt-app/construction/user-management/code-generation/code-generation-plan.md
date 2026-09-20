@@ -203,24 +203,24 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 12: ビジネスロジック層の実装(W1〜W8、BR4.1〜BR4.16)
 
-- [ ] `PermissionEngineApi.roleExists(String)`と`PermissionEngineApiImpl`の実装を追加する(前提事項4。既存メソッドは変更しない)
-- [ ] `CurrentOperatorProvider`(インタフェース)と暫定実装`HeaderCurrentOperatorProvider`(前提事項2)、`UserAuthorizer`(`canAccessScreen(activeRoleId, "user-management")`の評価。操作者が解決できなければ401、権限がなければ403)、入力の検証・正規化(emailのtrim・小文字化・形式、nameの必須・最大100文字・制御文字の禁止、表示設定の許容値。フィールド単位のi18nキー)を実装する
-- [ ] `UserApplicationService`(一覧W7、更新W3(自己のroleIds変更の拒否・`roleExists`・行ロック・beforeValue)、無効化W4(自己の無効化の拒否・冪等・invitedの取消でトークンnull化)。`@Transactional`は使わず、`TransactionTemplate`で囲み、コミット後に`UserChangedEventPublisher`を呼ぶ)を実装する
-- [ ] `InvitationFacade`(W1。認可・正規化・検証を先に行い、`EmailLockRegistry`→`InvitationAdmission`→`TransactionTemplate`{既存検索・作成/再招待の条件付き更新・`roleExists`・メール送信}→許可・排他の返却(finally)→コミット後のイベント発行の順序を守る。メール送信の失敗・打ち切りはロールバックして503、一意制約違反は422、DBのロック待ちタイムアウトは503。再招待の条件付き更新が0件なら422)を実装する
-- [ ] `InvitationAcceptService`(W2。トークン検索(トランザクションの外)→404、検証→422、`HashConcurrencyLimiter`でハッシュ計算(トランザクションの外)、`TransactionTemplate`{条件付き更新(0件なら404)・`UserPreference`作成}、コミット後にACTIVATEDイベント。未知のトークンではハッシュを計算しない)を実装する。`UserPreferenceService`(W6。GETは未作成なら既定値を返し作成しない、PUTは作成または更新。操作者のuserIdのみを用いる)を実装する
-- [ ] `UserAccountLookupApi`(C11、3メソッド)と`UserAccountLookupService`(`findByEmail`は正規化後のemailで検索し`roleIds`は直接付与分とGroup経由分の和集合で`passwordHash`はnull、`verifyPasswordHash`はactiveかつ`passwordHash`が非nullの場合のみ検証(129文字以上は計算せずfalse)し、成功時に`needsUpgrade`なら同じ許可の中で新ハッシュを計算して`REQUIRES_NEW`で条件付き更新(失敗は警告ログ・ログインの成否に影響させない・イベントなし)、`isDisabled`は常に最新のstatusで判定(不存在はtrue))を実装する
-- [ ] `InitialAdminProperties`(`@ConfigurationProperties`、未設定・パスワードの長さ・emailの形式不正を、バインド時に検証して起動を失敗させる)と`InitialAdminBootstrap`(`ApplicationRunner`。存在確認→存在しなければハッシュ計算(トランザクションの外)→1つのトランザクションでUser・UserPreferenceを作成、コミット後にBOOTSTRAPPEDイベント(actorは`system`)。一意制約違反は「既に存在した」として扱う。ログは事実のみ)を実装する
+- [x] `PermissionEngineApi.roleExists(String)`と`PermissionEngineApiImpl`の実装を追加する(前提事項4。既存メソッドは変更しない)
+- [x] `CurrentOperatorProvider`(インタフェース)と暫定実装`HeaderCurrentOperatorProvider`(前提事項2)、`UserAuthorizer`(`canAccessScreen(activeRoleId, "user-management")`の評価。操作者が解決できなければ401、権限がなければ403)、入力の検証・正規化(emailのtrim・小文字化・形式、nameの必須・最大100文字・制御文字の禁止、表示設定の許容値。フィールド単位のi18nキー)を実装する
+- [x] `UserApplicationService`(一覧W7、更新W3(自己のroleIds変更の拒否・`roleExists`・行ロック・beforeValue)、無効化W4(自己の無効化の拒否・冪等・invitedの取消でトークンnull化)。`@Transactional`は使わず、`TransactionTemplate`で囲み、コミット後に`UserChangedEventPublisher`を呼ぶ)を実装する
+- [x] `InvitationFacade`(W1。認可・正規化・検証を先に行い、`EmailLockRegistry`→`InvitationAdmission`→`TransactionTemplate`{既存検索・作成/再招待の条件付き更新・`roleExists`・メール送信}→許可・排他の返却(finally)→コミット後のイベント発行の順序を守る。メール送信の失敗・打ち切りはロールバックして503、一意制約違反は422、DBのロック待ちタイムアウトは503。再招待の条件付き更新が0件なら422)を実装する
+- [x] `InvitationAcceptService`(W2。トークン検索(トランザクションの外)→404、検証→422、`HashConcurrencyLimiter`でハッシュ計算(トランザクションの外)、`TransactionTemplate`{条件付き更新(0件なら404)・`UserPreference`作成}、コミット後にACTIVATEDイベント。未知のトークンではハッシュを計算しない)を実装する。`UserPreferenceService`(W6。GETは未作成なら既定値を返し作成しない、PUTは作成または更新。操作者のuserIdのみを用いる)を実装する
+- [x] `UserAccountLookupApi`(C11、3メソッド)と`UserAccountLookupService`(`findByEmail`は正規化後のemailで検索し`roleIds`は直接付与分とGroup経由分の和集合で`passwordHash`はnull、`verifyPasswordHash`はactiveかつ`passwordHash`が非nullの場合のみ検証(129文字以上は計算せずfalse)し、成功時に`needsUpgrade`なら同じ許可の中で新ハッシュを計算して`REQUIRES_NEW`で条件付き更新(失敗は警告ログ・ログインの成否に影響させない・イベントなし)、`isDisabled`は常に最新のstatusで判定(不存在はtrue))を実装する
+- [x] `InitialAdminProperties`(`@ConfigurationProperties`、未設定・パスワードの長さ・emailの形式不正を、バインド時に検証して起動を失敗させる)と`InitialAdminBootstrap`(`ApplicationRunner`。存在確認→存在しなければハッシュ計算(トランザクションの外)→1つのトランザクションでUser・UserPreferenceを作成、コミット後にBOOTSTRAPPEDイベント(actorは`system`)。一意制約違反は「既に存在した」として扱う。ログは事実のみ)を実装する
 
 ## Step 13: ビジネスロジック層のテスト(認可拒否専用テスト・並行テスト含む)
 
-- [ ] `UserAuthorizerTest`・`UserApplicationServiceTest`(テーブル駆動の**認可拒否専用テスト**、`team.md`必須テスト種別(c)): 操作者の未解決(401)・権限なし(403)・許可の組み合わせを、一覧・更新・無効化・招待のすべてで確認する。自己のroleIds変更の拒否(422と`user.role.escalation.denied`)、`roleExists`がfalseの場合の422、更新可能項目以外の指定の422、自己の無効化の拒否、すでにdisabledへの再DELETEの冪等(イベントなし)、invitedのUserの取消(トークンnull化)を確認する
-- [ ] `UserApplicationServiceConcurrencyTest`(統合): 同一Userへの同時更新で、beforeValueが直前の確定した値になること(行ロック)を確認する
-- [ ] `InvitationFacadeTest`: 作成・再招待・重複(active/disabled)・メール送信失敗のロールバックと503(イベントなし)・件名の拒否・排他と許可がコミット後に返ること・許可の満杯で待たずに503・同一emailの同時招待の直列化・同一emailの連打が他のemailの許可を占有しないこと・再招待と受諾・取消の競合(422・503)・DBのロック待ちタイムアウトの503・一意制約違反の422を確認する
-- [ ] `InvitationAcceptServiceTest`(統合を含む): 正常系(User・UserPreferenceの作成、既定値へのフォールバック)、並行受諾(1件のみ成功、他方は404)、未知・使用済み・取消済みのトークンがいずれも同一の404、未知のトークンでハッシュを計算しないこと、パスワード・氏名・表示設定の検証(422)を確認する
-- [ ] `UserAccountLookupServiceTest`: `findByEmail`(和集合・`passwordHash`がnull・正規化)、`verifyPasswordHash`(active以外・`passwordHash`がnull・129文字以上はfalse、`HashCapacityExceededException`の伝播)、ログイン成功時のハッシュ更新(古いパラメータの更新・条件付き更新の競合で更新しない・更新の失敗がログインの成否に影響しない・読み取り専用のトランザクションの中から呼んでも更新が失われない)、`isDisabled`(最新のstatus・不存在はtrue)を確認する
-- [ ] `InitialAdminBootstrapTest`・`InitialAdminPropertiesTest`(安全失敗、`ApplicationContextRunner`): 未設定・パスワードの長さ・emailの形式不正で起動が失敗すること、作成(status=active・roleIds・UserPreference既定値・BOOTSTRAPPED)、冪等(存在すれば何もしない・ハッシュを計算しない)、一意制約違反を既存として扱うこと、パスワードがログ・例外メッセージに出ないことを確認する
-- [ ] `UserPreferenceServiceTest`: GETの既定値(作成しない)、PUTの作成と更新、他人の設定を操作できないこと(対象userIdはトークン由来のみ)、許容値外の422を確認する
-- [ ] `PermissionEngineApiImplTest`に`roleExists`の存在・不存在のケースを追加する
+- [x] `UserAuthorizerTest`・`UserApplicationServiceTest`(テーブル駆動の**認可拒否専用テスト**、`team.md`必須テスト種別(c)): 操作者の未解決(401)・権限なし(403)・許可の組み合わせを、一覧・更新・無効化・招待のすべてで確認する。自己のroleIds変更の拒否(422と`user.role.escalation.denied`)、`roleExists`がfalseの場合の422、更新可能項目以外の指定の422、自己の無効化の拒否、すでにdisabledへの再DELETEの冪等(イベントなし)、invitedのUserの取消(トークンnull化)を確認する
+- [x] `UserApplicationServiceConcurrencyTest`(統合): 同一Userへの同時更新で、beforeValueが直前の確定した値になること(行ロック)を確認する
+- [x] `InvitationFacadeTest`: 作成・再招待・重複(active/disabled)・メール送信失敗のロールバックと503(イベントなし)・件名の拒否・排他と許可がコミット後に返ること・許可の満杯で待たずに503・同一emailの同時招待の直列化・同一emailの連打が他のemailの許可を占有しないこと・再招待と受諾・取消の競合(422・503)・DBのロック待ちタイムアウトの503・一意制約違反の422を確認する
+- [x] `InvitationAcceptServiceTest`(統合を含む): 正常系(User・UserPreferenceの作成、既定値へのフォールバック)、並行受諾(1件のみ成功、他方は404)、未知・使用済み・取消済みのトークンがいずれも同一の404、未知のトークンでハッシュを計算しないこと、パスワード・氏名・表示設定の検証(422)を確認する
+- [x] `UserAccountLookupServiceTest`: `findByEmail`(和集合・`passwordHash`がnull・正規化)、`verifyPasswordHash`(active以外・`passwordHash`がnull・129文字以上はfalse、`HashCapacityExceededException`の伝播)、ログイン成功時のハッシュ更新(古いパラメータの更新・条件付き更新の競合で更新しない・更新の失敗がログインの成否に影響しない・読み取り専用のトランザクションの中から呼んでも更新が失われない)、`isDisabled`(最新のstatus・不存在はtrue)を確認する
+- [x] `InitialAdminBootstrapTest`・`InitialAdminPropertiesTest`(安全失敗、`ApplicationContextRunner`): 未設定・パスワードの長さ・emailの形式不正で起動が失敗すること、作成(status=active・roleIds・UserPreference既定値・BOOTSTRAPPED)、冪等(存在すれば何もしない・ハッシュを計算しない)、一意制約違反を既存として扱うこと、パスワードがログ・例外メッセージに出ないことを確認する
+- [x] `UserPreferenceServiceTest`: GETの既定値(作成しない)、PUTの作成と更新、他人の設定を操作できないこと(対象userIdはトークン由来のみ)、許容値外の422を確認する
+- [x] `PermissionEngineApiImplTest`に`roleExists`の存在・不存在のケースを追加する
 
 ## Step 14: API層の実装(C5・BR4.10・NFR2.1・NFR2.3・NFR2.9・NFR7.2)
 

@@ -25,13 +25,46 @@
       "path": "backend/src/main/resources/db/migration/V4__create_user_management.sql"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/service/PermissionEngineApiImplTest.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/HashCapacityExceededException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/UserAccount.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/UserAccountLookupApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/config/InitialAdminProperties.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/config/UserManagementConfig.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/config/UserManagementProperties.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/dto/AcceptInvitationRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/dto/InviteUserRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/dto/UpdateUserRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/dto/UserPreferenceDto.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/dto/UserResponse.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/entity/FontSize.java"
@@ -73,7 +106,25 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/InvitationMailException.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/InvitationTokenNotFoundException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/OperatorUnresolvedException.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/SubjectRejectedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/UserAccessDeniedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/UserFieldError.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/UserNotFoundException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/exception/UserValidationException.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/mail/InvitationMailExecutor.java"
@@ -115,19 +166,58 @@
       "path": "backend/src/main/java/com/mastersmith/usermanagement/repository/UserSummary.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/CurrentOperatorProvider.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/security/EmailLockRegistry.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/security/HashConcurrencyLimiter.java"
     },
     {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/HeaderCurrentOperatorProvider.java"
+    },
+    {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/security/InvitationAdmission.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/Operator.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordHasher.java"
     },
     {
       "path": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordPolicy.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/UserAuthorizer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/InitialAdminBootstrap.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationAcceptService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserAccountLookupService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserInputValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementStartupTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/config/InitialAdminPropertiesTest.java"
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/entity/UserJpaTest.java"
@@ -176,6 +266,39 @@
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/security/PasswordPolicyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/HeaderCurrentOperatorProviderTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/InitialAdminBootstrapTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/InvitationAcceptServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/InvitationFacadeTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserAccountLookupServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserApplicationServiceConcurrencyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserApplicationServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserAuthorizerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserInputValidatorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserPreferenceServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/EventRecorder.java"
     },
     {
       "path": "backend/src/test/java/com/mastersmith/usermanagement/testsupport/UserTestFactory.java"
