@@ -133,108 +133,108 @@ user-storiesステージはSKIP対象(`project.md`学習事項)のため、`requ
 
 ## Step 1: 契約追補・機能設計の追補(最初の作業、ドキュメントのみ)
 
-- [ ] `inception/contract-design/contract-summary.md`へ、前提事項1のC4・C10・C11・C14・C15の追補を追記する(既存記述は書き換えない。追補であることが分かる見出しまたは注記を付ける)。C15の契約表への追加と、共通基盤の契約の所有規則の例外(変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する)を含める
-- [ ] `inception/units-generation/unit-of-work-dependency.md`の統合ポイント表へ、C15(葉の共有契約、DAGは変わらない)を追記する
-- [ ] `construction/authentication-service/functional-design/functional-spec.md`・`rules.md`の末尾へ、「Code Generation着手時の追補」節を追加し、前提事項2(認証ライブラリの確定)・3(パッケージ)・4(設定キー)・5(移行スクリプト)の確定と、NFR Design保留10〜16・18〜20番の扱い(実装するもの・共通基盤への要求として記録のみのもの・本Boltで実装しないもの)を記録する
+- [x] `inception/contract-design/contract-summary.md`へ、前提事項1のC4・C10・C11・C14・C15の追補を追記する(既存記述は書き換えない。追補であることが分かる見出しまたは注記を付ける)。C15の契約表への追加と、共通基盤の契約の所有規則の例外(変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する)を含める
+- [x] `inception/units-generation/unit-of-work-dependency.md`の統合ポイント表へ、C15(葉の共有契約、DAGは変わらない)を追記する
+- [x] `construction/authentication-service/functional-design/functional-spec.md`・`rules.md`の末尾へ、「Code Generation着手時の追補」節を追加し、前提事項2(認証ライブラリの確定)・3(パッケージ)・4(設定キー)・5(移行スクリプト)の確定と、NFR Design保留10〜16・18〜20番の扱い(実装するもの・共通基盤への要求として記録のみのもの・本Boltで実装しないもの)を記録する
 
 ## Step 2: プロジェクト構造・ビルド設定
 
-- [ ] `backend/src/main/java/com/mastersmith/auth/`と`com/mastersmith/common/security/`配下に、パッケージ構造を作成する(前提事項3)
-- [ ] `backend/build.gradle.kts`へ、`spring-boot-starter-security`と`com.nimbusds:nimbus-jose-jwt`を追加する(BOMでの管理を確認し、管理外なら最新の安定版を確認して固定する)。既存のSpotless・Checkstyle・JaCoCoの設定は緩めない。テストでSpring Securityを用いるため、必要なら`spring-security-test`を追加する
-- [ ] `backend/src/main/resources/application.yml`へ、`mastersmith.auth.*`(アクセストークン・リフレッシュトークンの有効期限、ロックのしきい値・時間、再送の猶予、Sessionの削除の保持日数・実行間隔・初回の遅延、キャッシュの最大件数・TTL、`session.revoke-all-on-startup`)と、`spring.datasource.hikari.connection-timeout: 3000`、`management.endpoints.web.exposure.include: health`・`management.endpoint.health.cache.time-to-live: 5s`を追加する。JWTの鍵の既定値・実値は置かない(前提事項4)
-- [ ] `backend/src/test/resources/application.yml`へ、テスト専用のダミーの鍵(実在しない値、32バイト以上)と短縮した設定値を追加し、既存の`@SpringBootTest`が起動時のfail fast検証を通って動くようにする
+- [x] `backend/src/main/java/com/mastersmith/auth/`と`com/mastersmith/common/security/`配下に、パッケージ構造を作成する(前提事項3)
+- [x] `backend/build.gradle.kts`へ、`spring-boot-starter-security`と`com.nimbusds:nimbus-jose-jwt`を追加する(BOMでの管理を確認し、管理外なら最新の安定版を確認して固定する)。既存のSpotless・Checkstyle・JaCoCoの設定は緩めない。テストでSpring Securityを用いるため、必要なら`spring-security-test`を追加する
+- [x] `backend/src/main/resources/application.yml`へ、`mastersmith.auth.*`(アクセストークン・リフレッシュトークンの有効期限、ロックのしきい値・時間、再送の猶予、Sessionの削除の保持日数・実行間隔・初回の遅延、キャッシュの最大件数・TTL、`session.revoke-all-on-startup`)と、`spring.datasource.hikari.connection-timeout: 3000`、`management.endpoints.web.exposure.include: health`・`management.endpoint.health.cache.time-to-live: 5s`を追加する。JWTの鍵の既定値・実値は置かない(前提事項4)
+- [x] `backend/src/test/resources/application.yml`へ、テスト専用のダミーの鍵(実在しない値、32バイト以上)と短縮した設定値を追加し、既存の`@SpringBootTest`が起動時のfail fast検証を通って動くようにする
 
 ## Step 3: テストランナー確認
 
-- [ ] `./gradlew :backend:test --tests "com.mastersmith.auth.*"`が本ユニットのテストを実行できることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)。Spring Security導入後も、既存の全テストが、Step 12・13の更新の前後で実行できる状態を保つ
+- [x] `./gradlew :backend:test --tests "com.mastersmith.auth.*"`が本ユニットのテストを実行できることを確認する(既存ユニットと共通のテスト基盤・Flywayマイグレーション適用フローを踏襲)。Spring Security導入後も、既存の全テストが、Step 12・13の更新の前後で実行できる状態を保つ
 
 ## Step 4: データモデル層の実装(entities.md準拠、NFR2.4・NFR3.4・NFR4.2)
 
-- [ ] `V5__create_authentication.sql`を作成する(`auth_session`・`account_login_state`。前提事項5)
-- [ ] `Session`・`AccountLoginState`エンティティと`SessionStatus`(`active`・`revoked`)を実装する。リフレッシュトークンのハッシュのみを保持し、平文は保持しない
-- [ ] `SessionRepository`(主キー・`refresh_token_hash`・`previous_refresh_token_hash`による検索、ローテーションの条件付きの更新(現在のハッシュが同一の場合のみ、更新件数を返す)、失効(冪等)、ロール選択の条件付きの更新、期限切れの行のバッチ削除)と`AccountLoginStateRepository`(予約の原子的な更新(なければ作成、一意制約違反はやり直し用に伝える)、しきい値到達と同時の`locked_until`の設定、世代を条件とする補償の更新、成功時のリセット)を実装する。内部設定DBの障害を`AuthStorageUnavailableException`に変換する
+- [x] `V5__create_authentication.sql`を作成する(`auth_session`・`account_login_state`。前提事項5)
+- [x] `Session`・`AccountLoginState`エンティティと`SessionStatus`(`active`・`revoked`)を実装する。リフレッシュトークンのハッシュのみを保持し、平文は保持しない
+- [x] `SessionRepository`(主キー・`refresh_token_hash`・`previous_refresh_token_hash`による検索、ローテーションの条件付きの更新(現在のハッシュが同一の場合のみ、更新件数を返す)、失効(冪等)、ロール選択の条件付きの更新、期限切れの行のバッチ削除)と`AccountLoginStateRepository`(予約の原子的な更新(なければ作成、一意制約違反はやり直し用に伝える)、しきい値到達と同時の`locked_until`の設定、世代を条件とする補償の更新、成功時のリセット)を実装する。内部設定DBの障害を`AuthStorageUnavailableException`に変換する
 
 ## Step 5: データモデル層のテスト(test-after、実H2)
 
-- [ ] `SessionJpaTest`・`AccountLoginStateJpaTest`: 往復の永続化、`refresh_token_hash`・`previous_refresh_token_hash`の一意制約(NULLの複数行を許す)、`account_login_state`の既定値、Flywayのスクリプトとエンティティのマッピング一致(`validate`)を確認する
-- [ ] `SessionRepositoryTest`・`AccountLoginStateRepositoryTest`: 条件付きの更新の更新件数(1件・0件)、同時のローテーションで1件のみ成功すること、予約の更新(しきい値未達・到達・ロック中は確保できない・ロックの自動解除後の最初の予約で回数が0に戻り世代が進む)、補償の更新(世代が同じ場合だけ枠を返す・この予約が設定したロックだけを解く・`:myLockedUntil`がnullの場合)、自己修復(しきい値以上で`locked_until`が空)、行がない状態での同時の初回の予約(一意制約違反がやり直しで解消する)、バッチ削除(1,000行ずつ・有効なSessionを削除しない)を確認する
+- [x] `SessionJpaTest`・`AccountLoginStateJpaTest`: 往復の永続化、`refresh_token_hash`・`previous_refresh_token_hash`の一意制約(NULLの複数行を許す)、`account_login_state`の既定値、Flywayのスクリプトとエンティティのマッピング一致(`validate`)を確認する
+- [x] `SessionRepositoryTest`・`AccountLoginStateRepositoryTest`: 条件付きの更新の更新件数(1件・0件)、同時のローテーションで1件のみ成功すること、予約の更新(しきい値未達・到達・ロック中は確保できない・ロックの自動解除後の最初の予約で回数が0に戻り世代が進む)、補償の更新(世代が同じ場合だけ枠を返す・この予約が設定したロックだけを解く・`:myLockedUntil`がnullの場合)、自己修復(しきい値以上で`locked_until`が空)、行がない状態での同時の初回の予約(一意制約違反がやり直しで解消する)、バッチ削除(1,000行ずつ・有効なSessionを削除しない)を確認する
 
 ## Step 6: 基盤部品の実装(NFR2.2・NFR2.3・NFR4.4・NFR4.6)
 
-- [ ] `AuthProperties`(`@ConfigurationProperties`+Bean Validation+追加の整合の確認: 有効期限・しきい値・ロック時間・猶予・保持日数・実行間隔・キャッシュの最大件数・TTL・`revoke-all-on-startup`。JWTの鍵は含めない。不備があれば起動を失敗させる)を実装する
-- [ ] `JwtKeyProvider`・`SecretKeyMaterial`(鍵を`Environment`から直接読み、Base64のデコードと32バイト以上の検証を起動時に行う。例外のメッセージには設定のキー名と理由だけを含め、値・断片を含めない。`toString`は伏せ字)を実装する
-- [ ] `AccessTokenIssuer`・`AccessTokenVerifier`(HS256のみ。`alg`の固定、`sub`・`sid`・`iat`・`exp`の必須確認、時計のずれの許容0。ロール・メールアドレス・氏名は含めない)、`RefreshTokenGenerator`(256ビット・`SecureRandom`・Base64URL)・`RefreshTokenHasher`(SHA-256・Base64URL)・`SessionIdGenerator`(128ビット・22文字)を実装する
-- [ ] `Clock`(UTC)のBean、`SecurityHeaderValues`(ヘッダーの値を1か所に持つ)、`ProblemDetailsWriter`(フィルタでのRFC 9457の応答。`code`はi18nキー、`instance`に生のパスを入れない)を実装する
+- [x] `AuthProperties`(`@ConfigurationProperties`+Bean Validation+追加の整合の確認: 有効期限・しきい値・ロック時間・猶予・保持日数・実行間隔・キャッシュの最大件数・TTL・`revoke-all-on-startup`。JWTの鍵は含めない。不備があれば起動を失敗させる)を実装する
+- [x] `JwtKeyProvider`・`SecretKeyMaterial`(鍵を`Environment`から直接読み、Base64のデコードと32バイト以上の検証を起動時に行う。例外のメッセージには設定のキー名と理由だけを含め、値・断片を含めない。`toString`は伏せ字)を実装する
+- [x] `AccessTokenIssuer`・`AccessTokenVerifier`(HS256のみ。`alg`の固定、`sub`・`sid`・`iat`・`exp`の必須確認、時計のずれの許容0。ロール・メールアドレス・氏名は含めない)、`RefreshTokenGenerator`(256ビット・`SecureRandom`・Base64URL)・`RefreshTokenHasher`(SHA-256・Base64URL)・`SessionIdGenerator`(128ビット・22文字)を実装する
+- [x] `Clock`(UTC)のBean、`SecurityHeaderValues`(ヘッダーの値を1か所に持つ)、`ProblemDetailsWriter`(フィルタでのRFC 9457の応答。`code`はi18nキー、`instance`に生のパスを入れない)を実装する
 
 ## Step 7: 基盤部品のテスト
 
-- [ ] `AuthPropertiesTest`・`JwtKeyProviderTest`(安全失敗、`ApplicationContextRunner`): 鍵の未設定・Base64として不正・32バイト未満、有効期限・しきい値・ロック時間・猶予・保持日数・実行間隔・キャッシュの設定の不正、`revoke-all-on-startup`の不正な値で起動が失敗すること、起動失敗の出力全体に鍵の値・断片が現れないこと、`SecretKeyMaterial`の`toString`が伏せ字であることを確認する
-- [ ] `AccessTokenTest`(テーブル駆動): 正常な発行と検証、`alg: none`・HS256以外・署名の不正・必須の値の欠落・期限切れ(時計のずれ0の境界)が、いずれも検証の失敗になること、ロール・メールアドレス・氏名がクレームに含まれないことを確認する
-- [ ] `RefreshTokenGeneratorTest`・`RefreshTokenHasherTest`・`SessionIdGeneratorTest`: 長さ・文字種・一意性・ハッシュの決定性、平文がハッシュに含まれないことを確認する
-- [ ] `ProblemDetailsWriterTest`・`SecurityHeaderValuesTest`: 応答の形式(`code`・`WWW-Authenticate: Bearer`・`instance`の非包含)、フィルタ経由の応答とコントローラ経由の応答でセキュリティヘッダーが同じであることを確認する
+- [x] `AuthPropertiesTest`・`JwtKeyProviderTest`(安全失敗、`ApplicationContextRunner`): 鍵の未設定・Base64として不正・32バイト未満、有効期限・しきい値・ロック時間・猶予・保持日数・実行間隔・キャッシュの設定の不正、`revoke-all-on-startup`の不正な値で起動が失敗すること、起動失敗の出力全体に鍵の値・断片が現れないこと、`SecretKeyMaterial`の`toString`が伏せ字であることを確認する
+- [x] `AccessTokenTest`(テーブル駆動): 正常な発行と検証、`alg: none`・HS256以外・署名の不正・必須の値の欠落・期限切れ(時計のずれ0の境界)が、いずれも検証の失敗になること、ロール・メールアドレス・氏名がクレームに含まれないことを確認する
+- [x] `RefreshTokenGeneratorTest`・`RefreshTokenHasherTest`・`SessionIdGeneratorTest`: 長さ・文字種・一意性・ハッシュの決定性、平文がハッシュに含まれないことを確認する
+- [x] `ProblemDetailsWriterTest`・`SecurityHeaderValuesTest`: 応答の形式(`code`・`WWW-Authenticate: Bearer`・`instance`の非包含)、フィルタ経由の応答とコントローラ経由の応答でセキュリティヘッダーが同じであることを確認する
 
 ## Step 8: ビジネスロジック層の実装(W1〜W6、BR5.1〜BR5.16、NFR1.2・NFR1.3・NFR4.1〜NFR4.7)
 
-- [ ] `com.mastersmith.common.security`に、C15の`Operator`(userId・sessionId・activeRoleId)と`OperatorContext`(読み取り専用のインタフェース)を実装する。テスト用に`OperatorContext`を差し替える支援クラスを併せて用意する(前提事項3)
-- [ ] `UserAccountClient`(C11を包むアダプタ。U4の内部設定DBの障害を`AuthStorageUnavailableException`に変換し、`HashCapacityExceededException`はそのまま伝える)を実装する。C11のインタフェースへ`findByUserId`・`dummyVerify`が追加される前提のため、Step 12のU4側の追加を先に(同一コミット範囲で)行う
-- [ ] `LoginAttemptGate`(予約・補償・成功の更新。トランザクションには参加するだけ(`MANDATORY`)。時刻は`Clock`から)、`SessionService`(作成・ローテーション(再送の猶予・再使用の検知)・失効・ロール選択の更新・リフレッシュ時のロールの再確認の判定表。`MANDATORY`。無効化の契機を返す)を実装する
-- [ ] `SessionCache`(Caffeine、最大件数・TTLは設定、統計あり。キーごとの原子的な読み込み、コミット後の無効化。存在しないSessionを保持しない)を実装する
-- [ ] `AuthenticationApplicationService`(W1〜W4。**トランザクションの境界をこの部品だけが所有する**: 外側のトランザクションを作らず、C11をトランザクションの外で呼び、短いトランザクションを`TransactionTemplate`で区切る。予約の一意制約違反のやり直し(新しいトランザクションで最大3回)、ハッシュ計算の上限超過での補償と503、実際の検証を行わない場合の`dummyVerify`、コミット後の`SessionCache`の無効化)を実装する
-- [ ] `SessionContextService`(C14`SessionContextApi.getActiveRoleId`。BR5.13の例外・nullの扱い)、`SessionCleanupJob`(`@Scheduled(fixedDelay)`、1,000行ずつ・1回100バッチ、実行中は次を始めない)、起動時の`revoke-all-on-startup`(前提事項9)を実装する
+- [x] `com.mastersmith.common.security`に、C15の`Operator`(userId・sessionId・activeRoleId)と`OperatorContext`(読み取り専用のインタフェース)を実装する。テスト用に`OperatorContext`を差し替える支援クラスを併せて用意する(前提事項3)
+- [x] `UserAccountClient`(C11を包むアダプタ。U4の内部設定DBの障害を`AuthStorageUnavailableException`に変換し、`HashCapacityExceededException`はそのまま伝える)を実装する。C11のインタフェースへ`findByUserId`・`dummyVerify`が追加される前提のため、Step 12のU4側の追加を先に(同一コミット範囲で)行う
+- [x] `LoginAttemptGate`(予約・補償・成功の更新。トランザクションには参加するだけ(`MANDATORY`)。時刻は`Clock`から)、`SessionService`(作成・ローテーション(再送の猶予・再使用の検知)・失効・ロール選択の更新・リフレッシュ時のロールの再確認の判定表。`MANDATORY`。無効化の契機を返す)を実装する
+- [x] `SessionCache`(Caffeine、最大件数・TTLは設定、統計あり。キーごとの原子的な読み込み、コミット後の無効化。存在しないSessionを保持しない)を実装する
+- [x] `AuthenticationApplicationService`(W1〜W4。**トランザクションの境界をこの部品だけが所有する**: 外側のトランザクションを作らず、C11をトランザクションの外で呼び、短いトランザクションを`TransactionTemplate`で区切る。予約の一意制約違反のやり直し(新しいトランザクションで最大3回)、ハッシュ計算の上限超過での補償と503、実際の検証を行わない場合の`dummyVerify`、コミット後の`SessionCache`の無効化)を実装する
+- [x] `SessionContextService`(C14`SessionContextApi.getActiveRoleId`。BR5.13の例外・nullの扱い)、`SessionCleanupJob`(`@Scheduled(fixedDelay)`、1,000行ずつ・1回100バッチ、実行中は次を始めない)、起動時の`revoke-all-on-startup`(前提事項9)を実装する
 
 ## Step 9: ビジネスロジック層のテスト(認可拒否・並行テスト含む、実H2)
 
-- [ ] `LoginAttemptGateTest`(実H2): 同時の誤った試行が何件あっても、検証できる試行がしきい値を超えないこと、しきい値到達と同時にロックが有効になること、ロック期間を延長しないこと、ロックの自動解除後の最初の予約で回数が0に戻ること、正しいパスワードの成功でしきい値到達の試行でもロックが解けること、補償の更新、自己修復、行がない状態での同時の初回の試行、時計を差し替えた境界(NFR4.6)を確認する
-- [ ] `AuthenticationApplicationServiceTest`: 失敗の応答が、原因(未登録・パスワードの誤り・ロック中・無効化済み・招待中)にかかわらず同一であること、実際の検証を行わない場合に`dummyVerify`が呼ばれること、C11をトランザクションの外で呼ぶこと、上限超過が実際・ダミーのどちらでも503になること、成功の更新とSessionの作成が一体で反映されること、DB障害(C11の呼び出しを含む)で503になり補償が試みられること、予約後の想定外の例外では補償されず500になること、`dummyVerify`の順番待ちの間に接続プールの使用中の接続が0であること(open-in-viewが無効であることの確認)を確認する
-- [ ] `SessionServiceTest`(実H2、テーブル駆動を含む): ローテーションの条件付きの更新(同時の更新で1件のみ成功、負けた側はSessionを失効させない)、猶予内・猶予を超えた再使用、ログアウトが該当のSessionだけを失効させること、ロール選択(保持しないロールは403相当)、リフレッシュ時のロールの再確認(判定表の全ケース)、リフレッシュとロール選択の並行実行(古いロールで上書きされない・1回だけやり直す・やり直しも失敗した場合に401でSessionを失効させない)、失効の冪等を確認する
-- [ ] `SessionCacheTest`: 更新のコミット後に無効化されること、読み込みと無効化の競合(ストレステスト)で古い値が残らないこと、TTLで解消すること、存在しないSessionを保持しないこと、ヒット・ミスの統計を確認する
-- [ ] `SessionContextServiceTest`(契約テスト)・`SessionCleanupJobTest`・`RevokeAllOnStartupTest`: 不存在・有効でない場合の例外と未選択のnull、有効期限から保持日数を過ぎたSession(revokedを含む)だけが削除され有効なSessionは削除されないこと、1,000行ずつの複数回の削除、失敗が認証に影響しないこと、`revoke-all-on-startup`がWebサーバーがリクエストを受け付ける前に実行されることを確認する
-- [ ] `UserAccountClientTest`: C11の呼び出しでのDB障害が`AuthStorageUnavailableException`に変換されること、`HashCapacityExceededException`がそのまま伝わることを確認する
+- [x] `LoginAttemptGateTest`(実H2): 同時の誤った試行が何件あっても、検証できる試行がしきい値を超えないこと、しきい値到達と同時にロックが有効になること、ロック期間を延長しないこと、ロックの自動解除後の最初の予約で回数が0に戻ること、正しいパスワードの成功でしきい値到達の試行でもロックが解けること、補償の更新、自己修復、行がない状態での同時の初回の試行、時計を差し替えた境界(NFR4.6)を確認する
+- [x] `AuthenticationApplicationServiceTest`: 失敗の応答が、原因(未登録・パスワードの誤り・ロック中・無効化済み・招待中)にかかわらず同一であること、実際の検証を行わない場合に`dummyVerify`が呼ばれること、C11をトランザクションの外で呼ぶこと、上限超過が実際・ダミーのどちらでも503になること、成功の更新とSessionの作成が一体で反映されること、DB障害(C11の呼び出しを含む)で503になり補償が試みられること、予約後の想定外の例外では補償されず500になること、`dummyVerify`の順番待ちの間に接続プールの使用中の接続が0であること(open-in-viewが無効であることの確認)を確認する
+- [x] `SessionServiceTest`(実H2、テーブル駆動を含む): ローテーションの条件付きの更新(同時の更新で1件のみ成功、負けた側はSessionを失効させない)、猶予内・猶予を超えた再使用、ログアウトが該当のSessionだけを失効させること、ロール選択(保持しないロールは403相当)、リフレッシュ時のロールの再確認(判定表の全ケース)、リフレッシュとロール選択の並行実行(古いロールで上書きされない・1回だけやり直す・やり直しも失敗した場合に401でSessionを失効させない)、失効の冪等を確認する
+- [x] `SessionCacheTest`: 更新のコミット後に無効化されること、読み込みと無効化の競合(ストレステスト)で古い値が残らないこと、TTLで解消すること、存在しないSessionを保持しないこと、ヒット・ミスの統計を確認する
+- [x] `SessionContextServiceTest`(契約テスト)・`SessionCleanupJobTest`・`RevokeAllOnStartupTest`: 不存在・有効でない場合の例外と未選択のnull、有効期限から保持日数を過ぎたSession(revokedを含む)だけが削除され有効なSessionは削除されないこと、1,000行ずつの複数回の削除、失敗が認証に影響しないこと、`revoke-all-on-startup`がWebサーバーがリクエストを受け付ける前に実行されることを確認する
+- [x] `UserAccountClientTest`: C11の呼び出しでのDB障害が`AuthStorageUnavailableException`に変換されること、`HashCapacityExceededException`がそのまま伝わることを確認する
 
 ## Step 10: API層・セキュリティ層の実装(C4・BR5.11・NFR2.1・NFR2.8〜NFR2.11)
 
-- [ ] DTO(`LoginRequest`・`LoginResponse`(accessToken・refreshToken・roles・activeRoleId)・`RefreshRequest`・`RefreshResponse`・`ActiveRoleRequest`)を実装する。パスワード・トークンを`toString`に含めない
-- [ ] `BearerAuthenticationFilter`(認証を要するパスにだけ適用し、認証不要のパスでは実行しない(`shouldNotFilter`)。署名・有効期限・Session・`sub`の一致を確認し、`Operator`をセキュリティコンテキストに設定する。原因を区別しない401、キャッシュミスでのDB障害は503)、`SecurityContextOperatorContext`(C15の実装)、`AuthSecurityConfig`(`SecurityFilterChain`。認証の要否の規則(ログイン・リフレッシュ・招待受諾・静的ファイル・`/actuator/health`は認証不要、その他のactuatorは拒否、`/api/**`の残りは認証必須)、ステートレス・CSRF無効・CORSなし、セキュリティヘッダー、`/api/**`の`Cache-Control: no-store`)を実装する
-- [ ] `AuthController`(`POST /api/auth/login`・`/refresh`・`/logout`、`PUT /api/auth/active-role`)、`AuthRequestSizeLimitFilter`(`/api/auth/**`の64KiB上限、Spring Securityのフィルタチェーンより前の順序で`FilterRegistrationBean`により登録)、`AuthApiExceptionAdvice`(`AuthController`に限定、`@Order`を明記。401・403・413・503・400のProblemDetailsと`code`)、`AuthCrossCuttingExceptionAdvice`(対象の例外の型をU5の3つ(`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`)に限定し、他ユニットのリクエスト処理の中のC14・C11の例外を401・503に変換。`@Order`を明記)を実装する
+- [x] DTO(`LoginRequest`・`LoginResponse`(accessToken・refreshToken・roles・activeRoleId)・`RefreshRequest`・`RefreshResponse`・`ActiveRoleRequest`)を実装する。パスワード・トークンを`toString`に含めない
+- [x] `BearerAuthenticationFilter`(認証を要するパスにだけ適用し、認証不要のパスでは実行しない(`shouldNotFilter`)。署名・有効期限・Session・`sub`の一致を確認し、`Operator`をセキュリティコンテキストに設定する。原因を区別しない401、キャッシュミスでのDB障害は503)、`SecurityContextOperatorContext`(C15の実装)、`AuthSecurityConfig`(`SecurityFilterChain`。認証の要否の規則(ログイン・リフレッシュ・招待受諾・静的ファイル・`/actuator/health`は認証不要、その他のactuatorは拒否、`/api/**`の残りは認証必須)、ステートレス・CSRF無効・CORSなし、セキュリティヘッダー、`/api/**`の`Cache-Control: no-store`)を実装する
+- [x] `AuthController`(`POST /api/auth/login`・`/refresh`・`/logout`、`PUT /api/auth/active-role`)、`AuthRequestSizeLimitFilter`(`/api/auth/**`の64KiB上限、Spring Securityのフィルタチェーンより前の順序で`FilterRegistrationBean`により登録)、`AuthApiExceptionAdvice`(`AuthController`に限定、`@Order`を明記。401・403・413・503・400のProblemDetailsと`code`)、`AuthCrossCuttingExceptionAdvice`(対象の例外の型をU5の3つ(`SessionNotFoundException`・`SessionExpiredException`・`AuthStorageUnavailableException`)に限定し、他ユニットのリクエスト処理の中のC14・C11の例外を401・503に変換。`@Order`を明記)を実装する
 
 ## Step 11: API層・セキュリティ層のテスト(認可拒否専用テスト含む)
 
-- [ ] `BearerAuthenticationFilterTest`(テーブル駆動): トークンなし・`alg: none`・HS256以外・署名の不正・必須の値の欠落・期限切れ・`sub`とSessionの`userId`の不一致・失効・期限切れのSessionが、いずれも同一の401になること、キャッシュミスでDB障害のとき503、キャッシュヒットのとき通ること、リクエストヘッダー(`X-User-Id`・`X-Active-Role-Id`)が無視されること、**認証不要のパス(ログイン・リフレッシュ・招待受諾・静的ファイル・ヘルス)で、期限切れ・不正な`Authorization`ヘッダーを付けても、フィルタで401にならないこと**、`Bearer`のスキーム名の大文字小文字を区別しないことを確認する
-- [ ] `AuthSecurityConfigTest`: 認証の要否の規則(3つの認証不要のAPI・静的ファイル・`/actuator/health`・その他のactuatorの拒否・`/api/**`の残りは認証必須)、セキュリティヘッダーの値、`Cache-Control: no-store`が`/api/**`にだけ付くこと、すべての応答に`Set-Cookie`がないこと、`/api/**`・`/actuator/**`以外のパスへの`GET`・`HEAD`以外のメソッドが拒否されること、ヘルスの結果が5秒間キャッシュされることを確認する
-- [ ] `AuthControllerTest`(`@WebMvcTest`): 正常系(200・204)、**認可拒否専用テスト**(未認証の401・保持しないロールの選択の403)、失敗の応答の一本化(`auth.login.failed`)、503(ハッシュ計算の上限超過・DB障害)、400・413、応答に`refreshTokenHash`・パスワード・鍵が含まれないことを確認する
-- [ ] `AuthRequestSizeLimitFilterTest`・`AuthApiExceptionAdviceTest`・`AuthCrossCuttingExceptionAdviceTest`: `Content-Length`がある場合・チャンク転送の場合(`RequestBodyTooLargeException`が包まれる場合と直接伝わる場合の両方)の413と、**両方の経路で413のセキュリティヘッダーが同じであること**、認証前のボディの拒否、ProblemDetailsの形式と`code`(`instance`を含まないこと)、他ユニットのコントローラの中でのC14の`SessionNotFoundException`・`SessionExpiredException`が401、`AuthStorageUnavailableException`が503になること(U10・U11を想定した検証用のコントローラ)を確認する
-- [ ] `SecurityContextOperatorContextTest`(契約テスト): 認証済みのリクエストで`Operator`を返すこと、`activeRoleId`がnullでも`Operator`が存在すること、未認証では解決できないことを確認する
+- [x] `BearerAuthenticationFilterTest`(テーブル駆動): トークンなし・`alg: none`・HS256以外・署名の不正・必須の値の欠落・期限切れ・`sub`とSessionの`userId`の不一致・失効・期限切れのSessionが、いずれも同一の401になること、キャッシュミスでDB障害のとき503、キャッシュヒットのとき通ること、リクエストヘッダー(`X-User-Id`・`X-Active-Role-Id`)が無視されること、**認証不要のパス(ログイン・リフレッシュ・招待受諾・静的ファイル・ヘルス)で、期限切れ・不正な`Authorization`ヘッダーを付けても、フィルタで401にならないこと**、`Bearer`のスキーム名の大文字小文字を区別しないことを確認する
+- [x] `AuthSecurityConfigTest`: 認証の要否の規則(3つの認証不要のAPI・静的ファイル・`/actuator/health`・その他のactuatorの拒否・`/api/**`の残りは認証必須)、セキュリティヘッダーの値、`Cache-Control: no-store`が`/api/**`にだけ付くこと、すべての応答に`Set-Cookie`がないこと、`/api/**`・`/actuator/**`以外のパスへの`GET`・`HEAD`以外のメソッドが拒否されること、ヘルスの結果が5秒間キャッシュされることを確認する
+- [x] `AuthControllerTest`(`@WebMvcTest`): 正常系(200・204)、**認可拒否専用テスト**(未認証の401・保持しないロールの選択の403)、失敗の応答の一本化(`auth.login.failed`)、503(ハッシュ計算の上限超過・DB障害)、400・413、応答に`refreshTokenHash`・パスワード・鍵が含まれないことを確認する
+- [x] `AuthRequestSizeLimitFilterTest`・`AuthApiExceptionAdviceTest`・`AuthCrossCuttingExceptionAdviceTest`: `Content-Length`がある場合・チャンク転送の場合(`RequestBodyTooLargeException`が包まれる場合と直接伝わる場合の両方)の413と、**両方の経路で413のセキュリティヘッダーが同じであること**、認証前のボディの拒否、ProblemDetailsの形式と`code`(`instance`を含まないこと)、他ユニットのコントローラの中でのC14の`SessionNotFoundException`・`SessionExpiredException`が401、`AuthStorageUnavailableException`が503になること(U10・U11を想定した検証用のコントローラ)を確認する
+- [x] `SecurityContextOperatorContextTest`(契約テスト): 認証済みのリクエストで`Operator`を返すこと、`activeRoleId`がnullでも`Operator`が存在すること、未認証では解決できないことを確認する
 
 ## Step 12: 他ユニットの変更(追補8・11。既存の振る舞いは変えない)
 
-- [ ] U4: `UserAccountLookupApi`へ`findByUserId`・`dummyVerify`を追加し、`UserAccountLookupService`で実装する(`dummyVerify`は129文字以上を計算せず、`HashConcurrencyLimiter`を共有する)。`CurrentOperatorProvider`・`HeaderCurrentOperatorProvider`・`usermanagement.security.Operator`を削除し、`UserController`・`MePreferencesController`・`UserAuthorizer`が`OperatorContext`を読む実装に置き換える(コントローラ・サービスの入口は変えない。操作者が解決できなければ401、`activeRoleId`がnullでも自前で401にせず、そのままC10へ渡す)
-- [ ] U2・U6・U7: `ActiveRoleResolver`・`HeaderActiveRoleResolver`を削除し、`SchemaIntrospectionController`・`MenuController`・`AuditLogController`(および`MenuUnauthorizedException`の関連箇所)が`OperatorContext`を読む実装に置き換える
-- [ ] U3: `PermissionEngineApiImpl`の`canAccessScreen`・`resolveEffectivePermission`が、`activeRoleId`のnull・空をfail closed(NONE)として扱うよう変更する(RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する)。既存のメソッドのシグネチャ・既存の振る舞いは変えない
+- [x] U4: `UserAccountLookupApi`へ`findByUserId`・`dummyVerify`を追加し、`UserAccountLookupService`で実装する(`dummyVerify`は129文字以上を計算せず、`HashConcurrencyLimiter`を共有する)。`CurrentOperatorProvider`・`HeaderCurrentOperatorProvider`・`usermanagement.security.Operator`を削除し、`UserController`・`MePreferencesController`・`UserAuthorizer`が`OperatorContext`を読む実装に置き換える(コントローラ・サービスの入口は変えない。操作者が解決できなければ401、`activeRoleId`がnullでも自前で401にせず、そのままC10へ渡す)
+- [x] U2・U6・U7: `ActiveRoleResolver`・`HeaderActiveRoleResolver`を削除し、`SchemaIntrospectionController`・`MenuController`・`AuditLogController`(および`MenuUnauthorizedException`の関連箇所)が`OperatorContext`を読む実装に置き換える
+- [x] U3: `PermissionEngineApiImpl`の`canAccessScreen`・`resolveEffectivePermission`が、`activeRoleId`のnull・空をfail closed(NONE)として扱うよう変更する(RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する)。既存のメソッドのシグネチャ・既存の振る舞いは変えない
 
 ## Step 13: 他ユニットの変更のテスト(認可拒否専用テスト・テーブル駆動テスト含む)
 
-- [ ] `PermissionEngineApiImplTest`・`PermissionEngineIntegrationTest`への追加(**`team.md`の追加合格条件のテーブル駆動テスト**): `activeRoleId`のnull・空・実在・実在しない × RBAC設定の有無 × 画面(`config-import-export`を含む)の組み合わせ。既存のテストは変更しない
-- [ ] `UserAccountLookupServiceTest`への追加: `findByUserId`(存在・不存在・和集合・`passwordHash`がnull)、`dummyVerify`(129文字以上は計算しない・`HashCapacityExceededException`の伝播・許可の返却・ユーザーを指定しないこと)。`HeaderCurrentOperatorProviderTest`を、`OperatorContext`を差し替える形の`UserAuthorizerTest`の更新に置き換える
-- [ ] 既存のコントローラ・サービスのテスト(`UserControllerTest`・`MePreferencesControllerTest`・`UserApiExceptionAdviceTest`・`UserApiIntegrationTest`・`UserManagementNoLeakTest`・`SchemaIntrospectionControllerTest`・`MenuControllerTest`・`AuditLogControllerTest`)を、ヘッダーで操作者を渡す形から、`OperatorContext`を差し替える形へ更新する(期待する振る舞い・アサーションは変えない。認可拒否のケースは、操作者の未解決(401)・`activeRoleId`のnull(403)・権限なし(403)を維持または追加する)。`HeaderActiveRoleResolverTest`は、対象の削除に伴い削除する
-- [ ] ヘッダー方式の暫定実装が残っていないことを、コードの検索・アーキテクチャテスト(`X-User-Id`・`X-Active-Role-Id`・`HeaderCurrentOperatorProvider`・`HeaderActiveRoleResolver`の不存在)で確認する
+- [x] `PermissionEngineApiImplTest`・`PermissionEngineIntegrationTest`への追加(**`team.md`の追加合格条件のテーブル駆動テスト**): `activeRoleId`のnull・空・実在・実在しない × RBAC設定の有無 × 画面(`config-import-export`を含む)の組み合わせ。既存のテストは変更しない
+- [x] `UserAccountLookupServiceTest`への追加: `findByUserId`(存在・不存在・和集合・`passwordHash`がnull)、`dummyVerify`(129文字以上は計算しない・`HashCapacityExceededException`の伝播・許可の返却・ユーザーを指定しないこと)。`HeaderCurrentOperatorProviderTest`を、`OperatorContext`を差し替える形の`UserAuthorizerTest`の更新に置き換える
+- [x] 既存のコントローラ・サービスのテスト(`UserControllerTest`・`MePreferencesControllerTest`・`UserApiExceptionAdviceTest`・`UserApiIntegrationTest`・`UserManagementNoLeakTest`・`SchemaIntrospectionControllerTest`・`MenuControllerTest`・`AuditLogControllerTest`)を、ヘッダーで操作者を渡す形から、`OperatorContext`を差し替える形へ更新する(期待する振る舞い・アサーションは変えない。認可拒否のケースは、操作者の未解決(401)・`activeRoleId`のnull(403)・権限なし(403)を維持または追加する)。`HeaderActiveRoleResolverTest`は、対象の削除に伴い削除する
+- [x] ヘッダー方式の暫定実装が残っていないことを、コードの検索・アーキテクチャテスト(`X-User-Id`・`X-Active-Role-Id`・`HeaderCurrentOperatorProvider`・`HeaderActiveRoleResolver`の不存在)で確認する
 
 ## Step 14: 可観測性の実装とトークン・認証情報の非露出の確認(BR5.14・NFR2.7・NFR5.1〜NFR5.4)
 
-- [ ] `AuthMetrics`(`auth.login`・`auth.login.duration`・`auth.refresh`・`auth.refresh.reuse.within.grace`・`auth.refresh.token.reuse.detected`・`auth.logout`・`auth.active-role`・`auth.account.locked`・`auth.login.hash.capacity.exceeded`・`auth.filter.duration`・`auth.filter.unauthorized`・`auth.db.unavailable`・`auth.session.cleanup`。名称・種別・ラベルは`nfr-design/observability-design.md`のとおり。ラベルに利用者・トークンの値を含めない)と`AuthEventLogger`(認証の出来事のログ。userId・sessionIdのみ。パスワード・トークン・ハッシュ・鍵・メールアドレスを出さない)を実装する。ログイン・リフレッシュ・認証フィルタに`ObservationRegistry`による観測(スパン)を付ける。属性にメールアドレス・トークン・ハッシュを含めない
-- [ ] `AuthenticationNoLeakTest`: ログイン(成功・失敗・ロック中・503)・リフレッシュ(成功・再使用・猶予内)・ログアウト・認証フィルタ(401)・起動時の鍵の検証失敗の各経路で、U5のログ出力(`ListAppender`で捕捉)・メトリクスのラベル・スパンの属性・ProblemDetails・応答に、パスワード・トークン(平文・ハッシュ)・鍵・メールアドレスの実値が現れないことを確認する
-- [ ] 専用のヘルスチェック部品は設けない(NFR5.4。`/actuator/health`の設定はStep 2)
+- [x] `AuthMetrics`(`auth.login`・`auth.login.duration`・`auth.refresh`・`auth.refresh.reuse.within.grace`・`auth.refresh.token.reuse.detected`・`auth.logout`・`auth.active-role`・`auth.account.locked`・`auth.login.hash.capacity.exceeded`・`auth.filter.duration`・`auth.filter.unauthorized`・`auth.db.unavailable`・`auth.session.cleanup`。名称・種別・ラベルは`nfr-design/observability-design.md`のとおり。ラベルに利用者・トークンの値を含めない)と`AuthEventLogger`(認証の出来事のログ。userId・sessionIdのみ。パスワード・トークン・ハッシュ・鍵・メールアドレスを出さない)を実装する。ログイン・リフレッシュ・認証フィルタに`ObservationRegistry`による観測(スパン)を付ける。属性にメールアドレス・トークン・ハッシュを含めない
+- [x] `AuthenticationNoLeakTest`: ログイン(成功・失敗・ロック中・503)・リフレッシュ(成功・再使用・猶予内)・ログアウト・認証フィルタ(401)・起動時の鍵の検証失敗の各経路で、U5のログ出力(`ListAppender`で捕捉)・メトリクスのラベル・スパンの属性・ProblemDetails・応答に、パスワード・トークン(平文・ハッシュ)・鍵・メールアドレスの実値が現れないことを確認する
+- [x] 専用のヘルスチェック部品は設けない(NFR5.4。`/actuator/health`の設定はStep 2)
 
 ## Step 15: 統合・E2Eテスト
 
-- [ ] `AuthenticationFlowIntegrationTest`(`@SpringBootTest`、実H2・認証フィルタ越し): ログイン → 複数ロールのユーザーのロール選択 → 認証フィルタ越しの検証用コントローラ(`OperatorContext`を読み、`PermissionEngineApi`の判定を通す)での権限制御(許可・権限なし(403)・ロール未選択(403)) → リフレッシュ → ログアウト後の401、の一連の流れを確認する。複数端末の同時ログイン(ログアウトが他のSessionに影響しないこと)、ユーザーの無効化後のリフレッシュの401(Sessionの失効)を含める
-- [ ] ロックの一連の流れ(誤ったパスワードをしきい値まで送る → ロック中は正しいパスワードでも同一の401 → 時計を進めて自動解除 → 成功)を、統合テストで確認する
+- [x] `AuthenticationFlowIntegrationTest`(`@SpringBootTest`、実H2・認証フィルタ越し): ログイン → 複数ロールのユーザーのロール選択 → 認証フィルタ越しの検証用コントローラ(`OperatorContext`を読み、`PermissionEngineApi`の判定を通す)での権限制御(許可・権限なし(403)・ロール未選択(403)) → リフレッシュ → ログアウト後の401、の一連の流れを確認する。複数端末の同時ログイン(ログアウトが他のSessionに影響しないこと)、ユーザーの無効化後のリフレッシュの401(Sessionの失効)を含める
+- [x] ロックの一連の流れ(誤ったパスワードをしきい値まで送る → ロック中は正しいパスワードでも同一の401 → 時計を進めて自動解除 → 成功)を、統合テストで確認する
 
 ## Step 16: 環境・ビルド設定
 
-- [ ] 新規パッケージ・マイグレーション・依存が、既存のGradle/Spotless/Checkstyle/JaCoCo設定下でビルド・整形されることを確認する(`spotlessCheck`・`checkstyleMain`・`checkstyleTest`が本ユニットのファイルと変更した他ユニットのファイルに関して合格、既存の全テストがグリーン、行カバレッジ80%以上)。カバレッジの基準・閾値は緩めない
-- [ ] リポジトリに、JWTの鍵・認証情報の実値が入っていないこと(テスト専用のダミーを除く)を確認する(NFR2.8。シークレットスキャンの観点)。業務固有のテーブル名・カラム名・業務ルールが本ユニットのコードに無いことを確認する(FR1.6・NFR8.1)
+- [x] 新規パッケージ・マイグレーション・依存が、既存のGradle/Spotless/Checkstyle/JaCoCo設定下でビルド・整形されることを確認する(`spotlessCheck`・`checkstyleMain`・`checkstyleTest`が本ユニットのファイルと変更した他ユニットのファイルに関して合格、既存の全テストがグリーン、行カバレッジ80%以上)。カバレッジの基準・閾値は緩めない
+- [x] リポジトリに、JWTの鍵・認証情報の実値が入っていないこと(テスト専用のダミーを除く)を確認する(NFR2.8。シークレットスキャンの観点)。業務固有のテーブル名・カラム名・業務ルールが本ユニットのコードに無いことを確認する(FR1.6・NFR8.1)
 
 ## Step 17: ドキュメント・トレーサビリティ
 
-- [ ] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する。生成する全ソースファイルの先頭に、Apache License 2.0の標準ヘッダー(年`2026`、著作権者`agwlvssainokuni`)を入れる。他ユニットの暫定実装の注記(「U5の実装時に差し替える」)を、削除に伴い整理する
-- [ ] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する(U5が作成・変更したアプリケーションのソースのパス。U2・U3・U4・U6・U7・共通基盤への変更分を含む)
+- [x] 各クラス・メソッドに必要最小限のJavadoc(非自明な設計判断のみ)を付与する。生成する全ソースファイルの先頭に、Apache License 2.0の標準ヘッダー(年`2026`、著作権者`agwlvssainokuni`)を入れる。他ユニットの暫定実装の注記(「U5の実装時に差し替える」)を、削除に伴い整理する
+- [x] `code-summary.md`・`traceability.json`はオーケストレーターが実施。`source-manifest.json`はdispatch指示により開発エージェントが作成する(U5が作成・変更したアプリケーションのソースのパス。U2・U3・U4・U6・U7・共通基盤への変更分を含む)

@@ -1,0 +1,445 @@
+{
+  "stage": "code-generation",
+  "unit": "authentication-service",
+  "version": 1,
+  "writes": [
+    {
+      "path": "backend/build.gradle.kts"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/audit/web/AuditLogController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/SessionContextApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/cache/SessionCache.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/cache/SessionState.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/config/AuthConfig.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/config/AuthProperties.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/ActiveRoleRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/ActiveRoleResponse.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/LoginRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/LoginResponse.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/RefreshRequest.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/dto/RefreshResponse.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/entity/AccountLoginState.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/entity/Session.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/entity/SessionStatus.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/AuthStorageUnavailableException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/AuthenticationRequiredException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/InvalidAccessTokenException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/LoginFailedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/RefreshRejectedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/RequestBodyTooLargeException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/RoleNotHeldException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/SessionExpiredException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/exception/SessionNotFoundException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/observation/AuthEventLogger.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/observation/AuthMetrics.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/observation/AuthObservations.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/observation/UnauthorizedReason.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/repository/AccountLoginStateRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/repository/SessionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/AuthProblem.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/AuthRequestRules.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/AuthRequestSizeLimitFilter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/AuthSecurityConfig.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/BearerAuthenticationFilter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/OperatorAuthentication.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/ProblemDetailsWriter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/SecurityContextOperatorContext.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/security/SecurityHeaderValues.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/AuthExceptionTranslator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/AuthenticationApplicationService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/LoginAttemptGate.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/SessionCleanupJob.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/SessionContextService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/SessionService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/SessionStartupRevoker.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/service/UserAccountClient.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/AccessTokenClaims.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/AccessTokenIssuer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/AccessTokenVerifier.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/JwtKeyProvider.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/RefreshTokenGenerator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/RefreshTokenHasher.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/SecretKeyMaterial.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/token/SessionIdGenerator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/web/AuthApiExceptionAdvice.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/web/AuthController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/auth/web/AuthCrossCuttingExceptionAdvice.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/security/Operator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/security/OperatorContext.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/exception/MenuUnauthorizedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/web/MenuController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/schema/security/ActiveRoleResolver.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/schema/security/HeaderActiveRoleResolver.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/schema/web/SchemaIntrospectionController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/UserAccountLookupApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/CurrentOperatorProvider.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/HeaderCurrentOperatorProvider.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/PasswordHasher.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/security/UserAuthorizer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/InvitationFacade.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserAccountLookupService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserApplicationService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/service/UserPreferenceService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/MePreferencesController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/usermanagement/web/UserController.java"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml"
+    },
+    {
+      "path": "backend/src/main/resources/db/migration/V5__create_authentication.sql"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/event/UserChangedEventAuditIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/web/AuditLogControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/AuthenticationFlowIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/AuthenticationNoLeakTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/HeaderBasedOperatorAbsenceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/cache/SessionCacheTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/config/AuthPropertiesTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/entity/AccountLoginStateJpaTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/entity/SessionJpaTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/repository/AccountLoginStateRepositoryTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/repository/SessionRepositoryConcurrencyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/repository/SessionRepositoryTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/AuthRequestSizeLimitFilterTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/AuthSecurityConfigTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/BearerAuthenticationFilterTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/ProblemDetailsWriterTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/SecurityContextOperatorContextTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/security/SecurityHeaderValuesTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/AuthenticationApplicationServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/LoginAttemptGateTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/LoginSuccessAtomicityTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/RefreshGraceZeroTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/RevokeAllOnStartupDisabledTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/RevokeAllOnStartupTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/SessionCleanupJobTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/SessionContextServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/SessionRefreshRaceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/SessionServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/service/UserAccountClientTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/AuthIntegrationTestBase.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/AuthTestClockConfig.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/AuthTestEndpoints.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/AuthTestFactory.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/AuthTestProperties.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/MutableClock.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/testsupport/StartupSessionProbeConfig.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/token/AccessTokenTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/token/JwtKeyProviderTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/token/RefreshTokenGeneratorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/token/RefreshTokenHasherTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/token/SessionIdGeneratorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/web/AuthApiExceptionAdviceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/web/AuthControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/auth/web/AuthCrossCuttingExceptionAdviceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/security/TestOperatorContext.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/security/TestOperatorContextConfig.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/security/TestPermitAllSecurityConfig.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/menu/web/MenuControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/PermissionEngineIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/service/PermissionEngineApiImplTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/schema/security/HeaderActiveRoleResolverTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/schema/web/SchemaIntrospectionControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/UserManagementNoLeakTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/HeaderCurrentOperatorProviderTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/InvitationFacadeTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserAccountLookupServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserApplicationServiceConcurrencyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserApplicationServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserAuthorizerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/service/UserPreferenceServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/MePreferencesControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserApiExceptionAdviceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserApiIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/usermanagement/web/UserControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/resources/application.yml"
+    }
+  ]
+}
