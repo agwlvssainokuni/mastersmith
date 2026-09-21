@@ -128,7 +128,7 @@
 
 
 
-- **Active Unit**: permission-engine
+- **Active Unit**: schema-introspector
 - **Unit State**: in-progress
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
@@ -191,7 +191,7 @@ Per unit: [TBD]
 - **Current Stage**: code-generation
 - **Next Stage**: build-and-test
 - **Status**: Running
-- **Last Updated**: 2026-09-21T07:18:00Z
+- **Last Updated**: 2026-09-21T07:21:37Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
