@@ -1,0 +1,290 @@
+{
+  "stage": "code-generation",
+  "unit": "config-import-export",
+  "upstream_ids": [
+    "FR11.1",
+    "FR11.2",
+    "BR9.1",
+    "BR9.2",
+    "BR9.3",
+    "BR9.4",
+    "BR9.5",
+    "BR9.6",
+    "BR9.7",
+    "BR9.8",
+    "BR9.9",
+    "BR9.10",
+    "BR9.11",
+    "BR9.12",
+    "BR9.13",
+    "BR9.14",
+    "BR9.15",
+    "BR9.16",
+    "BR9.17",
+    "BR9.18",
+    "BR9.19",
+    "BR9.20",
+    "BR9.21",
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR2.3",
+    "NFR2.4",
+    "NFR2.5",
+    "NFR2.6",
+    "NFR2.7",
+    "NFR3.1",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR4.6",
+    "NFR4.7",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR5.5",
+    "NFR8.1"
+  ],
+  "coverage": [
+    {
+      "id": "FR11.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "id": "FR11.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/config/transfer/ConfigTransfer.java"
+    },
+    {
+      "id": "BR9.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigExportService.java"
+    },
+    {
+      "id": "BR9.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/document/ConfigDocument.java"
+    },
+    {
+      "id": "BR9.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/mapper/ConfigDocumentMapper.java"
+    },
+    {
+      "id": "BR9.4",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportAuthorizer.java"
+    },
+    {
+      "id": "BR9.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigExportService.java"
+    },
+    {
+      "id": "BR9.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/parser/ConfigDocumentParser.java"
+    },
+    {
+      "id": "BR9.7",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/parser/ImportErrorCollector.java"
+    },
+    {
+      "id": "BR9.8",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/parser/ConfigDocumentParser.java"
+    },
+    {
+      "id": "BR9.9",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/config/transfer/ConfigTransfer.java"
+    },
+    {
+      "id": "BR9.10",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ImportOrchestrator.java"
+    },
+    {
+      "id": "BR9.11",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacImportValidator.java"
+    },
+    {
+      "id": "BR9.12",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacImportValidator.java"
+    },
+    {
+      "id": "BR9.13",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/validation/ReferenceValidator.java"
+    },
+    {
+      "id": "BR9.14",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/menu/service/MenuStructureApiImpl.java"
+    },
+    {
+      "id": "BR9.15",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExportController.java"
+    },
+    {
+      "id": "BR9.16",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/event/ConfigImportEventPublisher.java"
+    },
+    {
+      "id": "BR9.17",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ImportResultResponse.java"
+    },
+    {
+      "id": "BR9.18",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExportController.java"
+    },
+    {
+      "id": "BR9.19",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "id": "BR9.20",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/ConfigDrivenProfilesE2ETest.java"
+    },
+    {
+      "id": "BR9.21",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExceptionHandler.java"
+    },
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigExportService.java"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/performance/ConfigImportExportPerformanceTest.java"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportAuthorizer.java"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/probe/JacksonDefaultsProbeTest.java"
+    },
+    {
+      "id": "NFR2.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacImportValidator.java"
+    },
+    {
+      "id": "NFR2.4",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/ImportFailureModesTest.java"
+    },
+    {
+      "id": "NFR2.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExceptionHandler.java"
+    },
+    {
+      "id": "NFR2.6",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExceptionHandler.java"
+    },
+    {
+      "id": "NFR2.7",
+      "status": "N/A",
+      "target": "team.mdの既定のCIゲート(SAST・シークレットスキャン)をそのまま適用する。本ユニット固有のコード・設定はなく、CIパイプラインの整備はCI Pipelineステージの対象"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/performance/ConfigImportExportPerformanceTest.java"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/PostCommitCoordinator.java"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/exception/ConfigImportExceptions.java"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/probe/H2IsolationProbeTest.java"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/event/ConfigImportEventPublisher.java"
+    },
+    {
+      "id": "NFR4.6",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/ImportFailureModesTest.java"
+    },
+    {
+      "id": "NFR4.7",
+      "status": "N/A",
+      "target": "内部設定DBのファイルの退避・復旧は運用の手順(nfr-design/reliability-design.md NFR4.7)であり、退避の機能は実装しない設計。Operationフェーズは対象外"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "N/A",
+      "target": "Spring Boot Actuator・Micrometerの標準の計装のみを使う設計(Q5=B)。本ユニット固有のメトリクスのコードは持たない"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "N/A",
+      "target": "Spring Bootの標準のトレーシングに従う設計。本ユニット固有のスパンは定義しない"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "N/A",
+      "target": "本ユニット固有のヘルスチェックは持たない設計。内部設定DBの疎通はアプリケーション全体のヘルスチェックが担う"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "N/A",
+      "target": "ダッシュボード・アラートは定義しない設計(Operationフェーズは対象外)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "backend/src/test/java/com/mastersmith/configio/ConfigDrivenProfilesE2ETest.java"
+    }
+  ]
+}

@@ -126,8 +126,6 @@
 
 
 
-- **Active Unit**: config-import-export
-- **Unit State**: in-progress
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -189,7 +187,7 @@ Per unit: [TBD]
 - **Current Stage**: functional-design
 - **Next Stage**: nfr-requirements
 - **Status**: Running
-- **Last Updated**: 2026-09-21T13:42:34Z
+- **Last Updated**: 2026-09-21T17:23:51Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning

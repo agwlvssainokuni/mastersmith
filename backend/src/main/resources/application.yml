@@ -44,6 +44,13 @@ spring:
       jakarta.persistence.validation.mode: none
       hibernate:
         format_sql: false
+        # config-import-export(U9、code-generation-plan.md Step 1(c)・Step 16、nfr-design/performance-design.md NFR1.2):
+        # 設定一式の取り込みの反映(想定規模の上限で、合計約1.5万行)を、JDBCのバッチにまとめる。内部設定DBのエンティティの主キーは、
+        # アプリケーションで採番するUUIDで、IDENTITYではないため、挿入のバッチが効く(H2/HibernateBatchProbeTestで確認済み)。
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
   h2:
     console:
       enabled: false
@@ -98,6 +105,18 @@ management:
 # enabled=falseのまま(既定)にしておくことで、data-import-export(U8)を含むCSV
 # エクスポート/インポート機能に依存しない他ユニットの起動に影響を与えない。
 mastersmith:
+  # config-engine(U1)・permission-engine(U3)のキャッシュの世代管理(config-import-export nfr-design/reliability-design.md NFR4.2)。
+  # 取り込みの確定後、キャッシュは無効化され、次の読み取りが、内部設定DBから全件を再読み込みする。
+  config:
+    cache:
+      # 再読み込みの排他を待つ上限。超えたら、その読み取りは503。
+      reload-wait-timeout: 5s
+      # 再読み込みが失敗した後、再読み込みを試みず、すぐに503を返す期間(待ちの連鎖を防ぐ)。
+      reload-failure-backoff: 2s
+  permission:
+    cache:
+      # 実効権限の計算(ロード)が失敗した後、計算を試みず、すぐに503を返す期間。
+      load-failure-backoff: 2s
   # authentication-service(U5)。トークンの有効期限・ロックのしきい値と時間・再送の猶予・Sessionの削除・キャッシュは、
   # コードに埋め込まず、ここから与える(NFR8.1、BR5.4)。値の範囲・整合は、起動時に検証し、不備があれば起動を失敗させる。
   # JWTの署名の鍵は、ここには置かない(既定値も実値も、リポジトリに置かない)。環境変数MASTERSMITH_AUTH_JWT_SECRET

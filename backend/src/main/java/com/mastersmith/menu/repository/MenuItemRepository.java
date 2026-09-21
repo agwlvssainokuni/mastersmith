@@ -19,6 +19,8 @@ package com.mastersmith.menu.repository;
 import com.mastersmith.menu.entity.MenuItem;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 
 /**
@@ -42,4 +44,14 @@ public interface MenuItemRepository extends Repository<MenuItem, String> {
   MenuItem save(MenuItem menuItem);
 
   void deleteById(String menuItemId);
+
+  long count();
+
+  /**
+   * 全件を一括で削除する(config-import-exportの取り込みの全置換。BR9.14)。削除した件数を返す。永続化コンテキストは更新しないため、呼び出し元は、続けて{@code
+   * flush}・必要なら{@code clear}する。
+   */
+  @Modifying
+  @Query("delete from MenuItem")
+  int deleteAllItems();
 }

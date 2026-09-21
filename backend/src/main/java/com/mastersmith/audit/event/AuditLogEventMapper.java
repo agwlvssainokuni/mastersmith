@@ -17,9 +17,12 @@
 package com.mastersmith.audit.event;
 
 import com.mastersmith.audit.entity.AuditLogEntry;
+import com.mastersmith.common.configio.SectionCounts;
 import com.mastersmith.config.event.ConfigChangedEvent;
+import com.mastersmith.configio.event.ConfigImportExecutedEvent;
 import com.mastersmith.dataio.event.ImportExecutedEvent;
 import com.mastersmith.permission.event.PermissionChangedEvent;
+import com.mastersmith.permission.event.PermissionImportedEvent;
 import com.mastersmith.usermanagement.event.UserChangeOperation;
 import com.mastersmith.usermanagement.event.UserChangedEvent;
 import com.mastersmith.usermanagement.event.UserSnapshot;
@@ -37,6 +40,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class AuditLogEventMapper {
+
+  /** 設定の取り込みの監査ログの対象の種別(config-import-export BR9.16)。 */
+  static final String CONFIG_IMPORT_TARGET_TYPE = "ConfigImportExport";
+
+  /** 設定の取り込みの監査ログの対象のID(予約のscreenKey)。 */
+  static final String CONFIG_IMPORT_TARGET_ID = "config-import-export";
 
   /** BR7.2: ConfigChangedEvent → AuditLogEntry。 */
   public AuditLogEntry fromConfigChangedEvent(ConfigChangedEvent event) {
@@ -78,6 +87,68 @@ public class AuditLogEventMapper {
         event.occurredAt(),
         null,
         null);
+  }
+
+  /**
+   * config-import-exportのConfigImportExecutedEvent → AuditLogEntry(config-import-export
+   * BR9.16)。{@code targetType}は {@code ConfigImportExport}、{@code targetId}は予約のscreenKey({@code
+   * config-import-export})、{@code operationType}は {@code CONFIG_IMPORT_SUCCEEDED}・{@code
+   * CONFIG_IMPORT_FAILED}。操作者は{@code actorUserId}へ(真のユーザーID)。{@code
+   * afterValue}には、結果・操作者のアクティブロール・(成功)
+   * セクションごとの件数・(失敗)失敗の分類と誤りの総数だけを持つ。<b>ファイルの内容(設定の値・名前)は、記録しない</b>(監査ログは、無期限に保持されるため)。
+   */
+  public AuditLogEntry fromConfigImportExecutedEvent(ConfigImportExecutedEvent event) {
+    Map<String, Object> afterValue = new LinkedHashMap<>();
+    afterValue.put("outcome", event.outcome().name());
+    if (event.actorRoleId() != null) {
+      afterValue.put("activeRoleId", event.actorRoleId());
+    }
+    if (event.failureCategory() != null) {
+      afterValue.put("failureCategory", event.failureCategory().name());
+    }
+    if (event.errorCount() != null) {
+      afterValue.put("errorCount", event.errorCount());
+    }
+    if (event.sections() != null) {
+      Map<String, Object> sections = new LinkedHashMap<>();
+      for (Map.Entry<String, SectionCounts> entry : event.sections().entrySet()) {
+        Map<String, Object> counts = new LinkedHashMap<>();
+        counts.put("added", entry.getValue().added());
+        counts.put("updated", entry.getValue().updated());
+        counts.put("deleted", entry.getValue().deleted());
+        sections.put(entry.getKey(), counts);
+      }
+      afterValue.put("sections", sections);
+    }
+    boolean success = event.outcome() == ConfigImportExecutedEvent.Outcome.SUCCESS;
+    return new AuditLogEntry(
+        event.actorUserId(),
+        null,
+        CONFIG_IMPORT_TARGET_TYPE,
+        CONFIG_IMPORT_TARGET_ID,
+        success ? "CONFIG_IMPORT_SUCCEEDED" : "CONFIG_IMPORT_FAILED",
+        event.occurredAt(),
+        null,
+        afterValue);
+  }
+
+  /**
+   * permission-engineのPermissionImportedEvent(取り込み単位のサマリ、rules.md BR3.11) → AuditLogEntry。{@code
+   * actor}は、操作者のactiveRoleIdであり、ユーザーIDではないため、 {@code
+   * actorRaw}へ入れる(PermissionChangedEventと同じ)。{@code afterValue}には、変更件数だけを持つ(個々の変更前後の値は含めない)。
+   */
+  public AuditLogEntry fromPermissionImportedEvent(PermissionImportedEvent event) {
+    Map<String, Object> afterValue = new LinkedHashMap<>();
+    afterValue.put("changeCount", event.changeCount());
+    return new AuditLogEntry(
+        null,
+        event.actor(),
+        "PermissionEngine",
+        CONFIG_IMPORT_TARGET_ID,
+        "PERMISSION_IMPORTED",
+        event.occurredAt(),
+        null,
+        afterValue);
   }
 
   /**

@@ -78,52 +78,52 @@
 
 ## Steps
 
-- [ ] Step 1: 事前の確認(調査。結果を`code-summary.md`に記録し、実装の前提とする)
+- [x] Step 1: 事前の確認(調査。結果を`code-summary.md`に記録し、実装の前提とする)
   - (a)Jackson 3(`tools.jackson.databind`)が、`spring-boot-starter-web`から解決されること。使用するバージョンの、入れ子の深さ・文字列の長さ・重複プロパティの既定の挙動を、小さなテスト(`JacksonDefaultsProbeTest`)で確認して固定する(要件は、制限を設けないこと。Q2=C)。
   - (b)H2 2.4.240の`REPEATABLE_READ`が、別のトランザクションの反映の途中の状態を読まないこと、および、更新の競合が、どの例外(`ConcurrencyFailureException`の系統か)に変換されるかを、テスト(`H2IsolationProbeTest`)で確認する。
   - (c)内部設定DBのエンティティの主キーの生成方式(`IDENTITY`か否か)と、`hibernate.jdbc.batch_size`の設定の有無を確認する。挿入のバッチが効かない場合は、`JdbcTemplate`のバッチ更新を使う(Step 7・9・13で反映)。
   - (d)menu-navigationが、キャッシュを持たないこと、`MenuStructureApiImpl.importMenuStructure`の現状を確認する。
-- [ ] Step 2: 契約書の追補(`inception/contract-design/contract-summary.md`)
+- [x] Step 2: 契約書の追補(`inception/contract-design/contract-summary.md`)
   - C7(エクスポート・インポートの要求・応答・エラー、メッセージキー)・C9・C10・C12(検証と反映の分割、自然キー、呼び出し元トランザクションへの参加、DB直接のエクスポート、`PostCommit`、世代管理)・C15(`OperatorContext`の読み取り側のコンシューマーとしての本ユニット)・audit-logging(`ConfigImportExecutedEvent`の購読)の、追補を記載する。
-- [ ] Step 3: 共通基盤の型(`com.mastersmith.common.configio`)
+- [x] Step 3: 共通基盤の型(`com.mastersmith.common.configio`)
   - `PostCommit`(`invalidateCaches`・`publishEvents`の2つの動作)、`ImportValidationError`(位置・i18nキー・パラメータ)、`ApplyResult`(追加・更新・削除の件数と`PostCommit`)。単体テスト(test-after)。
-- [ ] Step 4: 権限マトリクスの洗い出し(ATDD寄り、権限判定に限りtest-first。BR9.11・BR9.12)
+- [x] Step 4: 権限マトリクスの洗い出し(ATDD寄り、権限判定に限りtest-first。BR9.11・BR9.12)
   - permission-engineの`validateRbacImport`(昇格の判定・主権限0件・全置換の検証)の、権限マトリクスの組み合わせを、洗い出し、表形式(`@ParameterizedTest`+`@MethodSource`)の、失敗するテスト(`RbacImportValidationMatrixTest`)を、先に書く。ケース: 操作者のロールの実効権限(FULL・READ・NONE・指定なし)×取り込むエントリの権限×スコープ(SCHEMA・TABLE・COLUMN)×補助権限(CREATE・DELETE)×ブートストラップ状態(あり・なし)×ロールの階層継承×取り込みで新規に作るロール・テーブル(仮の識別)への昇格。
-- [ ] Step 5: config-engine — キャッシュの世代管理(NFR4.2)
+- [x] Step 5: config-engine — キャッシュの世代管理(NFR4.2)
   - `ConfigCache`を、状態(`VALID`・`STALE`)・世代番号・スナップショットを、1つの不変な値にまとめ、compare-and-setで置き換える方式に拡張する(R-12)。`invalidate()`(失敗しえない)、読み取り前の`STALE`の確認と再読み込み(待ち上限つきの排他・二重の確認・独立した読み取り専用トランザクション(`REQUIRES_NEW`、`REPEATABLE_READ`)・終了時の世代の確認・失敗の共有と抑制の期間)。`TranslationStore`の、同様の扱いを確認して揃える。個別の更新の経路(既存)を、`STALE`・世代が進んだ場合は、`invalidate()`に変える。設定値(`reload-wait-timeout`・`reload-failure-backoff`)を、`application.yml`に追加する。テスト(スレッドを使った競合のテスト・失敗の抑制のテストを含む)を作成・実行する。
-- [ ] Step 6: config-engine — エクスポートのDB直接の読み取り(Q2=A・NFR4.4)
+- [x] Step 6: config-engine — エクスポートのDB直接の読み取り(Q2=A・NFR4.4)
   - `getExportableConfigSet`を、キャッシュを介さず、内部設定DBから直接読み、他から変更できないコピーを返すように改める。テスト。
-- [ ] Step 7: config-engine — 取り込みの検証と反映の分割(BR9.9・BR9.10)
+- [x] Step 7: config-engine — 取り込みの検証と反映の分割(BR9.9・BR9.10)
   - 自然キー(schemaName・tableName・columnName)で表す入力の型(`ConfigNaturalKeySet`)を追加。`validateConfigSet`(何も反映せず、誤りの一覧を返す。既存のBR1.1〜BR1.4の検証を、全件を集める形で再利用)と、`applyConfigSet`(伝播`MANDATORY`。全置換: 削除→追加・更新、段階ごとの`flush()`、`isPrimaryKey`の維持(BR1.14)、既知の課題(既存のColumnConfigを上書きできない)の解消、バッチ更新、`ApplyResult`(`PostCommit`を含む)を返す)を実装する。旧`importConfigSet`(本ユニットだけがコンシューマー)は、置き換える。テスト(既存のテストの更新を含む)。
-- [ ] Step 8: menu-navigation — 検証と反映の分割(BR9.10・BR9.14)
+- [x] Step 8: menu-navigation — 検証と反映の分割(BR9.10・BR9.14)
   - `validateMenuStructure`(構造の規則: 階層・表示順。遷移先のテーブルの実在は、反映の順序により、反映の段階で満たされる)と、`applyMenuStructure`(伝播`MANDATORY`。全置換・再採番・`flush()`・`ApplyResult`)を実装する。`getExportableMenuStructure`は、DBから直接読む現状のまま。旧`importMenuStructure`は、置き換える。テスト。
-- [ ] Step 9: permission-engine — RBACの書き出し・ブートストラップ判定の公開(BR9.1・BR9.11)
+- [x] Step 9: permission-engine — RBACの書き出し・ブートストラップ判定の公開(BR9.1・BR9.11)
   - `exportRbac()`(ロール・グループ・グループとロールの対応・主権限・補助権限を、DBから直接読む。不変なコピー)。`isBootstrapState()`をC10に公開する。テスト。
-- [ ] Step 10: permission-engine — 検証専用メソッドの実装(Green。Step 4のテストを通す)
+- [x] Step 10: permission-engine — 検証専用メソッドの実装(Green。Step 4のテストを通す)
   - `validateRbacImport(RbacImportSet, actorRoleId, bootstrapAtStart)`: 昇格の判定を、取り込み開始時点のスナップショットの実効権限を基準に、すべてのエントリについて行い、昇格するエントリをすべて集める。主権限が0件の場合の誤りを返す。ブートストラップ状態では、昇格の判定を行わない。既存の`PermissionEscalationChecker`・`PermissionResolver`を再利用する。
-- [ ] Step 11: permission-engine — 反映と、キャッシュの世代管理
+- [x] Step 11: permission-engine — 反映と、キャッシュの世代管理
   - `applyRbacImport(RbacImportSet, actorRoleId)`(伝播`MANDATORY`。全置換: 削除の順序(補助権限・主権限→グループとロールの対応・グループ→ロール)→追加・更新、`flush()`、バッチ更新、サマリイベント(BR3.11)を`PostCommit.publishEvents`に含める。取り込みでは、`assignPermission`の1件ごとの`invalidateAll()`とイベント発行を行わない(既知のR-04の解消))。Caffeineのキャッシュに、世代番号を導入する(`invalidate()`は世代を進めて`invalidateAll()`。値に世代を持たせ、古い世代は破棄。ロードは、独立した読み取り専用トランザクション`REQUIRES_NEW`、失敗の抑制)。テスト(競合のテストを含む)。
-- [ ] Step 12: audit-logging — `ConfigImportExecutedEvent`の購読
+- [x] Step 12: audit-logging — `ConfigImportExecutedEvent`の購読
   - `ConfigImportExecutedEventListener`(同期の`@EventListener`と、全体のtry-catch。既存のリスナーと同じパターン)と、`AuditLogEntry`への対応付け(操作者・日時・結果・セクションごとの件数・失敗の分類。ファイルの内容は記録しない)。テスト(発行元が`REQUIRES_NEW`で発行した場合に、書き込みが永続化されること(R-15)を含む)。
-- [ ] Step 13: configio — 値オブジェクト・パーサー・マッパー・検証(BR9.2・BR9.3・BR9.6〜BR9.8・BR9.13・BR9.14)
+- [x] Step 13: configio — 値オブジェクト・パーサー・マッパー・検証(BR9.2・BR9.3・BR9.6〜BR9.8・BR9.13・BR9.14)
   - `ConfigDocument`ほかの値オブジェクト(entities.md)、`ImportErrorCollector`(最大100件・打ち切りの表示)、`ConfigDocumentParser`(`JsonNode`→`ConfigDocument`。`formatVersion`の確認、未知のプロパティの無視、構造・型・許容値・一意性の検証、JSON Pointerでの位置)、`ConfigDocumentMapper`(内部の表現⇔自然キー。メニューの入れ子)、`ReferenceValidator`(セクションをまたぐ参照)。テスト(表形式のバリデーションのテストを含む)。
-- [ ] Step 14: configio — サービス・調整・イベント発行(BR9.4・BR9.5・BR9.10〜BR9.12・BR9.15〜BR9.17・NFR4.1・NFR4.2・NFR4.5)
+- [x] Step 14: configio — サービス・調整・イベント発行(BR9.4・BR9.5・BR9.10〜BR9.12・BR9.15〜BR9.17・NFR4.1・NFR4.2・NFR4.5)
   - `ConfigExportService`(`readOnly`・`REPEATABLE_READ`)、`ImportOrchestrator`(3ユニットの検証・反映。反映の順序と`flush()`)、`ConfigImportService`(`TransactionTemplate`・`REPEATABLE_READ`。失敗の分類。トランザクションの外の`catch`で失敗の監査イベント)、`PostCommitCoordinator`(1つの`TransactionSynchronization`。無効化→個別イベント→成功の監査イベントを、固定した順序・独立したtry-catchで実行)、`ConfigImportEventPublisher`(`REQUIRES_NEW`の`TransactionTemplate`で同期発行)。テスト。
-- [ ] Step 15: configio — 認可・コントローラー・例外の処理(C7、BR9.4・BR9.7・BR9.17・BR9.21・NFR2.1・NFR2.6)
+- [x] Step 15: configio — 認可・コントローラー・例外の処理(C7、BR9.4・BR9.7・BR9.17・BR9.21・NFR2.1・NFR2.6)
   - `ConfigImportAuthorizer`(操作者の解決→401、`canAccessScreen`→403)、`ConfigImportExportController`(`GET /api/config/export`・`POST /api/config/import`。`@RequestBody JsonNode`。`consumes`は宣言しない)、`ConfigImportExceptionHandler`(`assignableTypes`。RFC 9457のProblemDetails。422の`errors[]`。束縛の例外は、認可を先に行い、成功した場合だけ422(MALFORMED)と失敗の監査イベント。DBの障害の例外を503へ)。`@WebMvcTest`のテスト。
-- [ ] Step 16: 構成・設定
+- [x] Step 16: 構成・設定
   - `application.yml`(キャッシュの再読み込みの待ち上限・抑制の期間、バッチの設定(Step 1(c)の結果による))、エクスポートの`appVersion`の取得(`BuildProperties`。ビルド情報の生成を`build.gradle.kts`に追加する場合は、既存の設定への影響を確認)。`nfr-performance`のタグ・`nfrPerformanceTest`タスクの設定。
-- [ ] Step 17: 統合テスト(`@SpringBootTest`、組込みH2)
+- [x] Step 17: 統合テスト(`@SpringBootTest`、組込みH2)
   - エクスポート→インポートの往復。全置換(削除を含む)。原子性(反映の途中の失敗でロールバックし、DB・キャッシュが不変であること)。確定後のキャッシュの無効化と遅延の再読み込み。監査イベントの永続化(成功・失敗・MALFORMED。認可を通らない場合は発行されないこと)。エクスポートの反映中の一貫性(H2の`REPEATABLE_READ`)。
-- [ ] Step 18: 設定駆動に特有の必須テスト(`team.md` Q8)
+- [x] Step 18: 設定駆動に特有の必須テスト(`team.md` Q8)
   - (a)安全失敗・バリデーション: 不正・不完全な設定ファイルで422となり、内部設定DBが変わらないこと。(b)複数プロファイル横断: 2種類以上の、業務ドメインの異なる設定プロファイル(商品マスタ用・蔵書マスタ用)で、エクスポート→インポートの同じ操作を流し、設定を差し替えるだけで動くこと。(c)認可拒否(negative-authorization): 401・403、権限のない操作の確実な拒否、初期状態の例外。
-- [ ] Step 19: 権限昇格・主権限0件のテスト(表形式、U9側の結合。追加の合格条件、`team.md` Q6)
+- [x] Step 19: 権限昇格・主権限0件のテスト(表形式、U9側の結合。追加の合格条件、`team.md` Q6)
   - Step 4のマトリクスを、U9のエンドツーエンド(取り込みのAPI経由)にも適用し、昇格の拒否・主権限0件の拒否・初期状態の初回投入を確認する。
-- [ ] Step 20: 並行・競合・障害のテスト
+- [x] Step 20: 並行・競合・障害のテスト
   - キャッシュの世代の競合(再読み込みの最中の`invalidate()`・個別の更新が失われない)、DB障害の間の再読み込みの失敗の抑制(待ちの連鎖が起きない)、取り込みの未確定の内容がキャッシュに載らない、`PostCommitCoordinator`の順序と、1つの動作の例外が他を妨げないこと、更新の競合が503に変換されること(R-15)、コミット時の例外の分類。
-- [ ] Step 21: 性能の確認の実装(NFR1.1〜NFR1.3。`nfr-performance`のタグ)
+- [x] Step 21: 性能の確認の実装(NFR1.1〜NFR1.3。`nfr-performance`のタグ)
   - 想定規模の上限(テーブル100・カラム約3,000・翻訳約6,000・ロール50・主権限約5,000)の設定を、連番から機械的に生成するフィクスチャ生成器と、計測のハーネス(ウォームアップ5回・計測30回・p95は最近順位法の29番目、2件同時3回はすべて目標以内、取り込み直後の最初の読み取り10回の最大値が3秒以内)。通常の`test`では実行しない(結果は、Build and Testで記録する)。
-- [ ] Step 22: 品質・ドキュメント・トレーサビリティ
+- [x] Step 22: 品質・ドキュメント・トレーサビリティ
   - `./gradlew :backend:checkstyleMain :backend:checkstyleTest`(警告0)、既存のテスト(config・menu・permission・audit・その他)がすべて成功すること、`jacocoTestCoverageVerification`(行カバレッジ80%以上)を確認する。`code-summary.md`(既知の制約: ロールの削除とユーザーの`roleIds`・ブートストラップ判定・R-13を含む)、`source-manifest.json`、`traceability.json`を作成する。
 
 ## 既知の未解決事項(実装時に踏襲、修正はスコープ外)

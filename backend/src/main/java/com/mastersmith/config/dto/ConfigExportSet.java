@@ -16,21 +16,18 @@
 
 package com.mastersmith.config.dto;
 
-import com.mastersmith.config.entity.ColumnConfig;
-import com.mastersmith.config.entity.TableConfig;
-import com.mastersmith.config.entity.TranslationEntry;
 import java.util.List;
 
 /**
- * config-import-export向けの設定一式エクスポート(C9契約 getExportableConfigSetの戻り値型、 functional-spec.md W5)。
+ * config-import-export向けの設定一式エクスポート(C9契約 getExportableConfigSetの戻り値型、functional-spec.md W5)。
  *
- * <p>全TableConfig/ColumnConfig/TranslationEntry(i18nキーを含み、表示名テキストそのものは
- * TableConfig/ColumnConfigに含まない。テキストはTranslationEntryが保持する)を含む。
+ * <p>内部設定DBから直接読んだ値の、他から変更できないスナップショットである(キャッシュ内の共有のインスタンスではない。config-engineのレビュー指摘R-07、config-import-export
+ * NFR4.4)。全テーブル・カラム・翻訳(i18nキーを含み、表示名テキストそのものは、テーブル・カラムに含まない。テキストは、翻訳が保持する)を含む。
  */
 public record ConfigExportSet(
-    List<TableConfig> tableConfigs,
-    List<ColumnConfig> columnConfigs,
-    List<TranslationEntry> translationEntries) {
+    List<TableConfigSnapshot> tableConfigs,
+    List<ColumnConfigSnapshot> columnConfigs,
+    List<TranslationSnapshot> translationEntries) {
 
   public ConfigExportSet {
     tableConfigs = tableConfigs == null ? List.of() : List.copyOf(tableConfigs);

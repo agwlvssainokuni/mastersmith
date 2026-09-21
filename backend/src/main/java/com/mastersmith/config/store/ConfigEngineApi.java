@@ -16,12 +16,13 @@
 
 package com.mastersmith.config.store;
 
+import com.mastersmith.common.configio.ApplyResult;
+import com.mastersmith.common.configio.ImportValidationError;
 import com.mastersmith.config.dto.ConfigExportSet;
-import com.mastersmith.config.dto.ConfigImportSet;
+import com.mastersmith.config.dto.ConfigNaturalKeySet;
 import com.mastersmith.config.dto.TableConfigDraft;
 import com.mastersmith.config.entity.ColumnConfig;
 import com.mastersmith.config.entity.TableConfig;
-import com.mastersmith.config.exception.ConfigValidationException;
 import com.mastersmith.config.exception.TableConfigNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -71,9 +72,23 @@ public interface ConfigEngineApi {
    */
   List<String> writeTableConfigDraft(TableConfigDraft draft);
 
-  /** config-import-export専用。スキーマ・カラム設定一式を返す(W5)。 */
+  /**
+   * config-import-export専用。スキーマ・カラム設定・翻訳一式を、キャッシュを介さず、内部設定DBから直接読み、他から変更できないスナップショットとして返す(NFR4.4)。呼び出し元の(読み取り専用の)トランザクションの中で
+   * 呼ぶこと(同じ時点のスナップショットで、他のユニットの読み取りと整合させるため)。トランザクションがなければ、例外にする。
+   */
   ConfigExportSet getExportableConfigSet();
 
-  /** config-import-export専用。設定定義に誤りがある場合はfail fastで送出し、内部設定DBへ反映しない(BR1.1, BR1.11)。 */
-  void importConfigSet(ConfigImportSet configSet) throws ConfigValidationException;
+  /**
+   * config-import-export専用。取り込みの検証だけを行う(何も反映しない、BR9.10)。設定定義の誤り(BR1.1〜BR1.4)を、例外ではなく、全件を集めた一覧(位置=入力の中のリストの添え字を含む経路、i18nキー、パラメータ)で返す。
+   * 誤りがなければ、空。
+   */
+  List<ImportValidationError> validateConfigSet(ConfigNaturalKeySet configSet);
+
+  /**
+   * config-import-export専用。取り込みを反映する(全置換: 自然キーで既存の項目と照合し、ファイルにない項目を削除し、既存の項目は内部IDを維持して更新する。{@code
+   * isPrimaryKey}は維持する。BR9.9・BR9.14)。 伝播は{@code
+   * MANDATORY}で、自身ではコミットせず、キャッシュに触れない。戻り値に、セクションごとの件数と、確定後の動作({@code PostCommit}:
+   * 無効化・個別の変更イベントの発行)を含める。 事前に{@link #validateConfigSet}に合格していること(合格していない入力の結果は、保証しない)。
+   */
+  ApplyResult applyConfigSet(ConfigNaturalKeySet configSet);
 }

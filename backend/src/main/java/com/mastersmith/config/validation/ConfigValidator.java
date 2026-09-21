@@ -74,6 +74,27 @@ public class ConfigValidator {
     }
   }
 
+  /**
+   * 単一TableConfigを検証し、違反を、例外ではなく、プロパティ単位の一覧(位置=プロパティの経路、ルール種別)として返す(取り込みの検証専用メソッドが、全件を集めるための、
+   * {@link #validate(TableConfig)}の、例外を投げない版。config-import-export BR9.10)。違反がなければ、空。
+   */
+  public List<FieldError> propertyErrors(TableConfig tableConfig) {
+    List<FieldError> errors = new ArrayList<>();
+    for (ConstraintViolation<TableConfig> violation : validator.validate(tableConfig)) {
+      errors.add(new FieldError(violation.getPropertyPath().toString(), ruleType(violation)));
+    }
+    return errors;
+  }
+
+  /** 単一ColumnConfigを検証し、違反を、プロパティ単位の一覧として返す({@link #propertyErrors(TableConfig)}と同じ)。 */
+  public List<FieldError> propertyErrors(ColumnConfig columnConfig) {
+    List<FieldError> errors = new ArrayList<>();
+    for (ConstraintViolation<ColumnConfig> violation : validator.validate(columnConfig)) {
+      errors.add(new FieldError(violation.getPropertyPath().toString(), ruleType(violation)));
+    }
+    return errors;
+  }
+
   private static String describeTableConfig(TableConfig tableConfig) {
     return "tableConfig:%s.%s"
         .formatted(

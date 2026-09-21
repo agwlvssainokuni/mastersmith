@@ -18,6 +18,7 @@ package com.mastersmith.permission.repository;
 
 import com.mastersmith.permission.entity.AuxiliaryPermission;
 import com.mastersmith.permission.entity.ScopeType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -30,4 +31,7 @@ public interface AuxiliaryPermissionRepository extends JpaRepository<AuxiliaryPe
 
   Optional<AuxiliaryPermission> findByRoleIdAndScopeTypeAndScopeRef(
       String roleId, ScopeType scopeType, String scopeRef);
+
+  /** 指定のロールの、すべての割当(取り込みの、操作者の実効権限の解決を、メモリ上で行うために、一括で読む)。 */
+  List<AuxiliaryPermission> findByRoleId(String roleId);
 }

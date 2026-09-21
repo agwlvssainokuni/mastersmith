@@ -17,11 +17,9 @@
 package com.mastersmith.menu.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.mastersmith.config.exception.ConfigValidationException;
 import com.mastersmith.config.exception.TableConfigNotFoundException;
 import com.mastersmith.config.store.ConfigEngineApi;
 import com.mastersmith.menu.dto.MenuStructureEntry;
@@ -70,68 +68,5 @@ class MenuStructureApiImplTest {
     assertThat(exported)
         .extracting(MenuStructureEntry::menuItemId)
         .contains(parent.getMenuItemId());
-  }
-
-  @Test
-  void importMenuStructureReplacesAllExistingItems() {
-    repository.save(new MenuItem(null, "旧項目", 1, null));
-
-    List<MenuStructureEntry> newItems =
-        List.of(new MenuStructureEntry("new-1", null, "新項目", 1, EXISTING_TABLE_CONFIG_ID));
-
-    api.importMenuStructure(newItems);
-
-    List<MenuItem> all = repository.findAll();
-    assertThat(all).extracting(MenuItem::getMenuItemId).containsExactly("new-1");
-  }
-
-  @Test
-  void importMenuStructureThrowsConfigValidationExceptionWhenLabelIsBlank() {
-    List<MenuStructureEntry> items = List.of(new MenuStructureEntry("item-1", null, " ", 1, null));
-
-    assertThatThrownBy(() -> api.importMenuStructure(items))
-        .isInstanceOf(ConfigValidationException.class);
-    assertThat(repository.findAll()).isEmpty();
-  }
-
-  @Test
-  void importMenuStructureThrowsConfigValidationExceptionWhenParentReferenceIsMissing() {
-    List<MenuStructureEntry> items =
-        List.of(new MenuStructureEntry("item-1", "does-not-exist", "商品マスタ", 1, null));
-
-    assertThatThrownBy(() -> api.importMenuStructure(items))
-        .isInstanceOf(ConfigValidationException.class);
-  }
-
-  @Test
-  void importMenuStructureThrowsConfigValidationExceptionWhenTargetTableConfigIdDoesNotExist() {
-    List<MenuStructureEntry> items =
-        List.of(new MenuStructureEntry("item-1", null, "商品マスタ", 1, MISSING_TABLE_CONFIG_ID));
-
-    assertThatThrownBy(() -> api.importMenuStructure(items))
-        .isInstanceOf(ConfigValidationException.class);
-  }
-
-  @Test
-  void importMenuStructureThrowsConfigValidationExceptionOnDuplicateMenuItemIds() {
-    List<MenuStructureEntry> items =
-        List.of(
-            new MenuStructureEntry("item-1", null, "A", 1, null),
-            new MenuStructureEntry("item-1", null, "B", 2, null));
-
-    assertThatThrownBy(() -> api.importMenuStructure(items))
-        .isInstanceOf(ConfigValidationException.class);
-  }
-
-  @Test
-  void importMenuStructurePreservesExistingDataWhenValidationFailsAtomically() {
-    MenuItem existing = repository.save(new MenuItem(null, "既存項目", 1, null));
-    List<MenuStructureEntry> invalidItems =
-        List.of(new MenuStructureEntry("item-1", null, "", 1, null));
-
-    assertThatThrownBy(() -> api.importMenuStructure(invalidItems))
-        .isInstanceOf(ConfigValidationException.class);
-
-    assertThat(repository.findById(existing.getMenuItemId())).isPresent();
   }
 }

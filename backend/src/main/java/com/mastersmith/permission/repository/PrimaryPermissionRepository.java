@@ -18,6 +18,7 @@ package com.mastersmith.permission.repository;
 
 import com.mastersmith.permission.entity.PrimaryPermission;
 import com.mastersmith.permission.entity.ScopeType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -33,4 +34,7 @@ public interface PrimaryPermissionRepository extends JpaRepository<PrimaryPermis
 
   // BR3.13ブートストラップ判定(PrimaryPermission行数がシステム全体で0件か)は、
   // 継承元JpaRepositoryのcount()をそのまま利用する(専用メソッドの追加は不要)。
+
+  /** 指定のロールの、すべての割当(取り込みの、操作者の実効権限の解決を、メモリ上で行うために、一括で読む)。 */
+  List<PrimaryPermission> findByRoleId(String roleId);
 }

@@ -29,6 +29,12 @@ spring:
       ddl-auto: validate
     properties:
       jakarta.persistence.validation.mode: none
+      hibernate:
+        # config-import-export(U9): main/resources/application.ymlと同じ(取り込みの反映のバッチ)。
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
   # user-management(U4): 招待メール送信のためのJavaMailSenderを構成する。テストではSMTPへの
   # 接続は行わない(JavaMailSenderはモックまたは未使用)。実在しない値(ダミー)。
   mail:

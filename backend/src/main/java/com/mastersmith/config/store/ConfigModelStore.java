@@ -16,15 +16,16 @@
 
 package com.mastersmith.config.store;
 
+import com.mastersmith.common.configio.ApplyResult;
+import com.mastersmith.common.configio.ImportValidationError;
 import com.mastersmith.config.cache.ConfigCache;
 import com.mastersmith.config.dto.ColumnDraftEntry;
 import com.mastersmith.config.dto.ConfigExportSet;
-import com.mastersmith.config.dto.ConfigImportSet;
+import com.mastersmith.config.dto.ConfigNaturalKeySet;
 import com.mastersmith.config.dto.TableConfigDraft;
 import com.mastersmith.config.dto.TableDraftEntry;
 import com.mastersmith.config.entity.ColumnConfig;
 import com.mastersmith.config.entity.TableConfig;
-import com.mastersmith.config.entity.TranslationEntry;
 import com.mastersmith.config.event.ConfigChangeOperation;
 import com.mastersmith.config.event.ConfigChangeSnapshots;
 import com.mastersmith.config.event.ConfigChangedEvent;
@@ -34,13 +35,17 @@ import com.mastersmith.config.rdbms.RdbmsTypeNormalizer;
 import com.mastersmith.config.repository.ColumnConfigRepository;
 import com.mastersmith.config.repository.TableConfigRepository;
 import com.mastersmith.config.repository.TranslationEntryRepository;
+import com.mastersmith.config.transfer.ConfigTransfer;
 import com.mastersmith.config.validation.ConfigValidator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionOperations;
 
 /**
  * {@link ConfigEngineApi}(C9契約)の実装。読み取り系は{@link ConfigCache}へ委譲し、 書き込み系は{@link
@@ -56,7 +61,33 @@ public class ConfigModelStore implements ConfigEngineApi {
   private final ConfigValidator configValidator;
   private final RdbmsTypeNormalizer rdbmsTypeNormalizer;
   private final ApplicationEventPublisher eventPublisher;
+  private final ConfigTransfer transfer;
 
+  /** Springが用いるコンストラクター(設定一式のエクスポート・取り込みは、{@link ConfigTransfer}が担う)。 */
+  @Autowired
+  public ConfigModelStore(
+      ConfigCache cache,
+      TableConfigRepository tableConfigRepository,
+      ColumnConfigRepository columnConfigRepository,
+      TranslationEntryRepository translationEntryRepository,
+      ConfigValidator configValidator,
+      RdbmsTypeNormalizer rdbmsTypeNormalizer,
+      ApplicationEventPublisher eventPublisher,
+      ConfigTransfer transfer) {
+    this.cache = cache;
+    this.tableConfigRepository = tableConfigRepository;
+    this.columnConfigRepository = columnConfigRepository;
+    this.translationEntryRepository = translationEntryRepository;
+    this.configValidator = configValidator;
+    this.rdbmsTypeNormalizer = rdbmsTypeNormalizer;
+    this.eventPublisher = eventPublisher;
+    this.transfer = transfer;
+  }
+
+  /**
+   * 既存の単体テスト(協調オブジェクトをモックする)用のコンストラクター。設定一式の取り込み・エクスポートの部品は、同じ協調オブジェクトから組み立てる(永続化の管理({@code
+   * EntityManager})を持たないため、 取り込みの反映は行えない)。
+   */
   public ConfigModelStore(
       ConfigCache cache,
       TableConfigRepository tableConfigRepository,
@@ -65,13 +96,22 @@ public class ConfigModelStore implements ConfigEngineApi {
       ConfigValidator configValidator,
       RdbmsTypeNormalizer rdbmsTypeNormalizer,
       ApplicationEventPublisher eventPublisher) {
-    this.cache = cache;
-    this.tableConfigRepository = tableConfigRepository;
-    this.columnConfigRepository = columnConfigRepository;
-    this.translationEntryRepository = translationEntryRepository;
-    this.configValidator = configValidator;
-    this.rdbmsTypeNormalizer = rdbmsTypeNormalizer;
-    this.eventPublisher = eventPublisher;
+    this(
+        cache,
+        tableConfigRepository,
+        columnConfigRepository,
+        translationEntryRepository,
+        configValidator,
+        rdbmsTypeNormalizer,
+        eventPublisher,
+        new ConfigTransfer(
+            tableConfigRepository,
+            columnConfigRepository,
+            translationEntryRepository,
+            configValidator,
+            cache,
+            eventPublisher,
+            TransactionOperations.withoutTransaction()));
   }
 
   @Override
@@ -197,63 +237,19 @@ public class ConfigModelStore implements ConfigEngineApi {
   }
 
   @Override
+  @Transactional(propagation = Propagation.MANDATORY, readOnly = true)
   public ConfigExportSet getExportableConfigSet() {
-    return new ConfigExportSet(
-        cache.allTableConfigs(), cache.allColumnConfigs(), cache.allTranslationEntries());
+    return transfer.export();
   }
 
   @Override
-  @Transactional
-  public void importConfigSet(ConfigImportSet configSet) {
-    // BR1.1, BR1.11: all-or-nothing。検証を全件先に行い、1件でも違反すれば何も反映しない。
-    configValidator.validateAll(configSet.tableConfigs(), configSet.columnConfigs());
+  public List<ImportValidationError> validateConfigSet(ConfigNaturalKeySet configSet) {
+    return transfer.validate(configSet);
+  }
 
-    // BR1.13: 変更されたエンティティ(TableConfig/ColumnConfig/TranslationEntry)ごとに個別の
-    // ConfigChangedEventを発行する。beforeValueは上書き前の既存状態(存在する場合)を反映するため、
-    // saveAllで上書きする前にDBから読み取ってスナップショットを確保する。
-    List<ConfigChangedEvent> pendingEvents = new ArrayList<>();
-    for (TableConfig tableConfig : configSet.tableConfigs()) {
-      TableConfig before =
-          tableConfigRepository.findById(tableConfig.getTableConfigId()).orElse(null);
-      pendingEvents.add(
-          ConfigChangedEvent.of(
-              ConfigChangeOperation.CONFIG_SET_IMPORTED,
-              ConfigChangedEvent.TARGET_TYPE_TABLE_CONFIG,
-              tableConfig.getTableConfigId(),
-              ConfigChangeSnapshots.of(before),
-              ConfigChangeSnapshots.of(tableConfig),
-              "system"));
-    }
-    for (ColumnConfig columnConfig : configSet.columnConfigs()) {
-      ColumnConfig before =
-          columnConfigRepository.findById(columnConfig.getColumnConfigId()).orElse(null);
-      pendingEvents.add(
-          ConfigChangedEvent.of(
-              ConfigChangeOperation.CONFIG_SET_IMPORTED,
-              ConfigChangedEvent.TARGET_TYPE_COLUMN_CONFIG,
-              columnConfig.getColumnConfigId(),
-              ConfigChangeSnapshots.of(before),
-              ConfigChangeSnapshots.of(columnConfig),
-              "system"));
-    }
-    for (TranslationEntry translationEntry : configSet.translationEntries()) {
-      TranslationEntry before =
-          translationEntryRepository.findById(translationEntry.getId()).orElse(null);
-      pendingEvents.add(
-          ConfigChangedEvent.of(
-              ConfigChangeOperation.CONFIG_SET_IMPORTED,
-              ConfigChangedEvent.TARGET_TYPE_TRANSLATION_ENTRY,
-              "%s:%s".formatted(translationEntry.getI18nKey(), translationEntry.getLocale()),
-              ConfigChangeSnapshots.of(before),
-              ConfigChangeSnapshots.of(translationEntry),
-              "system"));
-    }
-
-    tableConfigRepository.saveAll(configSet.tableConfigs());
-    columnConfigRepository.saveAll(configSet.columnConfigs());
-    translationEntryRepository.saveAll(configSet.translationEntries());
-    cache.reload();
-
-    pendingEvents.forEach(eventPublisher::publishEvent);
+  @Override
+  @Transactional(propagation = Propagation.MANDATORY)
+  public ApplyResult applyConfigSet(ConfigNaturalKeySet configSet) {
+    return transfer.apply(configSet);
   }
 }

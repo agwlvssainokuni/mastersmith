@@ -97,9 +97,38 @@ tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
+// config-import-export(U9): エクスポートの`appVersion`(書き出したアプリケーションのバージョン)を、
+// ビルド情報(META-INF/build-info.properties。`BuildProperties`Bean)から得る(code-generation-plan.md Step 16)。
+springBoot {
+    buildInfo()
+}
+
 tasks.test {
-    useJUnitPlatform()
+    // config-import-export(U9、code-generation-plan.md 前提事項7): 性能の確認(NFR1.1・NFR1.2。JUnitのタグ`nfr-performance`)は、
+    // 通常のtestタスクから除外する。専用のnfrPerformanceTestタスクで実行する(Build and Testで実行する)。
+    useJUnitPlatform {
+        excludeTags("nfr-performance")
+    }
     finalizedBy(tasks.jacocoTestReport)
+}
+
+// 性能の確認(NFR1.1・NFR1.2): `./gradlew :backend:nfrPerformanceTest --tests "com.mastersmith.configio.performance.*"`。
+// team.mdの「負荷・性能テストは既定には含めない」に従い、負荷の掛け方は含めず、単一の利用者による繰り返しの実行だけを行う。
+val nfrPerformanceTest by tasks.registering(Test::class) {
+    description = "Runs the NFR performance checks (JUnit tag nfr-performance) of config-import-export."
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        includeTags("nfr-performance")
+    }
+    testLogging {
+        showStandardStreams = true
+    }
+    // 想定規模の上限の設定(本体は数MB)を、繰り返し取り込むため、既定より大きなヒープを与える。
+    maxHeapSize = "1g"
+    // 計測は、他のテストと同時に走らせない。
+    shouldRunAfter(tasks.test)
 }
 
 tasks.jacocoTestReport {

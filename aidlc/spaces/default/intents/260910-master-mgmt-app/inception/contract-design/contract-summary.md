@@ -30,7 +30,7 @@
 | C12 | menu-navigation (U6) | config-import-export (U9) | Javaインタフェース(shared-schema、同一プロセス内) | menu-navigation |
 | C13 | data-import-export (U8) | list-engine, record-edit-engine | Javaインタフェース(shared-schema、同一プロセス内) | data-import-export |
 | C14 | authentication-service (U5) | list-engine, record-edit-engine | Javaインタフェース(shared-schema、同一プロセス内) | authentication-service |
-| C15 | 共通基盤(shared kernel、実装・値の設定はauthentication-service (U5)) | schema-introspector (U2), user-management (U4), menu-navigation (U6), audit-logging (U7)(読み取りのみ)、list-engine, record-edit-engine, config-import-export(今後、読み取りのみ) | Javaインタフェース(shared-schema、同一プロセス内、`com.mastersmith.common.security`) | 共通基盤(Contract Ownership Rulesの例外、変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する) |
+| C15 | 共通基盤(shared kernel、実装・値の設定はauthentication-service (U5)) | schema-introspector (U2), user-management (U4), menu-navigation (U6), audit-logging (U7)(読み取りのみ)、list-engine, record-edit-engine, config-import-export(読み取りのみ) | Javaインタフェース(shared-schema、同一プロセス内、`com.mastersmith.common.security`) | 共通基盤(Contract Ownership Rulesの例外、変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する) |
 
 C14は、レビュー指摘R-01により追加した契約である。`unit-of-work-dependency.md`はlist-engine/record-edit-engineが「セッションのアクティブロール取得」のためauthentication-serviceへ同期依存すると明記しているが、当初のcontract-summary.mdにはC4(authentication-serviceのfrontend-ui向けREST契約)しか存在せず、この同一プロセス内境界が契約化されていなかった。C14はこの欠落を埋める。
 
@@ -566,6 +566,10 @@ components:
 
 **503レスポンスの追加(Contract Design追補、NFR Requirementsレビュー指摘R-01対応)**: 内部設定DBが利用不可の場合、`503 Service Unavailable`(RFC 9457)を返す(`construction/audit-logging/nfr-requirements/reliability-requirements.md` NFR4.4)。専用のフォールバック(キャッシュ等)は設けない。既存コンシューマー(frontend-ui)は未知のレスポンスコードを一般的なエラー処理で扱う前提のため、加法的変更として本契約の所有者(audit-logging)の判断で追加する(Contract Ownership Rules参照)。
 
+**audit-loggingへの追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧6番を反映)**: audit-loggingは、次の2つのドメインイベントを、同期の`@EventListener`(全体をtry-catchで囲み、発行元に例外を伝えない)で購読し、追記専用の監査ログの行として記録する(C6のREST APIは変えない。`targetType`の許容値に、`ConfigImportExport`が加わる)。
+- `ConfigImportExecutedEvent`(config-import-export): 取り込み1回につき1件(成功・失敗の両方。エクスポートでは発行しない)。`targetType`=`ConfigImportExport`・`targetId`=`config-import-export`・`operationType`=`CONFIG_IMPORT_SUCCEEDED`|`CONFIG_IMPORT_FAILED`・`actorUserId`=操作者のuserId・`afterValue`={`outcome`, `activeRoleId`, (成功)`sections`の件数, (失敗)`failureCategory`(`MALFORMED`・`UNSUPPORTED_FORMAT`・`VALIDATION_ERROR`・`ESCALATION_DENIED`・`RBAC_EMPTY`・`UNEXPECTED`)・`errorCount`}。ファイルの内容(設定の値・名前)は、記録しない。発行元は、独立したトランザクション(`REQUIRES_NEW`)の中で、同期発行する。
+- `PermissionImportedEvent`(permission-engine): 取り込み単位のサマリ(BR3.11)。`targetType`=`PermissionEngine`・`operationType`=`PERMISSION_IMPORTED`・`actorRaw`=操作者のactiveRoleId・`afterValue`={`changeCount`}。
+
 ### C7: config-import-export REST API(FR11)
 
 ```yaml
@@ -602,6 +606,14 @@ components:
   securitySchemes:
     bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
 ```
+
+**C7への追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧1番・nfr-design/security-design.md NFR2.6・reliability-design.md NFR4.3を反映)**: 上のOpenAPIの`200`・`401`・`422`・`500`・`503`と、エクスポートの応答の形式を、次のとおり具体化する(加法的な追補。既存の`403`・`errors[]`の`{ field, message }`は変えない)。
+
+- **エクスポート(`GET /api/config/export`)**: 応答は`application/json`、`Content-Disposition: attachment; filename="mastersmith-config-<書き出し日時>.json"`(日時は、ISO 8601のUTCから、区切りの`-`・`:`を除いた`yyyyMMddTHHmmssZ`)。本体は、`formatVersion`(整数、MVPは1)・`exportedAt`(ISO 8601のUTC)・`appVersion`・`schema`(`tables[]`・`translations[]`)・`menu`(`items[]`。入れ子の`children[]`・遷移先`targetTable{schemaName,tableName}`)・`rbac`(`roles[]`・`groups[]`(`name`・`roleNames[]`)・`primaryPermissions[]`(`roleName`・`scope{scopeType,schemaName,tableName,columnName}`・`level`)・`auxiliaryPermissions[]`(`roleName`・`scope`・`createAllowed`・`deleteAllowed`))。すべての参照は自然キーで、内部IDを含まない。ユーザー・認証情報・監査ログ・業務データ・管理メニューは含まない。取り込みでは、未知のプロパティ(すべての階層)を無視する。
+- **インポート(`POST /api/config/import`)**: リクエスト本体は、エクスポートと同じ形式の設定ファイル。`200`の応答本体は`{ "outcome": "SUCCESS", "sections": { "<セクション>": { "added": n, "updated": n, "deleted": n } } }`(セクションは、`schema`・`translations`・`menu`・`roles`・`groups`・`primaryPermissions`・`auxiliaryPermissions`)。値が変わらない項目は、`updated`に数えない。
+- **エラー(RFC 9457、`application/problem+json`。いずれも`code`(安定したi18nキー)を持つ)**: `401`(操作者を解決できない。`WWW-Authenticate: Bearer`。`code`=`auth.token.invalid`)・`403`(`config-import-export`の権限なし。`config.import.forbidden`)・`422`(入力の誤り。`errors[]`は`{ field(JSON上の位置。例 schema.tables[3].columns[2].editorType), message(i18nキー), params(任意) }`。最大100件で、`errorCount`(打ち切り前の総数)・`truncated`を持つ。応答全体の`code`は、`config.import.json.malformed`・`config.import.format.unsupported`・`config.import.rbac.escalation`・`config.import.rbac.empty`・`config.import.validation.failed`のいずれか)・`500`(`config.import.internal-error`)・`503`(内部設定DBの障害・更新の競合・ロック待ちのタイムアウト。`config.import.unavailable`)。入力値・スタックトレース・内部の型名・SQLは、応答に含めない。
+- **メッセージキー(`errors[].message`)**: `config.import.json.malformed`・`config.import.format.unsupported`・`config.import.field.required`・`config.import.field.type`(`params.expected`)・`config.import.field.value.invalid`(`params.allowed`)・`config.import.field.duplicate`・`config.import.field.too-long`(`params.max`)・`config.import.reference.notFound`・`config.import.column.choiceOrFkExclusive`・`config.import.menu.leafHasChildren`・`config.import.menu.parentInvalid`・`config.import.rbac.auxiliaryColumn`・`config.import.rbac.reservedUnknown`・`config.import.rbac.escalation`・`config.import.rbac.empty`。
+- 認可は、サーバー側で、エクスポート・インポートの両方で、必ず、最初に行う(`OperatorContext`→`canAccessScreen(activeRoleId, "config-import-export")`)。リクエスト本体の束縛の失敗(読めないJSON・空の本体・Content-Typeの不一致)も、認可の後に、`422`(`config.import.json.malformed`)として返す。`consumes`は宣言しない。
 
 ### C8: schema-introspector REST API(FR1.4、レビュー指摘R-01対応)
 
@@ -705,6 +717,30 @@ shared-schema:
 
 **schema-introspectorのC10コンシューマー追補(Contract Design追補、permission-engine Code Generationレビュー指摘R-03対応)**: schema-introspector(U2、`rules.md` BR2.8)は、設定管理画面(config-import-exportと同一画面)からの`POST /api/config/schema-introspection`呼び出し時に`canAccessScreen(activeRoleId, "config-import-export")`でサーバー側再検証を行う設計であり、既に実装済みだが本契約(C10)のconsumers列挙への反映が漏れていた。本追補はその反映であり、新たな依存の追加ではない。
 
+**C9への追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧2番・logical-components.md 追補1〜5を反映)**: `importConfigSet`(引数`ConfigImportSet`・内部IDに依存)を廃止し、取り込みの契約を、検証と反映の2つに分ける(consumersは、config-import-exportだけ)。`getExportableConfigSet`は、他から変更できないスナップショットを返す。
+
+```yaml
+methods:
+  - name: getExportableConfigSet
+    description: キャッシュを介さず、内部設定DBから直接読み、他から変更できないスナップショット(TableConfigSnapshot・ColumnConfigSnapshot・TranslationSnapshot)を返す。伝播MANDATORY(呼び出し元の読み取り専用トランザクションの中で呼ぶ。他のユニットと同じ時点のスナップショットにするため)。
+    returns: ConfigExportSet
+  - name: validateConfigSet
+    description: 何も反映せず、誤りを、位置(入力の中のリストの添え字を含む経路)・i18nキー・パラメータの一覧として返す(全件を集める。例外は投げない)。config-engineの既存の規則(BR1.1〜BR1.4)を再利用する。
+    params: { configSet: ConfigNaturalKeySet }
+    returns: "List<ImportValidationError>"
+  - name: applyConfigSet
+    description: 全置換で反映する(自然キー(schemaName・tableName・columnName、翻訳は(i18nKey, locale))で照合し、ファイルにない項目を削除、既存の項目は内部IDを維持して更新、isPrimaryKeyは維持(BR1.14))。伝播MANDATORY。自身ではコミットせず、キャッシュに触れない。削除→追加・更新の順に、段階ごとにflush()する。
+    params: { configSet: ConfigNaturalKeySet }
+    returns: "ApplyResult { sections(schema・translations)の追加・更新・削除の件数, postCommit }"
+types:
+  ConfigNaturalKeySet: { tables: "List<Table{schemaName, tableName, displayOrder, optimisticLockColumn, columns}>", translations: "List<{i18nKey, locale, text}>" }
+  ApplyResult: { sections: "Map<String, SectionCounts>", postCommit: "PostCommit { invalidateCaches, publishEvents }" }
+  ImportValidationError: { field: string, message: "i18nキー", params: "Map" }
+```
+
+- **キャッシュの世代管理(NFR4.2)**: `ConfigCache`は、状態(`VALID`・`STALE`)・世代番号・スナップショットを、1つの不変な値にまとめ、compare-and-setで置き換える。`invalidate()`(失敗しえない)、`STALE`の間の読み取りでの再読み込み(待ちの上限つきの排他・二重の確認・独立した読み取り専用トランザクション(`REQUIRES_NEW`・`REPEATABLE_READ`)・終了時の世代の確認)、再読み込みの失敗の共有と抑制の期間(`mastersmith.config.cache.reload-wait-timeout`・`reload-failure-backoff`)を持つ。再読み込みの失敗は、その読み取りの503。個別の更新は、`STALE`のとき・更新の最中に世代が進んだときは、キャッシュを更新せず、`invalidate()`を呼ぶ。
+- **確定後の動作**: 反映するメソッドは、`afterCommit`を自身では登録しない。`PostCommit`(`invalidateCaches`・`publishEvents`)を戻り値に含めて返し、config-import-exportの`PostCommitCoordinator`が、固定した順序(無効化 → 個別イベント → 成功の監査イベント)で、独立に実行する。個別の変更イベントは、独立したトランザクション(`REQUIRES_NEW`)の中で発行し、例外を握りつぶす。`actor`は、`"system"`のまま(BR9.15)。
+
 ### C10: permission-engine 内部インタフェース契約
 
 ```yaml
@@ -765,6 +801,35 @@ methods:
 ```
 
 **C10への追補(Contract Design追補、authentication-service Code Generation着手時、functional-spec.md 追補一覧6番・rules.md BR5.12を反映)**: `resolveEffectivePermission(activeRoleId, ...)`・`canAccessScreen(activeRoleId, screenKey)`は、`activeRoleId`がnullまたは空(アクティブロールが未選択)のときは、「ロールを持たない」として、fail closed(権限なし=NONE・false)で判定する。ただし、RBAC設定が1件もない間の例外(`canAccessScreen(_, "config-import-export")`、rules.md BR3.13(a))は、`activeRoleId`にかかわらず適用する(ロールを持たない初期管理者も、最初のRBAC設定のインポートへ到達できる)。呼び出し元は、nullを自前で拒否せず(401にせず)、そのままC10へ渡す(操作者そのものが解決できない場合だけ401)。既存のメソッドのシグネチャ・既存の振る舞い(実在しないロールはNONE、など)は変えない(意味の追補であり、加法的変更)。
+
+**C10への追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧4番・logical-components.md 追補1a〜3を反映)**: 次のメソッドを追加する(加法的変更、既存のメソッドは変えない。`assignPermission`・`assignAuxiliaryPermission`は、取り込みでは使わない)。
+
+```yaml
+methods:
+  - name: exportRbac
+    description: ロール・グループ・グループとロールの対応・主権限・補助権限を、キャッシュを介さず、内部設定DBから直接読み、他から変更できないスナップショット(内部ID・不透明な対象の識別子のまま)を返す。伝播MANDATORY(読み取り専用)。ユーザー・ユーザーのグループ所属は含めない。
+    returns: RbacExport
+  - name: isBootstrapState
+    description: 主権限が1件もない初期状態(BR3.13)か。config-import-exportが、取り込み開始時点の値(bootstrapAtStart)を固定するために問い合わせる。
+    returns: boolean
+  - name: isReservedSchemaName
+    description: 管理系画面の権限のための予約スキーマ名(`__system__:`で始まる、既知の名前。BR3.15)か。config-import-exportは、名前の意味を解釈せず、この問い合わせに委ねる(BR9.20)。
+    params: { schemaName: string }
+    returns: boolean
+  - name: validateRbacImport
+    description: 何も反映せず、誤りを全件集める。(1)権限昇格(BR3.8): すべてのエントリについて、actorRoleIdの、取り込み開始時点の実効権限(REPEATABLE_READのスナップショット。スコープの階層COLUMN→TABLE→SCHEMAの継承、補助権限のTABLE→SCHEMAの継承、取り込みで新規に作るテーブル・カラムはスキーマの設定にフォールバック)を基準に、上回るエントリをすべて集める(bootstrapAtStart=trueなら判定しない)。(2)主権限が0件(BR9.12。ブートストラップ状態でも拒否)。(3)権限の対象の構造(必須・長さ・予約スキーマ名・補助権限のCOLUMNの拒否)。actorRoleIdが未選択・空なら、割当を持たない者として、fail closedで判定する。
+    params: { importSet: RbacImportSet, actorRoleId: "string | null", bootstrapAtStart: boolean }
+    returns: "List<ImportValidationError>"
+  - name: applyRbacImport
+    description: 全置換で反映する(ロール・グループは名前で照合して内部IDを維持、権限は(ロール, 対象の種別, 対象の識別子)で照合。ファイルにないものは、削除→追加・更新の順に、段階ごとにflush()する)。伝播MANDATORY。1件ごとのキャッシュの無効化・イベントの発行は行わない(既知のR-04の解消)。
+    params: { importSet: RbacImportSet, actorRoleId: "string | null" }
+    returns: "ApplyResult { sections(roles・groups・primaryPermissions・auxiliaryPermissions)の件数, postCommit }"
+types:
+  RbacImportSet: { roles: "List<{name}>", groups: "List<{name, roleNames}>", primaryPermissions: "List<{roleName, scope{scopeType, schemaName, tableConfigId?, columnConfigId?}, level}>", auxiliaryPermissions: "List<{roleName, scope, createAllowed, deleteAllowed}>" }
+```
+
+- **キャッシュの世代管理(NFR4.2)**: 実効権限のキャッシュ(Caffeine)は、キーに世代番号を含める。`PermissionCacheControl.invalidate()`が、世代番号を進め、`invalidateAll()`を呼ぶ(失敗しえない)。計算(ロード)は、独立した読み取り専用トランザクション(`REQUIRES_NEW`)で行い、失敗したら、抑制の期間(`mastersmith.permission.cache.load-failure-backoff`)の間、計算を試みず、その読み取りの503。呼び出し元のトランザクションの中では、キャッシュを介さず、そのトランザクションの中で解決する。
+- **サマリイベント(BR3.11)**: 取り込み1回につき、主権限・補助権限の変更が1件以上あれば、`PermissionImportedEvent`(`actor`=操作者のactiveRoleId・`changeCount`・`occurredAt`)を、確定後に、1件だけ発行する。
 
 ### C11: user-management → authentication-service 内部インタフェース契約
 
@@ -827,6 +892,25 @@ shared-schema:
       throws: [ConfigValidationException]
   types:
     MenuItem: { menuItemId: string, parentMenuItemId: "string | null", label: string, order: int, targetTableConfigId: "string | null" }
+```
+
+**C12への追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧3番を反映)**: `importMenuStructure`を廃止し、検証と反映の2つに分ける。メニューは、キャッシュを持たない(DBから直接読む)ため、確定後の動作は空である。
+
+```yaml
+methods:
+  - name: getExportableMenuStructure
+    description: 内部設定DBから直接読み、フラットな一覧を返す(入れ子への変換は、config-import-exportが行う)。伝播MANDATORY(読み取り専用)。
+    returns: "List<MenuStructureEntry>"
+  - name: validateMenuStructure
+    description: 何も反映せず、構造の規則(表示名・表示順の必須、親の参照・自己参照・循環、遷移先を持つ項目が子を持たないこと)を、全件集めて返す。遷移先のテーブルの実在は、反映の順序(schemaが先)により、反映の段階で満たされるため、検証しない。
+    params: { items: "List<MenuImportItem>" }
+    returns: "List<ImportValidationError>"
+  - name: applyMenuStructure
+    description: 全置換で反映する(既存を一括で削除し、入力の項目を、新しいIDで採番して追加する。BR9.14)。伝播MANDATORY。自身ではコミットしない。
+    params: { items: "List<MenuImportItem>" }
+    returns: "ApplyResult { sections(menu)の件数, postCommit(空) }"
+types:
+  MenuImportItem: { position: "string(JSON上の位置。一意)", parentPosition: "string | null", label: string, order: "int | null", leaf: boolean, targetTableConfigId: "string | null(検証の段階では、新規のテーブルはnull)" }
 ```
 
 ### C13: data-import-export 内部インタフェース契約
@@ -896,7 +980,7 @@ shared-schema:
 shared-schema:
   interface: OperatorContext
   package: com.mastersmith.common.security
-  consumers: [schema-introspector, user-management, menu-navigation, audit-logging]
+  consumers: [schema-introspector, user-management, menu-navigation, audit-logging, config-import-export]
   note: >
     認証済みのリクエストの操作者を、他ユニットが読むための、中立の共有契約(共通基盤の契約、shared kernel。
     functional-spec.md 追補一覧9番・rules.md BR5.12)。authentication-serviceの業務ロジックに依存しない型と
@@ -914,6 +998,8 @@ shared-schema:
     - 操作者が解決できる(認証済み)なら、activeRoleIdがnullでも、Operatorは存在する。activeRoleIdがnullであることは、認証エラー(401)ではなく権限なし(403)を意味する。
     - 読み取り側は、activeRoleIdのnullを、自前で拒否せず(401にせず)、そのままC10へ渡す。操作者そのものが解決できない場合だけ401。
 ```
+
+**C15への追補(Contract Design追補、config-import-export Code Generation、functional-spec.md 追補一覧5番を反映)**: config-import-export(U9)は、C15の`OperatorContext`の、読み取り側のコンシューマーである(consumersに含める。型・メソッドは変えない。DAGの葉のため、依存の向きも変わらない)。要求ごとに`OperatorContext.current()`を1回だけ読み、解決できなければ401、解決できたら、`activeRoleId`(nullのまま)を、C10の`canAccessScreen`と、`validateRbacImport`・`applyRbacImport`の`actorRoleId`に渡す。authentication-serviceのコンポーネントは呼ばない。
 
 **契約の所有と変更(Contract Ownership Rulesの例外)**: C15は、プロバイダー側ユニットが所有する規則の例外として、共通基盤の契約(shared kernel)とする。変更(型・メソッドの追加・変更・削除)には、**authentication-serviceと、すべての読み取り側のユニットの合意を要する**(加法的変更であっても、単独の判断では行わない)。依存の方向は、読み取り側 → 共通基盤の契約の一方向で、DAGの葉である(`unit-of-work-dependency.md`のDAGは変わらない)。
 

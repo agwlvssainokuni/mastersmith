@@ -20,11 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.mastersmith.MastersmithApplication;
-import com.mastersmith.config.dto.ConfigImportSet;
+import com.mastersmith.config.cache.ConfigCache;
 import com.mastersmith.config.entity.ColumnConfig;
 import com.mastersmith.config.entity.EditorType;
 import com.mastersmith.config.entity.TableConfig;
-import com.mastersmith.config.store.ConfigEngineApi;
+import com.mastersmith.config.repository.ColumnConfigRepository;
+import com.mastersmith.config.repository.TableConfigRepository;
 import com.mastersmith.permission.dto.EffectivePermission;
 import com.mastersmith.permission.entity.Group;
 import com.mastersmith.permission.entity.GroupMembership;
@@ -44,8 +45,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * permission-engine(U3)のSpring Boot統合テスト(組込みH2、実際のDB状態を検証、plan Step10)。
@@ -64,7 +69,13 @@ class PermissionEngineIntegrationTest {
   @Autowired private GroupRepository groupRepository;
   @Autowired private GroupMembershipRepository groupMembershipRepository;
   @Autowired private GroupRoleRepository groupRoleRepository;
-  @Autowired private ConfigEngineApi configEngineApi;
+  @Autowired private ConfigCache configCache;
+  @Autowired private TableConfigRepository tableConfigRepository;
+  @Autowired private ColumnConfigRepository columnConfigRepository;
+
+  @Autowired
+  @Qualifier("transactionManager")
+  private PlatformTransactionManager transactionManager;
 
   @Test
   void resolvesEffectivePermissionThroughColumnToTableToSchemaFallbackAgainstRealDatabase() {
@@ -72,9 +83,31 @@ class PermissionEngineIntegrationTest {
     TableConfig tableConfig = new TableConfig(schemaName, "products");
     ColumnConfig columnConfig =
         new ColumnConfig(tableConfig.getTableConfigId(), "price", EditorType.DECIMAL);
-    configEngineApi.importConfigSet(
-        new ConfigImportSet(List.of(tableConfig), List.of(columnConfig), List.of()));
+    // 設定は、独立したトランザクションで確定させる(config-engineのキャッシュは、確定済みの内容だけを読み込む。
+    // 旧importConfigSet(未確定の内容を、キャッシュへ載せていた)は、検証と反映の分割(C9の追補)で置き換えたため、
+    // リポジトリで直接保存し、キャッシュの無効化で読み込ませる)。
+    TransactionTemplate committed = new TransactionTemplate(transactionManager);
+    committed.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+    committed.executeWithoutResult(
+        status -> {
+          tableConfigRepository.save(tableConfig);
+          columnConfigRepository.save(columnConfig);
+        });
+    configCache.invalidate();
+    try {
+      assertColumnResolvesThroughSchemaFallback(schemaName, columnConfig);
+    } finally {
+      committed.executeWithoutResult(
+          status -> {
+            columnConfigRepository.deleteById(columnConfig.getColumnConfigId());
+            tableConfigRepository.deleteById(tableConfig.getTableConfigId());
+          });
+      configCache.invalidate();
+    }
+  }
 
+  private void assertColumnResolvesThroughSchemaFallback(
+      String schemaName, ColumnConfig columnConfig) {
     Role role = roleRepository.save(new Role("role-" + UUID.randomUUID()));
     // ブートストラップ状態(PrimaryPermission行が0件)のため、昇格チェックなしで割当できる。
     permissionEngineApi.assignPermission(

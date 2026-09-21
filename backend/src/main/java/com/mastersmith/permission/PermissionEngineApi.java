@@ -16,7 +16,11 @@
 
 package com.mastersmith.permission;
 
+import com.mastersmith.common.configio.ApplyResult;
+import com.mastersmith.common.configio.ImportValidationError;
 import com.mastersmith.permission.dto.EffectivePermission;
+import com.mastersmith.permission.dto.RbacExport;
+import com.mastersmith.permission.dto.RbacImportSet;
 import com.mastersmith.permission.entity.PermissionLevel;
 import com.mastersmith.permission.entity.ScopeType;
 import com.mastersmith.permission.exception.PermissionEscalationException;
@@ -131,4 +135,46 @@ public interface PermissionEngineApi {
    * @param roleId 判定対象のroleId
    */
   boolean roleExists(String roleId);
+
+  // ---- config-import-export(U9)向けの追補(functional-spec.md 追補一覧4番、logical-components.md 追補1a〜3) ----
+
+  /**
+   * config-import-export専用。RBAC設定(ロール・グループ・グループとロールの対応・主権限・補助権限)を、キャッシュを介さず、内部設定DBから直接読み、他から変更できないスナップショットとして返す
+   * (ユーザー・ユーザーのグループ所属は含めない)。呼び出し元の(読み取り専用の)トランザクションの中で呼ぶこと。トランザクションがなければ、例外にする。
+   */
+  RbacExport exportRbac();
+
+  /**
+   * ブートストラップ状態(主権限が1件もない初期状態。rules.md BR3.13)か。config-import-exportが、取り込み開始時点の値({@code
+   * bootstrapAtStart})を固定するために問い合わせる。
+   */
+  boolean isBootstrapState();
+
+  /**
+   * 指定の名前が、permission-engineが管理する予約スキーマ名(管理系画面の権限のための、{@code __system__:}で始まる名前。rules.md
+   * BR3.15)か。config-import-exportは、この名前の意味を
+   * 解釈せず(BR9.20)、権限の対象のSCHEMAが、ファイルのスキーマにない場合に、この問い合わせで判定する。
+   */
+  boolean isReservedSchemaName(String schemaName);
+
+  /**
+   * config-import-export専用。RBAC設定の取り込みの検証だけを行う(何も反映しない、BR9.10〜BR9.12)。権限昇格(BR3.8。{@code
+   * actorRoleId}の、取り込み開始時点の実効権限を基準に、すべてのエントリについて判定し、
+   * 上回るエントリをすべて集める)・主権限が0件・権限の対象の構造の誤りを、例外ではなく、全件を集めた一覧で返す。{@code
+   * bootstrapAtStart}がtrueなら、昇格の判定は行わない(初回のRBAC投入を許す)が、 主権限が0件の判定は行う。呼び出し元の{@code
+   * REPEATABLE_READ}のトランザクションの中で呼ぶこと(スナップショットを基準にするため)。
+   *
+   * @param actorRoleId 操作者のactiveRoleId(未選択・空なら、割当を持たない者として判定する)
+   * @param bootstrapAtStart 取り込み開始時点で、初期状態だったか
+   */
+  List<ImportValidationError> validateRbacImport(
+      RbacImportSet importSet, String actorRoleId, boolean bootstrapAtStart);
+
+  /**
+   * config-import-export専用。RBAC設定の取り込みを反映する(全置換:
+   * ロール・グループ・グループとロールの対応・主権限・補助権限を、削除を含めて、ファイルの内容と一致させる。BR9.9)。伝播は{@code
+   * MANDATORY}で、自身ではコミットしない。1件ごとの割当のイベント・キャッシュの無効化は行わず、確定後の動作(キャッシュの無効化・取り込み単位のサマリイベント(BR3.11))を、戻り値に含めて返す。
+   * 事前に{@link #validateRbacImport}に合格していること。
+   */
+  ApplyResult applyRbacImport(RbacImportSet importSet, String actorRoleId);
 }

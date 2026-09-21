@@ -1,0 +1,340 @@
+{
+  "stage": "code-generation",
+  "unit": "config-import-export",
+  "version": 1,
+  "writes": [
+    {
+      "path": "backend/build.gradle.kts"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/audit/event/AuditLogEventMapper.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/audit/event/ConfigImportExecutedEventListener.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/audit/event/PermissionImportedEventListener.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/cache/CacheReloadUnavailableException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/cache/ReloadFailureBackoff.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/ApplyResult.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/ImportMessageKeys.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/ImportSections.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/ImportValidationError.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/PostCommit.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/common/configio/SectionCounts.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/cache/ConfigCache.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/ColumnConfigSnapshot.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/ConfigExportSet.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/ConfigImportSet.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/ConfigNaturalKeySet.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/TableConfigSnapshot.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/dto/TranslationSnapshot.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/store/ConfigEngineApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/store/ConfigModelStore.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/transfer/ConfigTransfer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/config/validation/ConfigValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/document/ConfigDocument.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/event/ConfigImportEventPublisher.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/event/ConfigImportExecutedEvent.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/exception/ConfigImportExceptions.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/exception/ConfigImportForbiddenException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/exception/ConfigImportUnauthorizedException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/exception/ConfigImportValidationException.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/mapper/ConfigDocumentMapper.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/mapper/NaturalKeyIndex.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/parser/ConfigDocumentParser.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/parser/ImportErrorCollector.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/AppliedImport.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/ConfigExportService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/ConfigImportService.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/ImportContext.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/ImportOrchestrator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/ImportResult.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/service/PostCommitCoordinator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/validation/ReferenceValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportAuthorizer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExceptionHandler.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/web/ConfigImportExportController.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/configio/web/ImportResultResponse.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/MenuStructureApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/dto/MenuImportItem.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/repository/MenuItemRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/menu/service/MenuStructureApiImpl.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/PermissionEngineApi.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/cache/PermissionCacheControl.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/cache/PermissionCacheKey.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/dto/RbacExport.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/dto/RbacImportSet.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/event/PermissionImportedEvent.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/ActorGrantSnapshot.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacExporter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacImportValidator.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacImporter.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/RbacTransfer.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/rbacio/ReservedScopes.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/repository/AuxiliaryPermissionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/repository/PrimaryPermissionRepository.java"
+    },
+    {
+      "path": "backend/src/main/java/com/mastersmith/permission/service/PermissionEngineApiImpl.java"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/audit/event/ConfigImportExecutedEventListenerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/cache/ReloadFailureBackoffTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/configio/ImportValidationErrorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/common/configio/PostCommitTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/config/cache/ConfigCacheGenerationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/config/store/ConfigExportDirectReadTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/config/store/ConfigModelStoreTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/config/transfer/ConfigApplyValidateTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/CacheGenerationConcurrencyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ConfigDrivenProfilesE2ETest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ConfigImportEscalationMatrixE2ETest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ConfigImportExportIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ConfigImportNegativeAuthorizationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ConfigImportSafeFailureTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/ImportFailureModesTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/mapper/ConfigDocumentMapperTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/parser/ConfigDocumentParserTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/parser/ImportErrorCollectorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/performance/ConfigImportExportPerformanceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/probe/H2IsolationProbeTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/probe/HibernateBatchProbeTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/probe/JacksonDefaultsProbeTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/service/ConfigExportServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/service/ConfigImportEventPublisherTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/service/ConfigImportServiceTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/service/ImportOrchestratorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/service/PostCommitCoordinatorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/testsupport/ConfigDocumentFactory.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/testsupport/ConfigDocumentNormalizer.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/testsupport/ConfigIoIntegrationTestBase.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/testsupport/RecordingTransactionManager.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/validation/ReferenceValidatorTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/web/ConfigImportAuthorizerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/web/ConfigImportExceptionHandlerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/configio/web/ConfigImportExportControllerTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/menu/service/MenuStructureApiImplTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/menu/service/MenuStructureValidateApplyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/PermissionEngineIntegrationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/cache/PermissionCacheGenerationTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/rbacio/ActorGrantSnapshotConsistencyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/rbacio/RbacApplyTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/rbacio/RbacExportTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/rbacio/RbacImportValidationMatrixTest.java"
+    },
+    {
+      "path": "backend/src/test/java/com/mastersmith/permission/rbacio/RbacImportValidatorStructureTest.java"
+    },
+    {
+      "path": "backend/src/test/resources/application.yml"
+    }
+  ]
+}
