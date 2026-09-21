@@ -20,6 +20,7 @@ import com.mastersmith.config.entity.ColumnConfig;
 import com.mastersmith.config.entity.TableConfig;
 import com.mastersmith.config.store.ConfigEngineApi;
 import com.mastersmith.dataio.csv.CsvColumnDefinitionResolver;
+import com.mastersmith.dataio.csv.CsvValueFormatter;
 import com.mastersmith.dataio.dto.CsvColumnDefinition;
 import com.mastersmith.dataio.exception.CsvExportException;
 import java.io.IOException;
@@ -34,11 +35,15 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
@@ -55,6 +60,20 @@ import org.springframework.stereotype.Service;
  * filter}を列名をキーとした等価条件のANDとして解釈し、 {@code sort}を{@code "columnName"}または{@code
  * "columnName,asc|desc"}形式として解釈する。 いずれも、対象テーブルのエクスポート対象列に含まれない列名は無視する(SQLインジェクション防止。
  * filterの値自体はPreparedStatementのバインド変数として渡すため安全)。
+ *
+ * <p><b>ストリーミングの前提</b>(BR8.10、レビュー指摘R-03対応): {@code fetchSize}の指定だけでは、対象RDBMSによって
+ * 全件がメモリへ先読みされる。そのためエクスポート専用に取得したコネクションを、読み取り専用・自動コミット無効 ({@code
+ * setAutoCommit(false)})にして、処理後に元の状態へ戻す。ドライバ別の扱いは次のとおり。
+ *
+ * <ul>
+ *   <li>PostgreSQL: 自動コミット無効のトランザクション内でのみ{@code fetchSize}のカーソルが有効になる(500行ずつ取得)。
+ *   <li>MySQL/MariaDB: {@code fetchSize=Integer.MIN_VALUE}を指定し、行単位のストリーミングを有効にする(接続URLの {@code
+ *       useCursorFetch}等の指定を要しない)。ストリーミング中は同一コネクションで他のSQLを発行できない。
+ *   <li>その他(H2等): {@code fetchSize=500}を指定する。
+ * </ul>
+ *
+ * <p><b>値の形式</b>(BR8.1、レビュー指摘R-02対応): 日付・日時・真偽値・数値は{@link CsvValueFormatter}によりインポートが
+ * 受け付ける正規形式へ整形する。SQL中の識別子(スキーマ・テーブル・列名)はドライバが報告する引用符で囲む。
  */
 @Service
 @ConditionalOnProperty(
@@ -62,6 +81,8 @@ import org.springframework.stereotype.Service;
     name = "enabled",
     havingValue = "true")
 public class CsvExportService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(CsvExportService.class);
 
   private static final int FETCH_SIZE = 500;
 
@@ -107,12 +128,14 @@ public class CsvExportService {
               .setHeader(header)
               .setRecordSeparator("\r\n")
               .build();
-      try (CSVPrinter printer = new CSVPrinter(writer, format)) {
-        if (header.length > 0) {
-          writeRows(tableConfig, header, knownColumnNames, filter, sort, printer);
-        }
-        printer.flush();
+      // DataImportExportApi.exportCsvの契約どおり、呼び出し元の出力ストリームはクローズしない
+      // (CSVPrinterをtry-with-resourcesで閉じると、包んでいるWriter経由でoutまで閉じてしまう)。
+      // 書き込んだ内容はflushのみ行い、ストリームの後始末は呼び出し元に委ねる。
+      CSVPrinter printer = new CSVPrinter(writer, format);
+      if (header.length > 0) {
+        writeRows(tableConfig, columns, knownColumnNames, filter, sort, printer);
       }
+      printer.flush();
     } catch (SQLException e) {
       throw new CsvExportException(
           "Failed to read business data for tableConfigId=" + tableConfigId, e);
@@ -124,34 +147,80 @@ public class CsvExportService {
 
   private void writeRows(
       TableConfig tableConfig,
-      String[] header,
+      List<CsvColumnDefinition> columns,
       Set<String> knownColumnNames,
       Map<String, Object> filter,
       String sort,
       CSVPrinter printer)
       throws SQLException, IOException {
     Map<String, Object> effectiveFilter = filterableEntries(filter, knownColumnNames);
-    String sql = buildSelectSql(tableConfig, header, effectiveFilter, sort, knownColumnNames);
-    try (Connection connection = businessDataSource.getConnection();
-        PreparedStatement statement =
+    try (Connection connection = businessDataSource.getConnection()) {
+      String quote = SqlIdentifiers.quoteStringOf(connection);
+      String sql =
+          buildSelectSql(quote, tableConfig, columns, effectiveFilter, sort, knownColumnNames);
+      int fetchSize = fetchSizeFor(connection.getMetaData().getDatabaseProductName());
+      boolean originalAutoCommit = connection.getAutoCommit();
+      boolean originalReadOnly = connection.isReadOnly();
+      try {
+        // BR8.10: 読み取り専用のトランザクション内(自動コミット無効)で読み取る。
+        // PostgreSQLは自動コミット有効時にfetchSizeを無視して全件を先読みするため、この設定が必須である。
+        connection.setReadOnly(true);
+        connection.setAutoCommit(false);
+        try (PreparedStatement statement =
             connection.prepareStatement(
                 sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY)) {
-      // BR8.10: fetchSizeを小さい値に明示し、ドライバの一括先読みによるメモリ膨張を防ぐ。
-      statement.setFetchSize(FETCH_SIZE);
-      int index = 1;
-      for (Object value : effectiveFilter.values()) {
-        statement.setObject(index++, value);
-      }
-      try (ResultSet resultSet = statement.executeQuery()) {
-        while (resultSet.next()) {
-          Object[] values = new Object[header.length];
-          for (int i = 0; i < header.length; i++) {
-            values[i] = resultSet.getObject(header[i]);
+          statement.setFetchSize(fetchSize);
+          int index = 1;
+          for (Object value : effectiveFilter.values()) {
+            statement.setObject(index++, value);
           }
-          printer.printRecord(values);
+          try (ResultSet resultSet = statement.executeQuery()) {
+            Object[] values = new Object[columns.size()];
+            while (resultSet.next()) {
+              for (int i = 0; i < values.length; i++) {
+                // 列名ではなく位置で取得する(列名の大文字小文字・別名の差異に依存しない)。
+                values[i] =
+                    CsvValueFormatter.format(
+                        columns.get(i).editorType(), resultSet.getObject(i + 1));
+              }
+              printer.printRecord(values);
+            }
+          }
         }
+      } finally {
+        restoreConnection(connection, originalAutoCommit, originalReadOnly);
       }
     }
+  }
+
+  /**
+   * エクスポート用に変更したコネクションの状態(読み取り専用・自動コミット)を元へ戻す。コネクションプールへ
+   * 返却されるため、失敗しても処理結果(CSVの出力)には影響させず、警告として記録する。
+   */
+  private static void restoreConnection(
+      Connection connection, boolean originalAutoCommit, boolean originalReadOnly) {
+    try {
+      if (!connection.getAutoCommit()) {
+        connection.rollback();
+      }
+      connection.setAutoCommit(originalAutoCommit);
+      connection.setReadOnly(originalReadOnly);
+    } catch (SQLException e) {
+      LOG.warn("Failed to restore the business data connection state after CSV export", e);
+    }
+  }
+
+  /**
+   * 対象RDBMSのストリーミング取得に必要なfetchSizeを返す。MySQL/MariaDBは、{@code Integer.MIN_VALUE}で
+   * 行単位のストリーミングとなる(正の値はuseCursorFetch指定がない限り全件先読みとなる)。
+   */
+  static int fetchSizeFor(String databaseProductName) {
+    String product =
+        databaseProductName == null ? "" : databaseProductName.toLowerCase(Locale.ROOT);
+    if (product.contains("mysql") || product.contains("mariadb")) {
+      return Integer.MIN_VALUE;
+    }
+    return FETCH_SIZE;
   }
 
   private static Map<String, Object> filterableEntries(
@@ -169,17 +238,18 @@ public class CsvExportService {
   }
 
   private static String buildSelectSql(
+      String quote,
       TableConfig tableConfig,
-      String[] header,
+      List<CsvColumnDefinition> columns,
       Map<String, Object> effectiveFilter,
       String sort,
       Set<String> knownColumnNames) {
     StringBuilder sql = new StringBuilder("SELECT ");
-    sql.append(String.join(", ", header));
-    sql.append(" FROM ")
-        .append(tableConfig.getSchemaName())
-        .append('.')
-        .append(tableConfig.getTableName());
+    sql.append(
+        columns.stream()
+            .map(column -> SqlIdentifiers.quote(quote, column.columnName()))
+            .collect(Collectors.joining(", ")));
+    sql.append(" FROM ").append(SqlIdentifiers.qualifiedTableName(quote, tableConfig));
     if (!effectiveFilter.isEmpty()) {
       sql.append(" WHERE ");
       boolean first = true;
@@ -187,18 +257,18 @@ public class CsvExportService {
         if (!first) {
           sql.append(" AND ");
         }
-        sql.append(column).append(" = ?");
+        sql.append(SqlIdentifiers.quote(quote, column)).append(" = ?");
         first = false;
       }
     }
-    String orderBy = buildOrderBy(sort, knownColumnNames);
+    String orderBy = buildOrderBy(quote, sort, knownColumnNames);
     if (orderBy != null) {
       sql.append(" ORDER BY ").append(orderBy);
     }
     return sql.toString();
   }
 
-  private static String buildOrderBy(String sort, Set<String> knownColumnNames) {
+  private static String buildOrderBy(String quote, String sort, Set<String> knownColumnNames) {
     if (sort == null || sort.isBlank()) {
       return null;
     }
@@ -209,6 +279,6 @@ public class CsvExportService {
     }
     String direction = parts.length > 1 ? parts[1].trim() : "";
     String sqlDirection = "desc".equalsIgnoreCase(direction) ? "DESC" : "ASC";
-    return column + " " + sqlDirection;
+    return SqlIdentifiers.quote(quote, column) + " " + sqlDirection;
   }
 }

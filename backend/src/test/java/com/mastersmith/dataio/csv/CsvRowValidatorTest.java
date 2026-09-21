@@ -26,6 +26,7 @@ import com.mastersmith.dataio.dto.ImportOperation;
 import com.mastersmith.dataio.dto.ImportOutcome;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,8 @@ class CsvRowValidatorTest {
 
   private final CsvRowValidator validator = new CsvRowValidator();
 
-  private static final Predicate<String> ALWAYS_EXISTS = value -> true;
-  private static final Predicate<String> NEVER_EXISTS = value -> false;
+  private static final Predicate<Object> ALWAYS_EXISTS = value -> true;
+  private static final Predicate<Object> NEVER_EXISTS = value -> false;
 
   private static CsvColumnDefinition column(
       String name, EditorType editorType, ValidationRule rule, boolean isPrimaryKey) {
@@ -239,5 +240,147 @@ class CsvRowValidatorTest {
 
     assertThat(result.isValid()).isTrue();
     assertThat(result.convertedValues()).containsEntry("note", null);
+  }
+
+  // ---- R-01: 主キー値が型変換できない行では存在確認(DBアクセス)を呼ばず、行単位エラーのみを返す ----
+
+  static Stream<Arguments> invalidPrimaryKeyValues() {
+    return Stream.of(
+        Arguments.of("数値でない文字列", "abc"),
+        Arguments.of("Long範囲を超える桁あふれ", "99999999999999999999"),
+        Arguments.of("小数点を含む値", "1.5"));
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("invalidPrimaryKeyValues")
+  void invalidPrimaryKeyValueIsRowLevelTypeMismatchAndSkipsExistenceCheck(
+      String description, String rawPrimaryKey) {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column("name", EditorType.TEXT, ValidationRule.empty(), false));
+    List<Object> lookedUp = new ArrayList<>();
+    Predicate<Object> recordingPredicate =
+        value -> {
+          lookedUp.add(value);
+          return true;
+        };
+
+    var result =
+        validator.validateRow(
+            4, Map.of("id", rawPrimaryKey, "name", "widget"), columns, recordingPredicate);
+
+    assertThat(result.isValid()).isFalse();
+    assertThat(result.report().errors()).hasSize(1);
+    assertThat(result.report().errors().get(0).row()).isEqualTo(4);
+    assertThat(result.report().errors().get(0).field()).isEqualTo("id");
+    assertThat(result.report().errors().get(0).message()).isEqualTo("typeMismatch");
+    assertThat(lookedUp).isEmpty();
+  }
+
+  @Test
+  void invalidPrimaryKeyDoesNotHideOtherColumnErrorsOfTheSameRow() {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column(
+                "name",
+                EditorType.TEXT,
+                ValidationRule.builder().rule("required", true).build(),
+                false));
+
+    var result = validator.validateRow(1, Map.of("id", "abc", "name", ""), columns, ALWAYS_EXISTS);
+
+    assertThat(result.report().errors())
+        .extracting(e -> e.field() + ":" + e.message())
+        .containsExactly("id:typeMismatch", "name:required");
+  }
+
+  @Test
+  void existenceCheckReceivesTheConvertedPrimaryKeyValue() {
+    List<CsvColumnDefinition> columns =
+        List.of(column("id", EditorType.INTEGER, ValidationRule.empty(), true));
+    List<Object> lookedUp = new ArrayList<>();
+
+    validator.validateRow(
+        1,
+        Map.of("id", "42"),
+        columns,
+        value -> {
+          lookedUp.add(value);
+          return true;
+        });
+
+    assertThat(lookedUp).containsExactly(42L);
+  }
+
+  // ---- R-04: CSVヘッダーに存在しない列の扱い ----
+
+  @Test
+  void columnAbsentFromHeaderIsLeftUntouchedOnUpdateEvenIfRequired() {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column(
+                "secret",
+                EditorType.TEXT,
+                ValidationRule.builder().rule("required", true).build(),
+                false),
+            column("note", EditorType.TEXT, ValidationRule.empty(), false));
+    // secret・noteはCSVヘッダーに存在しない(rawValuesにキーがない)。
+    var result = validator.validateRow(1, Map.of("id", "7"), columns, ALWAYS_EXISTS);
+
+    assertThat(result.isValid()).isTrue();
+    assertThat(result.report().operation()).isEqualTo(ImportOperation.UPDATE);
+    assertThat(result.convertedValues()).containsOnlyKeys("id");
+  }
+
+  @Test
+  void emptyCellInHeaderColumnIsNullOnUpdate() {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column("note", EditorType.TEXT, ValidationRule.empty(), false));
+
+    var result = validator.validateRow(1, Map.of("id", "7", "note", ""), columns, ALWAYS_EXISTS);
+
+    assertThat(result.isValid()).isTrue();
+    assertThat(result.convertedValues()).containsEntry("note", null);
+  }
+
+  @Test
+  void requiredColumnAbsentFromHeaderIsAnErrorOnInsert() {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column(
+                "name",
+                EditorType.TEXT,
+                ValidationRule.builder().rule("required", true).build(),
+                false));
+
+    // 主キー列もヘッダーに存在しない: 全行INSERT(BR8.3)。
+    var result = validator.validateRow(2, Map.of(), columns, NEVER_EXISTS);
+
+    assertThat(result.isValid()).isFalse();
+    assertThat(result.report().errors()).hasSize(1);
+    assertThat(result.report().errors().get(0).row()).isEqualTo(2);
+    assertThat(result.report().errors().get(0).field()).isEqualTo("name");
+    assertThat(result.report().errors().get(0).message()).isEqualTo("required");
+  }
+
+  @Test
+  void optionalColumnAbsentFromHeaderIsNotPartOfInsertValues() {
+    List<CsvColumnDefinition> columns =
+        List.of(
+            column("id", EditorType.INTEGER, ValidationRule.empty(), true),
+            column("name", EditorType.TEXT, ValidationRule.empty(), false),
+            column("note", EditorType.TEXT, ValidationRule.empty(), false));
+
+    var result = validator.validateRow(1, Map.of("name", "widget"), columns, NEVER_EXISTS);
+
+    assertThat(result.isValid()).isTrue();
+    assertThat(result.report().operation()).isEqualTo(ImportOperation.INSERT);
+    assertThat(result.convertedValues()).containsOnlyKeys("name");
   }
 }

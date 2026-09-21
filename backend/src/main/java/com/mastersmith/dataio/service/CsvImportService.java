@@ -17,7 +17,6 @@
 package com.mastersmith.dataio.service;
 
 import com.mastersmith.config.entity.ColumnConfig;
-import com.mastersmith.config.entity.EditorType;
 import com.mastersmith.config.entity.TableConfig;
 import com.mastersmith.config.store.ConfigEngineApi;
 import com.mastersmith.dataio.config.BusinessDataSourceConfig;
@@ -35,11 +34,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
 import java.io.Reader;
-import java.math.BigDecimal;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
@@ -48,6 +50,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -71,6 +75,16 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <p>楽観ロック対象列の有無に関わらず競合検出は行わない(BR8.4、常に後勝ち)。処理完了時(コミット・全体ロールバック いずれも)、{@link
  * ImportExecutedEvent}をSpringの{@link ApplicationEventPublisher}でfire-and-forget発行する(BR8.9)。
  *
+ * <p><b>コミット時の失敗の扱い</b>(レビュー指摘R-06対応): 検証後〜コミット前に対象行が削除されて{@code UPDATE}が0件更新となった場合、
+ * および行単位で検出できないDB制約違反({@link DataIntegrityViolationException})は、トランザクション全体をロールバックし、
+ * 行番号付きの行単位エラー({@code notFound}/{@code constraintViolation}、SQL文・ドライバのメッセージは含めない)として {@link
+ * ImportResult}で返す。これら以外の予期しない失敗(接続断・SQL誤り等)は、{@code committed=false}の {@link
+ * ImportExecutedEvent}を発行したうえで例外をそのまま伝播する。
+ *
+ * <p><b>CSVヘッダーに存在しない列</b>(レビュー指摘R-04対応): UPDATE行はCSVヘッダーに存在する列のみをSETし、存在しない列の既存値を
+ * 維持する(エクスポートがhidden列・権限のない列を出力しないため、エクスポート→編集→再インポートで当該列を破壊しない)。
+ * INSERT行は、CSVヘッダーに存在する列のみをINSERT文の列リストへ含める。詳細は{@link CsvRowValidator}を参照する。
+ *
  * <p>{@link BusinessDataSourceConfig}と同一のプロパティで条件付き登録する。業務データ用RDBMSの接続先が未確定の開発環境 ({@code
  * mastersmith.business-datasource.enabled=false}、既定)では、本サービスが依存する{@code
  * businessJdbcTemplate}・{@code businessTransactionManager}が生成されないため、本サービス自体も生成しないことで、
@@ -82,6 +96,15 @@ import org.springframework.transaction.support.TransactionTemplate;
     name = "enabled",
     havingValue = "true")
 public class CsvImportService {
+
+  /**
+   * 特定の列に帰属しない行単位のエラー(コミット時のDB制約違反)に用いる{@link RowError#field()}。{@code RowError}は
+   * フィールド名を必須とするため、列名と衝突しない番兵値を用いる。
+   */
+  static final String ROW_LEVEL_FIELD = "*";
+
+  static final String NOT_FOUND = "notFound";
+  static final String CONSTRAINT_VIOLATION = "constraintViolation";
 
   private final ConfigEngineApi configEngineApi;
   private final CsvColumnDefinitionResolver columnDefinitionResolver;
@@ -110,7 +133,8 @@ public class CsvImportService {
    * 業務データをCSVファイルからインポートする。
    *
    * @throws com.mastersmith.config.exception.TableConfigNotFoundException 対象テーブルが存在しない場合
-   * @throws CsvFormatException アップロードされたファイルがBR8.1のCSV形式としてパースできない場合
+   * @throws CsvFormatException アップロードされたファイルがBR8.1のCSV形式としてパースできない場合(空ファイル・ヘッダー行なし・
+   *     対象テーブルの列を1つも含まないヘッダーを含む)
    */
   public ImportResult importCsv(String tableConfigId, InputStream file, String actor) {
     TableConfig tableConfig = configEngineApi.getTableConfigById(tableConfigId);
@@ -118,10 +142,11 @@ public class CsvImportService {
     List<CsvColumnDefinition> columns = columnDefinitionResolver.resolveForImport(allColumns);
     CsvColumnDefinition primaryKeyColumn =
         columns.stream().filter(CsvColumnDefinition::isPrimaryKey).findFirst().orElse(null);
-    String tableName = physicalTableName(tableConfig);
+    String quote = identifierQuote();
+    String tableName = SqlIdentifiers.qualifiedTableName(quote, tableConfig);
 
     List<RowValidationResult> validatedRows =
-        readAndValidateRows(tableConfigId, file, columns, primaryKeyColumn, tableName);
+        readAndValidateRows(tableConfigId, file, columns, primaryKeyColumn, quote, tableName);
 
     List<RowError> errors =
         validatedRows.stream()
@@ -136,10 +161,28 @@ public class CsvImportService {
       return ImportResult.rolledBack(errors);
     }
 
-    int successCount = commitRows(tableName, columns, primaryKeyColumn, validatedRows);
+    int successCount;
+    try {
+      successCount = commitRows(quote, tableName, columns, primaryKeyColumn, validatedRows);
+    } catch (RowCommitFailedException e) {
+      // 検証後〜コミット前の状態変化・DB制約違反。トランザクションは全体ロールバック済み(BR8.7)。
+      eventPublisher.publishEvent(ImportExecutedEvent.of(tableConfigId, actor, 0, 1, false));
+      return ImportResult.rolledBack(List.of(e.toRowError()));
+    } catch (RuntimeException e) {
+      // 予期しない失敗(接続断・SQL誤り等)。BR8.9は全結果でイベントを発行するため、例外を伝播する前に発行する。
+      eventPublisher.publishEvent(ImportExecutedEvent.of(tableConfigId, actor, 0, 0, false));
+      throw e;
+    }
     eventPublisher.publishEvent(
         ImportExecutedEvent.of(tableConfigId, actor, successCount, 0, true));
     return ImportResult.committed(successCount);
+  }
+
+  /** 接続先JDBCドライバが報告する識別子の引用符を取得する(R-06(4))。 */
+  private String identifierQuote() {
+    String quote =
+        businessJdbcTemplate.execute((ConnectionCallback<String>) SqlIdentifiers::quoteStringOf);
+    return quote == null ? "" : quote;
   }
 
   private List<RowValidationResult> readAndValidateRows(
@@ -147,25 +190,87 @@ public class CsvImportService {
       InputStream file,
       List<CsvColumnDefinition> columns,
       CsvColumnDefinition primaryKeyColumn,
+      String quote,
       String tableName) {
     List<RowValidationResult> rows = new ArrayList<>();
-    CSVFormat format =
-        CSVFormat.Builder.create(CSVFormat.DEFAULT).setHeader().setSkipHeaderRecord(true).build();
+    Predicate<Object> primaryKeyExists =
+        value -> primaryKeyColumn != null && rowExists(quote, tableName, primaryKeyColumn, value);
+    // CSVのパース由来の失敗のみを形式エラー(ファイル全体のエラー、BR8.1)へ変換する。
+    // 行の検証(型変換・validationRule)や主キー存在確認(DBアクセス)由来の例外は、形式エラーに誤分類しないよう
+    // catchの対象外とする(レビュー指摘R-01対応)。
     try (Reader reader = bomAwareReader(file);
-        CSVParser parser = CSVParser.parse(reader, format)) {
+        CSVParser parser = openParser(reader, tableConfigId)) {
+      List<String> header = parser.getHeaderNames();
+      requireKnownColumnInHeader(tableConfigId, header, columns);
+      Iterator<CSVRecord> iterator = parser.iterator();
       int rowNumber = 0;
-      for (CSVRecord record : parser) {
+      while (hasNextRecord(iterator, tableConfigId)) {
+        CSVRecord record = nextRecord(iterator, tableConfigId);
         rowNumber++;
-        Map<String, String> rawValues = record.toMap();
-        Predicate<String> primaryKeyExists =
-            value -> primaryKeyColumn != null && rowExists(tableName, primaryKeyColumn, value);
-        rows.add(csvRowValidator.validateRow(rowNumber, rawValues, columns, primaryKeyExists));
+        rows.add(
+            csvRowValidator.validateRow(
+                rowNumber, toRawValues(record, header), columns, primaryKeyExists));
       }
-    } catch (IOException | RuntimeException e) {
-      throw new CsvFormatException(
-          "Failed to parse CSV file for tableConfigId=" + tableConfigId, e);
+    } catch (IOException e) {
+      throw new CsvFormatException("Failed to read CSV file for tableConfigId=" + tableConfigId, e);
     }
     return rows;
+  }
+
+  private static CSVParser openParser(Reader reader, String tableConfigId) throws IOException {
+    CSVFormat format =
+        CSVFormat.Builder.create(CSVFormat.DEFAULT).setHeader().setSkipHeaderRecord(true).build();
+    try {
+      return CSVParser.parse(reader, format);
+    } catch (IllegalArgumentException e) {
+      // ヘッダー行の不備(空の列名など)。
+      throw new CsvFormatException(
+          "Invalid CSV header for tableConfigId=" + tableConfigId + ": " + e.getMessage(), e);
+    }
+  }
+
+  private static boolean hasNextRecord(Iterator<CSVRecord> iterator, String tableConfigId) {
+    try {
+      return iterator.hasNext();
+    } catch (UncheckedIOException e) {
+      throw new CsvFormatException(
+          "Failed to parse CSV file for tableConfigId=" + tableConfigId, e.getCause());
+    }
+  }
+
+  private static CSVRecord nextRecord(Iterator<CSVRecord> iterator, String tableConfigId) {
+    try {
+      return iterator.next();
+    } catch (UncheckedIOException e) {
+      throw new CsvFormatException(
+          "Failed to parse CSV file for tableConfigId=" + tableConfigId, e.getCause());
+    }
+  }
+
+  /**
+   * BR8.1: 1行目はカラム名のヘッダー行である。対象テーブルの列を1つも含まないヘッダー(空ファイル・ヘッダー行のないファイルを含む)は、
+   * ヘッダー行として解釈できないためファイル形式エラーとする。
+   */
+  private static void requireKnownColumnInHeader(
+      String tableConfigId, List<String> header, List<CsvColumnDefinition> columns) {
+    Set<String> known =
+        columns.stream().map(CsvColumnDefinition::columnName).collect(Collectors.toSet());
+    if (header.stream().noneMatch(known::contains)) {
+      throw new CsvFormatException(
+          "CSV header has no column of the target table for tableConfigId=" + tableConfigId);
+    }
+  }
+
+  /**
+   * CSVの1レコードを、ヘッダーに存在する列名をキーとした生の文字列値へ変換する。値の数がヘッダーより少ない行の欠けた列は
+   * 空セルとして扱う(ヘッダーに存在する列を「CSVに存在する列」とみなすため、欠けた列を未存在にはしない)。
+   */
+  private static Map<String, String> toRawValues(CSVRecord record, List<String> header) {
+    Map<String, String> rawValues = new LinkedHashMap<>();
+    for (String name : header) {
+      rawValues.put(name, record.isSet(name) ? record.get(name) : "");
+    }
+    return rawValues;
   }
 
   private static Reader bomAwareReader(InputStream in) throws IOException {
@@ -183,26 +288,24 @@ public class CsvImportService {
     return new InputStreamReader(pushback, StandardCharsets.UTF_8);
   }
 
-  private boolean rowExists(String tableName, CsvColumnDefinition primaryKeyColumn, String value) {
-    String sql = "SELECT 1 FROM " + tableName + " WHERE " + primaryKeyColumn.columnName() + " = ?";
-    Object bindValue = convertForLookup(primaryKeyColumn.editorType(), value);
-    List<Integer> rows = businessJdbcTemplate.queryForList(sql, Integer.class, bindValue);
+  /**
+   * 主キー値({@link CsvRowValidator}が型変換済みの値)で対象行の存在を確認する。UPDATE行ごとに1回のSELECTを発行する
+   * (DB側の比較規則(照合順序等)で判定するため、Java側の値比較による一括照合は採用していない)。
+   */
+  private boolean rowExists(
+      String quote, String tableName, CsvColumnDefinition primaryKeyColumn, Object value) {
+    String sql =
+        "SELECT 1 FROM "
+            + tableName
+            + " WHERE "
+            + SqlIdentifiers.quote(quote, primaryKeyColumn.columnName())
+            + " = ?";
+    List<Integer> rows = businessJdbcTemplate.queryForList(sql, Integer.class, value);
     return !rows.isEmpty();
   }
 
-  /**
-   * 主キー存在チェックのバインド変数を、対象RDBMSが列の実際の型と暗黙変換なしに比較できるよう、{@code editorType}に応じた型へ 変換する({@link
-   * CsvRowValidator}の型変換ロジックと同等。文字列のまま比較すると、対象RDBMSによっては型不一致で 比較が成立しない、またはエラーとなる場合があるため)。
-   */
-  private static Object convertForLookup(EditorType editorType, String raw) {
-    return switch (editorType) {
-      case INTEGER -> Long.parseLong(raw);
-      case DECIMAL -> new BigDecimal(raw);
-      default -> raw;
-    };
-  }
-
   private int commitRows(
+      String quote,
       String tableName,
       List<CsvColumnDefinition> columns,
       CsvColumnDefinition primaryKeyColumn,
@@ -212,10 +315,19 @@ public class CsvImportService {
             status -> {
               int count = 0;
               for (RowValidationResult row : validatedRows) {
-                if (row.report().operation() == ImportOperation.INSERT) {
-                  executeInsert(tableName, columns, row.convertedValues());
-                } else {
-                  executeUpdate(tableName, columns, primaryKeyColumn, row.convertedValues());
+                int rowNumber = row.report().rowNumber();
+                try {
+                  if (row.report().operation() == ImportOperation.INSERT) {
+                    executeInsert(quote, tableName, columns, row.convertedValues());
+                  } else if (!executeUpdate(
+                      quote, tableName, columns, primaryKeyColumn, row.convertedValues())) {
+                    // 検証後〜コミット前に対象行が削除された。0件更新を成功に数えず、全体をロールバックする。
+                    throw new RowCommitFailedException(
+                        rowNumber, primaryKeyColumn.columnName(), NOT_FOUND, null);
+                  }
+                } catch (DataIntegrityViolationException e) {
+                  throw new RowCommitFailedException(
+                      rowNumber, ROW_LEVEL_FIELD, CONSTRAINT_VIOLATION, e);
                 }
                 count++;
               }
@@ -225,19 +337,28 @@ public class CsvImportService {
   }
 
   /**
-   * INSERT対象列を組み立てる。主キー列がCSV上で空欄(convertedValue=null、BR8.3の新規行判定)の場合、その主キー列自体を
-   * INSERT文の列リストから除外する。これにより、対象RDBMSの自動採番(IDENTITY/AUTO_INCREMENT/serial)列を主キーとする
-   * テーブルでも、CSV側で主キー値を明示しない新規行の追加が成立する(主キー値を明示したCSVでは、そのまま自然キーとして INSERT対象に含める)。
+   * INSERT対象列を組み立てる。CSVヘッダーに存在しない列はINSERT文の列リストから外し(対象RDBMSの既定値が適用される)、
+   * 主キー列がCSV上で空欄(convertedValue=null、BR8.3の新規行判定)の場合も、その主キー列自体を除外する。これにより、
+   * 対象RDBMSの自動採番(IDENTITY/AUTO_INCREMENT/serial)列を主キーとするテーブルでも、CSV側で主キー値を明示しない
+   * 新規行の追加が成立する(主キー値を明示したCSVでは、そのまま自然キーとしてINSERT対象に含める)。
    */
   private void executeInsert(
-      String tableName, List<CsvColumnDefinition> columns, Map<String, Object> values) {
+      String quote,
+      String tableName,
+      List<CsvColumnDefinition> columns,
+      Map<String, Object> values) {
     List<CsvColumnDefinition> insertColumns =
         columns.stream()
+            .filter(c -> values.containsKey(c.columnName()))
             .filter(c -> !(c.isPrimaryKey() && values.get(c.columnName()) == null))
             .toList();
+    if (insertColumns.isEmpty()) {
+      businessJdbcTemplate.update("INSERT INTO " + tableName + " DEFAULT VALUES");
+      return;
+    }
     String columnList =
         insertColumns.stream()
-            .map(CsvColumnDefinition::columnName)
+            .map(c -> SqlIdentifiers.quote(quote, c.columnName()))
             .collect(Collectors.joining(", "));
     String placeholders = insertColumns.stream().map(c -> "?").collect(Collectors.joining(", "));
     String sql = "INSERT INTO " + tableName + " (" + columnList + ") VALUES (" + placeholders + ")";
@@ -245,16 +366,29 @@ public class CsvImportService {
     businessJdbcTemplate.update(sql, args);
   }
 
-  private void executeUpdate(
+  /**
+   * CSVヘッダーに存在する非主キー列のみをSETしてUPDATEする(存在しない列の既存値は維持する、R-04)。
+   *
+   * @return 対象行を更新できた場合はtrue、対象行が存在せず0件更新だった場合はfalse(SET対象の列がなく、UPDATE文を発行しなかった場合は、
+   *     検証時に存在確認済みのためtrue)
+   */
+  private boolean executeUpdate(
+      String quote,
       String tableName,
       List<CsvColumnDefinition> columns,
       CsvColumnDefinition primaryKeyColumn,
       Map<String, Object> values) {
-    List<CsvColumnDefinition> nonPrimaryKeyColumns =
-        columns.stream().filter(c -> !c.isPrimaryKey()).toList();
+    List<CsvColumnDefinition> setColumns =
+        columns.stream()
+            .filter(c -> !c.isPrimaryKey())
+            .filter(c -> values.containsKey(c.columnName()))
+            .toList();
+    if (setColumns.isEmpty()) {
+      return true;
+    }
     String setClause =
-        nonPrimaryKeyColumns.stream()
-            .map(c -> c.columnName() + " = ?")
+        setColumns.stream()
+            .map(c -> SqlIdentifiers.quote(quote, c.columnName()) + " = ?")
             .collect(Collectors.joining(", "));
     String sql =
         "UPDATE "
@@ -262,17 +396,34 @@ public class CsvImportService {
             + " SET "
             + setClause
             + " WHERE "
-            + primaryKeyColumn.columnName()
+            + SqlIdentifiers.quote(quote, primaryKeyColumn.columnName())
             + " = ?";
-    Object[] args = new Object[nonPrimaryKeyColumns.size() + 1];
-    for (int i = 0; i < nonPrimaryKeyColumns.size(); i++) {
-      args[i] = values.get(nonPrimaryKeyColumns.get(i).columnName());
+    Object[] args = new Object[setColumns.size() + 1];
+    for (int i = 0; i < setColumns.size(); i++) {
+      args[i] = values.get(setColumns.get(i).columnName());
     }
-    args[nonPrimaryKeyColumns.size()] = values.get(primaryKeyColumn.columnName());
-    businessJdbcTemplate.update(sql, args);
+    args[setColumns.size()] = values.get(primaryKeyColumn.columnName());
+    return businessJdbcTemplate.update(sql, args) > 0;
   }
 
-  private static String physicalTableName(TableConfig tableConfig) {
-    return tableConfig.getSchemaName() + "." + tableConfig.getTableName();
+  /** コミット中に検出した行単位の失敗。{@link TransactionTemplate}が全体をロールバックしたうえで、呼び出し元へ伝播する。 */
+  private static final class RowCommitFailedException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    private final int row;
+    private final String field;
+    private final String message;
+
+    RowCommitFailedException(int row, String field, String message, Throwable cause) {
+      super("Import commit failed at row " + row + ": " + message, cause);
+      this.row = row;
+      this.field = field;
+      this.message = message;
+    }
+
+    RowError toRowError() {
+      return new RowError(row, field, message);
+    }
   }
 }

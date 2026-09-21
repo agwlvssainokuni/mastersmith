@@ -40,6 +40,12 @@ import org.springframework.stereotype.Component;
  * フィールド単位のエラー(BR8.6)として記録する。あわせて、主キー列の値の有無からINSERT/UPDATEを判定する
  * (BR8.3)。UPDATE判定時、対象行の存在確認は呼び出し元が{@link Predicate}として渡す
  * (本クラス自体はDBアクセスを持たず、単体テストで容易に検証できるようにするための設計)。
+ *
+ * <p><b>CSVヘッダーに存在しない列の扱い</b>(レビュー指摘R-04対応、code-generation-notes.mdの[assumption]): {@code
+ * rawValues}のキーをCSVヘッダーに存在する列とみなす。ヘッダーに存在しない列は、UPDATE行では 「更新対象外(既存値を維持)」とし{@code
+ * required}も適用しない。INSERT行では{@code required}の列のみ {@code required}エラーとし、それ以外は{@code
+ * convertedValues}に含めない(INSERT文の列リストから外れ、 対象RDBMSの既定値が適用される)。ヘッダーに存在する列の空セルは、{@code
+ * required}でなければNULL(空値)とする。
  */
 @Component
 public class CsvRowValidator {
@@ -48,34 +54,43 @@ public class CsvRowValidator {
    * 1行分の値をバリデーションする。
    *
    * @param rowNumber CSVファイル上の行番号(ヘッダー行を除く、1始まり)
-   * @param rawValues CSVの列名をキーとした生の文字列値(欠落列は空文字列として扱われる)
+   * @param rawValues CSVヘッダーに存在する列の名前をキーとした生の文字列値(キーがない列はCSVに存在しない列)
    * @param columns 対象テーブルのCsvColumnDefinition一覧(displayOrder順を仮定しない)
-   * @param primaryKeyExists 主キー値を受け取り、対象テーブルに既存行が存在するか判定する関数(UPDATE判定時のみ呼び出す)
+   * @param primaryKeyExists 型変換後の主キー値を受け取り、対象テーブルに既存行が存在するか判定する関数(UPDATE判定かつ主キー列自体の
+   *     検証に成功した場合のみ呼び出す。主キー値が型変換できない行では呼び出さず、行単位の型変換エラーのみを返す)
    * @return バリデーション結果(outcome=VALIDの場合は型変換後の値を、INVALIDの場合はエラー一覧を保持する)
    */
   public RowValidationResult validateRow(
       int rowNumber,
       Map<String, String> rawValues,
       List<CsvColumnDefinition> columns,
-      Predicate<String> primaryKeyExists) {
+      Predicate<Object> primaryKeyExists) {
 
     List<RowError> errors = new ArrayList<>();
     Map<String, Object> convertedValues = new LinkedHashMap<>();
 
-    for (CsvColumnDefinition column : columns) {
-      validateColumn(rowNumber, rawValues, column, errors, convertedValues);
-    }
-
     CsvColumnDefinition primaryKeyColumn =
         columns.stream().filter(CsvColumnDefinition::isPrimaryKey).findFirst().orElse(null);
     ImportOperation operation = ImportOperation.INSERT;
-    if (primaryKeyColumn != null) {
-      String rawPrimaryKey = trimmedOrEmpty(rawValues.get(primaryKeyColumn.columnName()));
-      if (!rawPrimaryKey.isEmpty()) {
-        operation = ImportOperation.UPDATE;
-        if (!primaryKeyExists.test(rawPrimaryKey)) {
-          errors.add(new RowError(rowNumber, primaryKeyColumn.columnName(), "notFound"));
-        }
+    if (primaryKeyColumn != null
+        && !trimmedOrEmpty(rawValues.get(primaryKeyColumn.columnName())).isEmpty()) {
+      operation = ImportOperation.UPDATE;
+    }
+
+    for (CsvColumnDefinition column : columns) {
+      if (rawValues.containsKey(column.columnName())) {
+        validateColumn(rowNumber, rawValues, column, errors, convertedValues);
+      } else if (operation == ImportOperation.INSERT && isRequired(column.validationRule())) {
+        errors.add(new RowError(rowNumber, column.columnName(), "required"));
+      }
+    }
+
+    if (operation == ImportOperation.UPDATE) {
+      // 主キー列自体の型変換・validationRuleに失敗した行では、convertedValuesに主キー値が入らない。
+      // その場合は存在確認(DBアクセス)を行わず、行単位のエラーのみを返す。
+      Object primaryKeyValue = convertedValues.get(primaryKeyColumn.columnName());
+      if (primaryKeyValue != null && !primaryKeyExists.test(primaryKeyValue)) {
+        errors.add(new RowError(rowNumber, primaryKeyColumn.columnName(), "notFound"));
       }
     }
 

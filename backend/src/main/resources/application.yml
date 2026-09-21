@@ -159,6 +159,12 @@ mastersmith:
     base-url: ${MASTERSMITH_MAIL_BASE_URL}
     from: ${MASTERSMITH_MAIL_FROM}
     allow-insecure-link: ${MASTERSMITH_MAIL_ALLOW_INSECURE_LINK:false}
+  # 業務データ用RDBMS(data-import-export、CSVエクスポート/インポート)。接続URLに関する前提:
+  #  - エクスポートのストリーミング(BR8.10)は、コネクションを読み取り専用・自動コミット無効にしたうえで、
+  #    PostgreSQLはfetchSize=500(カーソル)、MySQL/MariaDBはfetchSize=Integer.MIN_VALUE(行単位)で取得する。
+  #    そのため、接続URLにuseCursorFetch等のストリーミング用の指定は不要である。
+  #  - インポートは、UPDATEの更新件数が0件の場合(検証後に対象行が削除された場合)に全体をロールバックする。
+  #    MySQL/MariaDBの接続URLでuseAffectedRows=trueを指定しない(値が変わらない更新が0件となり誤検知する)。
   business-datasource:
     enabled: ${MASTERSMITH_BUSINESS_DB_ENABLED:false}
     url: ${MASTERSMITH_BUSINESS_DB_URL:}
