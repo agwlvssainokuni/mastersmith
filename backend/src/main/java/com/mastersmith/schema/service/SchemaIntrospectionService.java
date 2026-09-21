@@ -19,10 +19,12 @@ package com.mastersmith.schema.service;
 import com.mastersmith.config.dto.ColumnDraftEntry;
 import com.mastersmith.config.dto.TableConfigDraft;
 import com.mastersmith.config.dto.TableDraftEntry;
+import com.mastersmith.config.exception.ConfigValidationException;
 import com.mastersmith.config.store.ConfigEngineApi;
 import com.mastersmith.schema.dto.RdbmsTableMetadata;
 import com.mastersmith.schema.dto.SchemaIntrospectionRequest;
 import com.mastersmith.schema.dto.SchemaIntrospectionResult;
+import com.mastersmith.schema.exception.SchemaDraftValidationException;
 import com.mastersmith.schema.exception.SchemaIntrospectionException;
 import com.mastersmith.schema.rdbms.RdbmsMetadataReader;
 import com.mastersmith.schema.rdbms.RdbmsSchemaSnapshot;
@@ -41,6 +43,11 @@ import org.springframework.stereotype.Service;
  * RdbmsMetadataReader}が送出する{@link SchemaIntrospectionException}がそのまま伝播し、{@code
  * writeTableConfigDraft}は一切呼び出されない(BR2.9、全テーブルの読み取りが完了してから1回だけ書き込みを行う設計のため部分書込みは発生しない)。
  *
+ * <p>{@code writeTableConfigDraft}が{@link
+ * ConfigValidationException}(config-engineの正規化表にない型のカラムがある場合など)を送出した場合は、{@link
+ * SchemaDraftValidationException}(422、フィールド単位のエラー付き)へ変換する(BR2.9、レビュー指摘R-02)。{@code
+ * writeTableConfigDraft}は全体が1つのトランザクションのため、この場合は、どのテーブルも取り込まれない。それ以外の実行時例外(DBの一意制約違反など)は、変換せずに伝播する(500)。
+ *
  * <p>楽観ロック対象列に相当する情報(BR2.6)・NULL可否(BR2.10)は{@link
  * ColumnDraftEntry}に対応フィールドが存在しないため、変換時には設定しない。外部キー参照カラムの特別扱いも行わない(BR2.5)。
  *
@@ -48,7 +55,7 @@ import org.springframework.stereotype.Service;
  * schema_introspection_duration_seconds}(本メソッド全体の所要時間)、{@code
  * schema_introspection_tables_total}(読み取り対象としたテーブル数)、{@code
  * schema_introspection_generated_total}(新規生成されたTableConfig件数)、{@code
- * schema_introspection_failures_total}(メタデータ読み取り・書込み失敗、403の計上はコントローラ層が担う)。
+ * schema_introspection_failures_total}(メタデータ読み取り・書込み失敗、403の計上はコントローラ層が担う。読み取り失敗・config-engineの拒否・書込み時の予期しない例外のいずれも計上する)。
  *
  * <p>{@link RdbmsMetadataReader}と同じ条件({@code
  * mastersmith.business-datasource.enabled=true})でのみBean化する (data-import-exportの{@code
@@ -98,6 +105,8 @@ public class SchemaIntrospectionService {
    *
    * @throws SchemaIntrospectionException 接続失敗・メタデータ読み取り失敗・方言判定不可の場合(BR2.9)。この場合{@code
    *     writeTableConfigDraft}は呼び出されない
+   * @throws SchemaDraftValidationException
+   *     config-engineが、読み取った内容を初期ドラフトとして受け付けなかった場合(BR2.9)。何も書き込まれない
    */
   public SchemaIntrospectionResult introspect(SchemaIntrospectionRequest request) {
     return durationTimer.record(() -> doIntrospect(request));
@@ -113,7 +122,16 @@ public class SchemaIntrospectionService {
     }
     tablesCounter.increment(snapshot.tables().size());
     TableConfigDraft draft = toDraft(snapshot);
-    List<String> generatedIds = configEngineApi.writeTableConfigDraft(draft);
+    List<String> generatedIds;
+    try {
+      generatedIds = configEngineApi.writeTableConfigDraft(draft);
+    } catch (ConfigValidationException e) {
+      failuresCounter.increment();
+      throw new SchemaDraftValidationException(e.getFieldErrors(), e);
+    } catch (RuntimeException e) {
+      failuresCounter.increment();
+      throw e;
+    }
     generatedCounter.increment(generatedIds.size());
     return new SchemaIntrospectionResult(generatedIds);
   }

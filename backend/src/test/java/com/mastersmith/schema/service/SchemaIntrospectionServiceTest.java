@@ -24,12 +24,15 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.mastersmith.config.dto.TableConfigDraft;
+import com.mastersmith.config.exception.ConfigValidationException;
+import com.mastersmith.config.exception.FieldError;
 import com.mastersmith.config.rdbms.RdbmsDialect;
 import com.mastersmith.config.store.ConfigEngineApi;
 import com.mastersmith.schema.dto.RdbmsColumnMetadata;
 import com.mastersmith.schema.dto.RdbmsTableMetadata;
 import com.mastersmith.schema.dto.SchemaIntrospectionRequest;
 import com.mastersmith.schema.dto.SchemaIntrospectionResult;
+import com.mastersmith.schema.exception.SchemaDraftValidationException;
 import com.mastersmith.schema.exception.SchemaIntrospectionException;
 import com.mastersmith.schema.rdbms.RdbmsMetadataReader;
 import com.mastersmith.schema.rdbms.RdbmsSchemaSnapshot;
@@ -41,6 +44,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 /**
  * {@link SchemaIntrospectionService}の単体テスト(BR2.5, BR2.9, BR2.10)。{@link RdbmsMetadataReader}・{@link
@@ -53,11 +57,24 @@ class SchemaIntrospectionServiceTest {
   @Mock private ConfigEngineApi configEngineApi;
 
   private SchemaIntrospectionService service;
+  private SimpleMeterRegistry meterRegistry;
 
   @BeforeEach
   void setUp() {
-    service =
-        new SchemaIntrospectionService(metadataReader, configEngineApi, new SimpleMeterRegistry());
+    meterRegistry = new SimpleMeterRegistry();
+    service = new SchemaIntrospectionService(metadataReader, configEngineApi, meterRegistry);
+  }
+
+  private double failures() {
+    return meterRegistry.counter("schema_introspection_failures_total").count();
+  }
+
+  private void givenAReadableSchema() {
+    RdbmsTableMetadata items =
+        new RdbmsTableMetadata(
+            "shop", "items", List.of(new RdbmsColumnMetadata("id", "uuid", true, false)));
+    when(metadataReader.readSchema("shop", List.of()))
+        .thenReturn(new RdbmsSchemaSnapshot(RdbmsDialect.POSTGRESQL, List.of(items)));
   }
 
   @Test
@@ -99,6 +116,7 @@ class SchemaIntrospectionServiceTest {
         .isInstanceOf(SchemaIntrospectionException.class);
 
     verifyNoInteractions(configEngineApi);
+    assertThat(failures()).isEqualTo(1.0);
   }
 
   @Test
@@ -113,5 +131,53 @@ class SchemaIntrospectionServiceTest {
     verify(metadataReader).readSchema("shop", List.of("items"));
     verify(configEngineApi).writeTableConfigDraft(any());
     assertThat(result.generatedTableConfigIds()).isEmpty();
+  }
+
+  // ---- R-02: writeTableConfigDraftの失敗の扱い ----
+
+  @Test
+  void convertsConfigEnginesValidationFailureToADraftValidationExceptionWithFieldErrors() {
+    // 未対応の型(uuid、jsonなど)を、config-engineが、ConfigValidationExceptionで拒否した場合。
+    givenAReadableSchema();
+    ConfigValidationException rejection =
+        new ConfigValidationException(
+            List.of(new FieldError("rawTypeName:POSTGRESQL", "unsupportedRdbmsType")));
+    when(configEngineApi.writeTableConfigDraft(any())).thenThrow(rejection);
+
+    assertThatThrownBy(() -> service.introspect(new SchemaIntrospectionRequest("shop", null)))
+        .isInstanceOfSatisfying(
+            SchemaDraftValidationException.class,
+            e -> {
+              assertThat(e.getFieldErrors())
+                  .containsExactly(
+                      new FieldError("rawTypeName:POSTGRESQL", "unsupportedRdbmsType"));
+              assertThat(e.getCause()).isSameAs(rejection);
+              // 422(BR2.9)のSchemaIntrospectionExceptionとして扱われる。
+              assertThat(e).isInstanceOf(SchemaIntrospectionException.class);
+            });
+    assertThat(failures()).isEqualTo(1.0);
+  }
+
+  @Test
+  void countsAnUnexpectedWriteFailureAndPropagatesItUnchanged() {
+    givenAReadableSchema();
+    DataIntegrityViolationException failure = new DataIntegrityViolationException("unique");
+    when(configEngineApi.writeTableConfigDraft(any())).thenThrow(failure);
+
+    assertThatThrownBy(() -> service.introspect(new SchemaIntrospectionRequest("shop", null)))
+        .isSameAs(failure);
+    assertThat(failures()).isEqualTo(1.0);
+  }
+
+  @Test
+  void doesNotCountASuccessfulRunAsAFailure() {
+    givenAReadableSchema();
+    when(configEngineApi.writeTableConfigDraft(any())).thenReturn(List.of("table-config-1"));
+
+    service.introspect(new SchemaIntrospectionRequest("shop", null));
+
+    assertThat(failures()).isZero();
+    assertThat(meterRegistry.counter("schema_introspection_generated_total").count())
+        .isEqualTo(1.0);
   }
 }

@@ -159,6 +159,10 @@ class AuthSecurityConfigTest extends AuthIntegrationTestBase {
             get("/api/audit-log"),
             post("/api/auth/logout"),
             put("/api/auth/active-role").contentType(MediaType.APPLICATION_JSON).content("{}"),
+            // schema-introspector(U2)のAPI: 権限の再検証(C10)の前に、フィルタで、認証を要する(未認証は401)。
+            post("/api/config/schema-introspection")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"schemaName\":\"PUBLIC\"}"),
             // 新しく追加されるAPI(まだ存在しないものを含む)も、既定で認証を要する。
             get("/api/brand-new-api"))) {
       perform(request)
