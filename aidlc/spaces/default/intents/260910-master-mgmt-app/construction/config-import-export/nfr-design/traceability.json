@@ -1,0 +1,152 @@
+{
+  "stage": "nfr-design",
+  "unit": "config-import-export",
+  "upstream_ids": [
+    "NFR1.1",
+    "NFR1.2",
+    "NFR1.3",
+    "NFR2.1",
+    "NFR2.2",
+    "NFR2.3",
+    "NFR2.4",
+    "NFR2.5",
+    "NFR2.6",
+    "NFR2.7",
+    "NFR3.1",
+    "NFR4.1",
+    "NFR4.2",
+    "NFR4.3",
+    "NFR4.4",
+    "NFR4.5",
+    "NFR4.6",
+    "NFR4.7",
+    "NFR5.1",
+    "NFR5.2",
+    "NFR5.3",
+    "NFR5.4",
+    "NFR5.5",
+    "NFR8.1"
+  ],
+  "coverage": [
+    {
+      "id": "NFR1.1",
+      "status": "OK",
+      "target": "performance-design.md NFR1.1(DB直接の一括取得・読み取り専用トランザクション・ストリーム出力)、reliability-design.md NFR4.4"
+    },
+    {
+      "id": "NFR1.2",
+      "status": "OK",
+      "target": "performance-design.md NFR1.2(段階別の予算・バッチ書き込み・N+1の回避)"
+    },
+    {
+      "id": "NFR1.3",
+      "status": "OK",
+      "target": "performance-design.md NFR1.3(想定規模のフィクスチャ生成器)、性能の確認の設計"
+    },
+    {
+      "id": "NFR2.1",
+      "status": "OK",
+      "target": "security-design.md NFR2.1(コントローラーでの認可、束縛の例外の経路での認可先行、Q3=B)、logical-components.md ConfigImportAuthorizer"
+    },
+    {
+      "id": "NFR2.2",
+      "status": "OK",
+      "target": "security-design.md NFR2.2(Jackson 3の既定に従う、Q3=Bによる残余リスクの追記と前提の訂正)"
+    },
+    {
+      "id": "NFR2.3",
+      "status": "OK",
+      "target": "security-design.md NFR2.3(検証段階での昇格判定・主権限0件の拒否)"
+    },
+    {
+      "id": "NFR2.4",
+      "status": "OK",
+      "target": "security-design.md NFR2.4(競合の受け入れたリスクの正直な評価・緩和の訂正)"
+    },
+    {
+      "id": "NFR2.5",
+      "status": "OK",
+      "target": "security-design.md NFR2.5(機微情報の非出力)"
+    },
+    {
+      "id": "NFR2.6",
+      "status": "OK",
+      "target": "security-design.md NFR2.6(ProblemDetails・情報開示の制御)、logical-components.md ConfigImportExceptionHandler"
+    },
+    {
+      "id": "NFR2.7",
+      "status": "OK",
+      "target": "security-design.md NFR2.7(team.md既定のCIゲート)"
+    },
+    {
+      "id": "NFR3.1",
+      "status": "OK",
+      "target": "scalability-design.md NFR3.1(単一インスタンス・ステートレス・メモリの見積もり)"
+    },
+    {
+      "id": "NFR4.1",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.1(TransactionTemplate・REPEATABLE_READ・MANDATORY伝播・削除と追加の順序と段階ごとのflush)"
+    },
+    {
+      "id": "NFR4.2",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.2(PostCommitCoordinatorによる確定後の無効化とイベント・世代番号つきのキャッシュ契約、Q1=C)、logical-components.md 追補1・1a・3"
+    },
+    {
+      "id": "NFR4.3",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.3(時間の上限なし・例外と応答の対応)"
+    },
+    {
+      "id": "NFR4.4",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.4(REPEATABLE_READ・DB直接読み取り、Q2=A)、logical-components.md 追補2"
+    },
+    {
+      "id": "NFR4.5",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.5(REQUIRES_NEWでの同期発行・成功はafterCommit、失敗はトランザクションの外)"
+    },
+    {
+      "id": "NFR4.6",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.6(排他なし・ロック待ちの503)"
+    },
+    {
+      "id": "NFR4.7",
+      "status": "OK",
+      "target": "reliability-design.md NFR4.7(復旧の手段・H2ファイルの退避)"
+    },
+    {
+      "id": "NFR5.1",
+      "status": "OK",
+      "target": "observability-design.md NFR5.1(標準計装のみ)"
+    },
+    {
+      "id": "NFR5.2",
+      "status": "OK",
+      "target": "observability-design.md NFR5.2(開始・終了のINFOログ・項目・禁止事項)"
+    },
+    {
+      "id": "NFR5.3",
+      "status": "OK",
+      "target": "observability-design.md NFR5.3(標準のトレーシング)"
+    },
+    {
+      "id": "NFR5.4",
+      "status": "OK",
+      "target": "observability-design.md NFR5.4(固有のヘルスチェックなし)"
+    },
+    {
+      "id": "NFR5.5",
+      "status": "OK",
+      "target": "observability-design.md NFR5.5(定義しない)"
+    },
+    {
+      "id": "NFR8.1",
+      "status": "OK",
+      "target": "logical-components.md NFR8.1(保守性の設計。業務固有名の非ハードコードの構造的な担保)、performance-design.md NFR1.3(連番から機械的に生成するフィクスチャ)"
+    }
+  ]
+}
