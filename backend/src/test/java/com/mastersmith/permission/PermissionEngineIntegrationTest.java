@@ -40,6 +40,9 @@ import com.mastersmith.permission.repository.RoleRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -109,6 +112,47 @@ class PermissionEngineIntegrationTest {
             "non-existent-role-id", ScopeType.SCHEMA, "public");
 
     assertThat(result).isEqualTo(EffectivePermission.NONE);
+  }
+
+  // ---- activeRoleIdが未選択(null・空)の扱い(authentication-service(U5)の機能設計 BR5.12・追補6番、実H2) ----
+
+  @ParameterizedTest(name = "activeRoleId=''{0}'' × RBAC設定が空 × config-import-export -> 許可")
+  @NullAndEmptySource
+  @ValueSource(strings = {"   ", "ghost-role"})
+  void theBootstrapExceptionForConfigImportExportAppliesRegardlessOfTheActiveRole(
+      String activeRoleId) {
+    // RBAC設定が1件もない間(ブートストラップ状態)は、ロールを持たない初期管理者も、最初のRBAC設定のインポートへ到達できる。
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")).isTrue();
+    // 他の画面には、及ばない。
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "user-management")).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "audit-log")).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "some-table-config-id")).isFalse();
+  }
+
+  @ParameterizedTest(name = "activeRoleId=''{0}'' × RBAC設定あり -> 全画面で拒否(fail closed)")
+  @NullAndEmptySource
+  @ValueSource(strings = {"   ", "ghost-role"})
+  void anUnselectedOrUnknownActiveRoleIsDeniedEverywhereOnceRbacIsConfigured(String activeRoleId) {
+    Role admin = roleRepository.save(new Role("admin-" + UUID.randomUUID()));
+    // RBAC設定が1件でもあれば、ブートストラップ状態は終了する。
+    permissionEngineApi.assignPermission(
+        admin.getRoleId(),
+        admin.getRoleId(),
+        ScopeType.SCHEMA,
+        "__system__:config-import-export",
+        PermissionLevel.FULL);
+
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "config-import-export")).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "user-management")).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "audit-log")).isFalse();
+    assertThat(permissionEngineApi.canAccessScreen(activeRoleId, "some-table-config-id")).isFalse();
+    for (ScopeType scopeType : ScopeType.values()) {
+      assertThat(permissionEngineApi.resolveEffectivePermission(activeRoleId, scopeType, "public"))
+          .isEqualTo(EffectivePermission.NONE);
+    }
+    // 権限のあるロールは、同じ画面へ到達できる(対照)。
+    assertThat(permissionEngineApi.canAccessScreen(admin.getRoleId(), "config-import-export"))
+        .isTrue();
   }
 
   @Test

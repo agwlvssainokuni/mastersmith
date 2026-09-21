@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.UserPreferenceDto;
 import com.mastersmith.usermanagement.entity.User;
@@ -28,7 +29,6 @@ import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import com.mastersmith.usermanagement.testsupport.UserTestFactory;
 import java.util.List;
@@ -78,7 +78,7 @@ class UserPreferenceServiceTest {
     User user = user();
     long before = preferenceRepository.count();
 
-    UserPreferenceDto dto = service.get(new Operator(user.getUserId(), null));
+    UserPreferenceDto dto = service.get(new Operator(user.getUserId(), "session-1", null));
 
     assertThat(dto).isEqualTo(new UserPreferenceDto("light", "medium", "ja"));
     assertThat(preferenceRepository.count()).isEqualTo(before);
@@ -87,7 +87,7 @@ class UserPreferenceServiceTest {
   @Test
   void putCreatesThenUpdatesTheOperatorsOwnPreference() {
     User user = user();
-    Operator operator = new Operator(user.getUserId(), null);
+    Operator operator = new Operator(user.getUserId(), "session-1", null);
 
     UserPreferenceDto created =
         service.update(operator, new UserPreferenceDto("dark", "large", "en"));
@@ -108,15 +108,17 @@ class UserPreferenceServiceTest {
     User alice = user();
     User bob = user();
     service.update(
-        new Operator(bob.getUserId(), null), new UserPreferenceDto("dark", "large", "en"));
+        new Operator(bob.getUserId(), "session-1", null),
+        new UserPreferenceDto("dark", "large", "en"));
 
     service.update(
-        new Operator(alice.getUserId(), "any-role"), new UserPreferenceDto("light", "small", "ja"));
+        new Operator(alice.getUserId(), "session-1", "any-role"),
+        new UserPreferenceDto("light", "small", "ja"));
 
     entityManager.clear();
-    assertThat(service.get(new Operator(bob.getUserId(), null)))
+    assertThat(service.get(new Operator(bob.getUserId(), "session-1", null)))
         .isEqualTo(new UserPreferenceDto("dark", "large", "en"));
-    assertThat(service.get(new Operator(alice.getUserId(), null)))
+    assertThat(service.get(new Operator(alice.getUserId(), "session-1", null)))
         .isEqualTo(new UserPreferenceDto("light", "small", "ja"));
   }
 
@@ -124,18 +126,16 @@ class UserPreferenceServiceTest {
   void noPermissionCheckIsMadeAndNoActiveRoleIsNeeded() {
     User user = user();
 
-    service.get(new Operator(user.getUserId(), null));
+    service.get(new Operator(user.getUserId(), "session-1", null));
     service.update(
-        new Operator(user.getUserId(), null), new UserPreferenceDto("dark", "large", "en"));
+        new Operator(user.getUserId(), "session-1", null),
+        new UserPreferenceDto("dark", "large", "en"));
 
     org.mockito.Mockito.verifyNoInteractions(permissionEngineApi);
   }
 
   static Stream<Arguments> unauthenticated() {
-    return Stream.of(
-        Arguments.of("operatorがnull", null),
-        Arguments.of("userIdが未解決", new Operator(null, "role-1")),
-        Arguments.of("何も未解決", Operator.unresolved()));
+    return Stream.of(Arguments.of("operatorがnull(操作者を解決できない)", null));
   }
 
   @ParameterizedTest(name = "{0}は401")
@@ -151,7 +151,8 @@ class UserPreferenceServiceTest {
     assertThatThrownBy(
             () ->
                 service.update(
-                    new Operator("ghost-user", null), new UserPreferenceDto("dark", "large", "en")))
+                    new Operator("ghost-user", "session-1", null),
+                    new UserPreferenceDto("dark", "large", "en")))
         .isInstanceOf(OperatorUnresolvedException.class);
 
     assertThat(preferenceRepository.findById("ghost-user")).isEmpty();
@@ -185,7 +186,7 @@ class UserPreferenceServiceTest {
     User user = user();
     long before = preferenceRepository.count();
 
-    assertThatThrownBy(() -> service.update(new Operator(user.getUserId(), null), dto))
+    assertThatThrownBy(() -> service.update(new Operator(user.getUserId(), "session-1", null), dto))
         .isInstanceOfSatisfying(
             UserValidationException.class,
             e ->

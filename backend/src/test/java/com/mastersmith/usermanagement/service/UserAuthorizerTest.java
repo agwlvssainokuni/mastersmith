@@ -25,10 +25,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.exception.OperatorUnresolvedException;
 import com.mastersmith.usermanagement.exception.UserAccessDeniedException;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -47,11 +47,8 @@ class UserAuthorizerTest {
   private final UserAuthorizer authorizer = new UserAuthorizer(permissionEngineApi);
 
   static Stream<Arguments> unresolvedOperators() {
-    return Stream.of(
-        Arguments.of("operatorそのものがnull", null),
-        Arguments.of("userIdもactiveRoleIdも未解決", Operator.unresolved()),
-        Arguments.of("activeRoleIdが未解決(ロール選択前)", new Operator("user-1", null)),
-        Arguments.of("userIdが未解決", new Operator(null, "role-1")));
+    // 操作者(C15)を解決できない場合だけが401。認証フィルタの導入で、userIdは、常に解決済みである。
+    return Stream.of(Arguments.of("operatorそのものがnull(操作者を解決できない)", null));
   }
 
   @ParameterizedTest(name = "{0}は401")
@@ -65,10 +62,23 @@ class UserAuthorizerTest {
   }
 
   @Test
+  void anOperatorWithoutAnActiveRoleIsPassedToThePermissionEngineAndRejectedWith403Not401() {
+    // アクティブロールが未選択(null)でも、自前で401にせず、そのままC10へ渡す。C10は、fail closedで権限なしと判定する
+    // (authentication-serviceの機能設計 BR5.12。認可拒否専用テスト)。
+    when(permissionEngineApi.canAccessScreen(null, "user-management")).thenReturn(false);
+
+    assertThatThrownBy(() -> authorizer.requireUserAdmin(new Operator("user-1", "session-1", null)))
+        .isInstanceOf(UserAccessDeniedException.class);
+
+    verify(permissionEngineApi).canAccessScreen(null, "user-management");
+  }
+
+  @Test
   void requireUserAdminRejectsAnOperatorWithoutTheScreenPermissionWith403() {
     when(permissionEngineApi.canAccessScreen("role-1", "user-management")).thenReturn(false);
 
-    assertThatThrownBy(() -> authorizer.requireUserAdmin(new Operator("user-1", "role-1")))
+    assertThatThrownBy(
+            () -> authorizer.requireUserAdmin(new Operator("user-1", "session-1", "role-1")))
         .isInstanceOf(UserAccessDeniedException.class);
   }
 
@@ -76,7 +86,7 @@ class UserAuthorizerTest {
   void requireUserAdminAllowsAnOperatorWithTheScreenPermission() {
     when(permissionEngineApi.canAccessScreen("role-1", "user-management")).thenReturn(true);
 
-    assertThatCode(() -> authorizer.requireUserAdmin(new Operator("user-1", "role-1")))
+    assertThatCode(() -> authorizer.requireUserAdmin(new Operator("user-1", "session-1", "role-1")))
         .doesNotThrowAnyException();
     verify(permissionEngineApi).canAccessScreen("role-1", "user-management");
   }
@@ -86,29 +96,30 @@ class UserAuthorizerTest {
     when(permissionEngineApi.canAccessScreen("admin-role", "user-management")).thenReturn(true);
     when(permissionEngineApi.canAccessScreen("viewer-role", "user-management")).thenReturn(false);
 
-    assertThatCode(() -> authorizer.requireUserAdmin(new Operator("same-user", "admin-role")))
+    assertThatCode(
+            () -> authorizer.requireUserAdmin(new Operator("same-user", "session-1", "admin-role")))
         .doesNotThrowAnyException();
-    assertThatThrownBy(() -> authorizer.requireUserAdmin(new Operator("same-user", "viewer-role")))
+    assertThatThrownBy(
+            () ->
+                authorizer.requireUserAdmin(new Operator("same-user", "session-1", "viewer-role")))
         .isInstanceOf(UserAccessDeniedException.class);
   }
 
   @Test
   void requireOperatorUserIdDoesNotNeedAnActiveRoleNorAPermission() {
-    assertThat(authorizer.requireOperatorUserId(new Operator("user-1", null))).isEqualTo("user-1");
+    assertThat(authorizer.requireOperatorUserId(new Operator("user-1", "session-1", null)))
+        .isEqualTo("user-1");
     verify(permissionEngineApi, never()).canAccessScreen(any(), any());
   }
 
   @ParameterizedTest(name = "{0}は401")
   @MethodSource("unresolvedUserIds")
-  void requireOperatorUserIdRejectsAnOperatorWithoutUserId(String label, Operator operator) {
+  void requireOperatorUserIdRejectsAnUnresolvedOperator(String label, Operator operator) {
     assertThatThrownBy(() -> authorizer.requireOperatorUserId(operator))
         .isInstanceOf(OperatorUnresolvedException.class);
   }
 
   static Stream<Arguments> unresolvedUserIds() {
-    return Stream.of(
-        Arguments.of("operatorそのものがnull", null),
-        Arguments.of("userIdが未解決", new Operator(null, "role-1")),
-        Arguments.of("何も未解決", Operator.unresolved()));
+    return Stream.of(Arguments.of("operatorそのものがnull", null));
   }
 }

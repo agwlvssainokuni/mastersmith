@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 import com.mastersmith.MastersmithApplication;
 import com.mastersmith.audit.entity.AuditLogEntry;
 import com.mastersmith.audit.repository.AuditLogEntryRepository;
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.AcceptInvitationRequest;
 import com.mastersmith.usermanagement.dto.InviteUserRequest;
@@ -42,7 +43,6 @@ import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.mail.InvitationMailer;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.service.InvitationAcceptService;
 import com.mastersmith.usermanagement.service.InvitationFacade;
 import com.mastersmith.usermanagement.service.UserApplicationService;
@@ -71,7 +71,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @SpringBootTest(classes = MastersmithApplication.class)
 class UserChangedEventAuditIntegrationTest {
 
-  private static final Operator ADMIN = new Operator("audit-it-admin", "admin-role");
+  private static final Operator ADMIN = new Operator("audit-it-admin", "session-1", "admin-role");
 
   @Autowired private UserChangedEventPublisher publisher;
   @Autowired private UserApplicationService userService;
@@ -226,7 +226,8 @@ class UserChangedEventAuditIntegrationTest {
     userService.disable(ADMIN, invited.userId());
     assertThatThrownBy(
             () ->
-                userService.disable(new Operator(invited.userId(), "admin-role"), invited.userId()))
+                userService.disable(
+                    new Operator(invited.userId(), "session-1", "admin-role"), invited.userId()))
         .isInstanceOf(UserValidationException.class);
 
     List<AuditLogEntry> rows = entriesOfUser(invited.userId());

@@ -31,6 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mastersmith.common.security.Operator;
+import com.mastersmith.common.security.TestOperatorContext;
+import com.mastersmith.common.security.TestOperatorContextConfig;
 import com.mastersmith.usermanagement.HashCapacityExceededException;
 import com.mastersmith.usermanagement.dto.InviteUserRequest;
 import com.mastersmith.usermanagement.dto.UpdateUserRequest;
@@ -44,8 +47,6 @@ import com.mastersmith.usermanagement.exception.UserAccessDeniedException;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserNotFoundException;
 import com.mastersmith.usermanagement.exception.UserValidationException;
-import com.mastersmith.usermanagement.security.HeaderCurrentOperatorProvider;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.service.InvitationFacade;
 import com.mastersmith.usermanagement.service.UserApplicationService;
 import com.mastersmith.usermanagement.testsupport.ChunkedRequests;
@@ -53,6 +54,7 @@ import com.mastersmith.usermanagement.testsupport.JsonBodies;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -75,29 +77,35 @@ import org.springframework.test.web.servlet.ResultActions;
  * {@code invitationToken}が含まれないこと。サービスはモックし、HTTP層(ステータス・ProblemDetails・操作者の解決・リクエストの組み立て)の検証に専念する。
  */
 @WebMvcTest(UserController.class)
-@Import(HeaderCurrentOperatorProvider.class)
+@Import(TestOperatorContextConfig.class)
 class UserControllerTest {
 
   private static final String USERS = "/api/users";
-  private static final String USER_ID_HEADER = "X-User-Id";
-  private static final String ROLE_HEADER = "X-Active-Role-Id";
-  private static final Operator ADMIN = new Operator("admin-1", "admin-role");
+  private static final Operator ADMIN = TestOperatorContext.operator("admin-1", "admin-role");
   private static final String INVITE_BODY =
       "{\"email\":\"new@example.test\",\"name\":\"新規 太郎\",\"roleIds\":[\"r1\"],\"locale\":\"en\"}";
   private static final String UPDATE_BODY = "{\"name\":\"新しい名前\",\"roleIds\":[\"r1\",\"r2\"]}";
 
   @Autowired private MockMvc mockMvc;
+  @Autowired private TestOperatorContext operators;
 
   @MockitoBean private UserApplicationService userService;
   @MockitoBean private InvitationFacade invitationFacade;
+
+  @BeforeEach
+  void noOperatorByDefault() {
+    operators.clear();
+  }
 
   private static UserResponse aUser() {
     return new UserResponse("u-1", "山田 太郎", "yamada@example.test", "active", List.of("r1"));
   }
 
-  private static org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder asAdmin(
+  /** 以降のリクエストの操作者(C15)を、管理者にする(ヘッダーで渡す暫定の方式は、認証フィルタの導入で削除した)。 */
+  private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder asAdmin(
       org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder builder) {
-    return builder.header(USER_ID_HEADER, "admin-1").header(ROLE_HEADER, "admin-role");
+    operators.set(ADMIN);
+    return builder;
   }
 
   // ---- 正常系 ----
@@ -255,9 +263,9 @@ class UserControllerTest {
           .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
           .andExpect(jsonPath("$.status").value(401));
     }
-    // ヘッダーがなければ、未解決の操作者がサービスへ渡され、サービスが拒否する。
-    verify(userService).list(Operator.unresolved());
-    verify(userService).disable(Operator.unresolved(), "u-1");
+    // 操作者(C15)を解決できなければ、nullがサービスへ渡され、サービスが拒否する。
+    verify(userService).list(null);
+    verify(userService).disable(null, "u-1");
   }
 
   @Test

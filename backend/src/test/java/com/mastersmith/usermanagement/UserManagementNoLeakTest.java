@@ -31,6 +31,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxyUtil;
 import ch.qos.logback.core.read.ListAppender;
 import com.mastersmith.MastersmithApplication;
+import com.mastersmith.common.security.TestOperatorContext;
+import com.mastersmith.common.security.TestOperatorContextConfig;
+import com.mastersmith.common.security.TestPermitAllSecurityConfig;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.config.InitialAdminProperties;
 import com.mastersmith.usermanagement.config.UserManagementProperties;
@@ -93,7 +96,11 @@ import org.springframework.transaction.PlatformTransactionManager;
  */
 @SpringBootTest(classes = MastersmithApplication.class)
 @AutoConfigureMockMvc
-@Import(UserManagementNoLeakTest.ObservationConfig.class)
+@Import({
+  UserManagementNoLeakTest.ObservationConfig.class,
+  TestOperatorContextConfig.class,
+  TestPermitAllSecurityConfig.class
+})
 class UserManagementNoLeakTest {
 
   @TestConfiguration
@@ -162,6 +169,9 @@ class UserManagementNoLeakTest {
   @Autowired private RecordingObservationHandler observations;
   @Autowired private EventCollector eventCollector;
 
+  /** 操作者(C15)の供給(ヘッダーで操作者を渡す暫定の方式は、認証フィルタの導入で削除した)。 */
+  @Autowired private TestOperatorContext operators;
+
   @MockitoBean private PermissionEngineApi permissionEngineApi;
   @MockitoBean private JavaMailSender mailSender;
 
@@ -173,6 +183,7 @@ class UserManagementNoLeakTest {
 
   @BeforeEach
   void runTheScenario() throws Exception {
+    operators.clear();
     Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     Logger ours = (Logger) LoggerFactory.getLogger("com.mastersmith");
     previousLevel = ours.getLevel();
@@ -278,17 +289,13 @@ class UserManagementNoLeakTest {
     // 7. 権限なし(403)・自己のroleIds変更の拒否(422、警告ログ)
     problemBodies.add(
         perform(
-            put("/api/users/" + accepted.getUserId())
-                .header("X-User-Id", "viewer-x")
-                .header("X-Active-Role-Id", "viewer-role")
+            as(put("/api/users/" + accepted.getUserId()), "viewer-x", "viewer-role")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + NAME_FORBIDDEN_UPDATE + "\",\"roleIds\":[]}"),
             403));
     problemBodies.add(
         perform(
-            put("/api/users/" + accepted.getUserId())
-                .header("X-User-Id", accepted.getUserId())
-                .header("X-Active-Role-Id", "admin-role")
+            as(put("/api/users/" + accepted.getUserId()), accepted.getUserId(), "admin-role")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"" + NAME_SELF_UPDATE + "\",\"roleIds\":[\"r-escalated\"]}"),
             422));
@@ -320,6 +327,7 @@ class UserManagementNoLeakTest {
 
   @AfterEach
   void cleanUp() {
+    operators.clear();
     Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
     root.detachAppender(logs);
     ((Logger) LoggerFactory.getLogger("com.mastersmith")).setLevel(previousLevel);
@@ -355,9 +363,16 @@ class UserManagementNoLeakTest {
         params, new HashConcurrencyLimiter(4, params.waitTimeout(), isolated), isolated);
   }
 
-  private static MockHttpServletRequestBuilder admin(
+  private MockHttpServletRequestBuilder admin(
       MockHttpServletRequestBuilder builder, String userId) {
-    return builder.header("X-User-Id", userId).header("X-Active-Role-Id", "admin-role");
+    return as(builder, userId, "admin-role");
+  }
+
+  /** 以降のリクエストの操作者(userId・activeRoleId)を設定する。 */
+  private MockHttpServletRequestBuilder as(
+      MockHttpServletRequestBuilder builder, String userId, String roleId) {
+    operators.set(userId, roleId);
+    return builder;
   }
 
   private static String invite(String email, String name) {

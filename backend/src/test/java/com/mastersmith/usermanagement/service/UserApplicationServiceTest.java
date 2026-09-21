@@ -25,6 +25,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.UpdateUserRequest;
 import com.mastersmith.usermanagement.dto.UserResponse;
@@ -38,7 +39,6 @@ import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserNotFoundException;
 import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import com.mastersmith.usermanagement.testsupport.EventRecorder;
 import com.mastersmith.usermanagement.testsupport.UserTestFactory;
@@ -65,7 +65,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @DataJpaTest
 class UserApplicationServiceTest {
 
-  private static final Operator ADMIN = new Operator("admin-user", "admin-role");
+  private static final Operator ADMIN = new Operator("admin-user", "session-1", "admin-role");
 
   @Autowired private UserRepository userRepository;
   @Autowired private PlatformTransactionManager transactionManager;
@@ -134,18 +134,17 @@ class UserApplicationServiceTest {
         .flatMap(
             operation ->
                 Stream.of(
+                    // 操作者(C15)を解決できない場合だけが401。
                     Arguments.of(operation, null, OperatorUnresolvedException.class),
-                    Arguments.of(
-                        operation, Operator.unresolved(), OperatorUnresolvedException.class),
-                    Arguments.of(
-                        operation, new Operator("u", null), OperatorUnresolvedException.class),
+                    // アクティブロールが未選択(null)は、自前で401にせず、そのままC10へ渡し、権限なしとして403
+                    // (authentication-serviceの機能設計 BR5.12)。
                     Arguments.of(
                         operation,
-                        new Operator(null, "admin-role"),
-                        OperatorUnresolvedException.class),
+                        new Operator("u", "session-1", null),
+                        UserAccessDeniedException.class),
                     Arguments.of(
                         operation,
-                        new Operator("u", "denied-role"),
+                        new Operator("u", "session-1", "denied-role"),
                         UserAccessDeniedException.class)));
   }
 
@@ -232,7 +231,7 @@ class UserApplicationServiceTest {
   @Test
   void anAdministratorCannotChangeTheirOwnRoleIds() {
     User self = savedUser("role-a");
-    Operator operator = new Operator(self.getUserId(), "admin-role");
+    Operator operator = new Operator(self.getUserId(), "session-1", "admin-role");
 
     assertThatThrownBy(
             () ->
@@ -257,7 +256,7 @@ class UserApplicationServiceTest {
     assertThatThrownBy(
             () ->
                 service.update(
-                    new Operator(self.getUserId(), "admin-role"),
+                    new Operator(self.getUserId(), "session-1", "admin-role"),
                     self.getUserId(),
                     new UpdateUserRequest("名前", List.of("role-a"))))
         .isInstanceOf(UserValidationException.class);
@@ -269,7 +268,7 @@ class UserApplicationServiceTest {
     User self = savedUser("role-a", "role-b");
 
     service.update(
-        new Operator(self.getUserId(), "admin-role"),
+        new Operator(self.getUserId(), "session-1", "admin-role"),
         self.getUserId(),
         new UpdateUserRequest("自分の新しい名前", List.of("role-b", "role-a")));
 
@@ -460,7 +459,9 @@ class UserApplicationServiceTest {
     User self = savedUser("role-a");
 
     assertThatThrownBy(
-            () -> service.disable(new Operator(self.getUserId(), "admin-role"), self.getUserId()))
+            () ->
+                service.disable(
+                    new Operator(self.getUserId(), "session-1", "admin-role"), self.getUserId()))
         .isInstanceOfSatisfying(
             UserValidationException.class,
             e -> assertThat(keys(e)).containsExactly("user.validation.self.disable"));

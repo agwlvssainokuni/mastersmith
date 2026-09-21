@@ -36,6 +36,14 @@ spring:
     port: 3025
 
 mastersmith:
+  auth:
+    # 起動時のfail fast検証(JwtKeyProvider)を通すための、テスト専用のダミーの鍵(実在しない値、標準のBase64、
+    # デコード後が32バイト以上)。本番の鍵ではない。
+    jwt:
+      secret: ZHVtbXktand0LXNlY3JldC1mb3ItdGVzdHMtb25seS0wMTIzNDU2Nzg5
+    session:
+      # テストで、定期削除が、意図せず走らないようにする(SessionCleanupJobTestは、runOnce()を直接呼ぶ)。
+      cleanup-initial-delay: 1h
   users:
     # 起動時のfail fast検証(InitialAdminProperties)を通すための、実在しないダミー値。
     initial-admin:
@@ -46,7 +54,20 @@ mastersmith:
     from: no-reply@example.test
 
 # SMTPの疎通は、健全性の判定に含めない(main/resources/application.ymlと同じ、NFR5.4)。
+# actuatorの公開設定・ヘルスのキャッシュも、main/resources/application.ymlと同じ
+# (AuthSecurityConfigTestが、本番と同じ規則を確認するため)。
 management:
   health:
     mail:
       enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      cache:
+        time-to-live: 5s
+      # ヘルスのグループ(liveness・readinessなど)は設けない(応答は、状態(UP・DOWN)だけ)。
+      probes:
+        enabled: false

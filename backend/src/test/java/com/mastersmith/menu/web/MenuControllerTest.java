@@ -19,6 +19,7 @@ package com.mastersmith.menu.web;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -28,6 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mastersmith.common.security.TestOperatorContext;
+import com.mastersmith.common.security.TestOperatorContextConfig;
 import com.mastersmith.menu.dto.MenuItemView;
 import com.mastersmith.menu.dto.MenuResponse;
 import com.mastersmith.menu.entity.MenuItem;
@@ -37,15 +40,16 @@ import com.mastersmith.menu.exception.MenuItemValidationException;
 import com.mastersmith.menu.service.MenuItemCommandService;
 import com.mastersmith.menu.service.MenuQueryService;
 import com.mastersmith.permission.PermissionEngineApi;
-import com.mastersmith.schema.security.ActiveRoleResolver;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,16 +58,18 @@ import org.springframework.test.web.servlet.MockMvc;
  * {@link MenuController}の単体テスト(C3: {@code GET /api/menu}の200/401、{@code
  * /api/menu-items}の201/200/204・400・401・403・404・409、code-generation-plan.md Step8)。{@link
  * MenuQueryService}・{@link MenuItemCommandService}・{@link PermissionEngineApi}・{@link
- * ActiveRoleResolver}をモックし、HTTP層(ステータスコード・ProblemDetail形式)の検証に専念する。
+ * TestOperatorContext}で操作者(C15)を供給し、HTTP層(ステータスコード・ProblemDetail形式)の検証に専念する。
  *
  * <p>認可拒否(negative-authorization)専用テスト(team.md Q8-c)として{@link
  * #returns403WhenPermissionIsDeniedForMenuItemsCrud()}を含む。
  */
 @WebMvcTest(MenuController.class)
+@Import(TestOperatorContextConfig.class)
 class MenuControllerTest {
 
   private static final String MENU_ENDPOINT = "/api/menu";
   private static final String MENU_ITEMS_ENDPOINT = "/api/menu-items";
+  private static final String USER_ID = "user-1";
   private static final String ACTIVE_ROLE_ID = "role-1";
   private static final String VALID_INPUT_BODY =
       "{\"parentMenuItemId\":null,\"label\":\"商品マスタ\",\"order\":1,\"targetTableConfigId\":\"table-config-1\"}";
@@ -75,7 +81,12 @@ class MenuControllerTest {
   @MockitoBean private MenuQueryService menuQueryService;
   @MockitoBean private MenuItemCommandService menuItemCommandService;
   @MockitoBean private PermissionEngineApi permissionEngineApi;
-  @MockitoBean private ActiveRoleResolver activeRoleResolver;
+  @Autowired private TestOperatorContext operators;
+
+  @BeforeEach
+  void noOperatorByDefault() {
+    operators.clear();
+  }
 
   @TestConfiguration
   static class MeterRegistryTestConfig {
@@ -88,7 +99,7 @@ class MenuControllerTest {
 
   @Test
   void returns200WithBusinessMenuAndAdminMenuWhenAuthenticated() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     MenuItemView businessItem = new MenuItemView("item-1", "商品マスタ", "table-config-1", List.of());
     MenuItemView adminItem = new MenuItemView("admin-user-management", "ユーザ管理", null, List.of());
     when(menuQueryService.getMenu(ACTIVE_ROLE_ID))
@@ -103,8 +114,8 @@ class MenuControllerTest {
 
   @Test
   void returns401WhenActiveRoleIdCannotBeResolvedForGetMenu() throws Exception {
-    // 前提事項2: GET /api/menuはactiveRoleId未解決時に401とし、403は用いない。
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(null);
+    // 前提事項2: GET /api/menuは操作者(C15)を解決できない場合に401とし、403は用いない。
+    operators.clear();
 
     mockMvc.perform(get(MENU_ENDPOINT)).andExpect(status().isUnauthorized());
 
@@ -112,8 +123,40 @@ class MenuControllerTest {
   }
 
   @Test
+  void anOperatorWithoutAnActiveRoleGetsAnEmptyMenuInsteadOf401() throws Exception {
+    // アクティブロールが未選択(null)でも、自前で401にせず、そのままC10へ渡す(authentication-serviceの機能設計 BR5.12)。
+    // 権限のあるメニューが1件もない場合は、空配列として返す(BR6.5)。
+    operators.set(USER_ID, null);
+    when(menuQueryService.getMenu(null)).thenReturn(new MenuResponse(List.of(), List.of()));
+
+    mockMvc
+        .perform(get(MENU_ENDPOINT))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.businessMenu.length()").value(0))
+        .andExpect(jsonPath("$.adminMenu.length()").value(0));
+  }
+
+  @Test
+  void anOperatorWithoutAnActiveRoleIsForbiddenForMenuItemsCrudByThePermissionEngine()
+      throws Exception {
+    // 認可拒否(negative-authorization)専用テスト: 未選択(null)はC10へ渡され、権限なし(fail closed)として403。
+    operators.set(USER_ID, null);
+    when(permissionEngineApi.canAccessScreen(null, "config-import-export")).thenReturn(false);
+
+    mockMvc
+        .perform(
+            post(MENU_ITEMS_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(VALID_INPUT_BODY))
+        .andExpect(status().isForbidden());
+
+    verify(permissionEngineApi).canAccessScreen(null, "config-import-export");
+    verifyNoInteractions(menuItemCommandService);
+  }
+
+  @Test
   void returns201WhenMenuItemIsCreated() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
     when(menuItemCommandService.create(any()))
@@ -130,7 +173,7 @@ class MenuControllerTest {
 
   @Test
   void returns401WhenActiveRoleIdCannotBeResolvedForMenuItemsCrud() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(null);
+    operators.clear();
 
     mockMvc
         .perform(
@@ -146,7 +189,7 @@ class MenuControllerTest {
   @Test
   void returns403WhenPermissionIsDeniedForMenuItemsCrud() throws Exception {
     // 認可拒否(negative-authorization)専用テスト(team.md Q8-c)。
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(false);
 
@@ -162,7 +205,7 @@ class MenuControllerTest {
 
   @Test
   void returns4xxWhenLabelIsBlank() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
 
@@ -178,7 +221,7 @@ class MenuControllerTest {
 
   @Test
   void returns400WhenTargetTableConfigIdDoesNotExist() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
     when(menuItemCommandService.create(any()))
@@ -195,7 +238,7 @@ class MenuControllerTest {
 
   @Test
   void returns200WhenMenuItemIsUpdated() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
     when(menuItemCommandService.update(eq("item-1"), any()))
@@ -212,7 +255,7 @@ class MenuControllerTest {
 
   @Test
   void returns404WhenUpdatingAMenuItemThatDoesNotExist() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
     when(menuItemCommandService.update(eq("does-not-exist"), any()))
@@ -228,7 +271,7 @@ class MenuControllerTest {
 
   @Test
   void returns204WhenMenuItemIsDeleted() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
 
@@ -237,7 +280,7 @@ class MenuControllerTest {
 
   @Test
   void returns409WhenDeletingAMenuItemThatHasChildren() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(ACTIVE_ROLE_ID, "config-import-export"))
         .thenReturn(true);
     doThrow(new MenuItemConflictException("has children"))

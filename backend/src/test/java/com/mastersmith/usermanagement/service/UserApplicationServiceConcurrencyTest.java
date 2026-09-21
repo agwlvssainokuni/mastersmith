@@ -21,13 +21,13 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.UpdateUserRequest;
 import com.mastersmith.usermanagement.entity.User;
 import com.mastersmith.usermanagement.event.UserChangedEvent;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import com.mastersmith.usermanagement.testsupport.EventRecorder;
 import com.mastersmith.usermanagement.testsupport.UserTestFactory;
@@ -121,7 +121,7 @@ class UserApplicationServiceConcurrencyTest {
       return;
     }
     service.update(
-        new Operator("admin-user", "admin-role"),
+        new Operator("admin-user", "session-1", "admin-role"),
         userId,
         new UpdateUserRequest(newName, List.of("role-a")));
   }

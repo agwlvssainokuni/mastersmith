@@ -21,7 +21,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,8 +30,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.mastersmith.MastersmithApplication;
 import com.mastersmith.audit.entity.AuditLogEntry;
 import com.mastersmith.audit.repository.AuditLogEntryRepository;
+import com.mastersmith.common.security.TestOperatorContext;
+import com.mastersmith.common.security.TestOperatorContextConfig;
+import com.mastersmith.common.security.TestPermitAllSecurityConfig;
 import com.mastersmith.permission.PermissionEngineApi;
-import com.mastersmith.schema.security.ActiveRoleResolver;
 import java.time.Instant;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +45,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.dao.QueryTimeoutException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -53,7 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@link AuditLogController}の統合テスト(unit-test-instructions.mdのモック方針: {@link
- * PermissionEngineApi}・{@link ActiveRoleResolver}はモックし、{@link
+ * PermissionEngineApi}・{@link TestOperatorContext}で操作者(C15)を供給し、{@link
  * AuditLogEntryRepository}は実際のH2(Flywayマイグレーション適用後)に対して検証する)。
  *
  * <p>正常系(200、ページング・targetTypeフィルタ)、クエリパラメータ検証エラー(400、境界値のテーブル駆動)、認可拒否専用テスト(403、team.md必須テスト種別(c))、内部設定DB利用不可時(503)を検証する(plan
@@ -61,17 +64,19 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @SpringBootTest(classes = MastersmithApplication.class)
 @AutoConfigureMockMvc
+@Import({TestOperatorContextConfig.class, TestPermitAllSecurityConfig.class})
 @Transactional
 class AuditLogControllerTest {
 
   private static final String ENDPOINT = "/api/audit-log";
+  private static final String USER_ID = "user-1";
   private static final String ACTIVE_ROLE_ID = "role-1";
 
   @Autowired private MockMvc mockMvc;
   @Autowired private JdbcTemplate jdbcTemplate;
 
   @MockitoBean private PermissionEngineApi permissionEngineApi;
-  @MockitoBean private ActiveRoleResolver activeRoleResolver;
+  @Autowired private TestOperatorContext operators;
 
   // 実装のAuditLogEntryRepositoryをspyする(unit-test-instructions.md: 実際のH2に対して検証し、モックしない)。
   // 503テストのみdoThrowで一時的に差し替え、@AfterEachでMockito.reset()し既定の実委譲動作へ戻す。
@@ -79,7 +84,7 @@ class AuditLogControllerTest {
 
   @BeforeEach
   void grantAccessByDefault() {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(ACTIVE_ROLE_ID);
+    operators.set(USER_ID, ACTIVE_ROLE_ID);
     when(permissionEngineApi.canAccessScreen(eq(ACTIVE_ROLE_ID), eq("audit-log"))).thenReturn(true);
   }
 
@@ -174,11 +179,20 @@ class AuditLogControllerTest {
 
   @Test
   void returns403WhenActiveRoleIdIsMissing() throws Exception {
-    when(activeRoleResolver.resolveActiveRoleId(any())).thenReturn(null);
+    // アクティブロールが未選択(null)の操作者: 自前で拒否せず、そのままC10へ渡し、権限なし(fail closed)として403
+    // (authentication-serviceの機能設計 BR5.12)。
+    operators.set(USER_ID, null);
 
     mockMvc.perform(get(ENDPOINT)).andExpect(status().isForbidden());
 
-    verifyNoInteractions(permissionEngineApi);
+    verify(permissionEngineApi).canAccessScreen(null, "audit-log");
+  }
+
+  @Test
+  void returns403WhenTheOperatorCannotBeResolved() throws Exception {
+    operators.clear();
+
+    mockMvc.perform(get(ENDPOINT)).andExpect(status().isForbidden());
   }
 
   @Test

@@ -22,6 +22,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -299,6 +301,138 @@ class UserAccountLookupServiceTest {
     assertThat(userRepository.findById(user.getUserId()).orElseThrow().getPasswordHash())
         .isNotEqualTo(oldHash)
         .startsWith("$argon2id$v=19$m=2048,t=2,p=1$");
+  }
+
+  // ---- findByUserId(C11への追補、authentication-service(U5)の機能設計 追補4番) ----
+
+  @Test
+  void findByUserIdReturnsTheUnionOfDirectAndGroupRolesWithoutThePasswordHash() {
+    User user = activeUserWithHash(currentHasher.hash(PASSWORD));
+    when(permissionEngineApi.getGroupDerivedRoleIds(user.getUserId()))
+        .thenReturn(List.of("r-group", "r-direct"));
+
+    UserAccount account = service.findByUserId(user.getUserId()).orElseThrow();
+
+    assertThat(account.userId()).isEqualTo(user.getUserId());
+    assertThat(account.passwordHash()).isNull();
+    assertThat(account.status()).isEqualTo(UserStatus.ACTIVE);
+    // 直接付与分とGroup経由分の和集合(重複なし・ソート済み)。
+    assertThat(account.roleIds()).containsExactly("r-direct", "r-group");
+  }
+
+  @Test
+  void findByUserIdReturnsUsersOfAnyStatusAndAPasswordlessInvitedUserHasNoHash() {
+    User invited =
+        userRepository.saveAndFlush(
+            UserTestFactory.invitedUser(
+                UserTestFactory.uniqueEmail(), List.of("r1"), UserTestFactory.newToken()));
+    User disabled = activeUserWithHash(currentHasher.hash(PASSWORD));
+    disabled.disable();
+    userRepository.saveAndFlush(disabled);
+    when(permissionEngineApi.getGroupDerivedRoleIds(anyString())).thenReturn(List.of());
+
+    UserAccount invitedAccount = service.findByUserId(invited.getUserId()).orElseThrow();
+    UserAccount disabledAccount = service.findByUserId(disabled.getUserId()).orElseThrow();
+
+    // passwordHashが未設定(null)のUserでも、passwordHashは、常にnull(ハッシュ値を呼び出し元へ返さない)。
+    assertThat(invitedAccount.status()).isEqualTo(UserStatus.INVITED);
+    assertThat(invitedAccount.passwordHash()).isNull();
+    assertThat(invitedAccount.roleIds()).containsExactly("r1");
+    assertThat(disabledAccount.status()).isEqualTo(UserStatus.DISABLED);
+    assertThat(disabledAccount.passwordHash()).isNull();
+  }
+
+  @Test
+  void findByUserIdReturnsEmptyForUnknownNullAndBlankUserIds() {
+    assertThat(service.findByUserId("no-such-user")).isEmpty();
+    assertThat(service.findByUserId(null)).isEmpty();
+    assertThat(service.findByUserId("")).isEmpty();
+    assertThat(service.findByUserId("   ")).isEmpty();
+  }
+
+  @Test
+  void findByUserIdAlwaysReadsTheLatestRolesSoARemovedRoleIsNotReturned() {
+    User user = activeUserWithHash(currentHasher.hash(PASSWORD));
+    when(permissionEngineApi.getGroupDerivedRoleIds(user.getUserId()))
+        .thenReturn(List.of("r-group"));
+    assertThat(service.findByUserId(user.getUserId()).orElseThrow().roleIds())
+        .containsExactly("r-direct", "r-group");
+
+    // Group経由のロールが外された。
+    when(permissionEngineApi.getGroupDerivedRoleIds(user.getUserId())).thenReturn(List.of());
+
+    assertThat(service.findByUserId(user.getUserId()).orElseThrow().roleIds())
+        .containsExactly("r-direct");
+  }
+
+  // ---- dummyVerify(C11への追補、BR5.2・BR5.15) ----
+
+  @Test
+  void dummyVerifyComputesTheSameCostOfHashAsARealVerificationAndReturnsNothing() {
+    long before = meterRegistry.get("user.password.hash.duration").timer().count();
+
+    service.dummyVerify(PASSWORD);
+
+    // 実際の検証と同じ、ハッシュ計算(検証)を1回行う。ユーザーを指定しない(リポジトリを引かない)。
+    assertThat(meterRegistry.get("user.password.hash.duration").timer().count())
+        .isEqualTo(before + 1);
+    verifyNoInteractions(permissionEngineApi);
+  }
+
+  @Test
+  void dummyVerifyDoesNotComputeForPasswordsLongerThanTheMaximumLikeTheRealVerification() {
+    long before = meterRegistry.get("user.password.hash.duration").timer().count();
+
+    service.dummyVerify("a".repeat(129));
+    service.dummyVerify(null);
+    service.dummyVerify("");
+
+    assertThat(meterRegistry.get("user.password.hash.duration").timer().count()).isEqualTo(before);
+    // 128文字(上限)は、計算する。
+    service.dummyVerify("a".repeat(128));
+    assertThat(meterRegistry.get("user.password.hash.duration").timer().count())
+        .isEqualTo(before + 1);
+  }
+
+  @Test
+  void
+      dummyVerifyPropagatesTheCapacityExceptionSoTheSame503IsReturnedForRealAndDummyVerifications() {
+    PasswordHasher busy = mock(PasswordHasher.class);
+    org.mockito.Mockito.doThrow(new HashCapacityExceededException("busy"))
+        .when(busy)
+        .dummyVerify(any());
+    UserAccountLookupService guarded =
+        new UserAccountLookupService(userRepository, permissionEngineApi, busy, transactionManager);
+
+    assertThatThrownBy(() -> guarded.dummyVerify(PASSWORD))
+        .isInstanceOf(HashCapacityExceededException.class);
+  }
+
+  @Test
+  void dummyVerifySharesThePermitsWithTheRealVerificationSoItCannotBypassTheConcurrencyLimit() {
+    // 許可が1つで、待機の上限が短いハッシュ計算器。許可を、別の計算が保持している間は、ダミーの検証も、上限超過になる。
+    UserManagementProperties.Hash params =
+        new UserManagementProperties.Hash(1024, 1, 1, 16, 32, 1, Duration.ofMillis(100));
+    HashConcurrencyLimiter limiter =
+        new HashConcurrencyLimiter(1, params.waitTimeout(), meterRegistry);
+    PasswordHasher single = new PasswordHasher(params, limiter, meterRegistry);
+    UserAccountLookupService limited =
+        new UserAccountLookupService(
+            userRepository, permissionEngineApi, single, transactionManager);
+
+    Object result =
+        limiter.runWithPermit(
+            () -> {
+              assertThatThrownBy(() -> limited.dummyVerify(PASSWORD))
+                  .isInstanceOf(HashCapacityExceededException.class);
+              return "held";
+            });
+
+    assertThat(result).isEqualTo("held");
+    // 許可が返れば、計算できる。
+    limited.dummyVerify(PASSWORD);
+    assertThat(limiter.availablePermits()).isEqualTo(1);
+    verify(permissionEngineApi, never()).getGroupDerivedRoleIds(any());
   }
 
   // ---- isDisabled ----

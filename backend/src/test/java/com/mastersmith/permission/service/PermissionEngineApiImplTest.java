@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,9 +50,13 @@ import com.mastersmith.permission.resolver.PermissionResolver;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -188,6 +193,160 @@ class PermissionEngineApiImplTest {
         .thenReturn(EffectivePermission.NONE);
 
     assertThat(service.canAccessScreen(ROLE_ID, "audit-log")).isFalse();
+  }
+
+  // ---- activeRoleIdが未選択(null・空)の扱い(authentication-service(U5)の機能設計 BR5.12・追補6番) ----
+  //
+  // team.md「権限判定ロジックの追加合格条件」: activeRoleId(null・空・空白のみ・実在・実在しない) × RBAC設定の有無
+  // (ブートストラップ状態) × 画面(config-import-exportを含む)の組み合わせを網羅するテーブル駆動テスト。
+  // 実装に先立って、組み合わせと期待値(下の表)を洗い出した(team.mdのTesting Posture: 権限判定ロジックの例外)。
+  //
+  // | activeRoleId | RBAC設定 | 画面 | 期待 |
+  // | null・空・空白のみ | 空(ブートストラップ) | config-import-export | 許可(activeRoleIdにかかわらず適用) |
+  // | null・空・空白のみ | 空(ブートストラップ) | それ以外(予約・業務) | 拒否(fail closed) |
+  // | null・空・空白のみ | あり | すべて | 拒否(fail closed) |
+  // | 実在しない | 空 | config-import-export | 許可(activeRoleIdにかかわらず適用) |
+  // | 実在しない | 空 | それ以外 | 拒否 |
+  // | 実在しない | あり | すべて | 拒否 |
+  // | 実在(権限NONE) | あり | すべて | 拒否 |
+  // | 実在(権限READ以上) | あり | 権限のある画面 | 許可 |
+
+  private record ScreenCase(
+      String label,
+      String activeRoleId,
+      boolean roleExists,
+      PermissionLevel level,
+      boolean bootstrap,
+      String screenKey,
+      boolean expected) {
+    @Override
+    public String toString() {
+      return label;
+    }
+  }
+
+  private static ScreenCase screen(
+      String label,
+      String activeRoleId,
+      boolean roleExists,
+      PermissionLevel level,
+      boolean bootstrap,
+      String screenKey,
+      boolean expected) {
+    return new ScreenCase(label, activeRoleId, roleExists, level, bootstrap, screenKey, expected);
+  }
+
+  static Stream<ScreenCase> screenAccessMatrix() {
+    Stream.Builder<ScreenCase> cases = Stream.builder();
+    String[] unselected = {null, "", "   "};
+    String[] screenKeys = {
+      "config-import-export", "user-management", "audit-log", "products-table"
+    };
+    for (String roleId : unselected) {
+      String shown = roleId == null ? "null" : "'" + roleId + "'";
+      for (boolean bootstrap : new boolean[] {true, false}) {
+        for (String screenKey : screenKeys) {
+          // RBAC設定が空の間の例外(config-import-export)だけが、activeRoleIdにかかわらず許可される。
+          boolean expected = bootstrap && screenKey.equals("config-import-export");
+          cases.add(
+              screen(
+                  "未選択(%s) × %s × %s".formatted(shown, bootstrap ? "RBAC空" : "RBACあり", screenKey),
+                  roleId,
+                  false,
+                  PermissionLevel.NONE,
+                  bootstrap,
+                  screenKey,
+                  expected));
+        }
+      }
+    }
+    for (boolean bootstrap : new boolean[] {true, false}) {
+      for (String screenKey : screenKeys) {
+        boolean bypass = bootstrap && screenKey.equals("config-import-export");
+        cases.add(
+            screen(
+                "実在しないロール × %s × %s".formatted(bootstrap ? "RBAC空" : "RBACあり", screenKey),
+                "ghost-role",
+                false,
+                PermissionLevel.NONE,
+                bootstrap,
+                screenKey,
+                bypass));
+        cases.add(
+            screen(
+                "実在・権限NONE × %s × %s".formatted(bootstrap ? "RBAC空" : "RBACあり", screenKey),
+                ROLE_ID,
+                true,
+                PermissionLevel.NONE,
+                bootstrap,
+                screenKey,
+                bypass));
+        cases.add(
+            screen(
+                "実在・権限READ × %s × %s".formatted(bootstrap ? "RBAC空" : "RBACあり", screenKey),
+                ROLE_ID,
+                true,
+                PermissionLevel.READ,
+                bootstrap,
+                screenKey,
+                true));
+        cases.add(
+            screen(
+                "実在・権限FULL × %s × %s".formatted(bootstrap ? "RBAC空" : "RBACあり", screenKey),
+                ROLE_ID,
+                true,
+                PermissionLevel.FULL,
+                bootstrap,
+                screenKey,
+                true));
+      }
+    }
+    return cases.build();
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("screenAccessMatrix")
+  void canAccessScreenFollowsTheMatrixOfActiveRoleRbacStateAndScreen(ScreenCase c) {
+    lenient().when(bootstrapStateChecker.isBootstrapState()).thenReturn(c.bootstrap());
+    if (c.activeRoleId() != null) {
+      lenient().when(roleRepository.existsById(c.activeRoleId())).thenReturn(c.roleExists());
+    }
+    lenient()
+        .when(permissionResolver.resolve(any(), any(), any()))
+        .thenReturn(new EffectivePermission(c.level(), false, false));
+
+    assertThat(service.canAccessScreen(c.activeRoleId(), c.screenKey())).isEqualTo(c.expected());
+  }
+
+  @ParameterizedTest(name = "activeRoleId={0} -> NONE")
+  @MethodSource("unselectedRoles")
+  void
+      resolveEffectivePermissionReturnsNoneForAnUnselectedActiveRoleWithoutTouchingTheRepositoryOrTheResolver(
+          String activeRoleId) {
+    for (ScopeType scopeType : ScopeType.values()) {
+      assertThat(service.resolveEffectivePermission(activeRoleId, scopeType, SCOPE_REF))
+          .isEqualTo(EffectivePermission.NONE);
+    }
+
+    verify(roleRepository, never()).existsById(any());
+    verify(permissionResolver, never()).resolve(any(), any(), any());
+  }
+
+  static Stream<Arguments> unselectedRoles() {
+    return Stream.of(Arguments.of((String) null), Arguments.of(""), Arguments.of("   "));
+  }
+
+  @Test
+  void anUnselectedActiveRoleIsNotCachedAsAResultSoALaterSelectedRoleIsResolvedFresh() {
+    assertThat(service.resolveEffectivePermission(null, SCOPE_TYPE, SCOPE_REF))
+        .isEqualTo(EffectivePermission.NONE);
+
+    when(roleRepository.existsById(ROLE_ID)).thenReturn(true);
+    when(permissionResolver.resolve(ROLE_ID, SCOPE_TYPE, SCOPE_REF))
+        .thenReturn(new EffectivePermission(PermissionLevel.FULL, true, true));
+
+    assertThat(service.resolveEffectivePermission(ROLE_ID, SCOPE_TYPE, SCOPE_REF).level())
+        .isEqualTo(PermissionLevel.FULL);
   }
 
   // ---- assignPermission ----

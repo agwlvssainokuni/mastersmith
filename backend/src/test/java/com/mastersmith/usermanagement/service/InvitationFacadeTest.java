@@ -28,6 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.InviteUserRequest;
 import com.mastersmith.usermanagement.dto.UserResponse;
@@ -51,7 +52,6 @@ import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
 import com.mastersmith.usermanagement.security.EmailLockRegistry;
 import com.mastersmith.usermanagement.security.InvitationAdmission;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import com.mastersmith.usermanagement.testsupport.EventRecorder;
 import com.mastersmith.usermanagement.testsupport.UserTestFactory;
@@ -90,7 +90,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 class InvitationFacadeTest {
 
-  private static final Operator ADMIN = new Operator("admin-user", "admin-role");
+  private static final Operator ADMIN = new Operator("admin-user", "session-1", "admin-role");
   private static final long AWAIT_SECONDS = 30;
 
   /** 取得の試行を記録する排他(待っているスレッドの特定用)。 */
@@ -549,16 +549,21 @@ class InvitationFacadeTest {
 
     assertThatThrownBy(() -> facade.invite(null, request(UserTestFactory.uniqueEmail())))
         .isInstanceOf(OperatorUnresolvedException.class);
-    assertThatThrownBy(
-            () -> facade.invite(new Operator("u", null), request(UserTestFactory.uniqueEmail())))
-        .isInstanceOf(OperatorUnresolvedException.class);
+    // アクティブロールが未選択(null)は、自前で401にせず、そのままC10へ渡し、権限なしとして403
+    // (authentication-serviceの機能設計 BR5.12)。
     assertThatThrownBy(
             () ->
                 facade.invite(
-                    new Operator("u", "denied-role"), request(UserTestFactory.uniqueEmail())))
+                    new Operator("u", "session-1", null), request(UserTestFactory.uniqueEmail())))
+        .isInstanceOf(UserAccessDeniedException.class);
+    assertThatThrownBy(
+            () ->
+                facade.invite(
+                    new Operator("u", "session-1", "denied-role"),
+                    request(UserTestFactory.uniqueEmail())))
         .isInstanceOf(UserAccessDeniedException.class);
     // 認可のない呼び出し元は、入力が不正でも、検証の結果(422)ではなく401/403を受ける。
-    assertThatThrownBy(() -> facade.invite(new Operator("u", "denied-role"), invalid))
+    assertThatThrownBy(() -> facade.invite(new Operator("u", "session-1", "denied-role"), invalid))
         .isInstanceOf(UserAccessDeniedException.class);
     assertThatThrownBy(() -> facade.invite(ADMIN, invalid))
         .isInstanceOfSatisfying(

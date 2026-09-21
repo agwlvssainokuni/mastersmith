@@ -30,6 +30,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.mastersmith.MastersmithApplication;
+import com.mastersmith.common.security.TestOperatorContext;
+import com.mastersmith.common.security.TestOperatorContextConfig;
+import com.mastersmith.common.security.TestPermitAllSecurityConfig;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.UserAccountLookupApi;
 import com.mastersmith.usermanagement.entity.User;
@@ -46,6 +49,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,6 +64,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
  */
 @SpringBootTest(classes = MastersmithApplication.class)
 @AutoConfigureMockMvc
+@Import({TestOperatorContextConfig.class, TestPermitAllSecurityConfig.class})
 class UserApiIntegrationTest {
 
   private static final String ADMIN_ID = "it-admin-user";
@@ -69,6 +74,9 @@ class UserApiIntegrationTest {
   @Autowired private UserPreferenceRepository preferenceRepository;
   @Autowired private UserAccountLookupApi userAccountLookupApi;
 
+  /** 操作者(C15)の供給。ヘッダーで操作者を渡す暫定の方式は、認証フィルタの導入で削除した(authentication-serviceの機能設計 W7)。 */
+  @Autowired private TestOperatorContext operators;
+
   @MockitoBean private PermissionEngineApi permissionEngineApi;
   @MockitoBean private InvitationMailer invitationMailer;
 
@@ -76,6 +84,7 @@ class UserApiIntegrationTest {
 
   @BeforeEach
   void setUp() {
+    operators.clear();
     when(permissionEngineApi.canAccessScreen("admin-role", "user-management")).thenReturn(true);
     when(permissionEngineApi.canAccessScreen("viewer-role", "user-management")).thenReturn(false);
     when(permissionEngineApi.roleExists(anyString())).thenReturn(true);
@@ -83,6 +92,7 @@ class UserApiIntegrationTest {
 
   @AfterEach
   void tearDown() {
+    operators.clear();
     for (String email : createdEmails) {
       userRepository
           .findByEmail(email)
@@ -94,9 +104,11 @@ class UserApiIntegrationTest {
     }
   }
 
-  private static MockHttpServletRequestBuilder as(
+  /** 以降のリクエストの操作者(userId・activeRoleId)を設定する。 */
+  private MockHttpServletRequestBuilder as(
       MockHttpServletRequestBuilder builder, String userId, String roleId) {
-    return builder.header("X-User-Id", userId).header("X-Active-Role-Id", roleId);
+    operators.set(userId, roleId);
+    return builder;
   }
 
   private String newEmail() {
@@ -124,10 +136,8 @@ class UserApiIntegrationTest {
                 .content("{\"name\":\"n\",\"roleIds\":[]}"))
         .andExpect(status().isUnauthorized());
     mockMvc.perform(delete("/api/users/any")).andExpect(status().isUnauthorized());
-    // userIdだけ(activeRoleIdなし)でも、管理者向けの操作は、401(ロール選択前)。
-    mockMvc
-        .perform(get("/api/users").header("X-User-Id", ADMIN_ID))
-        .andExpect(status().isUnauthorized());
+    // userIdだけ(activeRoleIdが未選択)の操作者は、401にせず、そのままC10へ渡し、権限なしとして403(ロール選択前。BR5.12)。
+    mockMvc.perform(as(get("/api/users"), ADMIN_ID, null)).andExpect(status().isForbidden());
 
     assertThat(userRepository.count()).isEqualTo(usersBefore);
   }
@@ -180,7 +190,7 @@ class UserApiIntegrationTest {
     User user = userRepository.saveAndFlush(UserTestFactory.activeUser(newEmail(), List.of()));
     // 権限のないロール・ロール未選択でも、自分自身の設定は操作できる(既定値を返す)。
     mockMvc
-        .perform(get("/api/me/preferences").header("X-User-Id", user.getUserId()))
+        .perform(as(get("/api/me/preferences"), user.getUserId(), null))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.theme").value("light"))
         .andExpect(jsonPath("$.fontSize").value("medium"))
@@ -289,15 +299,14 @@ class UserApiIntegrationTest {
 
     // 受諾後の表示設定(受諾時の値)。操作者は、そのUser自身(ロール未選択)。
     mockMvc
-        .perform(get("/api/me/preferences").header("X-User-Id", invited.getUserId()))
+        .perform(as(get("/api/me/preferences"), invited.getUserId(), null))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.theme").value("dark"))
         .andExpect(jsonPath("$.fontSize").value("small"))
         .andExpect(jsonPath("$.locale").value("en"));
     mockMvc
         .perform(
-            put("/api/me/preferences")
-                .header("X-User-Id", invited.getUserId())
+            as(put("/api/me/preferences"), invited.getUserId(), null)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"theme\":\"light\",\"fontSize\":\"large\",\"locale\":\"ja\"}"))
         .andExpect(status().isOk())

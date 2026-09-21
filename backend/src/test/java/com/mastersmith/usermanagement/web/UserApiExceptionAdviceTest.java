@@ -29,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mastersmith.common.security.TestOperatorContextConfig;
 import com.mastersmith.usermanagement.HashCapacityExceededException;
 import com.mastersmith.usermanagement.exception.EmailLockTimeoutException;
 import com.mastersmith.usermanagement.exception.InvitationCapacityExceededException;
@@ -43,7 +44,6 @@ import com.mastersmith.usermanagement.exception.UserAccessDeniedException;
 import com.mastersmith.usermanagement.exception.UserFieldError;
 import com.mastersmith.usermanagement.exception.UserNotFoundException;
 import com.mastersmith.usermanagement.exception.UserValidationException;
-import com.mastersmith.usermanagement.security.HeaderCurrentOperatorProvider;
 import com.mastersmith.usermanagement.service.InvitationFacade;
 import com.mastersmith.usermanagement.service.UserApplicationService;
 import com.mastersmith.usermanagement.testsupport.ChunkedRequests;
@@ -85,7 +85,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @WebMvcTest(
     controllers = {UserController.class, UserApiExceptionAdviceTest.OtherUnitController.class})
-@Import({HeaderCurrentOperatorProvider.class, UserApiExceptionAdviceTest.OtherUnitController.class})
+@Import({TestOperatorContextConfig.class, UserApiExceptionAdviceTest.OtherUnitController.class})
 class UserApiExceptionAdviceTest {
 
   /** U4以外のコントローラ(他ユニットの代役)。U4のアドバイスが、これに影響しないことの確認に用いる。 */
