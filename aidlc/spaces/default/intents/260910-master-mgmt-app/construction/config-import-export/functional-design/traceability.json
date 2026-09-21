@@ -1,0 +1,20 @@
+{
+  "stage": "functional-design",
+  "unit": "config-import-export",
+  "upstream_ids": ["FR11.1", "FR11.2"],
+  "coverage": [
+    { "id": "FR11.1", "status": "OK", "target": "BR9.1, BR9.2, BR9.3, BR9.4, BR9.6, BR9.9, BR9.10, BR9.13, BR9.17, BR9.18" },
+    { "id": "FR11.2", "status": "OK", "target": "BR9.1, BR9.5, BR9.9, BR9.14" }
+  ],
+  "reverse": [
+    { "id": "BR9.7", "status": "N/A", "target": "FR1.3(設定定義の検証)とNFR7(i18nキー)に対応する検証エラーの返却規約(全件・最大100件・位置+i18nキー)であり、FR11.1/FR11.2固有の要件ではない" },
+    { "id": "BR9.8", "status": "N/A", "target": "FR1.3に対応する形式バージョン確認・未知プロパティの扱いの規約(Q10確定)であり、FR11.1/FR11.2固有の要件ではない" },
+    { "id": "BR9.11", "status": "N/A", "target": "FR3.4とproject.md Forbidden(権限の昇格を明示的操作なしに許可しない)に対応する横断的なセキュリティ規約であり、FR11.1/FR11.2固有の要件ではない(Q5・Q13確定)" },
+    { "id": "BR9.12", "status": "N/A", "target": "FR3.4とproject.md Forbidden(権限昇格の防止)に対応するセキュリティ規約であり、FR11.1/FR11.2固有の要件ではない(Q14・Q14b確定)" },
+    { "id": "BR9.15", "status": "N/A", "target": "FR8.1に対応する操作者記録の規約であり、FR11.1/FR11.2固有の要件ではない(監査ログの機能はaudit-loggingユニットが担当)" },
+    { "id": "BR9.16", "status": "N/A", "target": "FR8.1〜FR8.3に対応する監査イベント発行の規約であり、FR11.1/FR11.2固有の要件ではない(監査ログの機能はaudit-loggingユニットが担当)" },
+    { "id": "BR9.19", "status": "N/A", "target": "特定FRに対応しない、MVPで受け入れたリスクの記録(Q11・Q12確定)" },
+    { "id": "BR9.20", "status": "N/A", "target": "FR1.6・NFR8とproject.md Mandated(共通エンジン層に業務固有名をハードコードしない)に対応する横断的な規約であり、FR11.1/FR11.2固有の要件ではない" },
+    { "id": "BR9.21", "status": "N/A", "target": "FR1.3とproject.md Mandated(入力エラーと内部障害の区別)に対応する横断的なエラーハンドリング規約であり、FR11.1/FR11.2固有の要件ではない" }
+  ]
+}

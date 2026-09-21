@@ -3,12 +3,16 @@
 
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
+- 2026-09-21T09:20:00Z — [config-import-export] FR11.1の「設定一式」を、config-engine(スキーマ・翻訳)・menu-navigation(メニュー)・permission-engine(RBAC)の3セクションと解釈した。ユーザー・認証情報・監査ログ・業務データ・管理メニューはエクスポート対象外(BR9.1)。
+- 2026-09-21T09:20:00Z — [config-import-export] Q3=A(全置換)を、ファイルにない項目の削除を含むと解釈し、`isPrimaryKey`はconfig-engineのBR1.14に従い維持する(BR9.9)。
 - 2026-09-13T17:35:17Z — [data-import-export] C13契約note「全体を即時失敗にはしない」を、行単位バリデーションを最初のエラーで中断せず全行分の結果を収集するという意味であると解釈し、DBコミット単位(Q10: 全件検証後の一括コミット、1件でもエラーがあれば全体ロールバック)とは別論点として整理した。
 
 - 2026-09-20T00:03:00Z — [user-management] Q6=B(roleId実在検証)を、更新(PUT /api/users/{userId})だけでなく招待(POST /api/users)時のroleIds指定にも適用する意味に解釈し、BR4.5の適用範囲を両エンドポイントへ拡張して明記した(W1手順4が既に検証を前提としており、BR側の記述が不足していたため)。
 
 ## Deviations
 <!-- example: 2026-05-29T10:14:32Z — skipped the optional caching layer the stage prose suggested; the dataset is small enough that it adds risk -->
+- 2026-09-21T09:20:00Z — [config-import-export] C9・C10・C12の実装済み内部インタフェースは、検証と反映が分離されておらず、自然キー入力・呼び出し元トランザクションへの参加を前提としていない。機能設計は、Code Generationで他ユニットを追補・改修する前提で「検証/反映の2分割」を要求した(契約・他ユニットへの追補一覧 2〜4番)。
+- 2026-09-21T09:20:00Z — [config-import-export] permission-engineのブートストラップ判定(主権限0件)が設計BR3.13(永続的に終了)と不一致。本ユニットはBR9.12(主権限0件になる取り込みの拒否)で回避し、根本修正は別課題とした。
 - 2026-09-20T00:03:00Z — [user-management] 成果物(entities.md・rules.md・functional-spec.md・traceability.json)は、統合サマリー確認レシート(2026-09-17T07:22:11Z)より前(同日07:17〜07:19Z)に生成されていた(先行ユニット群の完了後にuser-managementの機能設計欠落が判明し、遡って新規作成したため、生成と確認の順序が通常の手順と逆転している)。確認済みの回答内容は変更せず、レビュー着手前に誤字・BR4.5の適用範囲・参照資料の網羅の3点のみ修正した。
 - 2026-09-20T00:20:00Z — [user-management] アーキテクチャレビュー(iteration 1, NOT-READY)でMajor所見7件(R-01: ロール付与の権限昇格防止ルールの欠落、R-02: activeRoleId/操作者userIdの取得経路と循環依存リスク、R-03: 招待の取消・再発行手段の欠落(Q2の「無効化して再招待」前提との矛盾)、R-04: C11提供側の振る舞い・Group経由ロール合成の未設計、R-05: UserChangedEvent形状の未確定、R-06: 初期管理者(W5)の未完成、R-07: C5のGET一覧・PUT項目・応答コードの欠落)とMinor所見5件を受け、BR4.11〜BR4.16を追加、BR4.1〜BR4.10を改訂し、W7(一覧)・W8(C11提供)を追加、operationにACTIVATED/BOOTSTRAPPEDを追加した。この結果、成果物は統合サマリー確認時点(BR4.1〜BR4.10)より範囲が広がっており、要件に根拠のない判断は[assumption]として残した(ゲートで人間が確認する)。
 - 2026-09-20T00:03:00Z — [user-management] Q4はX(自由回答)で確定した: 招待受諾API(C5)のリクエストボディへtheme/fontSize/localeを任意項目として追加し、UserPreferenceを招待受諾と同時に作成する。Domain Design/Contract Design(C5)の既存定義からの追補であり、Code Generation時にcontract-summary.mdへ反映が必要。
@@ -21,6 +25,8 @@
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+- 2026-09-21T09:20:00Z — [config-import-export] Q3=A(全置換)+Q14b=A(主権限0件の拒否): 完全な環境複製が可能になる一方、意図しない削除のリスクが生じる。フロントエンドの現在設定との差分確認(BR9.18)で軽減し、排他・サイズ上限・自己締め出し防止はMVPの受け入れリスクとした(Q11=C, Q12=C)。
+- 2026-09-21T09:20:00Z — [config-import-export] Q13: 権限昇格の判定を取り込み開始時点のスナップショット基準とした。全置換の途中状態に依存せず決定的になる一方、取り込みで自分の権限を書き換える設定は、次回の取り込みまで反映されない。
 - 2026-09-20T00:03:00Z — [user-management] Q2=A(招待トークン無期限)を採用: 実装は単純になるが、招待メール漏洩時のリスク窓が管理者の再招待・無効化操作まで残る。有効期限付き(B案、C5に410 Gone追補が必要)は不採用。
 - 2026-09-20T00:03:00Z — [user-management] Q6=B(roleId実在検証、fail fast)を採用: 他ユニットのscopeRef(不透明な文字列参照)の慣例とは異なり、実装済みpermission-engineへの`roleExists`相当メソッド追加とC10契約追補というコストを払って、存在しないロールの割当てを入口で拒否する。
 - 2026-09-20T00:03:00Z — [user-management] Q3=A(beforeValue/afterValueを{name,email,status,roleIds}スナップショットで発行)を採用: audit-logging(U7)が前提とした段階的充足を本ユニットで満たす一方、passwordHashは含めない(project.md Mandated)。B案(null据え置き)は不採用。
@@ -29,6 +35,10 @@
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+- 2026-09-21T09:10:00Z — [config-import-export] アーキテクチャレビュー(iteration 1, READY)。Critical 0件、Major 8件・Minor 7件はsuggestionとしてステージ全体の承認ゲートで人間に提示する(review-protocolの「Do NOT apply suggestions, quote them at the gate」原則)。主なMajor: (R-01)検証専用段階が未存在の新規テーブル・ロール等(仮の識別)を扱う方法がC9/C10/C12追補に未定義、(R-02)各ユニットの検証専用メソッドの戻り値型とJSON位置写像の責務が未定義、(R-03)bootstrapAtStartと操作者の実効権限が認可時点で固定され反映時点で再確認されない(検証と反映の間の競合)、(R-04)昇格判定の対象(変更のないエントリ・グループ対応の変更)と反映メソッドのactorRoleId/nullの扱いが曖昧、(R-05)監査イベントが対象・変更前後値を持たず個別イベントのactorが"system"のまま取り込みIDで結びつかない、(R-06)反映順序が削除側の依存(ロール削除と権限行、テーブル削除とメニュー・権限)を扱っていない、(R-07)反映メソッドが返す件数の契約が追補にない、(R-08)キャッシュ再構築・イベント発行をコミット後に限る要求がC9/C12追補に抜けている(C10のみ)。これらはNFR/Code Generationのplan承認までに対応する。
+- 2026-09-21T09:20:00Z — [config-import-export] 全置換で削除されるロールをユーザーが保持している場合(user-managementのroleIds・グループ経由)の扱いが未確定(a: 取り込み拒否 / b: C11のroleIds返却時に実在ロールへ絞る / c: 運用手順)。Code Generationのplan承認までに確定する(functional-spec.mdのAssumptions & Open Questions参照)。
+- 2026-09-21T09:20:00Z — [config-import-export] permission-engineのブートストラップ判定の設計との不一致(BR3.13)を、別課題として修正するか判断が必要。取り込み経路以外で主権限が0件になると初期状態の例外が再有効化する。
+- 2026-09-21T09:20:00Z — [config-import-export] C7・C9・C10・C12契約の追補、audit-loggingへのConfigImportExecutedEvent購読追加、frontend-uiへの差分確認モーダル要求が、Code Generation着手前に必要(functional-spec.mdの追補一覧1〜8番)。
 - 2026-09-20T00:25:00Z — [user-management] ユーザー指示: 招待メールの文面のテンプレートエンジンには、自作のmustacheエンジンを使いたい。機能設計(技術非依存)の成果物には含めず、NFR Requirements/NFR Design、遅くともCode Generationの計画承認(Plan Approval)までに、(1)依存としての取り込み方(Gradle座標・リポジトリ等)、(2)使用するmustache構文・機能の範囲、(3)ライセンス上の注意を確認する。あわせて、招待メールの差し込み項目(招待URL・氏名等)と、メールの言語(招待時点では宛先のUserPreferenceが未作成のため、どのlocaleで送るか)を決める必要がある(BR4.16関連)。
 - 2026-09-20T00:03:00Z — [user-management] Code Generation着手前に必要なContract Design追補が3件ある: (1)C10(PermissionEngineApi)へのroleId実在検証メソッド追加(Q6=B)、(2)C5の招待受諾APIへのtheme/fontSize/locale任意項目追加(Q4=X)、(3)C11 `revokeRefreshTokensOnDisable`の呼び出し方向(user-management→authentication-serviceか逆か)の確定(U5の機能設計時)。詳細はfunctional-spec.mdのAssumptions & Open Questions参照。
 - 2026-09-20T00:03:00Z — [user-management] 招待メール送信(SMTP)失敗時の扱い(fail-fastか非同期リトライか)と、招待受諾時のUserChangedEventの発行件数(W2で1件か、W1のINVITEDと合わせて2件か)は、requirements.mdに明示がなく[assumption]のまま残した(推奨は前者fail-fast、後者は2件発行)。Code Generationのplan承認時に確定する。
