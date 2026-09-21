@@ -3,6 +3,7 @@
 
 ## Interpretations
 <!-- example: 2026-05-29T10:14:32Z — chose REST over GraphQL; the consuming team only needs CRUD, revisit if subscriptions land -->
+- 2026-09-21T13:00:00Z — [config-import-export] Q1のインポート10秒(p95)を「実行時に強制しない性能の目標」と解釈した(追加確認Q6=A)。Q4=B(独自の時間上限なし)と整合させるため、取り込みは10秒を超えても完了まで続け、内部設定DBのロック待ちのタイムアウトなどで失敗した場合だけ503とする(NFR1.2・NFR4.3)。
 - 2026-09-20T00:40:00Z — [user-management] ユーザー指示: 招待メールはHTMLメールとし、件名(Subject)はレンダリング後のHTMLの`<title>`要素の値から抽出する。security-requirements.md NFR2.7(HTMLエスケープ、件名のCR/LF除去・ヘッダー符号化)とtech-stack-decisions.md(確認事項4〜6)へ反映した。テンプレートに`<title>`が無い/空の場合の起動時fail fast、テキスト版(multipart/alternative)の要否は未確認のため[assumption]/確認事項として残した。
 - 2026-09-20T00:40:00Z — [user-management] Q2・Q3は初回回答に幅・曖昧さ(「数秒」「10〜30秒」)があったため、Follow-upで具体値(ハッシュ計算の待機上限2秒、SMTPタイムアウト10秒)を確定した。
 - 2026-09-20T12:24:00Z — [authentication-service] Q1〜Q7はすべてAで確定し、曖昧・矛盾はなかった。Q4の「期限または失効から7日後」は、Sessionに失効日時の属性がないため、有効期限(`refreshExpiresAt`)から7日後の削除に統一して解釈した([assumption]、reliability-requirements.md NFR4.5。エンティティの変更を避けた)。Q7=Aには、認証フィルタの401に`reason`ラベル(expired・invalid・session_inactive)と、派生指標5つを加えた(有効期限切れの401は10分ごとに起こる通常の事象で、単一の数ではアラートに使えないため)。
@@ -21,12 +22,19 @@
 
 ## Tradeoffs
 <!-- example: 2026-05-29T10:14:32Z — picked TDD over BDD this run; the team is unit-first and the domain is well-understood -->
+- 2026-09-21T13:00:00Z — [config-import-export] Q2=C(リクエスト本体・JSONの読み取りに上限なし)とQ3=A(権限の再確認・取り込みの排他なし)は、機能設計の受け入れたリスク(BR9.19)を維持する選択。実装は単純になる一方、巨大ファイルによる資源枯渇と、検証から反映の間の権限取り消し・初期状態の変化の競合が残る。NFR2.2・NFR2.4・NFR4.6に、残余リスクと緩和(監査イベントによる追跡、運用手順)を記録した。
+- 2026-09-21T13:00:00Z — [config-import-export] Q4=B(エクスポートはスナップショット分離で読み、取り込みの独自の時間上限は置かない)を採用。ロック待ちによる長時間の保持のリスクは、想定規模(数MB以下)では10秒以内に収まる見込みとして受け入れた。
+- 2026-09-21T13:00:00Z — [config-import-export] Q5=B(標準の計装のみ、専用メトリクスなし)を採用。取り込みの結果の確認は、監査イベントと開始・終了のINFOログに限られる。
 - 2026-09-20T12:24:00Z — [authentication-service] 認証フィルタは、リクエストごとにはアクティブロールの有効性を再確認しない(Sessionのキャッシュを読むだけ)。NFR1.2(キャッシュヒット時5ミリ秒以下)を守る代わりに、ロールを外された利用者が旧ロールで操作できる期間が最大10分残る(残余リスク7)。
 - 2026-09-20T12:24:00Z — [authentication-service] 内部設定DBの障害は、フロントエンドが再ログインを強いられないよう、401ではなく503とした(Q5=A)。代わりに、C4と認証フィルタの契約への503の追補と、フロントエンドが503を認証失敗と区別する要求(NFR2.11)が加わった。
 - 2026-09-13T23:22:00Z — [data-import-export] 一時バッファは常にメモリ上配列とし、一時テーブル方式は採用しない(NFR3.3/tech-stack-decisions.md)。NFR1想定規模(10万行)なら許容範囲という評価に基づく。
 
 ## Open questions
 <!-- example: 2026-05-29T10:14:32Z — confirm the retention window with compliance before the next stage hardens the schema -->
+- 2026-09-21T13:20:00Z — [config-import-export] アーキテクチャレビュー(iteration 1, READY)。Critical 0件、Major 5件・Minor 3件はsuggestionとしてステージ全体の承認ゲートで人間に提示する(review-protocolの「Do NOT apply suggestions, quote them at the gate」原則)。Major: (R-01)NFR2.3がForbiddenを「満たす」と断定しているがNFR2.4(b)(c)の競合で昇格判定を免れる余地が残り、緩和策「監査イベントで追跡」も過大(BR9.16は件数と失敗分類のみ、個別イベントのactorはsystem)、(R-02)認可を本体の読み取り・解析より前に行うことをNFRが要求しておらず、権限のない認証済みユーザーがサイズ無制限の本体でメモリを消費させうる(NFR2.2の根拠が崩れる。NFR Designで、認可を本体の束縛より前に行う方式の検討が必要)、(R-03)NFR4.2でコミット後のキャッシュ再構築・イベント発行が失敗した場合の扱いが未定義、(R-04)NFR4.4のスナップショット分離は書き出しの契約が同一トランザクションでDBを直接読む場合にしか効かず、config-engineがキャッシュを返す場合は食い違いうる、(R-05)機能設計の残余リスク(自己の締め出し・actor=system・ブートストラップ判定)がNFRに引き継がれておらず、NFR4.7の「エクスポートで復元」は締め出し時に成り立たない。
+- 2026-09-21T13:00:00Z — [config-import-export] アーキテクチャレビュー(機能設計、iteration 1)の指摘R-03(検証と反映の間の競合)は、Q3=Aの確定により、NFRの受け入れたリスクとして残った(NFR2.4)。Code Generationのplan承認とステージ全体の承認ゲートで、人間に再提示する。
+- 2026-09-21T13:00:00Z — [config-import-export] H2の分離レベル(スナップショット分離)の指定方法と、H2の既定のロック待ちのタイムアウトの実際の値を、NFR Designで確認して確定する(NFR4.3・NFR4.4)。
+- 2026-09-21T13:00:00Z — [config-import-export] キャッシュの再構築とイベントの発行をコミット後に限る要求(NFR4.2、レビュー指摘R-08)は、C9・C12の契約の追補として、Code Generationの着手前に反映が必要。
 - 2026-09-20T12:24:00Z — [authentication-service] Code Generationの計画承認までに確認する事項(tech-stack-decisions.mdの確認事項1〜5): (1)パスワードの変更・再設定の手段が要件にも機能設計にもなく、MVPでは利用者が自分のパスワードを変更できない(スコープの判断)、(2)セキュリティヘッダー(Referrer-Policy・CSP等)の担い手(U4のNFR Designが共通基盤へ要求として記録)、(3)認証基盤のライブラリ(Spring Security OAuth2 Resource Server か自前フィルタか)、(4)内部設定DBの永続の設定(メモリのみか、ファイルか)、(5)環境側の前提(HTTPS・時刻同期・DB復元後のSession全削除・リバースプロキシのログ)。
 - 2026-09-20T12:24:00Z — [authentication-service] 契約追補の一覧(tech-stack-decisions.md 1〜9番)は、機能設計の追補一覧(1〜12番)とは別に、Code Generationの計画承認までに反映する。特に1番(C4と認証フィルタへの503の追補)は、他ユニットのREST契約C1〜C3・C5〜C8には個別に加えず、contract-summary.mdの共通の前提に1文を加える方針とした。
 - 2026-09-20T01:05:00Z — [user-management] アーキテクチャレビュー(iteration 2, READY)で残ったMinor所見5件(承認ゲートまたは後続ステージで人間が確認する): (R-11)後勝ちのPUTで行ロックなしにbeforeValueを読んでも不正確にならないとは言えないこと、要件NFR4の楽観ロック記述との関係が未記載。(R-14)再招待の進行中(最大約12秒、未コミット)に受諾・取消・PUTがロック待ちになる場合の応答(503)が未規定で、条件付き更新がstatus=invitedのみで招待トークンの一致を含まないため、再招待との競合で旧トークンの受諾が成立しうる。(R-15)件名の200文字超・改行が503(SMTP障害のアラートの誤報)になるが、BR4.15にnameの最大長がなく、契約追補7番は制御文字の検証のみ。(R-16)Referrer-Policyの担当(U12かサーバー設定か)が曖昧で、U5・環境側への引き渡し事項が成果物内に分散している。(R-17)NFR7.2の「config-engineが管理する翻訳リソース」を根拠なく事実として記述している。

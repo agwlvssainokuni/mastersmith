@@ -1,0 +1,16 @@
+{
+  "stage": "nfr-requirements",
+  "unit": "config-import-export",
+  "upstream_ids": ["NFR1", "NFR2", "NFR3", "NFR4", "NFR5", "NFR6", "NFR7", "NFR8"],
+  "coverage": [
+    { "id": "NFR1", "status": "OK", "target": "NFR1.1, NFR1.2, NFR1.3" },
+    { "id": "NFR2", "status": "OK", "target": "NFR2.1, NFR2.2, NFR2.3, NFR2.4, NFR2.5, NFR2.6, NFR2.7" },
+    { "id": "NFR3", "status": "OK", "target": "NFR3.1" },
+    { "id": "NFR4", "status": "OK", "target": "NFR4.1, NFR4.2, NFR4.3, NFR4.4, NFR4.5, NFR4.6, NFR4.7" },
+    { "id": "NFR5", "status": "OK", "target": "NFR5.1, NFR5.2, NFR5.3, NFR5.4, NFR5.5" },
+    { "id": "NFR6", "status": "N/A", "target": "config-import-exportはバックエンドサービスであり直接のUI・ユーザー向け画面を持たないため、ユーザビリティ・アクセシビリティ要件は該当しない(設定管理画面はfrontend-ui, U12のNFR Requirementsで扱う。functional-spec.mdの追補一覧7番のフロントエンドへの要求を引き継ぐ)" },
+    { "id": "NFR7", "status": "N/A", "target": "検証の誤りのメッセージのi18nキー化は、Functional Design(rules.md BR9.7)で構造的に定義済みであり、本ステージのNFRカテゴリ(性能・セキュリティ・スケーラビリティ・信頼性・可観測性・技術選定)には該当しない。翻訳リソース自体の用意はフロントエンド・ビルド成果物の関心事である" }
+    ,
+    { "id": "NFR8", "status": "OK", "target": "NFR8.1(tech-stack-decisions.md)" }
+  ]
+}
