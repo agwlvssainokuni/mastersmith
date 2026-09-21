@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.observation;
 
 import io.micrometer.observation.Observation;
@@ -8,11 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * authentication-serviceの観測(スパン)の入口(nfr-design/observability-design.md NFR5.3)。ログイン・リフレッシュ・ログアウト・ロール選択・認証フィルタ・
- * Sessionの定期削除を、{@link ObservationRegistry}による観測に載せる。呼び出し元(HTTPリクエストの観測)のトレースコンテキストを継承する。
+ * authentication-serviceの観測(スパン)の入口(nfr-design/observability-design.md
+ * NFR5.3)。ログイン・リフレッシュ・ログアウト・ロール選択・認証フィルタ・ Sessionの定期削除を、{@link
+ * ObservationRegistry}による観測に載せる。呼び出し元(HTTPリクエストの観測)のトレースコンテキストを継承する。
  *
- * <p><b>属性(キーと値)には、固定の低カーディナリティの分類だけを使う</b>({@code unit}・{@code reason}・{@code cache})。パスワード・トークン・鍵・
- * メールアドレス・氏名・{@code Authorization}ヘッダーの値・userId・sessionIdは、属性に含めない(NFR2.7)。
+ * <p><b>属性(キーと値)には、固定の低カーディナリティの分類だけを使う</b>({@code unit}・{@code reason}・{@code
+ * cache})。パスワード・トークン・鍵・ メールアドレス・氏名・{@code Authorization}ヘッダーの値・userId・sessionIdは、属性に含めない(NFR2.7)。
  *
  * <p>{@link ObservationRegistry}が構成されていない環境(スライスのテストなど)では、何も観測しない(NOOP)。
  */

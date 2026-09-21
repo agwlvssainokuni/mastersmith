@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.service;
 
 import com.mastersmith.auth.config.AuthProperties;
@@ -11,11 +27,13 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * 起動時の全Sessionの失効の手段(security-design.md NFR2.5、reliability-design.md NFR4.7)。設定{@code
- * mastersmith.auth.session.revoke-all-on-startup}(既定false)をtrueにして起動すると、起動時に、{@code auth_session}のすべての行を削除する。
+ * mastersmith.auth.session.revoke-all-on-startup}(既定false)をtrueにして起動すると、起動時に、{@code
+ * auth_session}のすべての行を削除する。
  * バックアップからの復元後や、JWTの鍵の漏えいの疑いのときの運用の手順の前提である(設定を戻さないまま起動を繰り返すと、そのたびに削除される)。
  *
- * <p>実行のタイミングは、Flywayの移行の後、<b>Webサーバーがリクエストを受け付ける前</b>である。{@link SmartInitializingSingleton}は、すべてのシングルトンの
- * 初期化(Flywayの移行を含む)が終わった後、Webサーバーの起動({@code SmartLifecycle})より前に実行される。{@code ApplicationRunner}は、Webサーバーの起動の後に
+ * <p>実行のタイミングは、Flywayの移行の後、<b>Webサーバーがリクエストを受け付ける前</b>である。{@link
+ * SmartInitializingSingleton}は、すべてのシングルトンの 初期化(Flywayの移行を含む)が終わった後、Webサーバーの起動({@code
+ * SmartLifecycle})より前に実行される。{@code ApplicationRunner}は、Webサーバーの起動の後に
  * 実行され、その間に作られたSessionを削除しうるため、使わない。削除に失敗した場合は、起動を失敗させる(失効させるべきSessionを残したまま、受け付けない)。
  */
 @Component

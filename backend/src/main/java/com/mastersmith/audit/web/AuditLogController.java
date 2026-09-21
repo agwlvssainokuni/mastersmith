@@ -20,12 +20,12 @@ import com.mastersmith.audit.entity.AuditLogEntry;
 import com.mastersmith.audit.exception.AuditLogForbiddenException;
 import com.mastersmith.audit.exception.AuditLogQueryValidationException;
 import com.mastersmith.audit.repository.AuditLogEntryRepository;
+import com.mastersmith.common.security.Operator;
+import com.mastersmith.common.security.OperatorContext;
 import com.mastersmith.permission.PermissionEngineApi;
-import com.mastersmith.schema.security.ActiveRoleResolver;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * C6(audit-logging REST API、FR8.4)の閲覧エンドポイントを実装する。
  *
- * <p>本コントローラは自前の権限判定ロジックを持たず、呼び出しごとに{@link ActiveRoleResolver}でactiveRoleIdを解決し、{@link
+ * <p>本コントローラは自前の権限判定ロジックを持たず、呼び出しごとに{@link
+ * OperatorContext}(C15、認証フィルタが値を設定する)からactiveRoleIdを読み、{@link
  * PermissionEngineApi#canAccessScreen}(screenKey={@value #SCREEN_KEY})へ認可判定を委譲する(BR7.10、project.md
  * Mandated「画面表示の出し分けだけに依存せず、必ずサーバー側で実効権限を再検証する」)。予約screenKey
  * "audit-log"はpermission-engineがBR3.10・BR3.15で既に予約・実装済みのものをそのまま利用する。
@@ -76,18 +77,18 @@ public class AuditLogController {
 
   private final AuditLogEntryRepository repository;
   private final PermissionEngineApi permissionEngineApi;
-  private final ActiveRoleResolver activeRoleResolver;
+  private final OperatorContext operatorContext;
   private final Timer requestDurationTimer;
   private final Counter errorCounter;
 
   public AuditLogController(
       AuditLogEntryRepository repository,
       PermissionEngineApi permissionEngineApi,
-      ActiveRoleResolver activeRoleResolver,
+      OperatorContext operatorContext,
       MeterRegistry meterRegistry) {
     this.repository = repository;
     this.permissionEngineApi = permissionEngineApi;
-    this.activeRoleResolver = activeRoleResolver;
+    this.operatorContext = operatorContext;
     this.requestDurationTimer =
         Timer.builder("audit_logging.get_audit_log.duration")
             .description("GET /api/audit-log request latency")
@@ -102,14 +103,15 @@ public class AuditLogController {
   public ResponseEntity<AuditLogPageResponse> getAuditLog(
       @RequestParam(defaultValue = "1") int page,
       @RequestParam(defaultValue = "20") int pageSize,
-      @RequestParam(required = false) String targetType,
-      HttpServletRequest httpRequest) {
+      @RequestParam(required = false) String targetType) {
     Timer.Sample sample = Timer.start();
     try {
       validateQueryParameters(page, pageSize, targetType);
 
-      String activeRoleId = activeRoleResolver.resolveActiveRoleId(httpRequest);
-      if (activeRoleId == null || !permissionEngineApi.canAccessScreen(activeRoleId, SCREEN_KEY)) {
+      // activeRoleIdが未選択(null)でも、自前で拒否せず、そのままC10へ渡す(fail closedで権限なしと判定される。
+      // authentication-serviceの機能設計 BR5.12)。
+      String activeRoleId = operatorContext.current().map(Operator::activeRoleId).orElse(null);
+      if (!permissionEngineApi.canAccessScreen(activeRoleId, SCREEN_KEY)) {
         LOG.warn("Audit log access denied: activeRoleId={}", activeRoleId);
         throw new AuditLogForbiddenException(
             "Audit log access denied for activeRoleId=" + activeRoleId);

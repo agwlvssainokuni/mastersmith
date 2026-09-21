@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.config;
 
 import java.time.Duration;
@@ -5,15 +21,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 /**
- * authentication-serviceの設定値({@code mastersmith.auth.*})。トークンの有効期限・ロックのしきい値と時間・再送の猶予・Sessionの削除・キャッシュは、 コードに埋め込まず、ここから与える
+ * authentication-serviceの設定値({@code
+ * mastersmith.auth.*})。トークンの有効期限・ロックのしきい値と時間・再送の猶予・Sessionの削除・キャッシュは、 コードに埋め込まず、ここから与える
  * (NFR8.1、BR5.4)。既定値は、NFR Requirements・NFR Designで確定した値である。
  *
  * <p><b>JWTの署名の鍵は、この設定の束縛の対象にしない</b>。Spring Bootの束縛の失敗の診断は、拒否された値を表示するため、鍵は{@link
- * com.mastersmith.auth.token.JwtKeyProvider}が{@code Environment}から直接読む(環境変数{@code MASTERSMITH_AUTH_JWT_SECRET}、
- * キー{@code mastersmith.auth.jwt.secret})。
+ * com.mastersmith.auth.token.JwtKeyProvider}が{@code Environment}から直接読む(環境変数{@code
+ * MASTERSMITH_AUTH_JWT_SECRET}、 キー{@code mastersmith.auth.jwt.secret})。
  *
- * <p>不備(0以下の有効期限・しきい値・ロック時間、アクセストークンの有効期限がリフレッシュトークンの有効期限を超えること、など)は、起動時に失敗させる
- * (project.md Mandated、BR5.4・NFR4.4)。エラーのメッセージには、設定のキーの名前と理由だけを含める。
+ * <p>不備(0以下の有効期限・しきい値・ロック時間、アクセストークンの有効期限がリフレッシュトークンの有効期限を超えること、など)は、起動時に失敗させる (project.md
+ * Mandated、BR5.4・NFR4.4)。エラーのメッセージには、設定のキーの名前と理由だけを含める。
  *
  * @param accessTokenTtl アクセストークンの有効期限(FR3.1、既定10分)
  * @param refreshTokenTtl リフレッシュトークンの有効期限(FR3.1、既定30分)。最後の発行から、この時間後まで有効
@@ -87,7 +104,8 @@ public record AuthProperties(
             PREFIX + "session.cleanup-initial-delay must not be negative");
       }
       if (cleanupBatchSize < 1) {
-        throw new IllegalArgumentException(PREFIX + "session.cleanup-batch-size must be at least 1");
+        throw new IllegalArgumentException(
+            PREFIX + "session.cleanup-batch-size must be at least 1");
       }
       if (cleanupMaxBatches < 1) {
         throw new IllegalArgumentException(

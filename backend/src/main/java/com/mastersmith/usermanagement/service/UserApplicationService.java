@@ -16,6 +16,7 @@
 
 package com.mastersmith.usermanagement.service;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.dto.UpdateUserRequest;
 import com.mastersmith.usermanagement.dto.UserResponse;
@@ -30,7 +31,6 @@ import com.mastersmith.usermanagement.exception.UserNotFoundException;
 import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;

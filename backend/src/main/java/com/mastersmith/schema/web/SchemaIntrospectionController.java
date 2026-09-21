@@ -16,16 +16,16 @@
 
 package com.mastersmith.schema.web;
 
+import com.mastersmith.common.security.Operator;
+import com.mastersmith.common.security.OperatorContext;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.schema.dto.SchemaIntrospectionRequest;
 import com.mastersmith.schema.dto.SchemaIntrospectionResult;
 import com.mastersmith.schema.exception.SchemaIntrospectionException;
 import com.mastersmith.schema.exception.SchemaIntrospectionForbiddenException;
-import com.mastersmith.schema.security.ActiveRoleResolver;
 import com.mastersmith.schema.service.SchemaIntrospectionService;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * C8(schema-introspector REST API、FR1.4、Unit Generationレビュー指摘R-01)を実装する。
  *
- * <p>BR2.8: 呼び出しごとに{@link ActiveRoleResolver}でactiveRoleIdを解決し、{@link
+ * <p>BR2.8: 呼び出しごとに{@link OperatorContext}(C15、認証フィルタが値を設定する)からactiveRoleIdを読み、{@link
  * PermissionEngineApi#canAccessScreen}でサーバー側の実効権限を再検証する(画面表示の出し分けだけに依存しない、project.md
  * Mandated)。screenKeyは設定管理画面がconfig-import-exportと共通の画面であるため、既存の予約screenKey({@value
  * #SCREEN_KEY})をそのまま用いる。拒否時は403(C8のForbiddenレスポンス)を返し、以降の処理(メタデータ読み取り・{@code
@@ -76,17 +76,17 @@ public class SchemaIntrospectionController {
 
   private final SchemaIntrospectionService service;
   private final PermissionEngineApi permissionEngineApi;
-  private final ActiveRoleResolver activeRoleResolver;
+  private final OperatorContext operatorContext;
   private final Counter forbiddenCounter;
 
   public SchemaIntrospectionController(
       SchemaIntrospectionService service,
       PermissionEngineApi permissionEngineApi,
-      ActiveRoleResolver activeRoleResolver,
+      OperatorContext operatorContext,
       MeterRegistry meterRegistry) {
     this.service = service;
     this.permissionEngineApi = permissionEngineApi;
-    this.activeRoleResolver = activeRoleResolver;
+    this.operatorContext = operatorContext;
     this.forbiddenCounter =
         Counter.builder("schema_introspection_failures_total")
             .description("Number of failed schema-introspection attempts (403/422, cumulative)")
@@ -95,9 +95,11 @@ public class SchemaIntrospectionController {
 
   @PostMapping("/api/config/schema-introspection")
   public ResponseEntity<SchemaIntrospectionResult> introspect(
-      @Valid @RequestBody SchemaIntrospectionRequest request, HttpServletRequest httpRequest) {
-    String activeRoleId = activeRoleResolver.resolveActiveRoleId(httpRequest);
-    if (activeRoleId == null || !permissionEngineApi.canAccessScreen(activeRoleId, SCREEN_KEY)) {
+      @Valid @RequestBody SchemaIntrospectionRequest request) {
+    // activeRoleIdが未選択(null)でも、自前で拒否せず、そのままC10へ渡す(fail closedで権限なしと判定される。RBAC設定が空の間の
+    // config-import-exportの例外は、activeRoleIdにかかわらず適用される。authentication-serviceの機能設計 BR5.12)。
+    String activeRoleId = operatorContext.current().map(Operator::activeRoleId).orElse(null);
+    if (!permissionEngineApi.canAccessScreen(activeRoleId, SCREEN_KEY)) {
       forbiddenCounter.increment();
       LOG.warn(
           "Schema introspection denied: schemaName={}, activeRoleId={}",

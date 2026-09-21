@@ -1,10 +1,27 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.security;
 
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * セキュリティヘッダーの値を、1か所に持つ(security-design.md NFR2.9)。{@code SecurityFilterChain}の設定({@link AuthSecurityConfig})と、チェーンの手前で
- * 応答を書く{@link ProblemDetailsWriter}(サイズ制限の413など)が、同じ値を使う(チャンク転送の413と、値がそろう)。
+ * セキュリティヘッダーの値を、1か所に持つ(security-design.md NFR2.9)。{@code SecurityFilterChain}の設定({@link
+ * AuthSecurityConfig})と、チェーンの手前で 応答を書く{@link
+ * ProblemDetailsWriter}(サイズ制限の413など)が、同じ値を使う(チャンク転送の413と、値がそろう)。
  *
  * <p>{@code Strict-Transport-Security}は、Spring Securityの既定に従う(HTTPSのリクエストにのみ付く。TLSの終端は、環境の前提)。
  */

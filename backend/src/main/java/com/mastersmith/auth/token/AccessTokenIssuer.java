@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.token;
 
 import com.mastersmith.auth.config.AuthProperties;
@@ -13,8 +29,9 @@ import java.util.Date;
 import org.springframework.stereotype.Component;
 
 /**
- * アクセストークン(JWT、HS256)を署名して発行する(BR5.5、NFR2.2)。運ぶ値は{@code sub}(userId)・{@code sid}(sessionId)・{@code iat}・
- * {@code exp}だけで、アクティブロール・メールアドレス・氏名は含めない。{@code exp}は、注入された{@link Clock}の現在時刻に、設定の有効期限を加えた値とする。
+ * アクセストークン(JWT、HS256)を署名して発行する(BR5.5、NFR2.2)。運ぶ値は{@code sub}(userId)・{@code sid}(sessionId)・{@code
+ * iat}・ {@code exp}だけで、アクティブロール・メールアドレス・氏名は含めない。{@code exp}は、注入された{@link
+ * Clock}の現在時刻に、設定の有効期限を加えた値とする。
  */
 @Component
 public class AccessTokenIssuer {

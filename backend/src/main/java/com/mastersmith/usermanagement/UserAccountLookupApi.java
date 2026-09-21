@@ -24,8 +24,9 @@ import java.util.Optional;
  *
  * <p>呼び出し元(U5)は、各メソッドを、<b>トランザクションの外で</b>呼ぶこと(ハッシュ計算の許可を保持している間はDB接続を取らない、という資源の取得順序の 不変条件を保つため)。
  *
- * <p><b>{@code revokeRefreshTokensOnDisable}は、契約から削除した</b>(authentication-service(U5)の機能設計 追補4番。引き込み型のため不要)。FR2.3の
- * 「以後の再認証はできない」は、{@link #isDisabled(String)}が常に最新のstatusを返すことと、authentication-serviceが、ログイン・リフレッシュで
+ * <p><b>{@code revokeRefreshTokensOnDisable}は、契約から削除した</b>(authentication-service(U5)の機能設計
+ * 追補4番。引き込み型のため不要)。FR2.3の 「以後の再認証はできない」は、{@link
+ * #isDisabled(String)}が常に最新のstatusを返すことと、authentication-serviceが、ログイン・リフレッシュで
  * 無効化されたユーザーを拒否することで担保する。{@link #findByUserId(String)}・{@link #dummyVerify(String)}は、U5の追補として加えた。
  */
 public interface UserAccountLookupApi {
@@ -52,8 +53,9 @@ public interface UserAccountLookupApi {
   boolean isDisabled(String userId);
 
   /**
-   * userIdでUserを検索する(C11への追補、authentication-service(U5)の機能設計 追補4番)。アクセストークンが{@code sub}(userId)しか運ばないため、
-   * リフレッシュ・ロール選択で、最新の選択可能なロールを得るために用いる。{@link UserAccount#roleIds()}は、直接付与分とGroup経由分の和集合、{@link
+   * userIdでUserを検索する(C11への追補、authentication-service(U5)の機能設計 追補4番)。アクセストークンが{@code
+   * sub}(userId)しか運ばないため、 リフレッシュ・ロール選択で、最新の選択可能なロールを得るために用いる。{@link
+   * UserAccount#roleIds()}は、直接付与分とGroup経由分の和集合、{@link
    * UserAccount#passwordHash()}はnull。statusは問わない(不存在の場合だけ空)。
    */
   Optional<UserAccount> findByUserId(String userId);

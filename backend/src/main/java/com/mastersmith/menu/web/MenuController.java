@@ -16,6 +16,8 @@
 
 package com.mastersmith.menu.web;
 
+import com.mastersmith.common.security.Operator;
+import com.mastersmith.common.security.OperatorContext;
 import com.mastersmith.menu.dto.MenuItemInput;
 import com.mastersmith.menu.dto.MenuItemView;
 import com.mastersmith.menu.dto.MenuResponse;
@@ -28,11 +30,9 @@ import com.mastersmith.menu.exception.MenuUnauthorizedException;
 import com.mastersmith.menu.service.MenuItemCommandService;
 import com.mastersmith.menu.service.MenuQueryService;
 import com.mastersmith.permission.PermissionEngineApi;
-import com.mastersmith.schema.security.ActiveRoleResolver;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.slf4j.Logger;
@@ -54,14 +54,17 @@ import org.springframework.web.bind.annotation.RestController;
  * Design追補の{@code POST/PUT/DELETE /api/menu-items}(W2〜W4、BR6.8)を1つのコントローラにまとめる
  * (code-generation-plan.md Step 7、両者は同一リソース(MenuItem)を扱う)。
  *
- * <p>本コントローラは自前の権限判定ロジックを持たず、呼び出しごとに{@link ActiveRoleResolver}でactiveRoleIdを解決し、{@link
+ * <p>本コントローラは自前の権限判定ロジックを持たず、呼び出しごとに{@link
+ * OperatorContext}(C15、認証フィルタが値を設定する)からactiveRoleIdを読み、{@link
  * PermissionEngineApi#canAccessScreen}へ委譲する(project.md Mandated)。
  *
  * <p><b>401/403の切り分け(code-generation-plan.md「前提事項2」)</b>: C3契約は{@code GET /api/menu}に401のみを宣言し
  * (403は宣言されていない。BR6.3の権限フィルタは「除外」であり「エラー」ではないため)、{@code
- * /api/menu-items}には401と403の両方を宣言している。activeRoleIdを解決できない場合は{@code GET /api/menu}・{@code
- * /api/menu-items}のいずれも401とし、{@code /api/menu-items}のみ、activeRoleIdは解決できたが{@code
- * canAccessScreen}が{@code false}を返す場合を403とする。
+ * /api/menu-items}には401と403の両方を宣言している。操作者({@link OperatorContext})を解決できない場合は{@code GET
+ * /api/menu}・{@code /api/menu-items}のいずれも401とし、{@code /api/menu-items}のみ、{@code
+ * canAccessScreen}が{@code false}を返す場合を403とする。 activeRoleIdが未選択(null)でも、自前で401にせず、そのままC10へ渡す(fail
+ * closedで権限なしと判定される。{@code GET /api/menu}は、権限のあるメニューが 1件もない、として空を返す。authentication-serviceの機能設計
+ * BR5.12)。
  */
 @RestController
 public class MenuController {
@@ -77,7 +80,7 @@ public class MenuController {
   private final MenuQueryService menuQueryService;
   private final MenuItemCommandService menuItemCommandService;
   private final PermissionEngineApi permissionEngineApi;
-  private final ActiveRoleResolver activeRoleResolver;
+  private final OperatorContext operatorContext;
   private final Timer getMenuDurationTimer;
   private final Counter getMenuErrorCounter;
   private final Timer menuItemsCrudDurationTimer;
@@ -87,12 +90,12 @@ public class MenuController {
       MenuQueryService menuQueryService,
       MenuItemCommandService menuItemCommandService,
       PermissionEngineApi permissionEngineApi,
-      ActiveRoleResolver activeRoleResolver,
+      OperatorContext operatorContext,
       MeterRegistry meterRegistry) {
     this.menuQueryService = menuQueryService;
     this.menuItemCommandService = menuItemCommandService;
     this.permissionEngineApi = permissionEngineApi;
-    this.activeRoleResolver = activeRoleResolver;
+    this.operatorContext = operatorContext;
     this.getMenuDurationTimer =
         Timer.builder("menu_navigation.get_menu.duration")
             .description("GET /api/menu request latency")
@@ -113,15 +116,18 @@ public class MenuController {
   }
 
   @GetMapping("/api/menu")
-  public ResponseEntity<MenuResponse> getMenu(HttpServletRequest httpRequest) {
+  public ResponseEntity<MenuResponse> getMenu() {
     Timer.Sample sample = Timer.start();
     try {
-      String activeRoleId = activeRoleResolver.resolveActiveRoleId(httpRequest);
-      if (activeRoleId == null) {
-        // GET /api/menuの高頻度パスのため個別INFOログは出力しない(observability-design.md)。
-        throw new MenuUnauthorizedException("Unable to resolve activeRoleId for GET /api/menu");
-      }
-      return ResponseEntity.ok(menuQueryService.getMenu(activeRoleId));
+      Operator operator =
+          operatorContext
+              .current()
+              .orElseThrow(
+                  // GET /api/menuの高頻度パスのため個別INFOログは出力しない(observability-design.md)。
+                  () ->
+                      new MenuUnauthorizedException(
+                          "Unable to resolve the operator for GET /api/menu"));
+      return ResponseEntity.ok(menuQueryService.getMenu(operator.activeRoleId()));
     } catch (RuntimeException e) {
       getMenuErrorCounter.increment();
       throw e;
@@ -131,11 +137,10 @@ public class MenuController {
   }
 
   @PostMapping("/api/menu-items")
-  public ResponseEntity<MenuItemView> create(
-      @Valid @RequestBody MenuItemInput input, HttpServletRequest httpRequest) {
+  public ResponseEntity<MenuItemView> create(@Valid @RequestBody MenuItemInput input) {
     Timer.Sample sample = Timer.start();
     try {
-      String activeRoleId = authorizeMenuItemsRequest(httpRequest);
+      String activeRoleId = authorizeMenuItemsRequest();
       MenuItem created = menuItemCommandService.create(input);
       LOG.info(
           "MenuItem created: activeRoleId={}, menuItemId={}",
@@ -152,12 +157,10 @@ public class MenuController {
 
   @PutMapping("/api/menu-items/{menuItemId}")
   public ResponseEntity<MenuItemView> update(
-      @PathVariable String menuItemId,
-      @Valid @RequestBody MenuItemInput input,
-      HttpServletRequest httpRequest) {
+      @PathVariable String menuItemId, @Valid @RequestBody MenuItemInput input) {
     Timer.Sample sample = Timer.start();
     try {
-      String activeRoleId = authorizeMenuItemsRequest(httpRequest);
+      String activeRoleId = authorizeMenuItemsRequest();
       MenuItem updated = menuItemCommandService.update(menuItemId, input);
       LOG.info("MenuItem updated: activeRoleId={}, menuItemId={}", activeRoleId, menuItemId);
       return ResponseEntity.ok(toView(updated));
@@ -170,11 +173,10 @@ public class MenuController {
   }
 
   @DeleteMapping("/api/menu-items/{menuItemId}")
-  public ResponseEntity<Void> delete(
-      @PathVariable String menuItemId, HttpServletRequest httpRequest) {
+  public ResponseEntity<Void> delete(@PathVariable String menuItemId) {
     Timer.Sample sample = Timer.start();
     try {
-      String activeRoleId = authorizeMenuItemsRequest(httpRequest);
+      String activeRoleId = authorizeMenuItemsRequest();
       menuItemCommandService.delete(menuItemId);
       LOG.info("MenuItem deleted: activeRoleId={}, menuItemId={}", activeRoleId, menuItemId);
       return ResponseEntity.noContent().build();
@@ -187,11 +189,15 @@ public class MenuController {
   }
 
   /** {@code /api/menu-items}共通の認可判定(401/403、BR6.8)。 */
-  private String authorizeMenuItemsRequest(HttpServletRequest httpRequest) {
-    String activeRoleId = activeRoleResolver.resolveActiveRoleId(httpRequest);
-    if (activeRoleId == null) {
-      throw new MenuUnauthorizedException("Unable to resolve activeRoleId for /api/menu-items");
-    }
+  private String authorizeMenuItemsRequest() {
+    Operator operator =
+        operatorContext
+            .current()
+            .orElseThrow(
+                () ->
+                    new MenuUnauthorizedException(
+                        "Unable to resolve the operator for /api/menu-items"));
+    String activeRoleId = operator.activeRoleId();
     if (!permissionEngineApi.canAccessScreen(activeRoleId, MENU_ITEMS_SCREEN_KEY)) {
       LOG.warn("MenuItem access denied: activeRoleId={}", activeRoleId);
       throw new MenuItemForbiddenException(

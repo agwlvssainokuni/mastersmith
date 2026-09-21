@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.security;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,16 +23,19 @@ import java.nio.charset.StandardCharsets;
 import org.springframework.stereotype.Component;
 
 /**
- * フィルタ(コントローラの手前)での、RFC 9457のProblemDetails({@code application/problem+json})の応答の書き出し(security-design.md NFR2.8・NFR2.9)。
+ * フィルタ(コントローラの手前)での、RFC 9457のProblemDetails({@code
+ * application/problem+json})の応答の書き出し(security-design.md NFR2.8・NFR2.9)。
  * 認証フィルタは、コントローラの手前で応答を返すため、{@code @RestControllerAdvice}が使えない。
  *
  * <ul>
- *   <li>{@code type}は{@code about:blank}、{@code title}・{@code detail}は、{@link AuthProblem}の固定の文言(原因の詳細・入力値を含めない)、{@code code}は
- *       i18nキー(拡張メンバー)。
+ *   <li>{@code type}は{@code about:blank}、{@code title}・{@code detail}は、{@link
+ *       AuthProblem}の固定の文言(原因の詳細・入力値を含めない)、{@code code}は i18nキー(拡張メンバー)。
  *   <li>{@code instance}は、含めない(生のパスを入れない)。
- *   <li>セキュリティヘッダー({@link SecurityHeaderValues})を、自前で付ける(サイズ制限のフィルタは、Spring Securityのチェーンより前に置かれ、チェーンの
- *       {@code HeaderWriterFilter}が付けるヘッダーが付かないため)。{@code /api/**}には、{@code Cache-Control: no-store}も付ける。
- *   <li>401の{@code token invalid}には、{@code WWW-Authenticate: Bearer}だけを付ける({@code error}などの理由は付けない)。
+ *   <li>セキュリティヘッダー({@link SecurityHeaderValues})を、自前で付ける(サイズ制限のフィルタは、Spring
+ *       Securityのチェーンより前に置かれ、チェーンの {@code HeaderWriterFilter}が付けるヘッダーが付かないため)。{@code
+ *       /api/**}には、{@code Cache-Control: no-store}も付ける。
+ *   <li>401の{@code token invalid}には、{@code WWW-Authenticate: Bearer}だけを付ける({@code
+ *       error}などの理由は付けない)。
  * </ul>
  *
  * <p>{@code sendError}は使わない(エラーのディスパッチを起こさず、この応答が、そのまま返る)。

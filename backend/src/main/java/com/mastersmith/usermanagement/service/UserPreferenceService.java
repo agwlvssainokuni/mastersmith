@@ -16,6 +16,7 @@
 
 package com.mastersmith.usermanagement.service;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.usermanagement.dto.UserPreferenceDto;
 import com.mastersmith.usermanagement.entity.FontSize;
 import com.mastersmith.usermanagement.entity.Theme;
@@ -27,7 +28,6 @@ import com.mastersmith.usermanagement.exception.UserValidationException;
 import com.mastersmith.usermanagement.observation.UserObservations;
 import com.mastersmith.usermanagement.repository.UserPreferenceRepository;
 import com.mastersmith.usermanagement.repository.UserRepository;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.security.UserAuthorizer;
 import java.util.ArrayList;
 import java.util.List;

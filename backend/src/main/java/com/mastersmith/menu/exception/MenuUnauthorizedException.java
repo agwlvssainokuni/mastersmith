@@ -19,7 +19,7 @@ package com.mastersmith.menu.exception;
 import java.io.Serial;
 
 /**
- * {@link com.mastersmith.schema.security.ActiveRoleResolver}がactiveRoleIdを解決できなかった場合の例外(401、C3契約)。
+ * {@link com.mastersmith.common.security.OperatorContext}が操作者を解決できなかった場合の例外(401、C3契約)。
  *
  * <p>{@code GET /api/menu}・{@code POST/PUT/DELETE /api/menu-items}のいずれもこの例外を用いる
  * (code-generation-plan.md「前提事項2」: C3契約は{@code GET /api/menu}に401のみを宣言し、403は宣言していない。BR6.3の権限フィルタは

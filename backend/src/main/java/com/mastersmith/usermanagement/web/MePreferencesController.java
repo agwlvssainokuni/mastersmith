@@ -16,10 +16,9 @@
 
 package com.mastersmith.usermanagement.web;
 
+import com.mastersmith.common.security.OperatorContext;
 import com.mastersmith.usermanagement.dto.UserPreferenceDto;
-import com.mastersmith.usermanagement.security.CurrentOperatorProvider;
 import com.mastersmith.usermanagement.service.UserPreferenceService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,21 +36,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class MePreferencesController {
 
   private final UserPreferenceService preferenceService;
-  private final CurrentOperatorProvider operatorProvider;
+  private final OperatorContext operatorContext;
 
   public MePreferencesController(
-      UserPreferenceService preferenceService, CurrentOperatorProvider operatorProvider) {
+      UserPreferenceService preferenceService, OperatorContext operatorContext) {
     this.preferenceService = preferenceService;
-    this.operatorProvider = operatorProvider;
+    this.operatorContext = operatorContext;
   }
 
   @GetMapping
-  public UserPreferenceDto get(HttpServletRequest request) {
-    return preferenceService.get(operatorProvider.resolve(request));
+  public UserPreferenceDto get() {
+    return preferenceService.get(operatorContext.current().orElse(null));
   }
 
   @PutMapping
-  public UserPreferenceDto update(@RequestBody UserPreferenceDto body, HttpServletRequest request) {
-    return preferenceService.update(operatorProvider.resolve(request), body);
+  public UserPreferenceDto update(@RequestBody UserPreferenceDto body) {
+    return preferenceService.update(operatorContext.current().orElse(null), body);
   }
 }

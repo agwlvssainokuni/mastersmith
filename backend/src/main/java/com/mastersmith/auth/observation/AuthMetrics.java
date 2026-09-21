@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.observation;
 
 import io.micrometer.core.instrument.Counter;
@@ -8,10 +24,12 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 /**
- * authentication-serviceのメトリクスの窓口(nfr-design/observability-design.md NFR5.1)。Micrometerの{@link MeterRegistry}に、次のメーターを登録する。
+ * authentication-serviceのメトリクスの窓口(nfr-design/observability-design.md NFR5.1)。Micrometerの{@link
+ * MeterRegistry}に、次のメーターを登録する。
  *
  * <p><b>タグ・ラベルに、個人を特定しうる値(メールアドレス・氏名・userId・sessionId)、トークン、鍵を含めない</b>(NFR2.7)。タグは、値が固定された
- * 列挙({@link UnauthorizedReason})・{@code result}({@code hit}・{@code miss})だけである。ログイン失敗は、原因を区別せず数える(BR5.14)。
+ * 列挙({@link UnauthorizedReason})・{@code result}({@code hit}・{@code
+ * miss})だけである。ログイン失敗は、原因を区別せず数える(BR5.14)。
  *
  * <p>メーターの名前は、Micrometerの規約(ドット区切り)で登録する。エクスポートの形式(Prometheus形式では{@code _total}が付く、など)は、共通基盤の設定に従う。
  */

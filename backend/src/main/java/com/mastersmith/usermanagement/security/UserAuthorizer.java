@@ -16,6 +16,7 @@
 
 package com.mastersmith.usermanagement.security;
 
+import com.mastersmith.common.security.Operator;
 import com.mastersmith.permission.PermissionEngineApi;
 import com.mastersmith.usermanagement.exception.OperatorUnresolvedException;
 import com.mastersmith.usermanagement.exception.UserAccessDeniedException;
@@ -44,11 +45,13 @@ public class UserAuthorizer {
   }
 
   /**
-   * 管理者向け操作の認可。操作者のuserIdまたはactiveRoleIdを解決できなければ401、{@code canAccessScreen(activeRoleId,
-   * "user-management")}がfalseなら403。
+   * 管理者向け操作の認可。操作者を解決できなければ401、{@code canAccessScreen(activeRoleId, "user-management")}がfalseなら403。
+   *
+   * <p>アクティブロールが未選択(null)でも、自前で401にせず、そのままpermission-engine(C10)へ渡す(C10は、nullを「ロールを持たない」として、fail
+   * closedで 判定する。したがって、未選択は403になる。authentication-serviceの機能設計 BR5.12)。
    */
   public void requireUserAdmin(Operator operator) {
-    if (operator == null || operator.userId() == null || operator.activeRoleId() == null) {
+    if (operator == null) {
       throw new OperatorUnresolvedException();
     }
     if (!permissionEngineApi.canAccessScreen(operator.activeRoleId(), USER_MANAGEMENT_SCREEN_KEY)) {
@@ -59,7 +62,7 @@ public class UserAuthorizer {
 
   /** 自分自身の設定の操作(BR4.8)の認可。操作者のuserIdを解決できれば許可する(canAccessScreenとactiveRoleIdは不要)。 */
   public String requireOperatorUserId(Operator operator) {
-    if (operator == null || operator.userId() == null) {
+    if (operator == null) {
       throw new OperatorUnresolvedException();
     }
     return operator.userId();

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.cache;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -14,13 +30,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * 認証フィルタのSession参照のキャッシュ(NFR3.2、reliability-design.md NFR4.3)。Caffeine(プロセス内)で、キーは{@code sessionId}、値は{@link
- * SessionState}。
+ * 認証フィルタのSession参照のキャッシュ(NFR3.2、reliability-design.md NFR4.3)。Caffeine(プロセス内)で、キーは{@code
+ * sessionId}、値は{@link SessionState}。
  *
  * <ul>
- *   <li>最大件数・書き込みからの有効期間(TTL、安全網)は設定({@code mastersmith.auth.cache.*})。統計を記録し、Micrometerの標準のキャッシュのメトリクス
- *       ({@code cache.gets}、タグ{@code cache=auth-session})で、ヒット・ミスを記録する。
- *   <li>読み込みは、{@code cache.get(sessionId, loader)}(キーごとの原子的な読み込み)。loaderは、主キーで1行を読む。Sessionが存在しない場合は、キャッシュに
+ *   <li>最大件数・書き込みからの有効期間(TTL、安全網)は設定({@code
+ *       mastersmith.auth.cache.*})。統計を記録し、Micrometerの標準のキャッシュのメトリクス ({@code cache.gets}、タグ{@code
+ *       cache=auth-session})で、ヒット・ミスを記録する。
+ *   <li>読み込みは、{@code cache.get(sessionId,
+ *       loader)}(キーごとの原子的な読み込み)。loaderは、主キーで1行を読む。Sessionが存在しない場合は、キャッシュに
  *       入れない(否定的な結果を保持しない)。読み込みが内部設定DBの障害で失敗した場合は、Caffeineは例外を保持せず、次のリクエストで、再び読み込みを試みる。
  *   <li>無効化は、Sessionを書き換える更新が<b>コミットされた後</b>に、{@link #invalidate}を呼ぶ。読み込みの途中に別のスレッドが無効化を呼んだ場合、無効化は、
  *       進行中の読み込みが終わるのを待ってから、その結果を取り除く(Caffeineの、キーごとの原子性による)。

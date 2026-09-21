@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.service;
 
 import com.mastersmith.auth.config.AuthProperties;
@@ -19,8 +35,10 @@ import org.springframework.transaction.support.TransactionTemplate;
  * 期限切れ・失効したSessionの定期削除(NFR4.5、reliability-design.md)。
  *
  * <ul>
- *   <li><b>実行</b>: {@code @Scheduled(fixedDelay)}(前回の終了から、設定の実行間隔ごと)。1回目は、設定の初回の遅延(既定10分)の後。実行中は、次の実行を始めない。
- *   <li><b>削除の対象</b>: {@code refresh_expires_at}が、{@code 現在時刻 − 保持日数}より前のSession(statusを問わない)。有効なSessionは、この条件に該当しない。
+ *   <li><b>実行</b>:
+ *       {@code @Scheduled(fixedDelay)}(前回の終了から、設定の実行間隔ごと)。1回目は、設定の初回の遅延(既定10分)の後。実行中は、次の実行を始めない。
+ *   <li><b>削除の対象</b>: {@code refresh_expires_at}が、{@code 現在時刻 −
+ *       保持日数}より前のSession(statusを問わない)。有効なSessionは、この条件に該当しない。
  *   <li><b>1回のトランザクションの行数の上限</b>: 1,000行(SELECTとDELETEを1つのトランザクションで行う。データベースの方言に依存しないため)。1,000行未満に
  *       なるまで、トランザクションを分けて繰り返す。1回の実行での上限は100バッチ(10万行)で、残りは次の実行で削除する。
  *   <li><b>失敗の扱い</b>: 例外は捕捉し、ERRORログ(例外の型と、それまでに削除した行数)に記録して、その回の実行を終える。認証のリクエストの処理には影響させない。

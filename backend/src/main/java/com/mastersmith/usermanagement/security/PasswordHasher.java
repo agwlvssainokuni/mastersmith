@@ -172,7 +172,9 @@ public class PasswordHasher {
   }
 
   private void doDummyVerify(String rawPassword) {
-    if (rawPassword == null || rawPassword.isEmpty() || PasswordPolicy.exceedsMaxLength(rawPassword)) {
+    if (rawPassword == null
+        || rawPassword.isEmpty()
+        || PasswordPolicy.exceedsMaxLength(rawPassword)) {
       return;
     }
     limiter.runWithPermit(

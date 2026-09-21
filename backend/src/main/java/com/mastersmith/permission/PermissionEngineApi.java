@@ -57,7 +57,9 @@ public interface PermissionEngineApi {
    * 経由でサーバー側検証を行う(project.md Mandated、rules.md BR3.7)。
    *
    * @param activeRoleId 判定対象のロール。実在しない(削除済みを含む)場合は安全側のデフォルト({@link
-   *     EffectivePermission#NONE})を返す(security-design.md「多層防御」)
+   *     EffectivePermission#NONE})を返す(security-design.md「多層防御」)。<b>nullまたは空(アクティブロールが未選択)の場合も、「ロールを持たない」
+   *     として、fail closedで{@link EffectivePermission#NONE}を返す</b>(authentication-service(U5)の機能設計
+   *     BR5.12・追補6番。呼び出し元は、 nullを自前で拒否せず、そのまま渡す)
    * @param scopeType 問い合わせの起点となるスコープ種別
    * @param scopeRef scopeTypeに応じた対象識別子(不透明な識別子として扱う、rules.md BR3.14)
    */
@@ -67,7 +69,9 @@ public interface PermissionEngineApi {
   /**
    * 画面(ユーザ管理・監査ログ閲覧・メニュー項目)へのアクセス可否を判定する(W2、rules.md BR3.10)。
    *
-   * @param activeRoleId 判定対象のロール
+   * @param activeRoleId 判定対象のロール。nullまたは空(アクティブロールが未選択)の場合は、「ロールを持たない」として、fail closedで権限なし(false)と
+   *     判定する。ただし、RBAC設定が1件もない間の例外({@code config-import-export}、rules.md BR3.13)は、{@code
+   *     activeRoleId}にかかわらず適用する (authentication-service(U5)の機能設計 BR5.12・追補6番)
    * @param screenKey 予約キー({@code user-management}/{@code audit-log}/{@code config-import-export})、
    *     またはconfig-engineのtableConfigId(業務メニュー項目)
    */

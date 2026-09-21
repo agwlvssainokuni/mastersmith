@@ -27,6 +27,9 @@ spring:
       # user-management(U4、code-generation-plan.md 前提事項7(c)): 通常の同時処理数50、招待の
       # 上限5(SMTP応答待ちの間、接続を保持する)、入れ子の接続の余裕を見込んだ値。
       maximum-pool-size: 60
+      # authentication-service(U5、code-generation-plan.md 前提事項8、logical-components.md 保留14番): 内部設定DBの
+      # 接続の取得のタイムアウト(3秒)。認証は、内部設定DBの障害を、3秒以内に503にする(NFR4.2)。
+      connection-timeout: 3000
   jpa:
     open-in-view: false
     hibernate:
@@ -74,6 +77,20 @@ management:
   health:
     mail:
       enabled: false
+  # authentication-service(U5、logical-components.md 保留15番): actuatorは、GET /actuator/healthだけを公開する
+  # (ヘルスのグループは設けない)。ヘルスの結果は、5秒間キャッシュする(認証なしの呼び出しが、内部設定DBの接続を、
+  # 5秒に1回を超えて使わないようにする)。その他のactuatorのエンドポイントは、公開設定にも含めない。
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      cache:
+        time-to-live: 5s
+      # ヘルスのグループ(liveness・readinessなど)は設けない(応答は、状態(UP・DOWN)だけ)。
+      probes:
+        enabled: false
 
 # 業務データ用RDBMS(PostgreSQL/MySQL/MariaDB)接続。内部設定DBとは別のDataSourceとして
 # BusinessDataSourceConfig(com.mastersmith.dataio.config)がenabled=trueの場合にのみBeanを
@@ -81,6 +98,32 @@ management:
 # enabled=falseのまま(既定)にしておくことで、data-import-export(U8)を含むCSV
 # エクスポート/インポート機能に依存しない他ユニットの起動に影響を与えない。
 mastersmith:
+  # authentication-service(U5)。トークンの有効期限・ロックのしきい値と時間・再送の猶予・Sessionの削除・キャッシュは、
+  # コードに埋め込まず、ここから与える(NFR8.1、BR5.4)。値の範囲・整合は、起動時に検証し、不備があれば起動を失敗させる。
+  # JWTの署名の鍵は、ここには置かない(既定値も実値も、リポジトリに置かない)。環境変数MASTERSMITH_AUTH_JWT_SECRET
+  # (キーmastersmith.auth.jwt.secret)に、標準のBase64で表した32バイト(256ビット)以上の値を与える。未設定・
+  # Base64として不正・32バイト未満の場合は、起動時に失敗する(値は、エラーに出力されない)。
+  auth:
+    access-token-ttl: 10m
+    refresh-token-ttl: 30m
+    # 更新済みのリフレッシュトークンの再送を許す猶予(BR5.6)。0で猶予なし(元の挙動: 再使用は、即、Sessionを失効させる)。
+    refresh-reuse-grace: 10s
+    lock:
+      threshold: 5
+      duration: 15m
+    session:
+      # 有効期限から、削除するまでの保持期間。
+      retention: 7d
+      cleanup-interval: 1d
+      cleanup-initial-delay: 10m
+      cleanup-batch-size: 1000
+      cleanup-max-batches: 100
+      # trueで、起動時に、すべてのSessionを削除する(バックアップからの復元後・鍵の漏えいの疑いのときの運用の手順)。
+      # 設定を戻さないまま起動を繰り返すと、そのたびに削除される。
+      revoke-all-on-startup: false
+    cache:
+      max-size: 1000
+      ttl: 60s
   # user-management(U4)。Argon2idのパラメータ・同時実行数・タイムアウトはコードに埋め込まず、
   # ここから与える(NFR8.1)。
   users:

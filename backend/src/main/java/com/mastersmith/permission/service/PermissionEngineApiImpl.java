@@ -119,6 +119,11 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
   private EffectivePermission resolveEffectivePermissionUntimed(
       String activeRoleId, ScopeType scopeType, String scopeRef) {
     validateScopeRef(scopeRef);
+    // authentication-service(U5)の機能設計 BR5.12・追補6番: activeRoleIdが未選択(nullまたは空)の場合は、「ロールを持たない」として、
+    // fail closed(権限なし=NONE)で判定する。呼び出し元は、nullを自前で拒否せず、そのまま渡す。
+    if (activeRoleId == null || activeRoleId.isBlank()) {
+      return EffectivePermission.NONE;
+    }
     // security-design.md「多層防御」: activeRoleIdが実在する(削除されていない)Roleであるかどうかの
     // 存在検証のみを入口で行う。存在しなければBR3.6と同じ安全側デフォルトを返す。
     if (!roleRepository.existsById(activeRoleId)) {
@@ -132,7 +137,8 @@ public class PermissionEngineApiImpl implements PermissionEngineApi {
   @Override
   public boolean canAccessScreen(String activeRoleId, String screenKey) {
     // BR3.13(a): ブートストラップ状態に限り、初期管理者が最初のRBAC設定インポート画面へ
-    // 到達できるよう無条件にtrueを返す。
+    // 到達できるよう無条件にtrueを返す。activeRoleIdにかかわらず適用する(ロールを持たない初期管理者
+    // (activeRoleIdが未選択)も、最初のRBAC設定のインポートへ到達できる。authentication-serviceの機能設計 BR5.12)。
     if (CONFIG_IMPORT_EXPORT_SCREEN_KEY.equals(screenKey)
         && bootstrapStateChecker.isBootstrapState()) {
       return true;

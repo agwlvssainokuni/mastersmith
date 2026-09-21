@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.observation;
 
 import java.time.Instant;
@@ -6,7 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 認証の出来事のログの窓口(nfr-design/observability-design.md NFR5.2、security-design.md NFR2.7)。認証の出来事のログは、この部品だけが出力する。
+ * 認証の出来事のログの窓口(nfr-design/observability-design.md NFR5.2、security-design.md
+ * NFR2.7)。認証の出来事のログは、この部品だけが出力する。
  *
  * <p>引数は、userId・sessionId・roleId・日時・分類(列挙型)・件数・所要時間・例外の型名に限る。任意の文字列を渡せないため、パスワード・トークン(平文・ハッシュ)・鍵・
  * メールアドレスを、誤って出力する経路を作らない(BR5.14)。ログイン失敗は、原因の区別も、試行されたメールアドレスも記録しない。例外は、メッセージ全文・SQLを出さず、型名だけを記録する。
@@ -41,9 +58,7 @@ public class AuthEventLogger {
 
   public void sessionRevokedForDisabledUser(String userId, String sessionId) {
     LOG.info(
-        "Session revoked on refresh, user is disabled: userId={}, sessionId={}",
-        userId,
-        sessionId);
+        "Session revoked on refresh, user is disabled: userId={}, sessionId={}", userId, sessionId);
   }
 
   public void loggedOut(String userId, String sessionId) {
@@ -51,8 +66,7 @@ public class AuthEventLogger {
   }
 
   public void activeRoleChanged(String userId, String sessionId, String roleId) {
-    LOG.info(
-        "Active role changed: userId={}, sessionId={}, roleId={}", userId, sessionId, roleId);
+    LOG.info("Active role changed: userId={}, sessionId={}, roleId={}", userId, sessionId, roleId);
   }
 
   public void hashCapacityExceeded() {
@@ -79,14 +93,12 @@ public class AuthEventLogger {
 
   public void cleanupFailed(long deletedRows, Throwable cause) {
     LOG.error(
-        "Session cleanup failed: deletedRows={}, cause={}", deletedRows, cause.getClass().getName());
+        "Session cleanup failed: deletedRows={}, cause={}",
+        deletedRows,
+        cause.getClass().getName());
   }
 
   public void allSessionsRevokedOnStartup(long deletedRows) {
     LOG.warn("All sessions were deleted on startup: deletedRows={}", deletedRows);
-  }
-
-  public void startupSettingRejected(String settingKey) {
-    LOG.error("Invalid authentication setting: key={}", settingKey);
   }
 }

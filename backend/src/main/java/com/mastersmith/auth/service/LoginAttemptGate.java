@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.service;
 
 import com.mastersmith.auth.config.AuthProperties;
@@ -64,8 +80,8 @@ public class LoginAttemptGate {
 
   /**
    * 試行の枠を確保する(予約)。ロック中(未来の{@code lockedUntil})なら確保しない(検証せず、数えず、ロック期間も延長しない)。ロックの解除済みなら、回数を0に戻し、
-   * 世代を進めてから数える。回数がしきい値に達する確保は、同じ更新の中で{@code lockedUntil}も設定する。しきい値以上で{@code lockedUntil}が空の、想定外の状態は、
-   * {@code lockedUntil}を設定して確保しない(自己修復。永続的にロックされたままにならない)。
+   * 世代を進めてから数える。回数がしきい値に達する確保は、同じ更新の中で{@code lockedUntil}も設定する。しきい値以上で{@code
+   * lockedUntil}が空の、想定外の状態は、 {@code lockedUntil}を設定して確保しない(自己修復。永続的にロックされたままにならない)。
    */
   @Transactional(propagation = Propagation.MANDATORY)
   public Reservation reserve(String userId) {
@@ -101,8 +117,8 @@ public class LoginAttemptGate {
   }
 
   /**
-   * 条件付きの補償の更新(ハッシュ計算の上限超過・内部設定DBの障害で、確保した枠を返す)。世代が予約の時点と同じで、回数が0より大きい場合に限り、回数を1戻し、
-   * {@code lockedUntil}が、この予約が設定した値と一致する場合に限り、ロックを解く。条件を満たさない場合(別の試行の成功によるリセット、ロックの解除後の新しい世代の
+   * 条件付きの補償の更新(ハッシュ計算の上限超過・内部設定DBの障害で、確保した枠を返す)。世代が予約の時点と同じで、回数が0より大きい場合に限り、回数を1戻し、 {@code
+   * lockedUntil}が、この予約が設定した値と一致する場合に限り、ロックを解く。条件を満たさない場合(別の試行の成功によるリセット、ロックの解除後の新しい世代の
    * 予約など)は、何もしない(エラーにしない)。
    */
   @Transactional(propagation = Propagation.MANDATORY)

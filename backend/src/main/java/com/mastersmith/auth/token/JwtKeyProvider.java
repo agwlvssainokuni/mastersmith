@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.token;
 
 import java.util.Base64;
@@ -5,9 +21,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
- * JWTの署名の鍵を、{@link Environment}から直接読んで検証し、専用の型({@link SecretKeyMaterial})で保持する(NFR2.2・NFR4.4、BR5.5)。
+ * JWTの署名の鍵を、{@link Environment}から直接読んで検証し、専用の型({@link
+ * SecretKeyMaterial})で保持する(NFR2.2・NFR4.4、BR5.5)。
  *
- * <p>鍵は、環境変数{@code MASTERSMITH_AUTH_JWT_SECRET}(キー{@code mastersmith.auth.jwt.secret})から与える。<b>標準のBase64</b>で表した文字列で、
+ * <p>鍵は、環境変数{@code MASTERSMITH_AUTH_JWT_SECRET}(キー{@code
+ * mastersmith.auth.jwt.secret})から与える。<b>標準のBase64</b>で表した文字列で、
  * デコード後が<b>32バイト(256ビット)以上</b>であること。未設定・Base64として不正・32バイト未満の場合は、起動時に失敗させる。{@code AuthProperties}の
  * 束縛の対象にしないのは、Spring Bootの束縛の失敗の診断が、拒否された値を表示するためである。
  *

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 agwlvssainokuni
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mastersmith.auth.service;
 
 import com.mastersmith.auth.cache.SessionCache;
@@ -39,12 +55,12 @@ import org.springframework.transaction.support.TransactionTemplate;
  * <p><b>トランザクションの境界を、この部品だけが所有する</b>(reliability-design.md NFR4.1): 外側のトランザクションを作らず(クラスにも、メソッドにも
  * {@code @Transactional}を付けない)、C11({@link UserAccountClient})を、トランザクションの外で呼び、内側の短いトランザクションを、{@link
  * TransactionTemplate}で明示的に区切る。ハッシュ計算の許可を待つ間・保持する間は、内部設定DBの接続を保持しない(NFR1.3・BR5.15)。{@link
- * LoginAttemptGate}・{@link SessionService}は、トランザクションに参加するだけ({@code MANDATORY})である。トランザクションのタイムアウトは3秒
- * (内部設定DBが応答しない場合に、長く保持しない、NFR4.2)。
+ * LoginAttemptGate}・{@link SessionService}は、トランザクションに参加するだけ({@code
+ * MANDATORY})である。トランザクションのタイムアウトは3秒 (内部設定DBが応答しない場合に、長く保持しない、NFR4.2)。
  *
  * <p>コミットの後に、{@link SessionCache}を無効化する(コミットより前に無効化すると、その間に別のリクエストが古い内容を読み込んで、キャッシュに入れうる。NFR4.3)。
- * 内部設定DBの障害は、{@link AuthStorageUnavailableException}(503)に変換する。パスワード・トークン・ハッシュ・鍵・メールアドレスを、ログ・メトリクス・例外に出さない
- * (BR5.14)。
+ * 内部設定DBの障害は、{@link
+ * AuthStorageUnavailableException}(503)に変換する。パスワード・トークン・ハッシュ・鍵・メールアドレスを、ログ・メトリクス・例外に出さない (BR5.14)。
  */
 @Service
 public class AuthenticationApplicationService {

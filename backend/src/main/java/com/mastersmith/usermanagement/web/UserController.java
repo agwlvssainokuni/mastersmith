@@ -16,13 +16,12 @@
 
 package com.mastersmith.usermanagement.web;
 
+import com.mastersmith.common.security.Operator;
+import com.mastersmith.common.security.OperatorContext;
 import com.mastersmith.usermanagement.dto.InviteUserRequest;
 import com.mastersmith.usermanagement.dto.UserResponse;
-import com.mastersmith.usermanagement.security.CurrentOperatorProvider;
-import com.mastersmith.usermanagement.security.Operator;
 import com.mastersmith.usermanagement.service.InvitationFacade;
 import com.mastersmith.usermanagement.service.UserApplicationService;
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -40,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
  * C5(user-management REST API)の、管理者向けのユーザー管理: 一覧・招待・更新・無効化({@code /api/users}系、FR2、rules.md
  * BR4.10)。
  *
- * <p>コントローラは、操作者を{@link CurrentOperatorProvider}で解決し、サービスへ渡すだけで、認可({@code
+ * <p>コントローラは、操作者を{@link OperatorContext}(C15、認証フィルタが値を設定する)から読み、サービスへ渡すだけで、認可({@code
  * canAccessScreen}による実効権限の再検証)は、 サービスの入口で必ずサーバー側で行う(NFR2.1)。応答は、{@code passwordHash}・{@code
  * invitationToken}を持たない{@link UserResponse}のみ (NFR2.2)。エラーは、{@link UserApiExceptionAdvice}がRFC
  * 9457のProblemDetailsに変換する。
@@ -51,48 +50,45 @@ public class UserController {
 
   private final UserApplicationService userService;
   private final InvitationFacade invitationFacade;
-  private final CurrentOperatorProvider operatorProvider;
+  private final OperatorContext operatorContext;
 
   public UserController(
       UserApplicationService userService,
       InvitationFacade invitationFacade,
-      CurrentOperatorProvider operatorProvider) {
+      OperatorContext operatorContext) {
     this.userService = userService;
     this.invitationFacade = invitationFacade;
-    this.operatorProvider = operatorProvider;
+    this.operatorContext = operatorContext;
   }
 
   /** ユーザー一覧(W7)。email昇順の全件。 */
   @GetMapping
-  public List<UserResponse> list(HttpServletRequest request) {
-    return userService.list(operator(request));
+  public List<UserResponse> list() {
+    return userService.list(operator());
   }
 
   /** ユーザー招待・再招待(W1、招待メールを送信する)。 */
   @PostMapping
-  public ResponseEntity<UserResponse> invite(
-      @RequestBody InviteUserRequest body, HttpServletRequest request) {
-    UserResponse invited = invitationFacade.invite(operator(request), body);
+  public ResponseEntity<UserResponse> invite(@RequestBody InviteUserRequest body) {
+    UserResponse invited = invitationFacade.invite(operator(), body);
     return ResponseEntity.status(HttpStatus.CREATED).body(invited);
   }
 
   /** ユーザー情報の更新(W3)。更新可能な項目は{@code name}と{@code roleIds}のみ(それ以外の項目の指定は422)。 */
   @PutMapping("/{userId}")
-  public UserResponse update(
-      @PathVariable String userId,
-      @RequestBody Map<String, Object> body,
-      HttpServletRequest request) {
-    return userService.update(operator(request), userId, UpdateUserRequestFactory.from(body));
+  public UserResponse update(@PathVariable String userId, @RequestBody Map<String, Object> body) {
+    return userService.update(operator(), userId, UpdateUserRequestFactory.from(body));
   }
 
   /** ユーザーの無効化・招待の取消(W4)。すでにdisabledなら、冪等に204。 */
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> disable(@PathVariable String userId, HttpServletRequest request) {
-    userService.disable(operator(request), userId);
+  public ResponseEntity<Void> disable(@PathVariable String userId) {
+    userService.disable(operator(), userId);
     return ResponseEntity.noContent().build();
   }
 
-  private Operator operator(HttpServletRequest request) {
-    return operatorProvider.resolve(request);
+  /** 認証フィルタが設定した操作者(C15)。解決できなければnull(サービスの入口の認可が、401にする)。 */
+  private Operator operator() {
+    return operatorContext.current().orElse(null);
   }
 }
