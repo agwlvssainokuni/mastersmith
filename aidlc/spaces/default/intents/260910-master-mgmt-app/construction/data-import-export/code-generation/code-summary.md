@@ -49,3 +49,19 @@
 ## 修正した既知の回帰
 
 実装中の全体テスト実行で、既存の`ConfigEngineFailFastStartupTest`(Spring Boot全体起動を伴う統合テスト)が、新規`CsvExportService`が`businessDataSource`Beanを無条件に要求することによる起動失敗を起こしていた。`CsvExportService`に`BusinessDataSourceConfig`と同じ`@ConditionalOnProperty(prefix = "mastersmith.business-datasource", name = "enabled", havingValue = "true")`を付与し解消した(`CsvImportService`・`DataImportExportApiImpl`は実装時点から同条件を付与済み)。
+
+## 再レビュー(iteration 1、NOT-READY)への修正(2026-09-21)
+
+本ユニットは、Code Generationのレビュー導入前に作成されたため、初回のアーキテクチャレビューで、重要度の高い指摘4件と細かい指摘3件(`reviews/review-01.md`)を受けた。次のとおり修正した(詳細・`[assumption]`は`code-generation-notes.md`)。
+
+| 指摘 | 対処 |
+|---|---|
+| R-01(主キー値が数値に変換できない行が、ファイル全体の形式エラーになる) | 主キー列自体の検証に失敗した行では存在確認を呼ばず、行単位エラーのみ返す。`CsvFormatException`をCSVパース由来の失敗に限定 |
+| R-02(エクスポートした日時が、インポートで読めない) | `CsvValueFormatter`(新規)で、エクスポート値をインポートが受け付ける正規形式(日付`yyyy-MM-dd`、日時は`T`区切りのISO 8601、真偽値`true`/`false`、数値は指数表記なし)に整形。往復テスト`CsvRoundTripTest`を追加 |
+| R-03(ストリーミングが対象RDBMSで効かない) | 読み取り専用+自動コミット無効のコネクションと、ドライバ別のfetchSize(PostgreSQLほかは500、MySQL/MariaDBは`Integer.MIN_VALUE`)。**実RDBMSでの検証は未実施**(JDBCモックによる呼び出し順序の確認のみ。Build and Test以降の課題) |
+| R-04(空セル・ヘッダーにない列が、既存値をNULLで上書きする) | CSVヘッダーにない列は、UPDATEでは対象外(既存値を維持)、INSERTでは`required`のみエラー。空セルは、`required`でなければNULL(`[assumption]`) |
+| R-05〜R-07(細かい指摘) | 呼び出し元の`OutputStream`を閉じない、識別子の引用符(`SqlIdentifiers`、新規)、0件更新は全体ロールバック、コミット時のDB制約違反は行エラー+`ImportExecutedEvent(committed=false)`、テストの拡充。1行ごとの存在確認(N+1)は、照合順序・数値表現の食い違いを避けるため維持(H2で10万行の計測は追記のとおり) |
+
+- テスト: dataio配下は6クラス・94件(修正前は27件)。プロジェクト全体は1,389件、失敗0。行カバレッジは全体93.1%(フロア80%)。
+- 残る懸念: R-03の実DB検証。コミット時の制約違反の`RowError.field`が番兵値`*`であること(frontend-uiの扱いの確認)。ドライバ別の前提(接続URLで`useAffectedRows=true`を指定しない、MySQL/MariaDBはストリーミング中に同じ接続で他のSQLを発行しない)をBuild and Testの手順へ反映すること。
+- `unit-test-instructions.md`は、承認済みの内容のため編集していない。記述(`@SpringBootTest`など)と実態(`CsvImportServiceTest`は`@SpringJUnitConfig`+独立H2)に差異がある。
