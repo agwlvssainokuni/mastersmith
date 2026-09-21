@@ -126,6 +126,10 @@
 
 
 
+- **Active Unit**: data-import-export
+
+- **Unit State**: in-progress
+
 ## Phase Progress
 <!-- Status values: Pending, Active, Verified, Skipped -->
 
@@ -187,7 +191,7 @@ Per unit: [TBD]
 - **Current Stage**: code-generation
 - **Next Stage**: build-and-test
 - **Status**: Running
-- **Last Updated**: 2026-09-21T03:21:30Z
+- **Last Updated**: 2026-09-21T03:22:43Z
 
 ## Session Resume Point
 - **Last Completed Stage**: delivery-planning
