@@ -41,6 +41,7 @@ Domain Designのコンポーネントカタログ(`inception/domain-design/compo
 | menu-navigation | permission-engine | sync(照会) | メニュー項目表示可否判定 |
 | audit-logging | permission-engine | sync(照会) | 監査ログ閲覧画面アクセス権限判定 |
 | authentication-service | user-management | sync(照会/更新) | ユーザー情報・パスワードハッシュ・ロック状態 |
+| schema-introspector, user-management, menu-navigation, audit-logging(今後、list-engine, record-edit-engine, config-import-export) | 共通基盤の契約(C15: `Operator`・`OperatorContext`、`com.mastersmith.common.security`) | sync(照会、読み取りのみ)、DAGのエッジ対象外(葉の共有契約) | 認証済みの操作者(userId・sessionId・activeRoleId)の取得。値の設定と実装は、authentication-serviceの認証フィルタ(U5のCode Generationで実装、Code Generation着手時の追補)。読み取り側は、authentication-serviceのコンポーネントを呼ばない(authentication-service→user-managementの依存(C11)と循環しない)。変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する |
 | config-import-export | config-engine, menu-navigation, permission-engine | sync(集約) | 設定一式のexport対象取得・import結果書戻し |
 | data-import-export | config-engine | sync(照会) | カラム定義・バリデーションルール取得 |
 | list-engine | config-engine, permission-engine, authentication-service | sync(照会) | 表示設定・権限判定・アクティブロール取得 |

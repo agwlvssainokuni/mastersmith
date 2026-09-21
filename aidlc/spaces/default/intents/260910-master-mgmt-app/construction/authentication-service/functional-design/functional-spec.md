@@ -216,3 +216,38 @@ erDiagram
 | 4 | 再送の猶予とトークンの損失 | 猶予内の再送は、新しいトークンを返さない。最初の応答を失ったクライアントは、再ログインになる | 受容(誤失効による、全端末の再ログインよりも、影響が小さいため)。猶予の長さは、人間の確認を得る |
 | 5 | 猶予内の盗用の検知の遅れ | 猶予(既定10秒)内に、盗まれた古いトークンが提出されても、Sessionは失効しない(401で、新しいトークンは得られないため、被害は限られる)。盗用の検知は、猶予を超えた再使用まで遅れる | 受容。Q5=Aとの差異として、承認ゲートで人間の確認を得る。猶予を0にすれば、元の挙動になる |
 | 6 | 検知範囲の限界(1世代) | `previousRefreshTokenHash`は直前の1世代だけを保持する。2世代以上前の盗まれたトークンは、「未知」と区別されず、盗用の検知にならない | 受容(MVP)。世代の履歴を持つ案は、NFR Designで、必要性を検討する |
+
+## Code Generation着手時の追補
+
+Code Generationの計画承認(`code-generation/code-generation-plan.md`の前提事項1〜5)で確定した内容を、本設計への追補として記録する。既存の記述は書き換えない(機能設計の追補一覧の9番・12番、NFR Designの保留10〜16・18〜20番の扱い)。
+
+### 確定した実装の判断
+
+| 番号 | 対象 | 確定した内容 |
+|---|---|---|
+| 1 | 認証の基盤のライブラリ(`nfr-requirements/tech-stack-decisions.md`の確認事項3) | `spring-boot-starter-security`のフィルタチェーン(`SecurityFilterChain`。認証の要否の規則・セキュリティヘッダー・ステートレス・CSRF無効・CORSなし)と、Nimbus JOSE + JWT(`com.nimbusds:nimbus-jose-jwt`)の直接利用とする。OAuth2 Resource Serverは用いない。理由: (a)署名方式をHS256だけに限定し、時計のずれの許容を0にし、`sub`とSessionの`userId`を照合し、すべての失敗を同一の401にする、という要件を、自前の認証フィルタのほうが確実に制御できる。(b)認証の成否がSession(キャッシュ経由のDB)の状態に依存するため、JWTの検証だけでは完結しない。Nimbusは、Spring Boot BOM・Spring Security BOMの管理対象外のため、最新の安定版(10.10)を固定する |
+| 2 | パッケージ | 本体は`com.mastersmith.auth`(`entity`・`repository`・`dto`・`service`・`token`・`security`・`cache`・`web`・`config`・`exception`・`observation`)。C14の`SessionContextApi`は`com.mastersmith.auth`直下(C11の`UserAccountLookupApi`と同じ流儀)。C15(`Operator`・`OperatorContext`)は、共通基盤の契約(shared kernel)として`com.mastersmith.common.security`(NFR Designの保留10番の確定) |
+| 3 | 設定キー | `mastersmith.auth.*`(user-managementの`mastersmith.users.*`と揃える。NFR Designの`auth.*`は、この`mastersmith.`配下の相対名)。既定値は、NFR Requirements・NFR Designのとおり。JWTの鍵は、環境変数`MASTERSMITH_AUTH_JWT_SECRET`(キー`mastersmith.auth.jwt.secret`)から、`JwtKeyProvider`が`Environment`を通して直接読み、`@ConfigurationProperties`の束縛の対象にしない(値を例外・ログに出さないため)。リポジトリの`application.yml`には、既定値も実値も置かない(未設定なら起動失敗)。テスト用の`application.yml`には、テスト専用のダミーの鍵を置く |
+| 4 | 移行スクリプト | `V5__create_authentication.sql`(`auth_session`・`account_login_state`。列・制約・インデックスは`nfr-design/scalability-design.md` NFR3.4のとおり。`user_id`のインデックスは設けない)。JPAのDDL自動生成には委ねず、`ddl-auto: validate`のまま(保留16番の採番: 既存の`V1`〜`V4`の続き) |
+| 5 | リフレッシュの再送の猶予 | 機能設計の`[assumption]`(Q5=Aとの差異)のとおり実装する。`mastersmith.auth.refresh-reuse-grace`(既定10秒、0で猶予なし=Q5=Aの元の挙動)で変更できる。この差異の最終確認は、機能設計ステージの承認ゲートで人間が行う(Code Generationの計画承認は、これを代替しない) |
+| 6 | 全Sessionの失効 | `mastersmith.auth.session.revoke-all-on-startup`(既定false)は、`SmartInitializingSingleton`で、Webサーバーがリクエストを受け付ける前に実行する(テストで確認) |
+
+### NFR Designの保留(共通基盤・他ユニットへの要求)の扱い
+
+| 保留番号 | 扱い | 内容 |
+|---|---|---|
+| 10 | 実装 | C15のパッケージ`com.mastersmith.common.security`の確定。`contract-summary.md`の契約表・所有規則と、`unit-of-work-dependency.md`の統合ポイント表へ、追補を記録した |
+| 11 | 実装 | schema-introspector(U2)・user-management(U4)・menu-navigation(U6)・audit-logging(U7)の暫定の操作者取得(ヘッダー方式)を削除し、`OperatorContext`を読む実装へ置き換えた(コントローラ・サービスの入口は変えない)。既存のテストは、`OperatorContext`を差し替える形へ更新した |
+| 12 | 実装 | permission-engine(U3)の`canAccessScreen`・`resolveEffectivePermission`が、`activeRoleId`のnull・空を、fail closed(NONE)として扱う。RBAC設定が空の間の`config-import-export`の例外は、`activeRoleId`にかかわらず適用する。テーブル駆動テストを追加した |
+| 13 | 実装 | C11の`findByUserId`・`dummyVerify`(129文字以上は計算しない、`HashConcurrencyLimiter`を共有)を、user-management(U4)に追加した。`revokeRefreshTokensOnDisable`は、U4で実装済みではなく、契約から削除する追補だけを行った。`HashCapacityExceededException`は、すでに公開されている |
+| 14 | 実装(設定) | 接続の取得のタイムアウト3秒(`spring.datasource.hikari.connection-timeout: 3000`)を設定した。最大サイズ(60)は、user-managementの見込みに余裕を含む値で、変更しない。`spring.jpa.open-in-view=false`は、設定済み(接続を保持しない不変条件を、テストで確認) |
+| 15 | 一部を実装、残りは本Boltの対象外 | 実装: `management.endpoints.web.exposure.include: health`(`GET /actuator/health`だけを公開)、ヘルスの結果の5秒間のキャッシュ、ヘルスのグループを設けない設定、H2コンソールの無効(設定済み)。対象外(共通基盤・環境の担当): メトリクスのエクスポート形式(Prometheus/OTLP)・トレースの実装・構造化ログ・`RequestLogFilter`・HSTS(フォワードヘッダーの設定かリバースプロキシでの付与を、環境の前提とする) |
+| 16 | 記録 | 移行スクリプトの採番は、既存の`V1`〜`V4`の続きの`V5`とする。U5は`auth_session`・`account_login_state`を所有する |
+| 17 | 記録のみ(U12) | frontend-ui(U12)への要求(401でリフレッシュして再試行・503を認証の失敗と区別・`code`から文言を選ぶ・初期のCSPで動くこと・SPAのルートは静的ファイルとして認証なしで返る)。本Boltでは実装しない |
+| 18 | 実装(契約の追補) | 503・413・400・`Cache-Control: no-store`・`WWW-Authenticate: Bearer`・ProblemDetailsの`code`(i18nキー)を、実装し、`contract-summary.md`のC4への追補として記録した。U4(フィールド単位のエラーの`errors[].message`にi18nキー、`code`なし)との規約の分担も記録した。`instance`には、生のパスを入れない |
+| 19 | 環境側の前提として記録 | `revoke-all-on-startup`による全Sessionの削除の手順(バックアップからの復元後・鍵の漏えいの疑いのとき、設定を戻すことを含む)。運用フェーズが本MVPスコープ外のため、担当が定まるまで、環境側の前提とする。設定そのものは、実装した |
+| 20 | 実装(U5側)、U10・U11への要求は記録のみ | `AuthCrossCuttingExceptionAdvice`(対象の例外の型をU5の3つに限定、`@Order`を明記)を実装した。list-engine(U10)・record-edit-engine(U11)が、C14の例外を握りつぶさず伝播させることは、両ユニットの実装時の要求として記録する |
+
+### 本Boltで実装しないもの
+
+フロントエンド(U12)・複数プロファイル横断E2Eテスト(U12・統合の担当)・共通基盤の観測の設定(メトリクスのエクスポート・トレース・構造化ログ)・HSTS(環境の前提)・ログイン・ログアウト・ロックの監査ログのイベント(機能設計の`[assumption]`のとおり発行しない。ロックの検知はメトリクス)。残余リスク(ロックを悪用した締め出し・パスワードスプレー・猶予内の盗用の検知の遅れ・検知範囲の1世代の限界)は、機能設計の判断のとおり受容(MVP)とし、新たな対策は加えない。

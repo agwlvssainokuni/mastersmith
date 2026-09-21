@@ -30,6 +30,7 @@
 | C12 | menu-navigation (U6) | config-import-export (U9) | Javaインタフェース(shared-schema、同一プロセス内) | menu-navigation |
 | C13 | data-import-export (U8) | list-engine, record-edit-engine | Javaインタフェース(shared-schema、同一プロセス内) | data-import-export |
 | C14 | authentication-service (U5) | list-engine, record-edit-engine | Javaインタフェース(shared-schema、同一プロセス内) | authentication-service |
+| C15 | 共通基盤(shared kernel、実装・値の設定はauthentication-service (U5)) | schema-introspector (U2), user-management (U4), menu-navigation (U6), audit-logging (U7)(読み取りのみ)、list-engine, record-edit-engine, config-import-export(今後、読み取りのみ) | Javaインタフェース(shared-schema、同一プロセス内、`com.mastersmith.common.security`) | 共通基盤(Contract Ownership Rulesの例外、変更には、authentication-serviceと、すべての読み取り側のユニットの合意を要する) |
 
 C14は、レビュー指摘R-01により追加した契約である。`unit-of-work-dependency.md`はlist-engine/record-edit-engineが「セッションのアクティブロール取得」のためauthentication-serviceへ同期依存すると明記しているが、当初のcontract-summary.mdにはC4(authentication-serviceのfrontend-ui向けREST契約)しか存在せず、この同一プロセス内境界が契約化されていなかった。C14はこの欠落を埋める。
 
@@ -412,6 +413,16 @@ components:
 
 **既知の未解消フォローアップ(unit-of-work.md U5引継ぎ事項)**: ログイン失敗ロックアウトの閾値・ロック時間は要件定義書FR2.7では「管理画面から設定可能」とされているが、本契約はDomain Design/Units Generationで確定した`application.yml`方式を前提とする。この不一致は要件定義書側の文言修正待ちであり、Construction(機能設計)で必ず解消すること。
 
+**C4への追補(Contract Design追補、authentication-service Code Generation着手時、`construction/authentication-service/functional-design/functional-spec.md`の追補一覧2・3・12番と、NFR Design(`nfr-design/security-design.md` NFR2.8・NFR2.9・NFR2.10、`logical-components.md` 保留18番)を反映)**: 既存の記述は書き換えず、次を追補として加える。既存コンシューマー(frontend-ui)は未知の項目・レスポンスコードを一般的な処理で扱う前提のため、加法的変更として本契約の所有者(authentication-service)の判断で追加する(Contract Ownership Rules参照)。
+
+- **ログインのレスポンス(200)**: `activeRoleId`(string、未選択ならnull)を追加する。`roles`は、直接付与分とGroup経由分の和集合(選択可能なロール)である。ロールがちょうど1つのユーザーは、ログイン時に、そのロールが自動的に選択される(`activeRoleId`に入る)。
+- **リフレッシュ**: リクエストのリフレッシュトークンを使うたびに、新しいリフレッシュトークンを発行し(ローテーション)、レスポンス(200)を`{ accessToken, refreshToken, roles, activeRoleId }`とする(当初の`{ accessToken }`だけの記述の追補。ページの再読み込みのあとも、ロール選択・ヘッダーの表示ができる、FR4.2)。401は、未知・期限切れ・失効済み・再送の競合(猶予内)・盗用の疑いのいずれも区別しない、同一の応答とする。リフレッシュ時に、選択済みのロールがユーザーの選択可能なロールに含まれなくなっていた場合は、未選択(null)に戻し、残りがちょうど1つならそのロールを自動選択する(応答の`activeRoleId`で知らせる)。
+- **アクティブロールの選択(`PUT /api/auth/active-role`)**: 200のレスポンスは`{ activeRoleId }`(選択したロール)。保持していないロール(空・nullを含む)の指定は403で、Sessionは変更しない。
+- **エラーの追加**: 全エンドポイントに、503(内部設定DBの障害、ハッシュ計算の待機超過。ログインでは、実際の検証・ダミーの検証のどちらでも同じ503)・413(リクエストボディが64KiBを超えた)・400(JSONの形式が不正)を追加する。認証フィルタが認証を要するすべてのAPIに返す401・503も、同じ形式である(「前提(全契約に共通)」の認証の記述への、加法的な追記。他ユニットのREST契約C1〜C3・C5〜C8のレスポンスには、個別に追加しない)。
+- **ProblemDetailsの拡張メンバー`code`(i18nキー)**: `auth.login.failed`(ログイン失敗、全原因)・`auth.token.invalid`(認証フィルタの失敗、全原因。`WWW-Authenticate: Bearer`を付ける)・`auth.refresh.rejected`(リフレッシュの失敗、全原因)・`auth.role.not-held`(403)・`auth.service.unavailable`(503)・`auth.request.too-large`(413)・`auth.request.malformed`(400)。加えて、認証の要否の規則による拒否(403)は`auth.forbidden`、分類できない例外(500)は`auth.internal-error`。`instance`には、生のパスを入れない(ルートのテンプレート、またはフィルタでは省略)。フィールド単位のエラー(`errors[]`)は、C4にはない(user-managementのC5は、`errors[].message`にi18nキーを入れ、`code`を持たない。frontend-uiは、`errors`があればフィールド単位のキー、なければ`code`から、文言を選ぶ)。
+- **応答ヘッダー**: `/api/**`のすべての応答(ログイン・リフレッシュを含む)に`Cache-Control: no-store`を付ける。全応答に、`Referrer-Policy: no-referrer`・`X-Content-Type-Options: nosniff`・`Content-Security-Policy`(初期値は、同じオリジンのみ)を付ける。Cookieは使わず、`Set-Cookie`を返さない(ステートレス、CSRF保護は不要)。
+- **既知の未解消フォローアップの解消**: 上の「既知の未解消フォローアップ(unit-of-work.md U5引継ぎ事項)」(FR2.7の文言の不一致は未解消)は、**要件定義書の追補(`inception/requirements-analysis/requirements.md`の末尾)で解消済み**である(ロックの閾値・ロック時間は`application.yml`で設定可能。管理画面での編集UIは設けない)。元の記述は、履歴として残す。
+
 ### C5: user-management REST API(FR2, FR9, FR10.1)
 
 ```yaml
@@ -753,6 +764,8 @@ methods:
     returns: boolean
 ```
 
+**C10への追補(Contract Design追補、authentication-service Code Generation着手時、functional-spec.md 追補一覧6番・rules.md BR5.12を反映)**: `resolveEffectivePermission(activeRoleId, ...)`・`canAccessScreen(activeRoleId, screenKey)`は、`activeRoleId`がnullまたは空(アクティブロールが未選択)のときは、「ロールを持たない」として、fail closed(権限なし=NONE・false)で判定する。ただし、RBAC設定が1件もない間の例外(`canAccessScreen(_, "config-import-export")`、rules.md BR3.13(a))は、`activeRoleId`にかかわらず適用する(ロールを持たない初期管理者も、最初のRBAC設定のインポートへ到達できる)。呼び出し元は、nullを自前で拒否せず(401にせず)、そのままC10へ渡す(操作者そのものが解決できない場合だけ401)。既存のメソッドのシグネチャ・既存の振る舞い(実在しないロールはNONE、など)は変えない(意味の追補であり、加法的変更)。
+
 ### C11: user-management → authentication-service 内部インタフェース契約
 
 ```yaml
@@ -789,6 +802,14 @@ shared-schema:
 - **`HashCapacityExceededException`**: ハッシュ計算の同時実行数の許可を、待機の上限(既定2秒)内に取れなかった場合に、`verifyPasswordHash`が投げる非チェック例外(`com.mastersmith.usermanagement`パッケージ)。HTTPへの変換(503)は、呼び出し元(authentication-service)が行う。
 - **呼び出し元(authentication-service、U5)への要求**: C11の各メソッドを、**トランザクションの外で呼ぶ**こと(ハッシュ計算の許可を保持している間はDB接続を取らない、というuser-managementの資源の取得順序の不変条件を保つため。NFR Design保留9番、レビュー指摘R-11の既定の解決)。
 - **`revokeRefreshTokensOnDisable`の扱い(契約からの意図的な差異)**: 呼び出し方向が契約上曖昧で未確定であるため(functional-spec.md Open Questions)、user-management(U4)のCode Generationでは実装しない。`UserAccountLookupApi`は、`findByEmail`・`verifyPasswordHash`・`isDisabled`の3メソッドで定義する。FR2.3の「以後の再認証はできない」は、`isDisabled`が常に最新のstatusを返すこと(BR4.13)で担保する。authentication-service(U5)の機能設計で方向が確定した時点で、本メソッドを追加する。
+
+**C11への追補(Contract Design追補、authentication-service Code Generation着手時、functional-spec.md 追補一覧4番・11番、NFR Designの保留13番を反映)**: 既存の記述は書き換えず、次を追補として加える。
+
+- **`findByUserId(userId: string): Optional<UserAccount>`を追加する**: アクセストークンが`sub`(userId)しか運ばないため、リフレッシュ・ロール選択で、最新の選択可能なロールを得る。`UserAccount.roleIds`は、直接付与分とGroup経由分の和集合、`passwordHash`は常にnull。statusは問わない(不存在の場合だけ空)。nullまたは空のuserIdは、空を返す。
+- **`dummyVerify(rawPassword: string): void`を追加する**: ユーザーを指定しないダミーの検証。実際の検証(`verifyPasswordHash`)と同じコストのハッシュ計算を、同じハッシュ計算の同時実行数の上限を共有して行い、結果は返さない。129文字以上のパスワード(およびnull・空)は、ハッシュ計算をしない(`verifyPasswordHash`と同じ扱い)。上限を超えた場合は`HashCapacityExceededException`。呼び出し元が、実際の検証を行わない場合(未登録・招待中・無効化済み・ロック中)に、応答時間と503の有無を、実際の検証と揃えるために用いる。
+- **`revokeRefreshTokensOnDisable`を削除する**: 呼び出し方向が確定しない(Open Questions)まま、user-managementでは、当初から実装しなかった。authentication-serviceの機能設計で、引き込み型(リフレッシュ時に`isDisabled`を確認して拒否し、Sessionを失効させる)に確定したため、契約から削除する(FR2.3の「以後の再認証はできない」は、`isDisabled`が常に最新のstatusを返すことと、ログイン・リフレッシュでの拒否で担保する)。
+- **`HashCapacityExceededException`の型の公開**: `com.mastersmith.usermanagement`パッケージの非チェック例外として、すでに公開されている(呼び出し元が、補償と503への変換を行う)。
+- 上記の追加は、いずれも加法的な変更(既存のメソッド・既存の振る舞いは変えない)であり、実装は、authentication-serviceのCode Generationの範囲で、user-management(U4)のコードに加える(`UserAccountLookupApi`・`UserAccountLookupService`・`PasswordHasher`)。
 
 ### C12: menu-navigation → config-import-export 内部インタフェース契約
 
@@ -867,6 +888,35 @@ shared-schema:
       httpMapping: N/A(内部呼び出し、Java例外)
 ```
 
+**C14への追補(Contract Design追補、authentication-service Code Generation着手時、functional-spec.md 追補一覧5番・rules.md BR5.13を反映)**: `getActiveRoleId(sessionId)`は、アクティブロールが未選択の場合に、**nullを返す**(`returns: string`は、nullを含む)。呼び出し元は、nullをそのままC10へ渡し、権限なしとして判定させる(BR5.12)。Sessionが存在しなければ`SessionNotFoundException`、Sessionが有効でない(revoked、またはリフレッシュの有効期限の経過、BR5.11の定義)なら`SessionExpiredException`を投げる。内部設定DBの障害で、Sessionを確認できない場合は、`AuthStorageUnavailableException`(非チェック例外、`com.mastersmith.auth.exception`)を投げる。3つの例外は、他ユニットのリクエスト処理の中で握りつぶさず、そのまま伝播させる(401・401・503への変換は、authentication-serviceの`AuthCrossCuttingExceptionAdvice`が担う)。
+
+### C15: 共通基盤の操作者の契約(Operator・OperatorContext、新規、authentication-service Code Generation着手時に追加)
+
+```yaml
+shared-schema:
+  interface: OperatorContext
+  package: com.mastersmith.common.security
+  consumers: [schema-introspector, user-management, menu-navigation, audit-logging]
+  note: >
+    認証済みのリクエストの操作者を、他ユニットが読むための、中立の共有契約(共通基盤の契約、shared kernel。
+    functional-spec.md 追補一覧9番・rules.md BR5.12)。authentication-serviceの業務ロジックに依存しない型と
+    読み取りインタフェースだけで構成する。値を設定する側の実装(SecurityContextOperatorContext)は、
+    authentication-serviceの認証フィルタ(BearerAuthenticationFilter)が提供し、他ユニットは、この契約だけを読む
+    (authentication-serviceのコンポーネントを呼ばない)。ヘッダー(X-User-Id・X-Active-Role-Id)から
+    操作者を導く実装は、どのプロファイルにも置かない(暫定のHeaderCurrentOperatorProvider・HeaderActiveRoleResolverは削除した)。
+  methods:
+    - name: current
+      description: 現在のリクエストの操作者を返す(読み取り専用)。認証されていない(解決できない)場合は空。
+      returns: "Optional<Operator>"
+  types:
+    Operator: { userId: string, sessionId: string, activeRoleId: "string | null" }
+  constraints:
+    - 操作者が解決できる(認証済み)なら、activeRoleIdがnullでも、Operatorは存在する。activeRoleIdがnullであることは、認証エラー(401)ではなく権限なし(403)を意味する。
+    - 読み取り側は、activeRoleIdのnullを、自前で拒否せず(401にせず)、そのままC10へ渡す。操作者そのものが解決できない場合だけ401。
+```
+
+**契約の所有と変更(Contract Ownership Rulesの例外)**: C15は、プロバイダー側ユニットが所有する規則の例外として、共通基盤の契約(shared kernel)とする。変更(型・メソッドの追加・変更・削除)には、**authentication-serviceと、すべての読み取り側のユニットの合意を要する**(加法的変更であっても、単独の判断では行わない)。依存の方向は、読み取り側 → 共通基盤の契約の一方向で、DAGの葉である(`unit-of-work-dependency.md`のDAGは変わらない)。
+
 ## Contract Ownership Rules
 
 - 各契約(REST/インタフェースいずれも)は**プロバイダー側ユニットが所有**する。コンシューマー側ユニットは契約の変更を提案できるが、確定はプロバイダー側の合意を要する(`contract-design-questions.md` Q3=A)。
@@ -875,10 +925,13 @@ shared-schema:
 - バージョン番号・URLパスバージョン予約は一切行わない(Q4回答による明示的な簡素化)。契約変更はGitのコミット履歴・本ファイルの更新によって追跡する。
 - C5/C11、C3/C12のように同一ユニットが複数の異なる境界向けに契約を持つ場合、境界ごとに独立して変更してよい(REST契約の変更が内部インタフェース契約に自動的に影響することはない)。
 
+- **共通基盤の契約(shared kernel)の例外(C15)**: 業務ロジックに依存しない、中立の型と読み取りインタフェースで、複数のユニットが読む契約(C15の`Operator`・`OperatorContext`)は、プロバイダー側ユニットの単独の判断では変更できない。変更には、値を設定する側のユニット(authentication-service)と、すべての読み取り側のユニットの合意を要する(Code Generation着手時の追補)。
+
 ## Open Questions
 
 | Contract | Question | Blocks |
 |---|---|---|
 | C4 | FR2.7(ログイン失敗ロックアウト)の要件定義書文言(「管理画面から設定可能」)と本契約の前提(`application.yml`方式)の不一致は未解消。要件定義書側の文言修正が必要 | Functional Design(3.1)着手前に要件定義書FR2.7の文言修正を完了させること |
+| C4(解消済み) | 上のFR2.7の不一致は、要件定義書の追補(`inception/requirements-analysis/requirements.md`の末尾)で解消済み(authentication-service Code Generation着手時の追補、C4への追補の最後の項目を参照) | — |
 | C1/C2 | 検索条件・フィールドの詳細スキーマ(`filter`パラメータ・`fields`オブジェクトの具体的なプロパティ)は、config-engineの動的な設定内容に依存するため、本契約では意図的にフリーフォーム(`additionalProperties: true`)としている。具体的なテーブル別スキーマはFunctional Design(3.1)で確定する | Functional Design(list-engine, record-edit-engine Unit) |
 | C4 | パスワードハッシュ化アルゴリズム(bcrypt/argon2等)の具体的選定は未定(`requirements.md` Open Questions継続) | Functional Design(authentication-service Unit)・NFR設計 |

@@ -328,3 +328,13 @@ rules:
 | BR5.14 | constraint | パスワード・トークン・鍵の非出力、失敗の原因の区別を出さない |
 | BR5.15 | policy | ハッシュ計算の上限超過は、実際・ダミーの検証のどちらでも同じ503(失敗に数えない)、C11はトランザクションの外 |
 | BR5.16 | constraint | 無効化されたユーザーの扱いの分担(ログイン・リフレッシュで拒否、押し出し・ロック表示・復帰はMVP対象外) |
+
+## Code Generation着手時の追補
+
+Code Generationの実装で確定した、ルールの実装上の取り扱いを、追補として記録する(既存のルールの記述は書き換えない。詳細は、`functional-spec.md`の「Code Generation着手時の追補」)。
+
+- **BR5.4(設定値の検証)**: `mastersmith.auth.*`の各設定(アクセストークン・リフレッシュトークンの有効期限、再送の猶予、ロックのしきい値・ロック時間、Sessionの削除の保持・実行間隔・初回の遅延・バッチの行数・バッチ数、キャッシュの最大件数・TTL、`session.revoke-all-on-startup`)は、`AuthProperties`(`@ConfigurationProperties`+検証)が、起動時に検証し、不備があれば起動を失敗させる。JWTの鍵は、`AuthProperties`に含めず、`JwtKeyProvider`が、`Environment`から直接読んで検証する(未設定・標準のBase64として不正・デコード後が32バイト未満で、起動失敗。例外のメッセージには、設定のキーの名前と理由だけを含め、値を含めない)。
+- **BR5.11(認証フィルタ)**: `BearerAuthenticationFilter`は、認証を要するパス(`/api/**`から、ログイン・リフレッシュ・招待受諾の3つを除いたもの)だけに適用する(`shouldNotFilter`)。認証不要のパスでは、`Authorization`ヘッダーの有無・内容にかかわらず、何も検証しない。`SecurityFilterChain`の規則(認証の要否)と、フィルタの適用範囲は、同じ`RequestMatcher`(`AuthRequestRules`)を用いる。
+- **BR5.12(Operatorの共有契約C15)**: `Operator`・`OperatorContext`を`com.mastersmith.common.security`に置き、実装(`SecurityContextOperatorContext`)は、認証フィルタが設定した認証(`OperatorAuthentication`)から読む。U3のC10は、`activeRoleId`のnull・空を、fail closedで扱う。U2・U4・U6・U7は、`OperatorContext`を読む(nullを自前で拒否しない。操作者そのものが解決できない場合だけ401)。
+- **BR5.13(C14)**: `SessionContextService`が、認証フィルタと同じ`SessionCache`から、Sessionを引く。内部設定DBの障害は、`AuthStorageUnavailableException`(503)。
+- **BR5.15(ハッシュ計算の上限超過)**: `UserAccountClient`が、C11の呼び出しを包み、内部設定DBの障害を`AuthStorageUnavailableException`に変換する(`HashCapacityExceededException`は、そのまま伝える)。`AuthenticationApplicationService`が、トランザクションの境界を所有し(外側のトランザクションを作らず、C11をトランザクションの外で呼ぶ)、条件付きの補償の更新と503への変換を行う。
